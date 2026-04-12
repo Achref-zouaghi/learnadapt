@@ -1,0 +1,1074 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}Task Board — LearnAdapt{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.3)}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+
+/* ══ SITE ══ */
+.kb{min-height:100vh;padding:100px 0 60px;display:flex;justify-content:center;background:transparent;position:relative;z-index:1}
+.kb-wrap{width:100%;max-width:1320px;margin:0 auto;padding:0 32px}
+
+/* ══ HEADER ══ */
+.kb-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px}
+.kb-head h1{font-size:1.85rem;font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--purple),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.kb-head p{color:var(--muted);font-size:0.84rem;margin-top:4px}
+.kb-add-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:linear-gradient(135deg,var(--purple),#9b7bf7);border:none;border-radius:12px;color:#fff;font-weight:700;font-size:0.84rem;cursor:pointer;transition:all .2s ease;box-shadow:0 4px 20px rgba(123,97,241,0.3);font-family:inherit}
+.kb-add-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(123,97,241,0.4)}
+.kb-add-btn i{font-size:1.1rem}
+
+/* ══ STATS BAR ══ */
+.kb-stats{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+.kb-st{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 22px;min-width:120px;backdrop-filter:blur(12px);transition:all .2s ease}
+.kb-st:hover{background:var(--card-h);border-color:rgba(123,97,241,0.15);transform:translateY(-1px)}
+.kb-st-v{font-size:1.5rem;font-weight:900;letter-spacing:-0.02em}
+.kb-st-l{font-size:0.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px}
+
+/* ══ BOARD ══ */
+.kb-board{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:0 auto 36px;position:relative;max-width:100%}
+@media(max-width:1100px){.kb-board{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.kb-board{grid-template-columns:1fr}}
+
+.kb-col{background:var(--glass);border:1px solid var(--border);border-radius:22px;padding:0;min-height:340px;display:flex;flex-direction:column;backdrop-filter:blur(14px);overflow:hidden;position:relative;transition:all .25s ease;animation:colSlideUp .6s ease-out backwards}
+.kb-col:nth-child(1){animation-delay:0s}.kb-col:nth-child(2){animation-delay:.08s}.kb-col:nth-child(3){animation-delay:.16s}.kb-col:nth-child(4){animation-delay:.24s}
+@keyframes colSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.kb-col:hover{border-color:rgba(123,97,241,0.12);box-shadow:0 8px 32px rgba(0,0,0,0.15)}
+.kb-col::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;z-index:2}
+.col-todo .kb-col::before,.col-todo::before{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.col-inp .kb-col::before,.col-inp::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.col-done .kb-col::before,.col-done::before{background:linear-gradient(90deg,#10b981,#34d399)}
+.col-blk .kb-col::before,.col-blk::before{background:linear-gradient(90deg,#ef4444,#f87171)}
+
+.kb-col-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--border);position:relative}
+.kb-col-head h3{font-size:0.78rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;display:flex;align-items:center;gap:8px}
+.kb-col-head h3 i{font-size:1.1rem}
+.kb-col-head .cnt{width:28px;height:28px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:900;transition:all .2s}
+.col-todo .kb-col-head .cnt{background:rgba(59,130,246,0.1);color:#3b82f6}
+.col-inp .kb-col-head .cnt{background:rgba(245,158,11,0.1);color:#f59e0b}
+.col-done .kb-col-head .cnt{background:rgba(16,185,129,0.1);color:#10b981}
+.col-blk .kb-col-head .cnt{background:rgba(239,68,68,0.1);color:#ef4444}
+.kb-col-body{flex:1;overflow-y:auto;max-height:520px;padding:12px 14px 8px}
+.kb-col-body::-webkit-scrollbar{width:4px}
+.kb-col-body::-webkit-scrollbar-thumb{background:rgba(123,97,241,0.2);border-radius:4px}
+
+/* Column themes */
+.col-todo .kb-col-head{border-bottom-color:rgba(59,130,246,0.12)}.col-todo .kb-col-head h3{color:#3b82f6}
+.col-inp .kb-col-head{border-bottom-color:rgba(245,158,11,0.12)}.col-inp .kb-col-head h3{color:#f59e0b}
+.col-done .kb-col-head{border-bottom-color:rgba(16,185,129,0.12)}.col-done .kb-col-head h3{color:#10b981}
+.col-blk .kb-col-head{border-bottom-color:rgba(239,68,68,0.12)}.col-blk .kb-col-head h3{color:#ef4444}
+
+/* Column subtle bg patterns */
+.col-todo{background:linear-gradient(180deg,rgba(59,130,246,0.02) 0%,var(--glass) 40%)}
+.col-inp{background:linear-gradient(180deg,rgba(245,158,11,0.02) 0%,var(--glass) 40%)}
+.col-done{background:linear-gradient(180deg,rgba(16,185,129,0.02) 0%,var(--glass) 40%)}
+.col-blk{background:linear-gradient(180deg,rgba(239,68,68,0.02) 0%,var(--glass) 40%)}
+
+/* ══ TASK CARD ══ */
+.kb-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:10px;transition:all .22s ease;position:relative;overflow:hidden;animation:cardFadeIn .4s ease-out backwards}
+@keyframes cardFadeIn{from{opacity:0;transform:translateY(8px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.kb-card::before{content:'';position:absolute;top:0;left:0;width:3.5px;height:100%;border-radius:3px 0 0 3px;transition:height .3s,opacity .3s}
+.kb-card:hover{border-color:rgba(123,97,241,0.18);transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.15)}
+.kb-card:hover::before{box-shadow:0 0 8px currentColor}
+.col-todo .kb-card::before{background:linear-gradient(180deg,#3b82f6,#60a5fa);color:#3b82f6}
+.col-inp .kb-card::before{background:linear-gradient(180deg,#f59e0b,#fbbf24);color:#f59e0b}
+.col-done .kb-card::before{background:linear-gradient(180deg,#10b981,#34d399);color:#10b981}
+.col-blk .kb-card::before{background:linear-gradient(180deg,#ef4444,#f87171);color:#ef4444}
+
+/* Card shimmer on hover */
+.kb-card::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.03),transparent);transition:left .5s ease;pointer-events:none}
+.kb-card:hover::after{left:100%}
+
+.kb-card-title{font-size:0.88rem;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.35}
+.kb-card-desc{font-size:0.76rem;color:var(--muted);margin-bottom:8px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kb-card-tags{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+
+.kb-tag{display:inline-flex;align-items:center;gap:3px;padding:4px 10px;border-radius:8px;font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;transition:all .15s}
+.kb-tag-low{background:rgba(16,185,129,0.1);color:#34d399;border:1px solid rgba(16,185,129,0.08)}
+.kb-tag-medium{background:rgba(251,146,60,0.1);color:#fb923c;border:1px solid rgba(251,146,60,0.08)}
+.kb-tag-high{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.08);animation:tagPulseHigh 2s ease-in-out infinite}
+@keyframes tagPulseHigh{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}50%{box-shadow:0 0 6px 2px rgba(239,68,68,0.1)}}
+.kb-tag-overdue{background:rgba(239,68,68,0.12);color:#fca5a5;border:1px solid rgba(239,68,68,0.1)}
+.kb-tag-today{background:rgba(59,130,246,0.12);color:#60a5fa;border:1px solid rgba(59,130,246,0.1);animation:todayPulse 2s ease-in-out infinite}
+@keyframes todayPulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(59,130,246,0)}50%{opacity:0.8;box-shadow:0 0 8px 2px rgba(59,130,246,0.12)}}
+.kb-tag-date{background:rgba(123,97,241,0.08);color:rgba(123,97,241,0.85);border:1px solid rgba(123,97,241,0.06)}
+.kb-tag-course{background:rgba(56,189,209,0.08);color:#38bdd1;border:1px solid rgba(56,189,209,0.06)}
+
+.kb-card-actions{display:flex;gap:4px;flex-wrap:wrap}
+.kb-act{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:0.64rem;font-weight:700;cursor:pointer;transition:all .18s;font-family:inherit;text-transform:uppercase;letter-spacing:0.02em;position:relative;overflow:hidden}
+.kb-act::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .15s;border-radius:10px}
+.kb-act:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,0.1)}
+.kb-act:hover::before{opacity:1}
+.kb-act:hover{background:rgba(123,97,241,0.08);color:var(--purple);border-color:rgba(123,97,241,0.15)}
+.kb-act i{font-size:0.88rem}
+.kb-act.pomo:hover{background:rgba(248,113,113,0.08);color:var(--red);border-color:rgba(248,113,113,0.15)}
+.kb-act.del:hover{background:rgba(248,113,113,0.08);color:var(--red);border-color:rgba(248,113,113,0.15)}
+
+/* Overdue lock */
+.kb-card.overdue-card{border-color:rgba(239,68,68,0.2);background:linear-gradient(135deg,rgba(239,68,68,0.03),var(--card))}
+.kb-card.overdue-card::after{content:'⚠';position:absolute;top:8px;right:10px;font-size:0.7rem;opacity:0.5;animation:overdueShake 3s ease-in-out infinite;pointer-events:none;background:none}
+@keyframes overdueShake{0%,90%,100%{transform:rotate(0)}93%{transform:rotate(-8deg)}96%{transform:rotate(8deg)}}
+.kb-card-lock{display:flex;align-items:center;gap:5px;margin-top:8px;padding:6px 12px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.1);border-radius:10px;font-size:0.66rem;font-weight:800;color:#fca5a5;text-transform:uppercase;letter-spacing:0.04em}
+.kb-card-lock i{font-size:0.9rem;animation:lockPulse 2s ease-in-out infinite}
+@keyframes lockPulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+/* Quick add in column */
+.kb-qadd{width:calc(100% - 28px);padding:12px;margin:8px 14px 14px;background:transparent;border:1.5px dashed rgba(123,97,241,0.12);border-radius:14px;color:var(--muted);font-size:0.76rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;text-align:center}
+.kb-qadd:hover{border-color:rgba(123,97,241,0.3);color:var(--purple);background:rgba(123,97,241,0.03);transform:translateY(-1px)}
+.col-todo .kb-qadd:hover{border-color:rgba(59,130,246,0.3);color:#3b82f6;background:rgba(59,130,246,0.03)}
+.col-inp .kb-qadd:hover{border-color:rgba(245,158,11,0.3);color:#f59e0b;background:rgba(245,158,11,0.03)}
+.col-done .kb-qadd:hover{border-color:rgba(16,185,129,0.3);color:#10b981;background:rgba(16,185,129,0.03)}
+.col-blk .kb-qadd:hover{border-color:rgba(239,68,68,0.3);color:#ef4444;background:rgba(239,68,68,0.03)}
+
+/* ══ ADD TASK MODAL ══ */
+.kb-modal-bg{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.kb-modal-bg.open{display:flex}
+.kb-modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;width:100%;max-width:500px;box-shadow:0 24px 80px rgba(0,0,0,0.4);backdrop-filter:blur(20px)}
+[data-theme="light"] .kb-modal{background:#fff;box-shadow:0 24px 80px rgba(0,0,0,0.1)}
+.kb-modal h2{font-size:1.2rem;font-weight:800;margin-bottom:4px}
+.kb-modal p.sub{font-size:0.82rem;color:var(--muted);margin-bottom:20px}
+.kb-modal label{display:block;font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.04em}
+.kb-modal input,.kb-modal select,.kb-modal textarea{width:100%;padding:10px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:0.86rem;margin-bottom:14px;transition:border-color .2s;font-family:inherit}
+[data-theme="light"] .kb-modal input,[data-theme="light"] .kb-modal select,[data-theme="light"] .kb-modal textarea{background:#f8f9fb;border-color:rgba(0,0,0,0.1);color:var(--text)}
+.kb-modal input:focus,.kb-modal select:focus,.kb-modal textarea:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(123,97,241,0.1)}
+.kb-modal select option{background:#1a1e2e;color:#f6f8fc}
+[data-theme="light"] .kb-modal select option{background:#fff;color:#1a1a2e}
+.kb-modal textarea{resize:vertical;min-height:70px}
+.kb-modal-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.kb-modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+.kb-modal-cancel{padding:10px 22px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-weight:600;font-size:0.84rem;cursor:pointer;transition:all .15s;font-family:inherit}
+.kb-modal-cancel:hover{border-color:var(--red);color:var(--red)}
+.kb-modal-submit{padding:10px 28px;background:linear-gradient(135deg,var(--purple),#9b7bf7);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:0.84rem;cursor:pointer;transition:all .15s;box-shadow:0 4px 16px rgba(123,97,241,0.25);font-family:inherit}
+.kb-modal-submit:hover{opacity:.9;transform:translateY(-1px)}
+
+/* ══ POMODORO ══ */
+.kb-pomo{background:var(--glass);border:1px solid var(--border);border-radius:22px;padding:0;margin-bottom:36px;backdrop-filter:blur(14px);overflow:hidden;position:relative}
+.kb-pomo::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),var(--orange),var(--yellow),var(--green),var(--cyan),var(--purple),var(--red));background-size:400% 100%;animation:pomoRainbow 6s linear infinite;z-index:2}
+@keyframes pomoRainbow{0%{background-position:0% 0}100%{background-position:400% 0}}
+
+/* Pomo header */
+.kb-pomo-header{padding:24px 32px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.kb-pomo-header h2{font-size:1.15rem;font-weight:900;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--red),var(--orange));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.kb-pomo-header h2 i{-webkit-text-fill-color:var(--red);font-size:1.4rem;animation:pomoIconPulse 2s ease-in-out infinite}
+@keyframes pomoIconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.kb-pomo-header .sub{font-size:0.74rem;color:var(--muted);font-weight:500}
+.kb-pomo-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:0.62rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em}
+.kb-pomo-badge.active{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.15);animation:pomoBadgePulse 1.5s ease-in-out infinite}
+.kb-pomo-badge.idle{background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)}
+@keyframes pomoBadgePulse{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,0.2)}50%{box-shadow:0 0 12px 4px rgba(52,211,153,0.15)}}
+
+/* Main layout */
+.kb-pomo-main{display:grid;grid-template-columns:280px 1fr;gap:0;min-height:300px}
+@media(max-width:800px){.kb-pomo-main{grid-template-columns:1fr}}
+
+/* Left: Timer circle */
+.kb-pomo-left{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;position:relative;background:radial-gradient(circle 200px at center,rgba(248,113,113,0.04),transparent)}
+.kb-pomo-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.kb-pomo-particle{position:absolute;width:4px;height:4px;border-radius:50%;opacity:0;animation:pomoPFloat 4s linear infinite}
+.kb-pomo-particle:nth-child(1){left:20%;top:70%;background:var(--red);animation-delay:0s}
+.kb-pomo-particle:nth-child(2){left:75%;top:80%;background:var(--orange);animation-delay:0.8s}
+.kb-pomo-particle:nth-child(3){left:40%;top:85%;background:var(--yellow);animation-delay:1.6s}
+.kb-pomo-particle:nth-child(4){left:60%;top:75%;background:var(--purple);animation-delay:2.4s}
+.kb-pomo-particle:nth-child(5){left:85%;top:65%;background:var(--cyan);animation-delay:3.2s}
+.kb-pomo-particle:nth-child(6){left:10%;top:60%;background:var(--green);animation-delay:1.2s}
+@keyframes pomoPFloat{0%{transform:translateY(0) scale(0);opacity:0}20%{opacity:0.8;transform:translateY(-20px) scale(1)}80%{opacity:0.4}100%{transform:translateY(-120px) scale(0);opacity:0}}
+
+.kb-pomo-circle{width:220px;height:220px;position:relative;display:flex;align-items:center;justify-content:center}
+.kb-pomo-circle svg{position:absolute;top:0;left:0;width:100%;height:100%;transform:rotate(-90deg);filter:drop-shadow(0 0 12px rgba(248,113,113,0.2))}
+.kb-pomo-circle circle{fill:none;stroke-linecap:round}
+.kb-pomo-circle .bg{stroke:var(--border);stroke-width:3}
+.kb-pomo-circle .fg{stroke:var(--red);stroke-width:5;transition:stroke-dashoffset .5s linear;filter:url(#pomoGlow)}
+.kb-pomo-circle .fg-trail{stroke:rgba(248,113,113,0.08);stroke-width:8}
+.kb-pomo-time{font-size:3rem;font-weight:900;letter-spacing:-0.04em;color:var(--text);position:relative;z-index:1;font-variant-numeric:tabular-nums}
+.kb-pomo-phase{font-size:0.68rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-top:-2px;position:relative;z-index:1}
+.kb-pomo-cycle-dots{display:flex;gap:6px;margin-top:12px;position:relative;z-index:1}
+.kb-pomo-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s}
+.kb-pomo-dot.done{background:var(--green);box-shadow:0 0 6px rgba(52,211,153,0.4)}
+.kb-pomo-dot.current{background:var(--red);box-shadow:0 0 8px rgba(248,113,113,0.5);animation:dotPulse 1s ease-in-out infinite}
+@keyframes dotPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+
+/* Right: Controls */
+.kb-pomo-right{padding:28px 32px 28px 28px;display:flex;flex-direction:column;gap:16px;border-left:1px solid var(--border)}
+@media(max-width:800px){.kb-pomo-right{border-left:none;border-top:1px solid var(--border)}}
+
+/* Task select */
+.kb-pomo-task{margin-bottom:0}
+.kb-pomo-task label{font-size:0.68rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.kb-pomo-task label i{font-size:0.9rem;color:var(--purple)}
+.kb-pomo-task select{width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:0.82rem;font-family:inherit;transition:border-color .2s}
+.kb-pomo-task select:focus{border-color:var(--purple);outline:none;box-shadow:0 0 0 3px rgba(123,97,241,0.1)}
+[data-theme="light"] .kb-pomo-task select{background:#f8f9fb;border-color:rgba(0,0,0,0.1);color:var(--text)}
+.kb-pomo-task select option{background:#1a1e2e;color:#f6f8fc}
+[data-theme="light"] .kb-pomo-task select option{background:#fff;color:#1a1a2e}
+
+/* Presets */
+.kb-pomo-presets{display:flex;flex-wrap:wrap;gap:6px}
+.kb-pomo-preset{padding:7px 14px;border-radius:10px;font-size:0.68rem;font-weight:800;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:rgba(255,255,255,0.02);color:var(--muted);font-family:inherit;position:relative;overflow:hidden}
+.kb-pomo-preset:hover{border-color:var(--purple);color:var(--purple);background:rgba(123,97,241,0.04)}
+.kb-pomo-preset.active{border-color:var(--red);color:var(--red);background:rgba(248,113,113,0.06)}
+.kb-pomo-preset span{font-size:0.82rem;margin-right:2px}
+
+/* Config row */
+.kb-pomo-cfg{display:flex;gap:12px;flex-wrap:wrap}
+.kb-pomo-cfg-item{flex:1;min-width:100px}
+.kb-pomo-cfg-item label{font-size:0.64rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;display:block}
+.kb-pomo-cfg-item input{width:100%;padding:9px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:0.84rem;text-align:center;font-family:inherit;font-weight:700;transition:border-color .2s}
+.kb-pomo-cfg-item input:focus{border-color:var(--purple);outline:none;box-shadow:0 0 0 3px rgba(123,97,241,0.1)}
+[data-theme="light"] .kb-pomo-cfg-item input{background:#f8f9fb;border-color:rgba(0,0,0,0.1);color:var(--text)}
+
+/* Buttons */
+.kb-pomo-btns{display:flex;gap:8px;flex-wrap:wrap}
+.kb-pbtn{padding:12px 26px;border-radius:12px;font-size:0.82rem;font-weight:800;cursor:pointer;transition:all .2s;font-family:inherit;border:none;display:inline-flex;align-items:center;gap:7px;position:relative;overflow:hidden}
+.kb-pbtn i{font-size:1.1rem}
+.kb-pbtn-go{background:linear-gradient(135deg,var(--red),#ef4444);color:#fff;box-shadow:0 4px 20px rgba(248,113,113,0.3)}
+.kb-pbtn-go:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(248,113,113,0.4)}
+.kb-pbtn-go:active{transform:translateY(0)}
+.kb-pbtn-go::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,0.1),transparent);transform:rotate(45deg);animation:btnShine 3s ease-in-out infinite}
+@keyframes btnShine{0%{transform:translateX(-100%) rotate(45deg)}30%,100%{transform:translateX(100%) rotate(45deg)}}
+.kb-pbtn-go.break-mode{background:linear-gradient(135deg,var(--green),#10b981);box-shadow:0 4px 20px rgba(52,211,153,0.3)}
+.kb-pbtn-go.break-mode:hover{box-shadow:0 6px 28px rgba(52,211,153,0.4)}
+.kb-pbtn-pause{background:rgba(251,146,60,0.1);color:#fb923c;border:1px solid rgba(251,146,60,0.15)}
+.kb-pbtn-pause:hover{background:rgba(251,146,60,0.18);transform:translateY(-1px)}
+.kb-pbtn-reset{background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)}
+.kb-pbtn-reset:hover{border-color:var(--purple);color:var(--purple);transform:translateY(-1px)}
+[data-theme="light"] .kb-pbtn-reset{background:rgba(0,0,0,0.03)}
+.kb-pbtn-skip{background:rgba(56,189,209,0.08);color:var(--cyan);border:1px solid rgba(56,189,209,0.12);display:none}
+.kb-pbtn-skip:hover{background:rgba(56,189,209,0.15);transform:translateY(-1px)}
+
+/* Session stats mini */
+.kb-pomo-session-stats{display:flex;gap:20px;padding:14px 18px;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid var(--border);margin-top:auto}
+.kb-pomo-ss{text-align:center;flex:1}
+.kb-pomo-ss-v{font-size:1.2rem;font-weight:900}
+.kb-pomo-ss-l{font-size:0.58rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+
+/* ══ FLASH ══ */
+.kb-flash{padding:14px 20px;border-radius:12px;margin-bottom:16px;font-size:0.84rem;font-weight:600;animation:kbFlashIn .3s ease;backdrop-filter:blur(10px)}
+.kb-flash-success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.15);color:#34d399}
+.kb-flash-error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.15);color:#fca5a5}
+@keyframes kbFlashIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ INLINE ADD (column) ══ */
+.kb-inline{display:none;margin-top:8px}
+.kb-inline.open{display:block}
+.kb-inline input,.kb-inline select{width:100%;padding:8px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.82rem;margin-bottom:6px;font-family:inherit}
+[data-theme="light"] .kb-inline input,[data-theme="light"] .kb-inline select{background:#f8f9fb;border-color:rgba(0,0,0,0.1);color:var(--text)}
+.kb-inline select option{background:#1a1e2e;color:#f6f8fc}
+[data-theme="light"] .kb-inline select option{background:#fff;color:#1a1a2e}
+.kb-inline-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.kb-inline-sub{width:100%;padding:8px;background:var(--purple);border:none;border-radius:8px;color:#fff;font-weight:700;font-size:0.78rem;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.kb-inline-sub:hover{opacity:.85}
+
+/* ══ EDIT BUTTON ══ */
+.kb-act.edit:hover{background:rgba(56,189,209,0.1);color:var(--cyan);border-color:rgba(56,189,209,0.2)}
+
+/* ══ EXPORT BTN ══ */
+.kb-export-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:linear-gradient(135deg,#ef4444,#f97316);border:none;border-radius:12px;color:#fff;font-weight:700;font-size:0.84rem;cursor:pointer;transition:all .2s ease;box-shadow:0 4px 20px rgba(239,68,68,0.25);font-family:inherit;text-decoration:none;position:relative;overflow:hidden}
+.kb-export-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(239,68,68,0.35);color:#fff}
+.kb-export-btn i{font-size:1.1rem}
+.kb-export-btn .pdf-icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:8px;font-size:0.7rem;font-weight:900;letter-spacing:-0.02em;animation:pdfPulse 2s ease-in-out infinite}
+@keyframes pdfPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.1);opacity:0.8}}
+.kb-export-btn::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,0.1),transparent);transform:rotate(45deg);animation:exportShine 3s ease-in-out infinite}
+@keyframes exportShine{0%{transform:translateX(-100%) rotate(45deg)}30%,100%{transform:translateX(100%) rotate(45deg)}}
+.kb-head-btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* ══ ANALYTICS DASHBOARD ══ */
+.kb-analytics{background:var(--glass);border:1px solid var(--border);border-radius:22px;padding:28px 32px;margin-bottom:28px;backdrop-filter:blur(14px);position:relative;overflow:hidden}
+.kb-analytics::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple),var(--cyan),var(--green),var(--purple));background-size:300% 100%;animation:analyticsShine 4s linear infinite}
+@keyframes analyticsShine{0%{background-position:0% 0}100%{background-position:300% 0}}
+.kb-analytics-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.kb-analytics-head h2{font-size:1.15rem;font-weight:800;display:flex;align-items:center;gap:10px}
+.kb-analytics-head h2 i{font-size:1.3rem;color:var(--purple)}
+.kb-analytics-head .sub{font-size:0.76rem;color:var(--muted)}
+.kb-analytics-toggle{padding:8px 18px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:0.76rem;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit}
+.kb-analytics-toggle:hover{border-color:var(--purple);color:var(--purple)}
+.kb-analytics-body{display:none}
+.kb-analytics-body.open{display:block}
+
+/* KPI row */
+.kb-kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:900px){.kb-kpi-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:500px){.kb-kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kb-kpi{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;position:relative;overflow:hidden;transition:all .2s}
+.kb-kpi:hover{border-color:rgba(123,97,241,0.2);transform:translateY(-2px);box-shadow:var(--shadow)}
+.kb-kpi-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:1.2rem}
+.kb-kpi-val{font-size:1.8rem;font-weight:900;letter-spacing:-0.03em;animation:kpiCount 1s ease-out}
+.kb-kpi-lbl{font-size:0.66rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px}
+@keyframes kpiCount{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Chart area */
+.kb-charts{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:0}
+@media(max-width:800px){.kb-charts{grid-template-columns:1fr}}
+.kb-chart-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;overflow:hidden}
+.kb-chart-box h3{font-size:0.82rem;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:0.06em}
+.kb-chart-box h3 i{color:var(--purple);font-size:1.1rem}
+
+/* Bar chart */
+.kb-bars{display:flex;align-items:flex-end;gap:8px;height:140px;padding-top:8px}
+.kb-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.kb-bar{width:100%;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,var(--purple),rgba(123,97,241,0.3));position:relative;min-height:4px;animation:barGrowUp 1.2s ease-out backwards;transition:all .2s}
+.kb-bar:hover{filter:brightness(1.2);transform:scaleY(1.05);transform-origin:bottom}
+.kb-bar-tip{position:absolute;top:-24px;left:50%;transform:translateX(-50%);background:var(--purple);color:#fff;padding:2px 8px;border-radius:6px;font-size:0.62rem;font-weight:800;white-space:nowrap;opacity:0;transition:opacity .15s;pointer-events:none}
+.kb-bar:hover .kb-bar-tip{opacity:1}
+.kb-bar-day{font-size:0.62rem;font-weight:700;color:var(--muted);text-transform:uppercase}
+.kb-bar-val{font-size:0.58rem;font-weight:800;color:var(--text);opacity:0.7}
+@keyframes barGrowUp{from{height:0!important;opacity:0}to{opacity:1}}
+
+/* Donut / Completion ring */
+.kb-donut-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.kb-donut{width:130px;height:130px;position:relative;display:flex;align-items:center;justify-content:center}
+.kb-donut svg{position:absolute;top:0;left:0;width:100%;height:100%;transform:rotate(-90deg)}
+.kb-donut circle{fill:none;stroke-width:10;stroke-linecap:round}
+.kb-donut .donut-bg{stroke:var(--border)}
+.kb-donut .donut-fg{transition:stroke-dashoffset 1.5s ease-out}
+.kb-donut-pct{font-size:1.6rem;font-weight:900;letter-spacing:-0.03em;position:relative;z-index:1}
+.kb-donut-sub{font-size:0.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;position:relative;z-index:1;margin-top:-4px}
+
+/* Top tasks list */
+.kb-top-list{list-style:none}
+.kb-top-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);animation:topSlide .6s ease-out backwards}
+.kb-top-item:last-child{border-bottom:none}
+.kb-top-rank{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:900;flex-shrink:0}
+.kb-top-rank.r1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff}
+.kb-top-rank.r2{background:rgba(192,192,192,0.2);color:#c0c0c0}
+.kb-top-rank.r3{background:rgba(205,127,50,0.15);color:#cd7f32}
+.kb-top-rank.rx{background:rgba(255,255,255,0.04);color:var(--muted)}
+.kb-top-info{flex:1;min-width:0}
+.kb-top-name{font-size:0.8rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kb-top-bar-bg{width:100%;height:6px;background:var(--border);border-radius:4px;margin-top:4px;overflow:hidden}
+.kb-top-bar-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:4px;animation:topBarGrow 1.5s ease-out backwards}
+.kb-top-time{font-size:0.72rem;font-weight:800;color:var(--muted);flex-shrink:0}
+@keyframes topSlide{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+@keyframes topBarGrow{from{width:0!important}}
+</style>
+{% endblock %}
+
+{% block body %}
+<script>document.documentElement.setAttribute('data-theme','dark');</script>
+{% include 'partials/_background.html.twig' %}
+<div class="kb" style="position:relative;z-index:1">
+<div class="kb-wrap">
+
+{# ── Flash ── #}
+{% for type, messages in app.flashes %}
+  {% for message in messages %}
+    <div class="kb-flash kb-flash-{{ type }}">{{ message|trans }}</div>
+  {% endfor %}
+{% endfor %}
+
+{# ══ HEADER ══ #}
+<div class="kb-head">
+    <div>
+        <h1><i class='bx bx-columns' style="font-size:1.6rem;margin-right:6px;vertical-align:middle"></i> {{ 'taskboard.title'|trans }}</h1>
+        <p>{{ 'taskboard.subtitle'|trans }}</p>
+    </div>
+    <div class="kb-head-btns">
+        <button class="kb-add-btn" onclick="document.getElementById('addModal').classList.add('open')">
+            <i class='bx bx-plus'></i> {{ 'taskboard.add_task'|trans }}
+        </button>
+        <a href="{{ path('app_taskboard_export_pdf') }}" class="kb-export-btn" target="_blank">
+            <span class="pdf-icon">PDF</span>
+            <span>{{ 'taskboard.export_pdf'|trans }}</span>
+        </a>
+    </div>
+</div>
+
+{# ══ STATS ══ #}
+<div class="kb-stats">
+    <div class="kb-st">
+        <div class="kb-st-v">{{ totalTasks }}</div>
+        <div class="kb-st-l">{{ 'common.total'|trans({}, 'messages', app.request.locale)|default('Total') }}</div>
+    </div>
+    <div class="kb-st">
+        <div class="kb-st-v" style="color:#3b82f6">{{ columns.TODO|length }}</div>
+        <div class="kb-st-l">{{ 'taskboard.todo'|trans }}</div>
+    </div>
+    <div class="kb-st">
+        <div class="kb-st-v" style="color:#f59e0b">{{ columns.IN_PROGRESS|length }}</div>
+        <div class="kb-st-l">{{ 'taskboard.in_progress'|trans }}</div>
+    </div>
+    <div class="kb-st">
+        <div class="kb-st-v" style="color:var(--green)">{{ columns.DONE|length }}</div>
+        <div class="kb-st-l">{{ 'taskboard.done'|trans }}</div>
+    </div>
+    <div class="kb-st">
+        <div class="kb-st-v" style="color:var(--red)">{{ columns.BLOCKED|length }}</div>
+        <div class="kb-st-l">{{ 'taskboard.blocked'|trans }}</div>
+    </div>
+    <div class="kb-st">
+        <div class="kb-st-v" style="color:var(--red)"><i class='bx bx-timer' style="vertical-align:middle;font-size:1.3rem"></i> {{ pomodoroStats.total_sessions }}</div>
+        <div class="kb-st-l">Pomodoros</div>
+    </div>
+    <div class="kb-st">
+        <div class="kb-st-v" style="color:var(--cyan)">{{ (pomodoroStats.total_minutes / 60)|number_format(1) }}h</div>
+        <div class="kb-st-l">Focus time</div>
+    </div>
+</div>
+
+{# ══ ANALYTICS DASHBOARD ══ #}
+<div class="kb-analytics">
+    <div class="kb-analytics-head">
+        <div>
+            <h2><i class='bx bx-bar-chart-alt-2'></i> {{ 'taskboard.analytics_title'|trans|default('Analytics Dashboard') }}</h2>
+            <div class="sub">{{ 'taskboard.analytics_sub'|trans|default('Pomodoro focus time & productivity insights') }}</div>
+        </div>
+        <button class="kb-analytics-toggle" onclick="let b=document.getElementById('analyBody');b.classList.toggle('open');this.innerHTML=b.classList.contains('open')?'<i class=\'bx bx-chevron-up\'></i> {{ 'taskboard.hide'|trans|default('Hide') }}':'<i class=\'bx bx-chevron-down\'></i> {{ 'taskboard.show'|trans|default('Show') }}'">
+            <i class='bx bx-chevron-down'></i> {{ 'taskboard.show'|trans|default('Show') }}
+        </button>
+    </div>
+    <div class="kb-analytics-body" id="analyBody">
+
+        {# KPI Cards #}
+        <div class="kb-kpi-row">
+            <div class="kb-kpi" style="animation-delay:.05s">
+                <div class="kb-kpi-icon" style="background:rgba(123,97,241,0.1);color:var(--purple)"><i class='bx bx-time-five'></i></div>
+                <div class="kb-kpi-val" style="color:var(--purple)">{{ (pomodoroStats.total_minutes / 60)|number_format(1) }}h</div>
+                <div class="kb-kpi-lbl">{{ 'taskboard.total_focus'|trans|default('Total Focus') }}</div>
+            </div>
+            <div class="kb-kpi" style="animation-delay:.1s">
+                <div class="kb-kpi-icon" style="background:rgba(56,189,209,0.1);color:var(--cyan)"><i class='bx bx-target-lock'></i></div>
+                <div class="kb-kpi-val" style="color:var(--cyan)">{{ pomodoroStats.total_sessions }}</div>
+                <div class="kb-kpi-lbl">{{ 'taskboard.sessions'|trans|default('Sessions') }}</div>
+            </div>
+            <div class="kb-kpi" style="animation-delay:.15s">
+                <div class="kb-kpi-icon" style="background:rgba(16,185,129,0.1);color:var(--green)"><i class='bx bx-check-double'></i></div>
+                <div class="kb-kpi-val" style="color:var(--green)">{{ completionRate }}%</div>
+                <div class="kb-kpi-lbl">{{ 'taskboard.completion'|trans|default('Completion') }}</div>
+            </div>
+            <div class="kb-kpi" style="animation-delay:.2s">
+                <div class="kb-kpi-icon" style="background:rgba(251,191,36,0.1);color:#fbbf24"><i class='bx bx-trending-up'></i></div>
+                <div class="kb-kpi-val" style="color:#fbbf24">{{ avgDailyFocus }}m</div>
+                <div class="kb-kpi-lbl">{{ 'taskboard.avg_daily'|trans|default('Avg / Day') }}</div>
+            </div>
+            <div class="kb-kpi" style="animation-delay:.25s">
+                <div class="kb-kpi-icon" style="background:rgba(239,68,68,0.1);color:var(--red)"><i class='bx bxs-flame'></i></div>
+                <div class="kb-kpi-val" style="color:var(--red)">{{ streak }}d</div>
+                <div class="kb-kpi-lbl">{{ 'taskboard.streak'|trans|default('Streak') }}</div>
+            </div>
+        </div>
+
+        {# Charts #}
+        <div class="kb-charts">
+            {# Bar chart – last 7 days #}
+            <div class="kb-chart-box">
+                <h3><i class='bx bx-bar-chart-square'></i> {{ 'taskboard.weekly_focus'|trans|default('Weekly Focus (minutes)') }}</h3>
+                {% set maxMin = 1 %}
+                {% for d in weekData %}{% if d.minutes > maxMin %}{% set maxMin = d.minutes %}{% endif %}{% endfor %}
+                <div class="kb-bars">
+                    {% for d in weekData %}
+                    {% set pct = maxMin > 0 ? (d.minutes / maxMin * 100) : 0 %}
+                    <div class="kb-bar-col" style="animation-delay:{{ loop.index * 0.1 }}s">
+                        <div class="kb-bar-val">{{ d.minutes }}m</div>
+                        <div class="kb-bar" style="height:{{ pct > 0 ? pct : 3 }}%;animation-delay:{{ loop.index * 0.12 }}s">
+                            <div class="kb-bar-tip">{{ d.minutes }} min · {{ d.sessions }} sess.</div>
+                        </div>
+                        <div class="kb-bar-day">{{ d.day|date('D') }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# Right col: completion donut + top tasks #}
+            <div class="kb-chart-box">
+                <h3><i class='bx bx-pie-chart-alt-2'></i> {{ 'taskboard.task_health'|trans|default('Task Health') }}</h3>
+                <div class="kb-donut-wrap">
+                    <div class="kb-donut">
+                        <svg viewBox="0 0 140 140">
+                            <circle class="donut-bg" cx="70" cy="70" r="60"/>
+                            <circle class="donut-fg" cx="70" cy="70" r="60"
+                                    stroke="{{ completionRate >= 70 ? 'var(--green)' : (completionRate >= 40 ? '#fbbf24' : 'var(--red)') }}"
+                                    stroke-dasharray="{{ 376.99 }}"
+                                    stroke-dashoffset="{{ 376.99 - (376.99 * completionRate / 100) }}"
+                                    data-target="{{ 376.99 - (376.99 * completionRate / 100) }}"/>
+                        </svg>
+                        <div class="kb-donut-pct">{{ completionRate }}%</div>
+                    </div>
+                    <div class="kb-donut-sub">{{ columns.DONE|length }}/{{ totalTasks }} {{ 'taskboard.done'|trans }}</div>
+                </div>
+            </div>
+        </div>
+
+        {# Top tasks by focus #}
+        {% if topTasks|length > 0 %}
+        <div class="kb-chart-box" style="margin-top:16px">
+            <h3><i class='bx bx-trophy'></i> {{ 'taskboard.top_focus_tasks'|trans|default('Top Focus Tasks') }}</h3>
+            <ul class="kb-top-list">
+                {% set topMax = topTasks[0].total_min ?? 1 %}
+                {% for t in topTasks %}
+                <li class="kb-top-item" style="animation-delay:{{ loop.index * 0.12 }}s">
+                    <div class="kb-top-rank {{ loop.index == 1 ? 'r1' : (loop.index == 2 ? 'r2' : (loop.index == 3 ? 'r3' : 'rx')) }}">{{ loop.index }}</div>
+                    <div class="kb-top-info">
+                        <div class="kb-top-name">{{ t.title }}</div>
+                        <div class="kb-top-bar-bg"><div class="kb-top-bar-fill" style="width:{{ (t.total_min / topMax * 100) }}%;animation-delay:{{ loop.index * 0.18 }}s"></div></div>
+                    </div>
+                    <div class="kb-top-time">{{ t.total_min }}m · {{ t.sess_count }}s</div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+    </div>{# /analytics body #}
+</div>
+
+{# ══ POMODORO TIMER ══ #}
+<div class="kb-pomo" id="pomoSection">
+    <div class="kb-pomo-header">
+        <div>
+            <h2><i class='bx bx-timer'></i> {{ 'taskboard.pomodoro_title'|trans }}</h2>
+            <div class="sub">Stay focused with timed work sessions and short breaks.</div>
+        </div>
+        <div class="kb-pomo-badge idle" id="pomoBadge"><i class='bx bx-radio-circle'></i> <span id="pomoBadgeText">IDLE</span></div>
+    </div>
+    <div class="kb-pomo-main">
+        <div class="kb-pomo-left">
+            {# Floating particles #}
+            <div class="kb-pomo-particles" id="pomoParticles">
+                <div class="kb-pomo-particle"></div>
+                <div class="kb-pomo-particle"></div>
+                <div class="kb-pomo-particle"></div>
+                <div class="kb-pomo-particle"></div>
+                <div class="kb-pomo-particle"></div>
+                <div class="kb-pomo-particle"></div>
+            </div>
+            <div class="kb-pomo-circle">
+                <svg viewBox="0 0 220 220">
+                    <defs>
+                        <filter id="pomoGlow">
+                            <feGaussianBlur stdDeviation="3" result="blur"/>
+                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                    </defs>
+                    <circle class="fg-trail" cx="110" cy="110" r="100"/>
+                    <circle class="bg" cx="110" cy="110" r="100"/>
+                    <circle class="fg" id="pomoRing" cx="110" cy="110" r="100" stroke-dasharray="628.32" stroke-dashoffset="0"/>
+                </svg>
+                <div style="text-align:center">
+                    <div class="kb-pomo-time" id="pomoTime">25:00</div>
+                    <div class="kb-pomo-phase" id="pomoPhase">{{ 'taskboard.pomo_focus'|trans }}</div>
+                </div>
+            </div>
+            <div class="kb-pomo-cycle-dots" id="pomoDots"></div>
+        </div>
+        <div class="kb-pomo-right">
+            <div class="kb-pomo-task">
+                <label><i class='bx bx-link-alt'></i> {{ 'taskboard.pomo_linked_task'|trans }}</label>
+                <select id="pomoTask">
+                    <option value="">-- {{ 'taskboard.pomo_select_task'|trans }} --</option>
+                    {% for status, tasks in columns %}{% for task in tasks %}{% if status != 'DONE' %}
+                    <option value="{{ task.id }}">{{ task.title }} ({{ status|replace({'_':' '}) }})</option>
+                    {% endif %}{% endfor %}{% endfor %}
+                </select>
+            </div>
+
+            {# Preset buttons #}
+            <div>
+                <label style="font-size:0.64rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;display:block">Presets</label>
+                <div class="kb-pomo-presets">
+                    <button class="kb-pomo-preset active" onclick="setPreset(25,5,4,this)"><span>🍅</span> 25/5 × 4</button>
+                    <button class="kb-pomo-preset" onclick="setPreset(50,10,2,this)"><span>🔥</span> 50/10 × 2</button>
+                    <button class="kb-pomo-preset" onclick="setPreset(15,3,6,this)"><span>⚡</span> 15/3 × 6</button>
+                    <button class="kb-pomo-preset" onclick="setPreset(90,20,1,this)"><span>🧠</span> 90/20 × 1</button>
+                </div>
+            </div>
+
+            {# Config #}
+            <div class="kb-pomo-cfg">
+                <div class="kb-pomo-cfg-item">
+                    <label>{{ 'taskboard.pomo_work'|trans }} (min)</label>
+                    <input type="number" id="pomoWork" value="25" min="1" max="120">
+                </div>
+                <div class="kb-pomo-cfg-item">
+                    <label>{{ 'taskboard.pomo_break'|trans }} (min)</label>
+                    <input type="number" id="pomoBreak" value="5" min="1" max="30">
+                </div>
+                <div class="kb-pomo-cfg-item">
+                    <label>Cycles</label>
+                    <input type="number" id="pomoCycles" value="4" min="1" max="12">
+                </div>
+            </div>
+
+            {# Buttons #}
+            <div class="kb-pomo-btns">
+                <button class="kb-pbtn kb-pbtn-go" id="pomoStart"><i class='bx bx-play'></i> {{ 'taskboard.pomo_start'|trans }}</button>
+                <button class="kb-pbtn kb-pbtn-pause" id="pomoPause" style="display:none"><i class='bx bx-pause'></i> {{ 'taskboard.pomo_pause'|trans }}</button>
+                <button class="kb-pbtn kb-pbtn-skip" id="pomoSkip"><i class='bx bx-skip-next'></i> Skip</button>
+                <button class="kb-pbtn kb-pbtn-reset" id="pomoReset"><i class='bx bx-reset'></i> {{ 'taskboard.pomo_reset'|trans }}</button>
+            </div>
+
+            {# Live session stats #}
+            <div class="kb-pomo-session-stats">
+                <div class="kb-pomo-ss">
+                    <div class="kb-pomo-ss-v" style="color:var(--red)" id="pomoSessWork">0m</div>
+                    <div class="kb-pomo-ss-l">Focused</div>
+                </div>
+                <div class="kb-pomo-ss">
+                    <div class="kb-pomo-ss-v" style="color:var(--green)" id="pomoSessBreak">0m</div>
+                    <div class="kb-pomo-ss-l">Break</div>
+                </div>
+                <div class="kb-pomo-ss">
+                    <div class="kb-pomo-ss-v" style="color:var(--purple)" id="pomoSessCycle">0/4</div>
+                    <div class="kb-pomo-ss-l">Cycles</div>
+                </div>
+                <div class="kb-pomo-ss">
+                    <div class="kb-pomo-ss-v" style="color:var(--cyan)" id="pomoSessTotal">{{ (pomodoroStats.total_minutes / 60)|number_format(1) }}h</div>
+                    <div class="kb-pomo-ss-l">All-time</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ══ KANBAN BOARD ══ #}
+<div class="kb-board">
+    {% set colMeta = {
+        'TODO':        { cls: 'col-todo', icon: 'bx-list-ul',       label: 'taskboard.todo'|trans,        emoji: '📋' },
+        'IN_PROGRESS': { cls: 'col-inp',  icon: 'bx-loader-circle', label: 'taskboard.in_progress'|trans, emoji: '⚡' },
+        'DONE':        { cls: 'col-done', icon: 'bx-check-circle',  label: 'taskboard.done'|trans,        emoji: '✅' },
+        'BLOCKED':     { cls: 'col-blk',  icon: 'bx-block',         label: 'taskboard.blocked'|trans,     emoji: '🔒' }
+    } %}
+
+    {% for status, meta in colMeta %}
+    <div class="kb-col {{ meta.cls }}">
+        <div class="kb-col-head">
+            <h3><i class='bx {{ meta.icon }}'></i> {{ meta.label }}</h3>
+            <span class="cnt">{{ columns[status]|length }}</span>
+        </div>
+        <div class="kb-col-body">
+            {% if columns[status]|length == 0 %}
+            <div style="text-align:center;padding:32px 12px;opacity:0.4">
+                <div style="font-size:2rem;margin-bottom:8px">{{ meta.emoji }}</div>
+                <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted)">No tasks</div>
+            </div>
+            {% endif %}
+            {% for task in columns[status] %}
+            <div class="kb-card{{ task.is_overdue ? ' overdue-card' : '' }}" style="animation-delay:{{ loop.index * 0.06 }}s">
+                <div class="kb-card-title">{{ task.title }}</div>
+                {% if task.description %}
+                    <div class="kb-card-desc">{{ task.description }}</div>
+                {% endif %}
+                <div class="kb-card-tags">
+                    <span class="kb-tag kb-tag-{{ task.priority|lower }}">
+                        {% if task.priority == 'HIGH' %}<i class='bx bx-up-arrow-alt' style="font-size:0.7rem"></i>{% endif %}
+                        {{ task.priority }}
+                    </span>
+                    {% if task.is_overdue %}<span class="kb-tag kb-tag-overdue"><i class='bx bx-error-circle'></i> {{ 'taskboard.overdue'|trans }}</span>{% endif %}
+                    {% if task.is_due_today %}<span class="kb-tag kb-tag-today"><i class='bx bx-time-five'></i> {{ 'taskboard.due_today'|trans }}</span>{% endif %}
+                    {% if task.due_date %}<span class="kb-tag kb-tag-date"><i class='bx bx-calendar'></i> {{ task.due_date|date('d M') }}</span>{% endif %}
+                    {% if task.course_title %}<span class="kb-tag kb-tag-course"><i class='bx bx-book'></i> {{ task.course_title }}</span>{% endif %}
+                </div>
+                <div class="kb-card-actions">
+                    {% set others = ['TODO','IN_PROGRESS','DONE','BLOCKED']|filter(s => s != status) %}
+                    {% for s in others %}
+                    {% if not (task.is_overdue and s == 'DONE') %}
+                    <form action="{{ path('app_taskboard_update_status', {id: task.id}) }}" method="post" style="display:inline">
+                        <button type="submit" name="status" value="{{ s }}" class="kb-act" title="{{ s|replace({'_':' '}) }}">
+                            {% if s == 'TODO' %}<i class='bx bx-list-ul'></i>
+                            {% elseif s == 'IN_PROGRESS' %}<i class='bx bx-loader-circle'></i>
+                            {% elseif s == 'DONE' %}<i class='bx bx-check'></i>
+                            {% else %}<i class='bx bx-block'></i>{% endif %}
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% endfor %}
+                    <button class="kb-act edit" onclick="openEditModal({{ task.id }}, '{{ task.title|e('js') }}', '{{ task.description|default('')|e('js') }}', '{{ task.status }}', '{{ task.priority }}', '{{ task.due_date|default('')|date('Y-m-d') }}')"><i class='bx bx-edit-alt'></i></button>
+                    {% if status != 'DONE' %}
+                    <button class="kb-act pomo" onclick="selectPomo({{ task.id }},'{{ task.title|e('js') }}')"><i class='bx bx-timer'></i></button>
+                    {% endif %}
+                    <form action="{{ path('app_taskboard_delete', {id: task.id}) }}" method="post" style="display:inline" onsubmit="return confirm('{{ 'taskboard.confirm_delete'|trans }}')">
+                        <button type="submit" class="kb-act del"><i class='bx bx-trash'></i></button>
+                    </form>
+                </div>
+                {% if task.is_overdue %}
+                <div class="kb-card-lock"><i class='bx bx-lock-alt'></i> {{ 'taskboard.overdue_locked'|trans }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        {# Quick add in column #}
+        <button class="kb-qadd" onclick="toggleInline(this,'{{ status }}')">+ {{ 'taskboard.add_task'|trans }}</button>
+        <div class="kb-inline" id="inline-{{ status }}">
+            <form action="{{ path('app_taskboard_add') }}" method="post">
+                <input type="hidden" name="status" value="{{ status }}">
+                <input type="text" name="title" placeholder="{{ 'taskboard.task_title'|trans }}" required>
+                <div class="kb-inline-row">
+                    <select name="priority">
+                        <option value="LOW">LOW</option>
+                        <option value="MEDIUM" selected>MEDIUM</option>
+                        <option value="HIGH">HIGH</option>
+                    </select>
+                    <input type="date" name="due_date" min="{{ 'now'|date('Y-m-d') }}">
+                </div>
+                <button type="submit" class="kb-inline-sub">+ {{ 'taskboard.add_task'|trans }}</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+</div>
+</div>
+
+{# ══ ADD TASK MODAL ══ #}
+<div class="kb-modal-bg" id="addModal">
+    <div class="kb-modal">
+        <h2><i class='bx bx-plus-circle' style="color:var(--purple);vertical-align:middle;margin-right:6px"></i> {{ 'taskboard.add_task'|trans }}</h2>
+        <p class="sub">Create a new task on your board.</p>
+        <form action="{{ path('app_taskboard_add') }}" method="post">
+            <label>{{ 'taskboard.task_title'|trans }} *</label>
+            <input type="text" name="title" placeholder="e.g. Finish Math homework" required autofocus>
+
+            <label>Description</label>
+            <textarea name="description" placeholder="Optional details..."></textarea>
+
+            <div class="kb-modal-row">
+                <div>
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="TODO" selected>{{ 'taskboard.todo'|trans }}</option>
+                        <option value="IN_PROGRESS">{{ 'taskboard.in_progress'|trans }}</option>
+                        <option value="DONE">{{ 'taskboard.done'|trans }}</option>
+                        <option value="BLOCKED">{{ 'taskboard.blocked'|trans }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Priority</label>
+                    <select name="priority">
+                        <option value="LOW">LOW</option>
+                        <option value="MEDIUM" selected>MEDIUM</option>
+                        <option value="HIGH">HIGH</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Due date</label>
+                    <input type="date" name="due_date" min="{{ 'now'|date('Y-m-d') }}">
+                </div>
+            </div>
+            <div class="kb-modal-foot">
+                <button type="button" class="kb-modal-cancel" onclick="document.getElementById('addModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="kb-modal-submit"><i class='bx bx-check' style="vertical-align:middle;margin-right:4px"></i> {{ 'taskboard.add_task'|trans }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# ══ EDIT TASK MODAL ══ #}
+<div class="kb-modal-bg" id="editModal">
+    <div class="kb-modal">
+        <h2><i class='bx bx-edit-alt' style="color:var(--cyan);vertical-align:middle;margin-right:6px"></i> {{ 'taskboard.edit_task'|trans }}</h2>
+        <p class="sub">{{ 'taskboard.edit_task_sub'|trans }}</p>
+        <form id="editForm" method="post">
+            <label>{{ 'taskboard.task_title'|trans }} *</label>
+            <input type="text" name="title" id="editTitle" required>
+
+            <label>Description</label>
+            <textarea name="description" id="editDesc"></textarea>
+
+            <div class="kb-modal-row">
+                <div>
+                    <label>Status</label>
+                    <select name="status" id="editStatus">
+                        <option value="TODO">{{ 'taskboard.todo'|trans }}</option>
+                        <option value="IN_PROGRESS">{{ 'taskboard.in_progress'|trans }}</option>
+                        <option value="DONE">{{ 'taskboard.done'|trans }}</option>
+                        <option value="BLOCKED">{{ 'taskboard.blocked'|trans }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Priority</label>
+                    <select name="priority" id="editPriority">
+                        <option value="LOW">LOW</option>
+                        <option value="MEDIUM">MEDIUM</option>
+                        <option value="HIGH">HIGH</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Due date</label>
+                    <input type="date" name="due_date" id="editDueDate" min="{{ 'now'|date('Y-m-d') }}">
+                </div>
+            </div>
+            <div class="kb-modal-foot">
+                <button type="button" class="kb-modal-cancel" onclick="document.getElementById('editModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="kb-modal-submit" style="background:linear-gradient(135deg,var(--cyan),#5dd8e8)"><i class='bx bx-save' style="vertical-align:middle;margin-right:4px"></i> {{ 'taskboard.save_changes'|trans }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// ── Inline add toggle ──
+function toggleInline(btn, status) {
+    var f = document.getElementById('inline-' + status);
+    f.classList.toggle('open');
+    btn.style.display = f.classList.contains('open') ? 'none' : '';
+}
+
+// ── Select task for pomodoro from card ──
+function selectPomo(id, title) {
+    document.getElementById('pomoTask').value = String(id);
+    document.querySelector('.kb-pomo').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── Modal backdrop close ──
+document.getElementById('addModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+});
+document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+});
+
+// ── Edit modal ──
+function openEditModal(id, title, desc, status, priority, dueDate) {
+    document.getElementById('editForm').action = '/taskboard/edit/' + id;
+    document.getElementById('editTitle').value = title;
+    document.getElementById('editDesc').value = desc;
+    document.getElementById('editStatus').value = status;
+    document.getElementById('editPriority').value = priority;
+    document.getElementById('editDueDate').value = (dueDate && dueDate !== '1970-01-01') ? dueDate : '';
+    document.getElementById('editModal').classList.add('open');
+}
+
+// ── Pomodoro Timer (Premium) ──
+function setPreset(w,b,c,btn) {
+    document.getElementById('pomoWork').value = w;
+    document.getElementById('pomoBreak').value = b;
+    document.getElementById('pomoCycles').value = c;
+    document.querySelectorAll('.kb-pomo-preset').forEach(function(p){p.classList.remove('active')});
+    btn.classList.add('active');
+    if (!window._pomoRunning) window._pomoReset();
+}
+
+(function() {
+    var workEl = document.getElementById('pomoWork');
+    var breakEl = document.getElementById('pomoBreak');
+    var cyclesEl = document.getElementById('pomoCycles');
+    var timeEl = document.getElementById('pomoTime');
+    var phaseEl = document.getElementById('pomoPhase');
+    var ring = document.getElementById('pomoRing');
+    var startBtn = document.getElementById('pomoStart');
+    var pauseBtn = document.getElementById('pomoPause');
+    var resetBtn = document.getElementById('pomoReset');
+    var skipBtn = document.getElementById('pomoSkip');
+    var taskSel = document.getElementById('pomoTask');
+    var badge = document.getElementById('pomoBadge');
+    var badgeText = document.getElementById('pomoBadgeText');
+    var dotsEl = document.getElementById('pomoDots');
+    var particles = document.getElementById('pomoParticles');
+
+    var C = 2 * Math.PI * 100;
+    ring.style.strokeDasharray = C;
+    var timer = null, total = 0, remain = 0, running = false, paused = false, onBreak = false, sessId = null;
+    var currentCycle = 0, maxCycles = 4;
+    var totalWorkSec = 0, totalBreakSec = 0;
+    window._pomoRunning = false;
+
+    // Tick sound (Web Audio)
+    var audioCtx = null;
+    function playTick() {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            var osc = audioCtx.createOscillator();
+            var gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.value = 880; osc.type = 'sine';
+            gain.gain.value = 0.05;
+            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+        } catch(e){}
+    }
+    function playDing() {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            var osc = audioCtx.createOscillator();
+            var gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.value = 660; osc.type = 'triangle';
+            gain.gain.value = 0.15;
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.6);
+        } catch(e){}
+    }
+
+    function fmt(s) { return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
+
+    function buildDots() {
+        dotsEl.innerHTML = '';
+        for (var i = 0; i < maxCycles; i++) {
+            var d = document.createElement('div');
+            d.className = 'kb-pomo-dot' + (i < currentCycle ? ' done' : '') + (i === currentCycle && running ? ' current' : '');
+            dotsEl.appendChild(d);
+        }
+    }
+
+    function updateSessionStats() {
+        document.getElementById('pomoSessWork').textContent = Math.floor(totalWorkSec / 60) + 'm';
+        document.getElementById('pomoSessBreak').textContent = Math.floor(totalBreakSec / 60) + 'm';
+        document.getElementById('pomoSessCycle').textContent = currentCycle + '/' + maxCycles;
+    }
+
+    function setBadge(state) {
+        badge.className = 'kb-pomo-badge ' + (state === 'idle' ? 'idle' : 'active');
+        if (state === 'focus') { badgeText.textContent = 'FOCUSING'; badge.style.borderColor = 'rgba(248,113,113,0.15)'; badge.style.color = 'var(--red)'; badge.style.background = 'rgba(248,113,113,0.08)'; }
+        else if (state === 'break') { badgeText.textContent = 'BREAK'; badge.style.borderColor = ''; badge.style.color = ''; badge.style.background = ''; }
+        else if (state === 'paused') { badgeText.textContent = 'PAUSED'; badge.style.borderColor = 'rgba(251,146,60,0.15)'; badge.style.color = '#fb923c'; badge.style.background = 'rgba(251,146,60,0.08)'; }
+        else { badgeText.textContent = 'IDLE'; badge.style.borderColor = ''; badge.style.color = ''; badge.style.background = ''; }
+    }
+
+    function draw() {
+        timeEl.textContent = fmt(remain);
+        var p = total > 0 ? 1 - remain / total : 0;
+        ring.style.strokeDashoffset = C * (1 - p);
+        ring.style.stroke = onBreak ? 'var(--green)' : 'var(--red)';
+        startBtn.classList.toggle('break-mode', onBreak);
+        // Glow effect intensity
+        var glow = Math.max(2, 6 * p);
+        ring.parentElement.parentElement.style.filter = 'drop-shadow(0 0 ' + glow + 'px ' + (onBreak ? 'rgba(52,211,153,0.3)' : 'rgba(248,113,113,0.3)') + ')';
+        buildDots();
+    }
+
+    function reset() {
+        clearInterval(timer); timer = null;
+        running = paused = onBreak = false; sessId = null;
+        window._pomoRunning = false;
+        currentCycle = 0; totalWorkSec = 0; totalBreakSec = 0;
+        maxCycles = parseInt(cyclesEl.value) || 4;
+        total = parseInt(workEl.value) * 60; remain = total;
+        startBtn.style.display = ''; pauseBtn.style.display = 'none'; skipBtn.style.display = 'none';
+        startBtn.innerHTML = "<i class='bx bx-play'></i> {{ 'taskboard.pomo_start'|trans }}";
+        phaseEl.textContent = "{{ 'taskboard.pomo_focus'|trans }}";
+        setBadge('idle');
+        draw();
+        updateSessionStats();
+        particles.style.opacity = '0.3';
+    }
+    window._pomoReset = reset;
+
+    function tick() {
+        if (remain <= 0) {
+            playDing();
+            clearInterval(timer); timer = null;
+            if (!onBreak) {
+                // Work phase done
+                if (sessId) fetch("{{ path('app_taskboard_pomodoro_complete', {id:0}) }}".replace('/0','/'+sessId),{method:'POST'});
+                currentCycle++;
+                updateSessionStats();
+                if (currentCycle >= maxCycles) {
+                    // All cycles done
+                    running = false; onBreak = false;
+                    window._pomoRunning = false;
+                    phaseEl.textContent = "{{ 'taskboard.pomo_done'|trans }} 🎉";
+                    startBtn.style.display = ''; pauseBtn.style.display = 'none'; skipBtn.style.display = 'none';
+                    startBtn.innerHTML = "<i class='bx bx-play'></i> {{ 'taskboard.pomo_start'|trans }}";
+                    setBadge('idle');
+                    particles.style.opacity = '0.3';
+                    if (Notification.permission === 'granted') new Notification('🍅 Pomodoro Complete!', {body: currentCycle + ' cycles done. Great work!'});
+                    draw();
+                    return;
+                }
+                onBreak = true;
+                total = parseInt(breakEl.value) * 60; remain = total;
+                phaseEl.textContent = "{{ 'taskboard.pomo_break_phase'|trans }}";
+                setBadge('break');
+                draw();
+                if (Notification.permission === 'granted') new Notification('☕ Break Time!', {body:"{{ 'taskboard.pomo_break_phase'|trans }}"});
+                timer = setInterval(tick, 1000);
+            } else {
+                // Break done, start next work phase
+                onBreak = false;
+                total = parseInt(workEl.value) * 60; remain = total;
+                phaseEl.textContent = "{{ 'taskboard.pomo_focus'|trans }}";
+                setBadge('focus');
+                // Start new session for new cycle
+                var tid = taskSel.value;
+                if (tid) {
+                    var fd = new FormData(); fd.append('work_minutes', workEl.value); fd.append('break_minutes', breakEl.value);
+                    fetch("{{ path('app_taskboard_pomodoro_start', {taskId:0}) }}".replace('/0','/'+tid),{method:'POST',body:fd})
+                    .then(function(r){return r.json()}).then(function(d){if(d.id) sessId=d.id;});
+                }
+                draw();
+                if (Notification.permission === 'granted') new Notification('🍅 Focus Time!', {body:'Cycle ' + (currentCycle + 1) + ' of ' + maxCycles});
+                timer = setInterval(tick, 1000);
+            }
+            return;
+        }
+        remain--;
+        if (onBreak) totalBreakSec++; else totalWorkSec++;
+        if (remain % 60 === 0) updateSessionStats();
+        // Subtle tick every 30s
+        if (remain > 0 && remain % 30 === 0) playTick();
+        draw();
+    }
+
+    startBtn.addEventListener('click', function() {
+        if (running && !paused) return;
+        var tid = taskSel.value;
+        if (!tid && !onBreak && !paused) { taskSel.style.borderColor='var(--red)'; taskSel.focus(); setTimeout(function(){taskSel.style.borderColor='';},2000); return; }
+        if (paused) {
+            // Resume
+            paused = false;
+            timer = setInterval(tick, 1000);
+            startBtn.style.display = 'none'; pauseBtn.style.display = ''; skipBtn.style.display = '';
+            setBadge(onBreak ? 'break' : 'focus');
+            particles.style.opacity = '1';
+            return;
+        }
+        running = true; paused = false;
+        window._pomoRunning = true;
+        maxCycles = parseInt(cyclesEl.value) || 4;
+        if (!onBreak) { total = parseInt(workEl.value)*60; remain = total; phaseEl.textContent = "{{ 'taskboard.pomo_focus'|trans }}"; }
+        setBadge(onBreak ? 'break' : 'focus');
+        particles.style.opacity = '1';
+        draw();
+        if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+        if (tid && !onBreak) {
+            var fd = new FormData(); fd.append('work_minutes', workEl.value); fd.append('break_minutes', breakEl.value);
+            fetch("{{ path('app_taskboard_pomodoro_start', {taskId:0}) }}".replace('/0','/'+tid),{method:'POST',body:fd})
+            .then(function(r){return r.json()}).then(function(d){if(d.id) sessId=d.id;});
+        }
+        timer = setInterval(tick, 1000);
+        startBtn.style.display = 'none'; pauseBtn.style.display = ''; skipBtn.style.display = '';
+    });
+
+    pauseBtn.addEventListener('click', function() {
+        if (timer) {
+            clearInterval(timer); timer = null; paused = true;
+            pauseBtn.style.display = 'none'; startBtn.style.display = '';
+            startBtn.innerHTML = "<i class='bx bx-play'></i> {{ 'taskboard.pomo_resume'|trans }}";
+            skipBtn.style.display = 'none';
+            setBadge('paused');
+            particles.style.opacity = '0.3';
+        }
+    });
+
+    skipBtn.addEventListener('click', function() {
+        if (running) { remain = 0; tick(); }
+    });
+
+    resetBtn.addEventListener('click', reset);
+    reset();
+
+    // Animate title with time
+    var origTitle = document.title;
+    setInterval(function() {
+        if (running && !paused) {
+            document.title = (onBreak ? '☕ ' : '🍅 ') + fmt(remain) + ' — ' + origTitle;
+        } else {
+            document.title = origTitle;
+        }
+    }, 1000);
+})();
+
+// Auto-dismiss flashes
+document.querySelectorAll('.kb-flash').forEach(function(el) {
+    setTimeout(function() { el.style.opacity='0'; el.style.transform='translateY(-10px)'; setTimeout(function(){el.remove()},400); }, 4000);
+});
+</script>
+{% endblock %}

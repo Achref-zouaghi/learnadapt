@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnAdapt | Verify Code</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #041120;
+            --panel: rgba(7, 20, 38, 0.7);
+            --line: rgba(181, 224, 255, 0.14);
+            --text: #f3f8ff;
+            --muted: rgba(212, 229, 248, 0.68);
+            --blue: #2da9ff;
+            --blue-strong: #177af7;
+            --cyan: #79f0ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 18% 20%, rgba(45, 169, 255, 0.22), transparent 20%),
+                radial-gradient(circle at 82% 24%, rgba(121, 240, 255, 0.16), transparent 18%),
+                radial-gradient(circle at 70% 82%, rgba(30, 93, 224, 0.32), transparent 24%),
+                linear-gradient(180deg, #041120 0%, #07192d 52%, #04111e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .panel {
+            width: min(100%, 520px);
+            padding: 34px;
+            border-radius: 28px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.32);
+            backdrop-filter: blur(22px);
+        }
+
+        .kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(190, 225, 255, 0.14);
+            background: rgba(255, 255, 255, 0.04);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(243, 248, 255, 0.68);
+        }
+
+        .title {
+            margin-top: 18px;
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(2rem, 4vw, 2.7rem);
+            line-height: 1.05;
+            letter-spacing: -0.05em;
+        }
+
+        .subtitle {
+            margin-top: 14px;
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 0.98rem;
+        }
+
+        .email-pill {
+            margin-top: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(190, 225, 255, 0.12);
+            color: #dff6ff;
+            font-weight: 600;
+        }
+
+        .dev-card {
+            margin-top: 16px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(121, 240, 255, 0.24);
+            background: rgba(71, 200, 255, 0.1);
+            color: #dff6ff;
+        }
+
+        .dev-card strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.88rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .dev-code {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 0.35em;
+            color: var(--cyan);
+        }
+
+        .flash-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .flash {
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        .flash.success {
+            color: #aef7ff;
+            border-color: rgba(121, 240, 255, 0.26);
+            background: rgba(71, 200, 255, 0.12);
+        }
+
+        .flash.error {
+            color: #ffd7e1;
+            border-color: rgba(242, 122, 160, 0.24);
+            background: rgba(178, 67, 106, 0.12);
+        }
+
+        form {
+            margin-top: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: rgba(243, 248, 255, 0.8);
+        }
+
+        input {
+            width: 100%;
+            min-height: 62px;
+            padding: 0 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(190, 225, 255, 0.12);
+            background: rgba(255, 255, 255, 0.045);
+            color: var(--text);
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 0.45em;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        input:focus {
+            border-color: rgba(121, 240, 255, 0.32);
+            box-shadow: 0 0 0 4px rgba(121, 240, 255, 0.08);
+        }
+
+        .actions {
+            display: grid;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .button,
+        .button-secondary {
+            min-height: 56px;
+            border-radius: 18px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 0.98rem;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+        }
+
+        .button {
+            color: #fff;
+            background: linear-gradient(135deg, #36b1ff 0%, #177af7 54%, #0d59d8 100%);
+            box-shadow: 0 18px 36px rgba(12, 89, 216, 0.28);
+        }
+
+        .button-secondary {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(190, 225, 255, 0.14);
+        }
+
+        .button:hover,
+        .button-secondary:hover {
+            transform: translateY(-2px);
+        }
+
+        .links {
+            margin-top: 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .links a {
+            color: #9eeeff;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        @media (max-width: 640px) {
+            .panel {
+                padding: 26px 20px;
+                border-radius: 22px;
+            }
+
+            input {
+                font-size: 1.15rem;
+                letter-spacing: 0.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% set successFlashes = app.flashes('success') %}
+    {% set errorFlashes = app.flashes('error') %}
+
+    <main class="panel">
+        <div class="kicker">Verification Code</div>
+        <h1 class="title">Confirm your {{ purpose == 'register' ? 'new account' : 'sign in' }}</h1>
+        <p class="subtitle">A 6-digit code was sent to your email. Enter it below to continue into LearnAdapt.</p>
+        <div class="email-pill">{{ email }}</div>
+
+        {% if devVerificationCode %}
+            <div class="dev-card">
+                <strong>Development Mode</strong>
+                <div>Email is not configured, so use this active verification code:</div>
+                <div class="dev-code">{{ devVerificationCode }}</div>
+            </div>
+        {% endif %}
+
+        <div class="flash-list">
+            {% for message in successFlashes %}
+                <div class="flash success">{{ message }}</div>
+            {% endfor %}
+            {% for message in errorFlashes %}
+                <div class="flash error">{{ message }}</div>
+            {% endfor %}
+        </div>
+
+        <form method="post" action="{{ path('app_auth_verify') }}">
+            <label for="code">Verification code</label>
+            <input id="code" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required>
+
+            <div class="actions">
+                <button type="submit" class="button">Verify and continue</button>
+            </div>
+        </form>
+
+        <form method="post" action="{{ path('app_auth_verify_resend') }}">
+            <div class="actions">
+                <button type="submit" class="button-secondary">Resend code</button>
+            </div>
+        </form>
+
+        <div class="links">
+            <a href="{{ path('app_login') }}">Back to authentication</a>
+            <a href="{{ path('app_home') }}">Home</a>
+        </div>
+    </main>
+</body>
+</html>

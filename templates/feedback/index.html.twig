@@ -1,0 +1,241 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}Feedback — LearnAdapt{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root{--bg:#04060e;--purple:#7b61f1;--purple-soft:#a78bfa;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.3)}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+
+.av{min-height:100vh;padding:100px 0 60px;background:transparent;position:relative;z-index:1}
+.av-wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+
+@keyframes avSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes avCardFade{from{opacity:0;transform:translateY(8px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes avStarPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* ── Header ── */
+.av-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;animation:avSlideUp .5s ease-out}
+.av-head h1{font-size:1.85rem;font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--yellow),var(--orange));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.av-head p{color:var(--muted);font-size:0.84rem;margin-top:4px}
+.av-write-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:linear-gradient(135deg,var(--yellow),var(--orange));border:none;border-radius:12px;color:#fff;font-weight:700;font-size:0.84rem;cursor:pointer;transition:all .2s ease;box-shadow:0 4px 20px rgba(251,191,36,0.3);font-family:inherit}
+.av-write-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(251,191,36,0.4)}
+.av-write-btn i{font-size:1.1rem}
+
+/* ── Overview Card ── */
+.av-overview{display:grid;grid-template-columns:260px 1fr;gap:0;background:var(--glass);border:1px solid var(--border);border-radius:22px;backdrop-filter:blur(14px);overflow:hidden;margin-bottom:28px;position:relative;animation:avSlideUp .5s ease-out .05s backwards}
+.av-overview::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--yellow),var(--orange),var(--red));z-index:2}
+.av-overview-left{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 28px;border-right:1px solid var(--border);background:radial-gradient(circle 180px at center,rgba(251,191,36,0.04),transparent)}
+.av-avg{font-size:3.5rem;font-weight:900;letter-spacing:-0.04em;background:linear-gradient(135deg,var(--yellow),var(--orange));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.av-avg-stars{display:flex;gap:3px;margin-top:6px}
+.av-avg-stars i{color:var(--yellow);font-size:1.3rem}
+.av-avg-stars i.empty{color:rgba(255,255,255,0.12)}
+.av-avg-total{color:var(--muted);font-size:0.76rem;font-weight:600;margin-top:8px}
+.av-overview-right{padding:28px 32px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.av-bar-row{display:flex;align-items:center;gap:10px}
+.av-bar-label{font-size:0.72rem;font-weight:700;color:var(--muted);width:14px;text-align:center}
+.av-bar-star{color:var(--yellow);font-size:0.8rem}
+.av-bar-track{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden}
+.av-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--yellow),var(--orange));transition:width 1s ease}
+.av-bar-count{font-size:0.7rem;font-weight:700;color:var(--muted);width:24px;text-align:right}
+
+/* ── Feedback Cards ── */
+.av-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:28px}
+.av-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;position:relative;overflow:hidden;animation:avCardFade .4s ease-out backwards;transition:all .22s ease}
+.av-card::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.02),transparent);transition:left .5s ease;pointer-events:none}
+.av-card:hover{border-color:rgba(251,191,36,0.18);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.15)}
+.av-card:hover::after{left:100%}
+.av-card-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.av-card-avatar{width:40px;height:40px;border-radius:12px;object-fit:cover;border:2px solid rgba(251,191,36,0.15);flex-shrink:0;background:rgba(255,255,255,0.03)}
+.av-card-name{font-weight:700;color:#fff;font-size:0.88rem}
+.av-card-date{font-size:0.7rem;color:rgba(148,163,184,0.5);margin-top:2px}
+.av-card-stars{display:flex;gap:2px;margin-bottom:10px}
+.av-card-stars i{font-size:0.9rem}
+.av-card-stars i.filled{color:var(--yellow)}
+.av-card-stars i.empty{color:rgba(255,255,255,0.1)}
+.av-card-comment{color:rgba(255,255,255,0.72);font-size:0.84rem;line-height:1.65}
+.av-card-no-comment{color:rgba(255,255,255,0.25);font-size:0.82rem;font-style:italic}
+
+/* ── Section Title ── */
+.av-section-title{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px;animation:avSlideUp .5s ease-out}
+.av-section-title i{font-size:1rem;color:var(--yellow)}
+
+/* ── Glow line ── */
+.av-glow-line{height:1px;border:none;margin:28px 0;background:linear-gradient(90deg,transparent,rgba(251,191,36,0.15),rgba(249,115,22,0.08),transparent)}
+
+/* ── Modal ── */
+.av-modal-bg{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.av-modal-bg.open{display:flex}
+.av-modal{background:rgba(10,14,26,0.95);border:1px solid var(--border);border-radius:22px;padding:32px;width:100%;max-width:480px;backdrop-filter:blur(20px);box-shadow:0 40px 100px rgba(0,0,0,0.5),0 0 40px rgba(251,191,36,0.06)}
+.av-modal h2{font-size:1.2rem;font-weight:900;color:#fff;margin-bottom:4px;background:linear-gradient(135deg,var(--yellow),var(--orange));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:inline-block}
+.av-modal p.sub{font-size:0.82rem;color:var(--muted);margin-bottom:20px}
+
+/* Star rating input */
+.av-star-input{display:flex;gap:6px;margin-bottom:18px;flex-direction:row-reverse;justify-content:flex-end}
+.av-star-input input{display:none}
+.av-star-input label{font-size:2rem;color:rgba(255,255,255,0.12);cursor:pointer;transition:color .15s,transform .15s}
+.av-star-input label:hover,.av-star-input label:hover~label,.av-star-input input:checked~label{color:var(--yellow)}
+.av-star-input label:hover{transform:scale(1.2)}
+
+.av-modal textarea{width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:#fff;font-family:'Inter',sans-serif;font-size:0.86rem;line-height:1.6;resize:vertical;min-height:90px;outline:none;transition:border-color .2s}
+.av-modal textarea:focus{border-color:rgba(251,191,36,0.3);box-shadow:0 0 0 3px rgba(251,191,36,0.06)}
+.av-modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.av-modal-cancel{padding:10px 22px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-weight:600;font-size:0.84rem;cursor:pointer;transition:all .15s;font-family:inherit}
+.av-modal-cancel:hover{border-color:var(--red);color:var(--red)}
+.av-modal-submit{padding:10px 28px;background:linear-gradient(135deg,var(--yellow),var(--orange));border:none;border-radius:10px;color:#fff;font-weight:700;font-size:0.84rem;cursor:pointer;transition:all .15s;box-shadow:0 4px 16px rgba(251,191,36,0.25);font-family:inherit}
+.av-modal-submit:hover{opacity:.9;transform:translateY(-1px)}
+
+/* ── Toast ── */
+.av-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:center}
+.av-flash{padding:14px 24px;border-radius:14px;font-size:0.84rem;font-weight:600;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.4);display:flex;align-items:center;animation:avSlideUp .4s}
+.av-flash.success{background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.3);color:#34d399}
+.av-flash.error{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444}
+.av-flash.fade-out{opacity:0;transform:translateX(40px);transition:opacity .5s,transform .5s}
+
+/* ── Empty ── */
+.av-empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.av-empty i{font-size:3.5rem;color:rgba(255,255,255,0.08);display:block;margin-bottom:16px}
+
+@media(max-width:768px){
+    .av-overview{grid-template-columns:1fr}
+    .av-overview-left{border-right:none;border-bottom:1px solid var(--border);padding:28px}
+    .av-grid{grid-template-columns:1fr}
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<script>document.documentElement.setAttribute('data-theme','dark');</script>
+{% include 'partials/_background.html.twig' %}
+<div class="av" style="position:relative;z-index:1">
+
+    <div class="av-toast">
+        {% for message in app.flashes('success') %}
+            <div class="av-flash success"><i class='bx bx-check-circle' style="margin-right:6px"></i>{{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="av-flash error"><i class='bx bx-error-circle' style="margin-right:6px"></i>{{ message }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="av-wrap">
+
+        {# ── Header ── #}
+        <div class="av-head">
+            <div>
+                <h1><i class='bx bxs-star' style="-webkit-text-fill-color:var(--yellow);margin-right:8px"></i>Feedback & Reviews</h1>
+                <p>Share your experience and help us improve LearnAdapt</p>
+            </div>
+            <button class="av-write-btn" onclick="document.getElementById('feedbackModal').classList.add('open')">
+                <i class='bx bx-edit'></i> Write Review
+            </button>
+        </div>
+
+        {# ── Overview ── #}
+        {% set avgRating = stats.avg_rating|default(0) %}
+        {% set totalReviews = stats.total|default(0) %}
+        <div class="av-overview">
+            <div class="av-overview-left">
+                <div class="av-avg">{{ avgRating }}</div>
+                <div class="av-avg-stars">
+                    {% for i in 1..5 %}
+                        {% if i <= avgRating|round %}
+                            <i class='bx bxs-star'></i>
+                        {% else %}
+                            <i class='bx bxs-star empty'></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="av-avg-total">{{ totalReviews }} review{{ totalReviews != 1 ? 's' : '' }}</div>
+            </div>
+            <div class="av-overview-right">
+                {% for star in 5..1 %}
+                    {% set count = attribute(stats, star == 5 ? 'five_star' : (star == 4 ? 'four_star' : (star == 3 ? 'three_star' : (star == 2 ? 'two_star' : 'one_star'))))|default(0) %}
+                    {% set pct = totalReviews > 0 ? (count / totalReviews * 100) : 0 %}
+                    <div class="av-bar-row">
+                        <span class="av-bar-label">{{ star }}</span>
+                        <i class='bx bxs-star av-bar-star'></i>
+                        <div class="av-bar-track"><div class="av-bar-fill" style="width:{{ pct }}%"></div></div>
+                        <span class="av-bar-count">{{ count }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <hr class="av-glow-line">
+
+        {# ── All Reviews ── #}
+        <div class="av-section-title"><i class='bx bx-message-square-dots'></i> All Reviews</div>
+
+        {% if feedbacks|length > 0 %}
+            <div class="av-grid">
+                {% for fb in feedbacks %}
+                    <div class="av-card" style="animation-delay:{{ loop.index0 * 0.06 }}s">
+                        <div class="av-card-head">
+                            <img src="{{ fb.author_avatar ?: 'https://ui-avatars.com/api/?name=' ~ fb.author_name|url_encode ~ '&size=80&background=7c5cfc&color=fff&bold=true&format=svg' }}" alt="" class="av-card-avatar">
+                            <div>
+                                <div class="av-card-name">{{ fb.author_name }}</div>
+                                <div class="av-card-date">{{ fb.created_at|date('M d, Y · H:i') }}</div>
+                            </div>
+                        </div>
+                        <div class="av-card-stars">
+                            {% for i in 1..5 %}
+                                <i class='bx bxs-star {{ i <= fb.rating ? "filled" : "empty" }}'></i>
+                            {% endfor %}
+                        </div>
+                        {% if fb.comment %}
+                            <div class="av-card-comment">{{ fb.comment }}</div>
+                        {% else %}
+                            <div class="av-card-no-comment">No comment</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="av-empty">
+                <i class='bx bx-star'></i>
+                <p>No reviews yet. Be the first to share your experience!</p>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{# ── Submit Review Modal ── #}
+<div class="av-modal-bg" id="feedbackModal">
+    <div class="av-modal">
+        <h2>Write a Review</h2>
+        <p class="sub">Rate your experience with LearnAdapt</p>
+        <form method="post" action="{{ path('app_feedback_submit') }}">
+            <div style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Rating</div>
+            <div class="av-star-input">
+                {% for i in 5..1 %}
+                    <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}" {{ i == 5 ? 'required' : '' }}>
+                    <label for="star{{ i }}"><i class='bx bxs-star'></i></label>
+                {% endfor %}
+            </div>
+            <div style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Comment (optional)</div>
+            <textarea name="comment" placeholder="Tell us what you think..."></textarea>
+            <div class="av-modal-foot">
+                <button type="button" class="av-modal-cancel" onclick="document.getElementById('feedbackModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="av-modal-submit">Submit Review</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('feedbackModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+});
+document.querySelectorAll('.av-flash').forEach(function(el) {
+    setTimeout(function() { el.classList.add('fade-out'); setTimeout(function(){ el.remove(); }, 500); }, 5000);
+});
+</script>
+{% endblock %}

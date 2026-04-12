@@ -1,0 +1,205 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\ForumPost;
+use App\Entity\ForumTopic;
+use App\Entity\Notification;
+use App\Entity\User;
+use App\Repository\UserRepository;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+class ForumController extends AbstractController
+{
+    private const AUTH_SESSION_KEY = 'auth.user';
+    private const CATEGORIES = ['GENERAL', 'ADVICE', 'DIFFICULTIES', 'APP_HELP', 'SUCCESS_STORY'];
+
+    public function __construct(
+        private readonly UserRepository $userRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly Connection $connection,
+    ) {
+    }
+
+    private function getAuthenticatedUser(Request $request): ?User
+    {
+        $auth = $request->getSession()->get(self::AUTH_SESSION_KEY);
+        if (!is_array($auth) || !isset($auth['id'])) {
+            return null;
+        }
+        return $this->userRepository->find((int) $auth['id']);
+    }
+
+    #[Route('/forum', name: 'app_forum')]
+    public function index(Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $filterCategory = $request->query->get('category', '');
+        $search = trim($request->query->get('q', ''));
+
+        $sql = 'SELECT ft.*, u.full_name as author_name, u.avatar_base64 as author_avatar,
+                       (SELECT COUNT(*) FROM forum_posts fp WHERE fp.topic_id = ft.id) as reply_count,
+                       (SELECT MAX(fp2.created_at) FROM forum_posts fp2 WHERE fp2.topic_id = ft.id) as last_reply_at
+                FROM forum_topics ft
+                JOIN users u ON ft.created_by_user_id = u.id
+                WHERE 1=1';
+        $params = [];
+
+        if ($filterCategory && in_array($filterCategory, self::CATEGORIES, true)) {
+            $sql .= ' AND ft.category = ?';
+            $params[] = $filterCategory;
+        }
+        if ($search !== '') {
+            $sql .= ' AND ft.title LIKE ?';
+            $params[] = '%' . $search . '%';
+        }
+        $sql .= ' ORDER BY ft.updated_at DESC';
+
+        $topics = $this->connection->fetchAllAssociative($sql, $params);
+
+        $stats = $this->connection->fetchAssociative(
+            'SELECT
+                (SELECT COUNT(*) FROM forum_topics) as total_topics,
+                (SELECT COUNT(*) FROM forum_posts) as total_posts,
+                (SELECT COUNT(DISTINCT author_user_id) FROM forum_posts) as active_users'
+        );
+
+        return $this->render('forum/index.html.twig', [
+            'user' => $user,
+            'topics' => $topics,
+            'categories' => self::CATEGORIES,
+            'currentCategory' => $filterCategory,
+            'search' => $search,
+            'stats' => $stats,
+        ]);
+    }
+
+    #[Route('/forum/topic/{id}', name: 'app_forum_topic', requirements: ['id' => '\d+'])]
+    public function topic(int $id, Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $topic = $this->connection->fetchAssociative(
+            'SELECT ft.*, u.full_name as author_name, u.avatar_base64 as author_avatar
+             FROM forum_topics ft JOIN users u ON ft.created_by_user_id = u.id
+             WHERE ft.id = ?',
+            [$id]
+        );
+        if (!$topic) {
+            $this->addFlash('error', 'Topic not found.');
+            return $this->redirectToRoute('app_forum');
+        }
+
+        $posts = $this->connection->fetchAllAssociative(
+            'SELECT fp.*, u.full_name as author_name, u.avatar_base64 as author_avatar, u.role as author_role
+             FROM forum_posts fp JOIN users u ON fp.author_user_id = u.id
+             WHERE fp.topic_id = ?
+             ORDER BY fp.created_at ASC',
+            [$id]
+        );
+
+        return $this->render('forum/topic.html.twig', [
+            'user' => $user,
+            'topic' => $topic,
+            'posts' => $posts,
+        ]);
+    }
+
+    #[Route('/forum/create', name: 'app_forum_create', methods: ['POST'])]
+    public function createTopic(Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $title = trim($request->request->get('title', ''));
+        $category = $request->request->get('category', 'GENERAL');
+        $content = trim($request->request->get('content', ''));
+
+        if ($title === '' || $content === '') {
+            $this->addFlash('error', 'Title and content are required.');
+            return $this->redirectToRoute('app_forum');
+        }
+        if (!in_array($category, self::CATEGORIES, true)) {
+            $category = 'GENERAL';
+        }
+
+        $now = new \DateTime();
+
+        $topic = new ForumTopic();
+        $topic->setUser($user);
+        $topic->setTitle($title);
+        $topic->setCategory($category);
+        $topic->setIs_closed(false);
+        $topic->setCreated_at($now);
+        $topic->setUpdated_at($now);
+
+        $this->entityManager->persist($topic);
+        $this->entityManager->flush();
+
+        // Create first post
+        $post = new ForumPost();
+        $post->setForumTopic($topic);
+        $post->setUser($user);
+        $post->setContent($content);
+        $post->setIs_expert_reply(false);
+        $post->setCreated_at($now);
+
+        $this->entityManager->persist($post);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Topic created successfully!');
+        return $this->redirectToRoute('app_forum_topic', ['id' => $topic->getId()]);
+    }
+
+    #[Route('/forum/reply/{id}', name: 'app_forum_reply', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function reply(int $id, Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $content = trim($request->request->get('content', ''));
+        if ($content === '') {
+            $this->addFlash('error', 'Reply cannot be empty.');
+            return $this->redirectToRoute('app_forum_topic', ['id' => $id]);
+        }
+
+        $topicEntity = $this->entityManager->getRepository(ForumTopic::class)->find($id);
+        if (!$topicEntity) {
+            $this->addFlash('error', 'Topic not found.');
+            return $this->redirectToRoute('app_forum');
+        }
+
+        $isExpert = in_array($user->getRole(), ['EXPERT', 'ADMIN'], true);
+
+        $post = new ForumPost();
+        $post->setForumTopic($topicEntity);
+        $post->setUser($user);
+        $post->setContent($content);
+        $post->setIs_expert_reply($isExpert);
+        $post->setCreated_at(new \DateTime());
+
+        $topicEntity->setUpdated_at(new \DateTime());
+
+        $this->entityManager->persist($post);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Reply posted!');
+        return $this->redirectToRoute('app_forum_topic', ['id' => $id]);
+    }
+}

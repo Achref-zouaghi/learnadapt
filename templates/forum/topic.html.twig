@@ -1,0 +1,160 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}{{ topic.title }} — Forum — LearnAdapt{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root{--bg:#04060e;--purple:#7b61f1;--purple-soft:#a78bfa;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.3)}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+
+.ft{min-height:100vh;padding:100px 0 60px;background:transparent;position:relative;z-index:1}
+.ft-wrap{max-width:860px;margin:0 auto;padding:0 32px}
+
+@keyframes ftSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ftCardFade{from{opacity:0;transform:translateY(8px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* ── Back link ── */
+.ft-back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:0.82rem;font-weight:600;text-decoration:none;margin-bottom:20px;transition:color .2s;animation:ftSlideUp .4s ease-out}
+.ft-back:hover{color:var(--purple-soft)}
+.ft-back i{font-size:1.1rem}
+
+/* ── Topic Header ── */
+.ft-header{background:var(--glass);border:1px solid var(--border);border-radius:22px;padding:28px 30px;backdrop-filter:blur(14px);position:relative;overflow:hidden;animation:ftSlideUp .5s ease-out;margin-bottom:24px}
+.ft-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;z-index:2}
+.ft-header.cat-GENERAL::before{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.ft-header.cat-ADVICE::before{background:linear-gradient(90deg,var(--green),#6ee7b7)}
+.ft-header.cat-DIFFICULTIES::before{background:linear-gradient(90deg,var(--orange),var(--yellow))}
+.ft-header.cat-APP_HELP::before{background:linear-gradient(90deg,var(--purple),var(--purple-soft))}
+.ft-header.cat-SUCCESS_STORY::before{background:linear-gradient(90deg,var(--cyan),#67e8f9)}
+.ft-header h1{font-size:1.5rem;font-weight:900;letter-spacing:-0.03em;color:#fff;margin-bottom:10px}
+.ft-header-meta{display:flex;align-items:center;gap:12px;font-size:0.76rem;color:var(--muted);flex-wrap:wrap}
+.ft-header-meta span{display:inline-flex;align-items:center;gap:4px}
+.ft-header-meta i{font-size:0.9rem}
+.ft-header-meta img{width:28px;height:28px;border-radius:10px;object-fit:cover;border:1.5px solid rgba(123,97,241,0.15)}
+
+.ft-cat-tag{display:inline-flex;padding:4px 10px;border-radius:8px;font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;border:1px solid}
+.ft-cat-tag.cat-GENERAL{background:rgba(59,130,246,0.1);color:#60a5fa;border-color:rgba(59,130,246,0.08)}
+.ft-cat-tag.cat-ADVICE{background:rgba(52,211,153,0.1);color:var(--green);border-color:rgba(52,211,153,0.08)}
+.ft-cat-tag.cat-DIFFICULTIES{background:rgba(251,146,60,0.1);color:var(--orange);border-color:rgba(251,146,60,0.08)}
+.ft-cat-tag.cat-APP_HELP{background:rgba(123,97,241,0.1);color:var(--purple-soft);border-color:rgba(123,97,241,0.08)}
+.ft-cat-tag.cat-SUCCESS_STORY{background:rgba(56,189,209,0.1);color:var(--cyan);border-color:rgba(56,189,209,0.08)}
+
+/* ── Posts ── */
+.ft-posts{display:grid;gap:12px;margin-bottom:28px}
+.ft-post{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 26px;position:relative;overflow:hidden;animation:ftCardFade .4s ease-out backwards;transition:border-color .22s}
+.ft-post:hover{border-color:rgba(123,97,241,0.12)}
+.ft-post.expert{border-color:rgba(56,189,209,0.15);background:linear-gradient(135deg,rgba(56,189,209,0.03),var(--card))}
+.ft-post.expert::before{content:'';position:absolute;top:0;left:0;width:3.5px;height:100%;background:linear-gradient(180deg,var(--cyan),var(--green));border-radius:3px 0 0 3px}
+.ft-post-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ft-post-avatar{width:40px;height:40px;border-radius:12px;object-fit:cover;border:2px solid rgba(123,97,241,0.12);flex-shrink:0;background:rgba(255,255,255,0.03)}
+.ft-post-author{font-weight:700;color:#fff;font-size:0.9rem}
+.ft-post-role{display:inline-flex;padding:2px 8px;border-radius:6px;font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;margin-left:6px}
+.ft-post-role.expert-role{background:rgba(56,189,209,0.12);color:var(--cyan);border:1px solid rgba(56,189,209,0.12)}
+.ft-post-role.admin-role{background:rgba(251,191,36,0.12);color:var(--yellow);border:1px solid rgba(251,191,36,0.12)}
+.ft-post-time{font-size:0.7rem;color:rgba(148,163,184,0.5);margin-top:2px}
+.ft-post-content{color:rgba(255,255,255,0.82);font-size:0.88rem;line-height:1.75;white-space:pre-wrap;word-break:break-word}
+
+/* ── Reply form ── */
+.ft-reply{background:var(--glass);border:1px solid var(--border);border-radius:22px;padding:24px 28px;backdrop-filter:blur(14px);animation:ftSlideUp .5s ease-out .2s backwards}
+.ft-reply h3{font-size:0.9rem;font-weight:800;color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.ft-reply h3 i{color:var(--purple)}
+.ft-reply textarea{width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:#fff;font-family:'Inter',sans-serif;font-size:0.86rem;line-height:1.6;resize:vertical;min-height:90px;outline:none;transition:border-color .2s}
+.ft-reply textarea:focus{border-color:rgba(123,97,241,0.3);box-shadow:0 0 0 3px rgba(123,97,241,0.06)}
+.ft-reply-btn{display:inline-flex;align-items:center;gap:7px;margin-top:12px;padding:10px 24px;background:linear-gradient(135deg,var(--purple),#9b7bf7);border:none;border-radius:12px;color:#fff;font-weight:700;font-size:0.82rem;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(123,97,241,0.25);font-family:inherit}
+.ft-reply-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(123,97,241,0.35)}
+.ft-reply-btn i{font-size:1rem}
+
+.ft-closed-msg{text-align:center;padding:24px;border-radius:16px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.12);color:var(--red);font-size:0.84rem;font-weight:600}
+
+/* ── Toast ── */
+.ft-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:center}
+.ft-flash{padding:14px 24px;border-radius:14px;font-size:0.84rem;font-weight:600;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.4);display:flex;align-items:center;animation:ftSlideUp .4s}
+.ft-flash.success{background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.3);color:#34d399}
+.ft-flash.error{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444}
+.ft-flash.fade-out{opacity:0;transform:translateX(40px);transition:opacity .5s,transform .5s}
+
+@media(max-width:768px){
+    .ft-wrap{padding:0 16px}
+    .ft-header{padding:20px}
+    .ft-post{padding:18px 20px}
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<script>document.documentElement.setAttribute('data-theme','dark');</script>
+{% include 'partials/_background.html.twig' %}
+<div class="ft" style="position:relative;z-index:1">
+
+    <div class="ft-toast">
+        {% for message in app.flashes('success') %}
+            <div class="ft-flash success"><i class='bx bx-check-circle' style="margin-right:6px"></i>{{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="ft-flash error"><i class='bx bx-error-circle' style="margin-right:6px"></i>{{ message }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="ft-wrap">
+
+        <a href="{{ path('app_forum') }}" class="ft-back"><i class='bx bx-arrow-back'></i> Back to Forum</a>
+
+        <div class="ft-header cat-{{ topic.category }}">
+            <h1>{{ topic.title }}</h1>
+            <div class="ft-header-meta">
+                <img src="{{ topic.author_avatar ?: 'https://ui-avatars.com/api/?name=' ~ topic.author_name|url_encode ~ '&size=56&background=7c5cfc&color=fff&bold=true&format=svg' }}" alt="">
+                <span>{{ topic.author_name }}</span>
+                <span class="ft-cat-tag cat-{{ topic.category }}">{{ topic.category|replace({'_': ' '}) }}</span>
+                <span><i class='bx bx-time-five'></i> {{ topic.created_at|date('M d, Y · H:i') }}</span>
+                {% if topic.is_closed %}<span style="color:var(--red);font-weight:700"><i class='bx bx-lock-alt'></i> Closed</span>{% endif %}
+            </div>
+        </div>
+
+        <div class="ft-posts">
+            {% for post in posts %}
+                <div class="ft-post {{ post.is_expert_reply ? 'expert' : '' }}" style="animation-delay:{{ loop.index0 * 0.06 }}s">
+                    <div class="ft-post-head">
+                        <img src="{{ post.author_avatar ?: 'https://ui-avatars.com/api/?name=' ~ post.author_name|url_encode ~ '&size=80&background=7c5cfc&color=fff&bold=true&format=svg' }}" alt="" class="ft-post-avatar">
+                        <div>
+                            <div>
+                                <span class="ft-post-author">{{ post.author_name }}</span>
+                                {% if post.author_role == 'EXPERT' %}
+                                    <span class="ft-post-role expert-role"><i class='bx bxs-badge-check' style="margin-right:3px"></i>Expert</span>
+                                {% elseif post.author_role == 'ADMIN' %}
+                                    <span class="ft-post-role admin-role"><i class='bx bxs-crown' style="margin-right:3px"></i>Admin</span>
+                                {% endif %}
+                            </div>
+                            <div class="ft-post-time">{{ post.created_at|date('M d, Y · H:i') }}</div>
+                        </div>
+                    </div>
+                    <div class="ft-post-content">{{ post.content }}</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if not topic.is_closed %}
+            <div class="ft-reply">
+                <h3><i class='bx bx-reply'></i> Post a Reply</h3>
+                <form method="post" action="{{ path('app_forum_reply', {id: topic.id}) }}">
+                    <textarea name="content" placeholder="Write your reply..." required></textarea>
+                    <button type="submit" class="ft-reply-btn"><i class='bx bx-send'></i> Reply</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="ft-closed-msg"><i class='bx bx-lock-alt'></i> This topic is closed. No new replies can be posted.</div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.ft-flash').forEach(function(el) {
+    setTimeout(function() { el.classList.add('fade-out'); setTimeout(function(){ el.remove(); }, 500); }, 5000);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnAdapt | Authentication</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        {% set loginData = loginData|default({'email': ''}) %}
+        {% set registerData = registerData|default({'full_name': '', 'email': '', 'role': 'STUDENT', 'phone': ''}) %}
+        {% set roleOptions = roleOptions|default(['STUDENT', 'TEACHER', 'PARENT', 'EXPERT']) %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #041120;
+            --panel: rgba(7, 20, 38, 0.58);
+            --line: rgba(181, 224, 255, 0.14);
+            --text: #f3f8ff;
+            --muted: rgba(212, 229, 248, 0.65);
+            --blue: #2da9ff;
+            --blue-strong: #177af7;
+            --cyan: #79f0ff;
+            --glow: 0 0 34px rgba(45, 169, 255, 0.28);
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 24px 0;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(900px 600px at 18% -10%, rgba(44, 130, 255, 0.38), transparent 55%),
+                radial-gradient(820px 540px at 82% 110%, rgba(0, 157, 255, 0.24), transparent 52%),
+                linear-gradient(180deg, #071a33 0%, #051225 48%, #03101c 100%);
+        }
+
+        .background-scene {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .background-scene::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 14%, rgba(118, 232, 255, 0.14), transparent 22%),
+                radial-gradient(circle at 80% 20%, rgba(60, 156, 255, 0.16), transparent 18%),
+                radial-gradient(circle at 72% 82%, rgba(38, 122, 255, 0.16), transparent 18%);
+        }
+
+        .background-scene::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.02));
+            opacity: 0.6;
+        }
+
+        .particle-field {
+            position: absolute;
+            inset: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: var(--size);
+            height: var(--size);
+            left: var(--x);
+            top: var(--y);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139, 247, 255, 0.98) 0%, rgba(53, 174, 255, 0.72) 48%, rgba(53, 174, 255, 0) 72%);
+            box-shadow: 0 0 calc(var(--glow-size) * 1px) rgba(84, 198, 255, 0.42);
+            opacity: var(--opacity);
+            animation:
+                particleFloat var(--duration) ease-in-out infinite,
+                particlePulse var(--pulse) ease-in-out infinite alternate;
+            animation-delay: var(--delay);
+            filter: blur(var(--blur));
+        }
+
+        .particle.tiny {
+            background: rgba(176, 241, 255, 0.95);
+            box-shadow: 0 0 8px rgba(121, 240, 255, 0.45);
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translate3d(0, 0, 0) scale(0.92);
+            }
+            100% {
+                transform: translate3d(var(--shift-x), var(--shift-y), 0) scale(1.12);
+            }
+        }
+
+        @keyframes particlePulse {
+            0% {
+                opacity: calc(var(--opacity) * 0.55);
+            }
+            100% {
+                opacity: var(--opacity);
+            }
+        }
+
+        .home-link {
+            position: fixed;
+            top: 22px;
+            left: 22px;
+            z-index: 40;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 13px;
+            border-radius: 999px;
+            border: 1px solid rgba(190, 225, 255, 0.16);
+            background: rgba(255, 255, 255, 0.04);
+            color: rgba(243, 248, 255, 0.78);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 700;
+            backdrop-filter: blur(14px);
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+        }
+
+        .home-link:hover {
+            color: #ffffff;
+            transform: translateY(-1px);
+            border-color: rgba(121, 240, 255, 0.34);
+            box-shadow: 0 0 0 3px rgba(121, 240, 255, 0.1);
+        }
+
+        .auth-shell {
+            position: relative;
+            z-index: 20;
+            width: min(1140px, calc(100vw - 48px));
+            min-height: 780px;
+            border-radius: 28px;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(7, 21, 40, 0.64), rgba(6, 17, 33, 0.82));
+            backdrop-filter: blur(24px) saturate(120%);
+            overflow: hidden;
+            box-shadow:
+                0 30px 90px rgba(0, 0, 0, 0.44),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                0 0 26px rgba(45, 169, 255, 0.14);
+        }
+
+        .auth-shell::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.02) 24%, rgba(45, 169, 255, 0.18) 64%, rgba(121, 240, 255, 0.18));
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask-composite: exclude;
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            pointer-events: none;
+        }
+
+        .auth-brand {
+            position: absolute;
+            top: 22px;
+            left: 26px;
+            z-index: 30;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 0.94rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .auth-brand-mark {
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(121, 240, 255, 0.24), rgba(45, 169, 255, 0.22));
+            border: 1px solid rgba(190, 225, 255, 0.16);
+            box-shadow: var(--glow);
+        }
+
+        .auth-brand-mark i {
+            font-size: 1.1rem;
+            color: #b8f8ff;
+            animation: brandPulse 2.8s ease-in-out infinite;
+        }
+
+        @keyframes brandPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .form-pane {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 88px 60px 48px;
+            overflow-y: auto;
+            transition: transform 0.75s var(--ease), opacity 0.55s ease;
+        }
+
+        .form-pane.sign-in {
+            left: 0;
+            z-index: 2;
+            opacity: 1;
+        }
+
+        .form-pane.sign-up {
+            left: 0;
+            z-index: 1;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .auth-shell.active .form-pane.sign-in {
+            transform: translateX(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .auth-shell.active .form-pane.sign-up {
+            transform: translateX(100%);
+            opacity: 1;
+            z-index: 5;
+            pointer-events: auto;
+        }
+
+        .form-card {
+            width: 100%;
+            max-width: 410px;
+            min-height: 520px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8px 0;
+        }
+
+        .auth-form {
+            margin-top: 10px;
+        }
+
+        .panel-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(190, 225, 255, 0.14);
+            background: rgba(255, 255, 255, 0.04);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: rgba(243, 248, 255, 0.66);
+        }
+
+        .panel-kicker i {
+            color: var(--cyan);
+            font-size: 0.9rem;
+            animation: iconOrbit 2.4s ease-in-out infinite;
+        }
+
+        @keyframes iconOrbit {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-2px) rotate(8deg);
+            }
+        }
+
+        .form-title {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(2.35rem, 2.8vw, 3rem);
+            letter-spacing: -0.05em;
+            line-height: 1.02;
+        }
+
+        .form-subtitle {
+            margin-top: 10px;
+            margin-bottom: 26px;
+            color: var(--muted);
+            font-size: 0.98rem;
+            line-height: 1.6;
+        }
+
+        .flash-list {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .flash {
+            padding: 11px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+
+        .flash.success {
+            color: #aef7ff;
+            border-color: rgba(121, 240, 255, 0.26);
+            background: rgba(71, 200, 255, 0.12);
+        }
+
+        .flash.error {
+            color: #ffd7e1;
+            border-color: rgba(242, 122, 160, 0.24);
+            background: rgba(178, 67, 106, 0.12);
+        }
+
+        .social-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .social-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 50px;
+            border-radius: 16px;
+            border: 1px solid rgba(190, 225, 255, 0.14);
+            background: rgba(255, 255, 255, 0.05);
+            text-decoration: none;
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .social-button i {
+            font-size: 1.12rem;
+            transition: transform 0.25s ease;
+        }
+
+        .social-button:hover {
+            transform: translateY(-2px);
+            border-color: rgba(121, 240, 255, 0.28);
+            background: rgba(45, 169, 255, 0.1);
+            box-shadow: 0 12px 26px rgba(27, 110, 215, 0.18);
+        }
+
+        .social-button:hover i {
+            transform: scale(1.12) rotate(-6deg);
+        }
+
+        .separator {
+            position: relative;
+            margin: 0 0 18px;
+            text-align: center;
+            color: rgba(243, 248, 255, 0.36);
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .separator::before,
+        .separator::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: calc(50% - 22px);
+            height: 1px;
+            background: rgba(190, 225, 255, 0.12);
+        }
+
+        .separator::before {
+            left: 0;
+        }
+
+        .separator::after {
+            right: 0;
+        }
+
+        .field {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .field input {
+            width: 100%;
+            min-height: 58px;
+            border: 1px solid rgba(190, 225, 255, 0.12);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.045);
+            color: var(--text);
+            font-size: 0.97rem;
+            font-family: inherit;
+            font-weight: 500;
+            padding: 0 50px 0 18px;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+        }
+
+        .field select {
+            width: 100%;
+            min-height: 58px;
+            border: 1px solid rgba(190, 225, 255, 0.12);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.045);
+            color: var(--text);
+            font-size: 0.97rem;
+            font-family: inherit;
+            font-weight: 500;
+            padding: 0 50px 0 18px;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .field input::placeholder {
+            color: rgba(243, 248, 255, 0.36);
+        }
+
+        .field input:focus {
+            border-color: rgba(121, 240, 255, 0.32);
+            box-shadow: 0 0 0 4px rgba(121, 240, 255, 0.08);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .field select:focus {
+            border-color: rgba(121, 240, 255, 0.32);
+            box-shadow: 0 0 0 4px rgba(121, 240, 255, 0.08);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .field select option {
+            color: #06182f;
+        }
+
+        .field i {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(177, 227, 255, 0.44);
+            font-size: 1.18rem;
+            transition: color 0.25s ease, transform 0.25s ease, text-shadow 0.25s ease;
+        }
+
+        .field:focus-within i {
+            color: var(--cyan);
+            transform: translateY(-50%) scale(1.12);
+            text-shadow: 0 0 14px rgba(121, 240, 255, 0.46);
+        }
+
+        .options-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin: 4px 0 20px;
+            color: rgba(243, 248, 255, 0.54);
+            font-size: 0.82rem;
+        }
+
+        .options-row label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .options-row input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--blue);
+        }
+
+        .options-row a,
+        .inline-switch {
+            color: #9eeeff;
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.2s ease;
+        }
+
+        .options-row a:hover,
+        .inline-switch:hover {
+            color: #ffffff;
+        }
+
+        .primary-button {
+            width: 100%;
+            min-height: 58px;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            color: #ffffff;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.04rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #36b1ff 0%, #177af7 54%, #0d59d8 100%);
+            box-shadow: 0 18px 36px rgba(12, 89, 216, 0.28);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .primary-button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.55s ease;
+        }
+
+        .primary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 22px 40px rgba(12, 89, 216, 0.34);
+        }
+
+        .primary-button:hover::before {
+            transform: translateX(100%);
+        }
+
+        .clean-switch {
+            margin-top: 18px;
+            color: rgba(243, 248, 255, 0.56);
+            font-size: 0.86rem;
+            text-align: center;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            display: grid;
+            gap: 14px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(190, 225, 255, 0.1);
+        }
+
+        .overlay-wrap {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 25;
+            transition: transform 0.85s var(--ease);
+        }
+
+        .auth-shell.active .overlay-wrap {
+            transform: translateX(-100%);
+        }
+
+        .overlay {
+            position: relative;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 18% 22%, rgba(121, 240, 255, 0.24), transparent 18%),
+                radial-gradient(circle at 82% 78%, rgba(45, 169, 255, 0.22), transparent 20%),
+                linear-gradient(145deg, rgba(48, 159, 255, 0.98) 0%, rgba(17, 99, 232, 0.96) 54%, rgba(7, 58, 160, 0.96) 100%);
+            transform: translateX(0);
+            transition: transform 0.85s var(--ease);
+        }
+
+        .overlay::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 24%),
+                linear-gradient(-35deg, rgba(255, 255, 255, 0.08), transparent 26%);
+            opacity: 0.7;
+        }
+
+        .overlay::after {
+            content: '';
+            position: absolute;
+            inset: 22px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            pointer-events: none;
+        }
+
+        .auth-shell.active .overlay {
+            transform: translateX(50%);
+        }
+
+        .overlay-panel {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 18px;
+            padding: 88px 68px 52px;
+            transition: transform 0.85s var(--ease), opacity 0.5s ease;
+        }
+
+        .overlay-left {
+            transform: translateX(-20%);
+        }
+
+        .auth-shell.active .overlay-left {
+            transform: translateX(0);
+        }
+
+        .overlay-right {
+            right: 0;
+            transform: translateX(0);
+        }
+
+        .auth-shell.active .overlay-right {
+            transform: translateX(20%);
+        }
+
+        .overlay-title {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(2.45rem, 3vw, 3.25rem);
+            line-height: 1.02;
+            letter-spacing: -0.05em;
+            max-width: 340px;
+        }
+
+        .overlay-text {
+            max-width: 320px;
+            color: rgba(246, 251, 255, 0.86);
+            font-size: 1rem;
+            line-height: 1.65;
+        }
+
+        .overlay-icons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .icon-badge {
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
+            animation: badgeFloat 5s ease-in-out infinite;
+        }
+
+        .icon-badge:nth-child(2) {
+            animation-delay: 0.8s;
+        }
+
+        .icon-badge:nth-child(3) {
+            animation-delay: 1.6s;
+        }
+
+        .icon-badge i {
+            font-size: 1.3rem;
+            color: #f6fbff;
+        }
+
+        @keyframes badgeFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .overlay-button {
+            align-self: flex-start;
+            min-height: 48px;
+            padding: 0 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            font-family: 'Sora', sans-serif;
+            font-size: 0.94rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+        }
+
+        .overlay-button:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.28);
+        }
+
+        .mobile-toggle {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            .auth-shell {
+                min-height: 640px;
+            }
+
+            .form-pane {
+                padding-left: 38px;
+                padding-right: 38px;
+            }
+
+            .overlay-panel {
+                padding-left: 42px;
+                padding-right: 42px;
+            }
+        }
+
+        @media (max-width: 760px) {
+            body {
+                align-items: flex-start;
+                padding: 76px 0 24px;
+            }
+
+            .auth-shell {
+                width: calc(100vw - 24px);
+                min-height: auto;
+                border-radius: 24px;
+            }
+
+            .overlay-wrap {
+                display: none;
+            }
+
+            .form-pane {
+                position: relative;
+                width: 100%;
+                min-height: auto;
+                padding: 84px 22px 26px;
+                transform: none !important;
+            }
+
+            .form-pane.sign-up {
+                display: none;
+                opacity: 1;
+            }
+
+            .auth-shell.active .form-pane.sign-in {
+                display: none;
+            }
+
+            .auth-shell.active .form-pane.sign-up {
+                display: flex;
+            }
+
+            .form-card {
+                max-width: none;
+            }
+
+            .social-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .form-card {
+                min-height: auto;
+            }
+
+            .mobile-toggle {
+                display: block;
+                margin-top: 14px;
+                color: rgba(243, 248, 255, 0.56);
+                font-size: 0.82rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% set successFlashes = app.flashes('success') %}
+    {% set errorFlashes = app.flashes('error') %}
+
+    <div class="background-scene">
+        <div class="particle-field" id="particleField"></div>
+    </div>
+
+    <a href="{{ path('app_home') }}" class="home-link">
+        <i class="bx bx-arrow-back"></i> Home
+    </a>
+
+    <main class="auth-shell {{ showRegister|default(false) ? 'active' : '' }}" id="authShell">
+        <div class="auth-brand">
+            <span class="auth-brand-mark"><i class="bx bxs-brain"></i></span>
+            <span>LearnAdapt</span>
+        </div>
+
+        <section class="form-pane sign-in">
+            <div class="form-card">
+                <div class="card-main">
+                    <div class="panel-kicker"><i class="bx bx-log-in-circle"></i> Sign In</div>
+                    <h1 class="form-title">Welcome back</h1>
+                    <p class="form-subtitle">Continue learning.</p>
+
+                    <div class="flash-list">
+                        {% for message in successFlashes %}
+                            <div class="flash success">{{ message }}</div>
+                        {% endfor %}
+                        {% for message in errorFlashes %}
+                            <div class="flash error">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="social-actions">
+                        <a href="{{ path('app_auth_social', {provider: 'google'}) }}" class="social-button">
+                            <i class="bx bxl-google"></i>
+                            <span>Google</span>
+                        </a>
+                        <a href="{{ path('app_auth_social', {provider: 'github'}) }}" class="social-button">
+                            <i class="bx bxl-github"></i>
+                            <span>GitHub</span>
+                        </a>
+                    </div>
+
+                    <div class="separator">or</div>
+
+                    <form method="post" action="{{ path('app_login') }}" class="auth-form">
+                        <div class="field">
+                            <input type="email" name="email" value="{{ loginData.email|default('') }}" placeholder="Email" required autocomplete="email">
+                            <i class="bx bxs-envelope"></i>
+                        </div>
+
+                        <div class="field">
+                            <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
+                            <i class="bx bxs-lock-alt"></i>
+                        </div>
+
+                        <div class="options-row">
+                            <label><input type="checkbox" name="remember"> Remember me</label>
+                            <a href="#">Forgot?</a>
+                        </div>
+
+                        <button type="submit" class="primary-button">Login</button>
+                    </form>
+
+                    <div class="clean-switch">
+                        New here? <a href="#" class="inline-switch signup-trigger">Create account</a>
+                    </div>
+
+                    <div class="mobile-toggle">
+                        Need an account? <a href="#" class="inline-switch signup-trigger">Sign up</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="form-pane sign-up">
+            <div class="form-card">
+                <div class="card-main">
+                    <div class="panel-kicker"><i class="bx bx-user-plus"></i> Register</div>
+                    <h1 class="form-title">Create account</h1>
+                    <p class="form-subtitle">Start clean.</p>
+
+                    <div class="flash-list">
+                        {% for message in successFlashes %}
+                            <div class="flash success">{{ message }}</div>
+                        {% endfor %}
+                        {% for message in errorFlashes %}
+                            <div class="flash error">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="social-actions">
+                        <a href="{{ path('app_auth_social', {provider: 'google'}) }}" class="social-button">
+                            <i class="bx bxl-google"></i>
+                            <span>Google</span>
+                        </a>
+                        <a href="{{ path('app_auth_social', {provider: 'github'}) }}" class="social-button">
+                            <i class="bx bxl-github"></i>
+                            <span>GitHub</span>
+                        </a>
+                    </div>
+
+                    <div class="separator">or</div>
+
+                    <form method="post" action="{{ path('app_register') }}" class="auth-form">
+                        <div class="field">
+                            <input type="text" name="full_name" value="{{ registerData.full_name|default('') }}" placeholder="Full name" required minlength="2" maxlength="160" autocomplete="name">
+                            <i class="bx bxs-user"></i>
+                        </div>
+
+                        <div class="field">
+                            <input type="email" name="email" value="{{ registerData.email|default('') }}" placeholder="Email" required maxlength="180" autocomplete="email">
+                            <i class="bx bxs-envelope"></i>
+                        </div>
+
+                        <div class="field">
+                            <select name="role" required>
+                                {% for roleOption in roleOptions %}
+                                    <option value="{{ roleOption }}" {{ registerData.role|default('STUDENT') == roleOption ? 'selected' : '' }}>{{ roleOption|title }}</option>
+                                {% endfor %}
+                            </select>
+                            <i class="bx bx-chevron-down"></i>
+                        </div>
+
+                        <div class="field">
+                            <input type="tel" name="phone" value="{{ registerData.phone|default('') }}" placeholder="Phone number" required pattern="^\+?[0-9\s\-]{8,20}$" autocomplete="tel">
+                            <i class="bx bxs-phone"></i>
+                        </div>
+
+                        <div class="field">
+                            <input type="password" name="password" placeholder="Password" required minlength="8" autocomplete="new-password">
+                            <i class="bx bxs-lock-alt"></i>
+                        </div>
+
+                        <div class="field">
+                            <input type="password" name="confirm_password" placeholder="Confirm password" required autocomplete="new-password">
+                            <i class="bx bxs-lock"></i>
+                        </div>
+
+                        <button type="submit" class="primary-button">Register</button>
+                    </form>
+
+                    <div class="clean-switch">
+                        Already registered? <a href="#" class="inline-switch login-trigger">Login</a>
+                    </div>
+
+                    <div class="mobile-toggle">
+                        Already registered? <a href="#" class="inline-switch login-trigger">Sign in</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="overlay-wrap">
+            <div class="overlay">
+                <section class="overlay-panel overlay-left">
+                    <div class="panel-kicker"><i class="bx bx-shield-quarter"></i> Blue Mode</div>
+                    <h2 class="overlay-title">Keep your flow.</h2>
+                    <p class="overlay-text">One clean workspace for focus, practice, and progress.</p>
+                    <div class="overlay-icons">
+                        <span class="icon-badge"><i class="bx bx-bulb"></i></span>
+                        <span class="icon-badge"><i class="bx bx-time-five"></i></span>
+                        <span class="icon-badge"><i class="bx bx-line-chart"></i></span>
+                    </div>
+                    <button type="button" class="overlay-button login-trigger">Login</button>
+                </section>
+
+                <section class="overlay-panel overlay-right">
+                    <div class="panel-kicker"><i class="bx bx-sparkles"></i> LearnAdapt</div>
+                    <h2 class="overlay-title">Join smarter.</h2>
+                    <p class="overlay-text">Blue, clean, and built for focused study.</p>
+                    <div class="overlay-icons">
+                        <span class="icon-badge"><i class="bx bx-brain"></i></span>
+                        <span class="icon-badge"><i class="bx bx-book-open"></i></span>
+                        <span class="icon-badge"><i class="bx bx-rocket"></i></span>
+                    </div>
+                    <button type="button" class="overlay-button signup-trigger">Create account</button>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const authShell = document.getElementById('authShell');
+        const signupTriggers = document.querySelectorAll('.signup-trigger');
+        const loginTriggers = document.querySelectorAll('.login-trigger');
+        const particleField = document.getElementById('particleField');
+
+        function showRegister(event) {
+            if (event) {
+                event.preventDefault();
+            }
+            authShell.classList.add('active');
+        }
+
+        function showLogin(event) {
+            if (event) {
+                event.preventDefault();
+            }
+            authShell.classList.remove('active');
+        }
+
+        signupTriggers.forEach((element) => element.addEventListener('click', showRegister));
+        loginTriggers.forEach((element) => element.addEventListener('click', showLogin));
+
+        if (particleField) {
+            for (let index = 0; index < 52; index += 1) {
+                const particle = document.createElement('span');
+                const size = Math.random() * 11 + 2;
+                const duration = Math.random() * 10 + 8;
+                const delay = Math.random() * -14;
+                const shiftX = `${(Math.random() * 60 - 30).toFixed(2)}px`;
+                const shiftY = `${(Math.random() * 80 - 40).toFixed(2)}px`;
+                const opacity = (Math.random() * 0.65 + 0.18).toFixed(2);
+                const blur = `${Math.random() > 0.65 ? 1.6 : 0}px`;
+
+                particle.className = `particle${size < 4 ? ' tiny' : ''}`;
+                particle.style.setProperty('--size', `${size.toFixed(2)}px`);
+                particle.style.setProperty('--glow-size', `${(size * 3.4).toFixed(2)}`);
+                particle.style.setProperty('--x', `${(Math.random() * 100).toFixed(2)}%`);
+                particle.style.setProperty('--y', `${(Math.random() * 100).toFixed(2)}%`);
+                particle.style.setProperty('--shift-x', shiftX);
+                particle.style.setProperty('--shift-y', shiftY);
+                particle.style.setProperty('--duration', `${duration.toFixed(2)}s`);
+                particle.style.setProperty('--pulse', `${(duration * 0.55).toFixed(2)}s`);
+                particle.style.setProperty('--delay', `${delay.toFixed(2)}s`);
+                particle.style.setProperty('--opacity', opacity);
+                particle.style.setProperty('--blur', blur);
+
+                particleField.appendChild(particle);
+            }
+        }
+    </script>
+</body>
+</html>

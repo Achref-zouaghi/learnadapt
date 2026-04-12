@@ -1,0 +1,919 @@
+﻿{% extends 'base.html.twig' %}
+
+{% set darkPage = true %}
+
+{% block title %}Settings - LearnAdapt{% endblock %}
+
+{% block stylesheets %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    :root {
+        --bg: #04060e;
+        --purple: #7b61f1;
+        --cyan: #38bdd1;
+        --green: #34d399;
+        --text: #f6f8fc;
+        --muted: #9aa9c0;
+        --glass: rgba(255,255,255,0.04);
+        --glass-b: rgba(255,255,255,0.07);
+        --grad: linear-gradient(135deg, #7856ed 0%, #3cc5d9 100%);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body, body.dark-page {
+        font-family: 'Inter', sans-serif !important;
+        background: #020a10 !important;
+        color: var(--text);
+    }
+
+    footer { display: none !important; }
+
+    .s-site {
+        min-height: 100vh;
+        background: transparent !important;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* â”€â”€ Layout â”€â”€ */
+    .s-container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+
+    .s-label {
+        font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--muted); font-weight: 700;
+    }
+
+    /* â”€â”€ Header card â”€â”€ */
+    .s-header-card {
+        border-radius: 18px; border: 1px solid var(--glass-b);
+        background: var(--glass); padding: 28px 30px; margin-bottom: 18px;
+        backdrop-filter: blur(12px);
+    }
+    .s-header-card h1 {
+        font-size: 2rem; font-weight: 800; letter-spacing: -0.04em;
+        margin-top: 8px; color: var(--text);
+    }
+    .s-header-card p {
+        color: var(--muted); font-size: 0.9rem; line-height: 1.7; margin-top: 8px;
+        max-width: 600px;
+    }
+
+    /* â”€â”€ Sidebar â”€â”€ */
+    .s-sidebar {
+        width: 220px; flex-shrink: 0; border-radius: 18px;
+        border: 1px solid var(--glass-b); background: var(--glass);
+        padding: 10px; height: fit-content;
+        backdrop-filter: blur(12px);
+    }
+    .s-sidebar ul { list-style: none; }
+    .s-sidebar-link {
+        display: block; padding: 11px 14px; border-radius: 12px;
+        font-size: 0.86rem; font-weight: 500; color: var(--muted);
+        text-decoration: none; transition: all 0.18s ease;
+        border: 1px solid transparent;
+    }
+    .s-sidebar-link:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .s-sidebar-link.active {
+        color: var(--text); font-weight: 600;
+        background: rgba(123,97,241,0.1);
+        border-color: rgba(123,97,241,0.2);
+    }
+
+    /* â”€â”€ Content panel â”€â”€ */
+    .s-panel {
+        flex: 1; border-radius: 18px; border: 1px solid var(--glass-b);
+        background: var(--glass); padding: 30px 32px;
+        backdrop-filter: blur(12px);
+    }
+    .s-panel h2 {
+        font-size: 1.4rem; font-weight: 800; letter-spacing: -0.03em;
+        margin-top: 8px; color: var(--text);
+    }
+    .s-panel p.sub { color: var(--muted); font-size: 0.88rem; }
+
+    /* â”€â”€ Inputs â”€â”€ */
+    .s-input {
+        width: 100%; padding: 11px 14px; border-radius: 12px;
+        border: 1px solid var(--glass-b); background: var(--glass);
+        color: var(--text); font-size: 0.88rem; font-family: inherit;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .s-input::placeholder { color: rgba(255,255,255,0.25); }
+    .s-input:focus {
+        outline: none; border-color: var(--purple);
+        box-shadow: 0 0 0 3px rgba(123,97,241,0.18);
+    }
+    .s-input:disabled { color: var(--muted); background: rgba(255,255,255,0.02); cursor: not-allowed; }
+
+    .s-textarea {
+        width: 100%; padding: 11px 14px; border-radius: 12px;
+        border: 1px solid var(--glass-b); background: var(--glass);
+        color: var(--text); font-size: 0.88rem; font-family: inherit;
+        resize: vertical; min-height: 80px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .s-textarea::placeholder { color: rgba(255,255,255,0.25); }
+    .s-textarea:focus {
+        outline: none; border-color: var(--purple);
+        box-shadow: 0 0 0 3px rgba(123,97,241,0.18);
+    }
+
+    .s-field-label {
+        font-size: 0.84rem; font-weight: 600; color: var(--text);
+        display: block; margin-bottom: 4px;
+    }
+    .s-field-hint {
+        font-size: 0.72rem; color: var(--muted); float: right;
+    }
+
+    /* â”€â”€ Buttons â”€â”€ */
+    .s-btn-primary {
+        padding: 10px 22px; border-radius: 12px; border: none;
+        background: var(--grad); color: #fff; font-size: 0.84rem;
+        font-weight: 600; cursor: pointer; transition: opacity 0.2s ease;
+        font-family: inherit;
+    }
+    .s-btn-primary:hover { opacity: 0.88; }
+    .s-btn-outline {
+        padding: 8px 18px; border-radius: 12px;
+        border: 1px solid var(--glass-b); background: transparent;
+        color: var(--text); font-size: 0.82rem; font-weight: 500;
+        cursor: pointer; transition: background 0.18s ease; font-family: inherit;
+    }
+    .s-btn-outline:hover { background: rgba(255,255,255,0.04); }
+    .s-btn-brand-outline {
+        padding: 8px 18px; border-radius: 12px;
+        border: 1px solid rgba(123,97,241,0.25); background: rgba(123,97,241,0.08);
+        color: var(--purple); font-size: 0.82rem; font-weight: 600;
+        cursor: pointer; transition: background 0.18s ease; font-family: inherit;
+    }
+    .s-btn-brand-outline:hover { background: rgba(123,97,241,0.16); }
+
+    /* â”€â”€ Toggle â”€â”€ */
+    .s-toggle {
+        width: 44px; height: 26px; border-radius: 999px; position: relative;
+        cursor: pointer; transition: background 0.2s ease; flex-shrink: 0;
+        border: 1px solid var(--glass-b);
+    }
+    .s-toggle.on { background: rgba(123,97,241,0.25); border-color: rgba(123,97,241,0.35); }
+    .s-toggle.off { background: rgba(255,255,255,0.04); }
+    .s-toggle-dot {
+        position: absolute; top: 3px; width: 18px; height: 18px;
+        border-radius: 50%; transition: left 0.2s ease;
+    }
+    .s-toggle.on .s-toggle-dot { left: 22px; background: var(--purple); }
+    .s-toggle.off .s-toggle-dot { left: 3px; background: rgba(255,255,255,0.25); }
+
+    /* â”€â”€ Misc â”€â”€ */
+    .s-tile {
+        padding: 18px 20px; border-radius: 14px;
+        border: 1px solid var(--glass-b); background: var(--glass);
+    }
+
+    /* â”€â”€ Flash â”€â”€ */
+    .s-flash {
+        padding: 12px 18px; border-radius: 12px; font-size: 0.86rem;
+        font-weight: 500; margin-bottom: 16px; display: flex;
+        align-items: center; gap: 10px;
+        animation: s-flash-in 0.3s ease;
+    }
+    .s-flash-success {
+        background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.25);
+        color: var(--green);
+    }
+    .s-flash-error {
+        background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.25);
+        color: #f87171;
+    }
+    .s-flash.fade-out { opacity: 0; transition: opacity 0.5s ease; }
+    @keyframes s-flash-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* â”€â”€ Data stat â”€â”€ */
+    .s-data-stat {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 18px; border-radius: 12px;
+        border: 1px solid var(--glass-b); background: var(--glass);
+    }
+    .s-data-stat-label { font-size: 0.86rem; color: var(--muted); }
+    .s-data-stat-value { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+
+    /* â”€â”€ Delete modal â”€â”€ */
+    .s-modal-overlay {
+        display: none; position: fixed; inset: 0; z-index: 9999;
+        background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+        align-items: center; justify-content: center;
+    }
+    .s-modal-overlay.open { display: flex; }
+    .s-modal {
+        background: #0d1117; border: 1px solid var(--glass-b);
+        border-radius: 18px; padding: 28px 30px; max-width: 440px; width: 100%;
+    }
+    .s-modal h3 { font-size: 1.1rem; font-weight: 700; color: #f87171; margin-bottom: 12px; }
+    .s-modal p { font-size: 0.86rem; color: var(--muted); line-height: 1.6; margin-bottom: 18px; }
+
+    @media (max-width: 768px) {
+        .s-layout { flex-direction: column; }
+        .s-sidebar { width: 100%; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<script>document.documentElement.setAttribute('data-theme','dark');</script>
+{% include 'partials/_background.html.twig' %}
+<div class="s-site" style="position:relative;z-index:1">
+    <div class="s-container" style="padding-top: 96px; padding-bottom: 80px;">
+
+        {# â”€â”€ Flash messages â”€â”€ #}
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="s-flash s-flash-{{ type }}">
+                    {% if type == 'success' %}
+                        <i class='bx bx-check-circle' style="font-size: 1.1rem;"></i>
+                    {% else %}
+                        <i class='bx bx-error-circle' style="font-size: 1.1rem;"></i>
+                    {% endif %}
+                    {{ message|trans }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="s-header-card">
+            <div class="s-label">{{ 'settings.workspace_controls'|trans }}</div>
+            <h1>{{ 'settings.title'|trans }}</h1>
+            <p>{{ 'settings.subtitle'|trans }}</p>
+        </div>
+
+        <div class="s-layout" style="display: flex; gap: 18px;">
+            <nav class="s-sidebar">
+                <ul>
+                    <li><a href="{{ path('app_settings', {section: 'account'}) }}" class="s-sidebar-link {{ section == 'account' ? 'active' : '' }}">{{ 'settings.sidebar.account'|trans }}</a></li>
+                    <li><a href="{{ path('app_settings', {section: 'notifications'}) }}" class="s-sidebar-link {{ section == 'notifications' ? 'active' : '' }}">{{ 'settings.sidebar.notifications'|trans }}</a></li>
+                    <li><a href="{{ path('app_settings', {section: 'password'}) }}" class="s-sidebar-link {{ section == 'password' ? 'active' : '' }}">{{ 'settings.sidebar.password'|trans }}</a></li>
+                    <li><a href="{{ path('app_settings', {section: 'language'}) }}" class="s-sidebar-link {{ section == 'language' ? 'active' : '' }}">{{ 'settings.sidebar.language'|trans }}</a></li>
+                    <li><a href="{{ path('app_settings', {section: 'appearance'}) }}" class="s-sidebar-link {{ section == 'appearance' ? 'active' : '' }}">{{ 'settings.sidebar.appearance'|trans }}</a></li>
+
+                    <li><a href="{{ path('app_settings', {section: 'payment'}) }}" class="s-sidebar-link {{ section == 'payment' ? 'active' : '' }}">{{ 'settings.sidebar.payment'|trans }}</a></li>
+                    <li><a href="{{ path('app_settings', {section: 'data-export'}) }}" class="s-sidebar-link {{ section == 'data-export' ? 'active' : '' }}">{{ 'settings.sidebar.data_privacy'|trans }}</a></li>
+                </ul>
+            </nav>
+
+            <div class="s-panel">
+
+                {# â•â•â•â•â•â•â•â•â•â•â•â• ACCOUNT â•â•â•â•â•â•â•â•â•â•â•â• #}
+                {% if section == 'account' %}
+                <div class="s-label">Identity</div>
+                <h2>Account</h2>
+
+                {# Avatar #}
+                <div style="margin-top: 24px; margin-bottom: 28px;">
+                    <label class="s-field-label" style="margin-bottom: 10px;">Avatar</label>
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        {% if user.avatar_base64 %}
+                            <img src="{{ user.avatar_base64 }}" alt="Avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1);">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ user.full_name|url_encode }}&background=7c5cfc&color=fff&size=48" alt="Avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1);">
+                        {% endif %}
+                        <form action="{{ path('app_settings_update_avatar') }}" method="post" enctype="multipart/form-data" style="display: inline;">
+                            <input type="file" name="avatar" id="settingsAvatarInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display: none;">
+                            <button type="button" class="s-btn-brand-outline" onclick="document.getElementById('settingsAvatarInput').click();">Upload</button>
+                        </form>
+                        {% if user.avatar_base64 %}
+                        <form action="{{ path('app_settings_remove_avatar') }}" method="post" style="display: inline;">
+                            <button type="submit" class="s-btn-outline">Remove</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Account form #}
+                <form action="{{ path('app_settings_update_account') }}" method="post">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <label class="s-field-label">Full name</label>
+                                <span class="s-field-hint">How do you want to be called?</span>
+                            </div>
+                            <input type="text" name="full_name" value="{{ user.full_name }}" class="s-input" required>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <label class="s-field-label">Email address</label>
+                                <span class="s-field-hint">For notifications and logging in</span>
+                            </div>
+                            <input type="email" value="{{ user.email }}" disabled class="s-input">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <label class="s-field-label">Phone number</label>
+                                <span class="s-field-hint">Optional</span>
+                            </div>
+                            <input type="tel" name="phone" value="{{ user.phone ?? '' }}" placeholder="+213 ..." class="s-input">
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <label class="s-field-label">Location</label>
+                                <span class="s-field-hint">City or country</span>
+                            </div>
+                            <input type="text" name="location" value="{{ user.location ?? '' }}" placeholder="e.g. Algiers, Algeria" class="s-input">
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 28px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <label class="s-field-label">Bio</label>
+                            <span class="s-field-hint">A short description about yourself</span>
+                        </div>
+                        <textarea name="bio" class="s-textarea" placeholder="Tell us about yourself...">{{ user.bio ?? '' }}</textarea>
+                    </div>
+
+                    {# Account info #}
+                    <div style="margin-bottom: 28px;">
+                        <label class="s-field-label" style="margin-bottom: 12px;">Account info</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="s-tile">
+                                <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 4px;">Member since</div>
+                                <div style="font-size: 0.92rem; font-weight: 600; color: var(--text);">{{ memberSince ? memberSince|date('M d, Y') : 'N/A' }}</div>
+                            </div>
+                            <div class="s-tile">
+                                <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 4px;">Last login</div>
+                                <div style="font-size: 0.92rem; font-weight: 600; color: var(--text);">{{ lastLogin ? lastLogin|date('M d, Y H:i') : 'N/A' }}</div>
+                            </div>
+                            <div class="s-tile">
+                                <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 4px;">Role</div>
+                                <div style="font-size: 0.92rem; font-weight: 600; color: var(--text); text-transform: capitalize;">{{ user.role }}</div>
+                            </div>
+                            <div class="s-tile">
+                                <div style="font-size: 0.78rem; color: var(--muted); margin-bottom: 4px;">Status</div>
+                                <div style="font-size: 0.92rem; font-weight: 600; color: var(--green);">
+                                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-right: 6px;"></span>Active
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Linked Accounts #}
+                    <div style="margin-bottom: 28px;">
+                        <label class="s-field-label" style="margin-bottom: 4px;">Linked Accounts</label>
+                        <p class="s-field-hint" style="float: none; margin-bottom: 12px;">We use this to let you sign in and populate your profile information</p>
+                        <div class="s-tile" style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24">
+                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                                </svg>
+                                <span style="font-size: 0.88rem; color: var(--text);">Sign in with Google</span>
+                            </div>
+                            <button type="button" class="s-btn-brand-outline">Connect</button>
+                        </div>
+                    </div>
+
+                    {# Delete account #}
+                    <div style="border-top: 1px solid var(--glass-b); padding-top: 20px; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <label class="s-field-label">Delete account</label>
+                                <p style="font-size: 0.78rem; color: var(--muted); margin-top: 2px;">By deleting your account you will lose all your data</p>
+                            </div>
+                            <button type="button" class="s-btn-outline" style="color: #f87171; border-color: rgba(248,113,113,0.2);" onclick="document.getElementById('deleteModal').classList.add('open');">Delete account...</button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; padding-top: 8px;">
+                        <button type="submit" class="s-btn-primary">Save changes</button>
+                    </div>
+                </form>
+
+                {# â•â•â•â•â•â•â•â•â•â•â•â• NOTIFICATIONS â•â•â•â•â•â•â•â•â•â•â•â• #}
+                {% elseif section == 'notifications' %}
+                <div class="s-label">Signal rules</div>
+                <h2>Notifications</h2>
+                <p class="sub" style="margin-top: 4px; margin-bottom: 22px;">Choose which notifications you want to receive.</p>
+
+                <div style="display: grid; gap: 12px;">
+                    <div class="s-tile" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Quiz results</div>
+                            <div style="color: var(--muted); font-size: 0.82rem; margin-top: 4px;">Get notified when your quiz scores are ready.</div>
+                        </div>
+                        <div class="s-toggle {{ notifPrefs.quiz_results ? 'on' : 'off' }}" onclick="this.classList.toggle('on');this.classList.toggle('off');"><span class="s-toggle-dot"></span></div>
+                    </div>
+                    <div class="s-tile" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Forum replies</div>
+                            <div style="color: var(--muted); font-size: 0.82rem; margin-top: 4px;">Receive alerts when someone replies to your posts.</div>
+                        </div>
+                        <div class="s-toggle {{ notifPrefs.forum_replies ? 'on' : 'off' }}" onclick="this.classList.toggle('on');this.classList.toggle('off');"><span class="s-toggle-dot"></span></div>
+                    </div>
+                    <div class="s-tile" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Weekly progress reports</div>
+                            <div style="color: var(--muted); font-size: 0.82rem; margin-top: 4px;">Weekly digest of your study time and achievements.</div>
+                        </div>
+                        <div class="s-toggle {{ notifPrefs.weekly_reports ? 'on' : 'off' }}" onclick="this.classList.toggle('on');this.classList.toggle('off');"><span class="s-toggle-dot"></span></div>
+                    </div>
+                    <div class="s-tile" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Course updates</div>
+                            <div style="color: var(--muted); font-size: 0.82rem; margin-top: 4px;">New modules or exercises added to your courses.</div>
+                        </div>
+                        <div class="s-toggle {{ notifPrefs.cohort_summaries ? 'on' : 'off' }}" onclick="this.classList.toggle('on');this.classList.toggle('off');"><span class="s-toggle-dot"></span></div>
+                    </div>
+                    <div class="s-tile" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">System alerts</div>
+                            <div style="color: var(--muted); font-size: 0.82rem; margin-top: 4px;">Critical platform maintenance and security alerts.</div>
+                        </div>
+                        <div class="s-toggle on"><span class="s-toggle-dot"></span></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px; padding: 16px 18px; border-radius: 12px; background: rgba(123,97,241,0.06); border: 1px solid rgba(123,97,241,0.15);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <i class='bx bx-bell' style="color: var(--purple); font-size: 1rem;"></i>
+                        <span style="font-size: 0.84rem; font-weight: 600; color: var(--text);">You have {{ notificationsCount }} total notification{{ notificationsCount != 1 ? 's' : '' }}</span>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--muted);">Manage individual notifications from your profile page.</p>
+                </div>
+
+                {# â•â•â•â•â•â•â•â•â•â•â•â• PASSWORD â•â•â•â•â•â•â•â•â•â•â•â• #}
+                {% elseif section == 'password' %}
+                <div class="s-label">Secure access</div>
+                <h2>Password</h2>
+                <p class="sub" style="margin-top: 4px; margin-bottom: 22px;">Update your password to keep your account secure.</p>
+
+                <form action="{{ path('app_settings_update_password') }}" method="post">
+                    <div style="display: grid; gap: 18px; max-width: 420px;">
+                        <div>
+                            <label class="s-field-label" style="margin-bottom: 6px;">Current password</label>
+                            <input type="password" name="current_password" class="s-input" required placeholder="Enter current password">
+                        </div>
+                        <div>
+                            <label class="s-field-label" style="margin-bottom: 6px;">New password</label>
+                            <input type="password" name="new_password" class="s-input" required placeholder="Min 6 characters" minlength="6">
+                        </div>
+                        <div>
+                            <label class="s-field-label" style="margin-bottom: 6px;">Confirm new password</label>
+                            <input type="password" name="confirm_password" class="s-input" required placeholder="Repeat new password">
+                        </div>
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button type="submit" class="s-btn-primary">Update password</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div style="margin-top: 28px; padding: 16px 18px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--glass-b);">
+                    <div style="font-size: 0.84rem; font-weight: 600; color: var(--text); margin-bottom: 6px;">Password tips</div>
+                    <ul style="font-size: 0.78rem; color: var(--muted); padding-left: 16px; line-height: 1.8;">
+                        <li>Use at least 6 characters</li>
+                        <li>Mix letters, numbers, and symbols</li>
+                        <li>Don't reuse passwords from other sites</li>
+                    </ul>
+                </div>
+                {# ── LANGUAGE ── #}
+                {% elseif section == 'language' %}
+                <div class="s-label">{{ 'settings.language.preferences'|trans }}</div>
+                <h2>{{ 'settings.language.title'|trans }}</h2>
+                <p class="sub" style="margin-top: 4px; margin-bottom: 22px;">{{ 'settings.language.subtitle'|trans }}</p>
+
+                <form action="{{ path('app_settings_update_language') }}" method="post">
+                    <div style="max-width: 420px;">
+                        <label class="s-field-label" style="margin-bottom: 6px;">{{ 'settings.language.select'|trans }}</label>
+                        <p style="font-size: 0.78rem; color: var(--muted); margin-bottom: 14px;">{{ 'settings.language.select_hint'|trans }}</p>
+
+                        <div style="display: grid; gap: 10px; margin-bottom: 24px;">
+                            <label class="s-tile" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
+                                <input type="radio" name="locale" value="en" {{ user.locale == 'en' ? 'checked' : '' }} style="accent-color: var(--purple); width: 18px; height: 18px;">
+                                <span style="font-size: 1.3rem;">&#127468;&#127463;</span>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">English</div>
+                                    <div style="color: var(--muted); font-size: 0.78rem;">English</div>
+                                </div>
+                            </label>
+                            <label class="s-tile" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
+                                <input type="radio" name="locale" value="fr" {{ user.locale == 'fr' ? 'checked' : '' }} style="accent-color: var(--purple); width: 18px; height: 18px;">
+                                <span style="font-size: 1.3rem;">&#127467;&#127479;</span>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Fran&ccedil;ais</div>
+                                    <div style="color: var(--muted); font-size: 0.78rem;">French</div>
+                                </div>
+                            </label>
+                            <label class="s-tile" style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
+                                <input type="radio" name="locale" value="es" {{ user.locale == 'es' ? 'checked' : '' }} style="accent-color: var(--purple); width: 18px; height: 18px;">
+                                <span style="font-size: 1.3rem;">&#127466;&#127480;</span>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Espa&ntilde;ol</div>
+                                    <div style="color: var(--muted); font-size: 0.78rem;">Spanish</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button type="submit" class="s-btn-primary">{{ 'settings.language.save'|trans }}</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div style="margin-top: 28px; padding: 16px 18px; border-radius: 12px; background: rgba(123,97,241,0.06); border: 1px solid rgba(123,97,241,0.15);">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                        <i class='bx bx-globe' style="color: var(--purple); font-size: 1rem;"></i>
+                        <span style="font-size: 0.84rem; font-weight: 600; color: var(--text);">{{ 'settings.language.current'|trans }}: {% if user.locale == 'en' %}English{% elseif user.locale == 'fr' %}Fran&ccedil;ais{% elseif user.locale == 'es' %}Espa&ntilde;ol{% endif %}</span>
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--muted);">{{ 'settings.language.select_hint'|trans }}</p>
+                </div>
+
+
+                {# -- APPEARANCE -- #}
+
+                {% elseif section == 'appearance' %}
+
+                <div class="s-label">{{ 'settings.appearance.visual'|trans }}</div>
+
+                <h2>{{ 'settings.appearance.title'|trans }}</h2>
+
+                <p class="sub" style="margin-top: 4px; margin-bottom: 22px;">{{ 'settings.appearance.subtitle'|trans }}</p>
+
+
+
+                <form action="{{ path('app_settings_update_theme') }}" method="post">
+
+                    <div style="max-width: 520px;">
+
+                        <label class="s-field-label" style="margin-bottom: 6px;">{{ 'settings.appearance.select'|trans }}</label>
+
+                        <p style="font-size: 0.78rem; color: var(--muted); margin-bottom: 14px;">{{ 'settings.appearance.select_hint'|trans }}</p>
+
+
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px;">
+
+                            {# Dark card #}
+
+                            <label class="s-tile" style="cursor: pointer; text-align: center; padding: 22px 18px; transition: border-color 0.2s ease; {{ user.theme == 'dark' ? 'border-color: rgba(123,97,241,0.5);' : '' }}" onclick="this.querySelector('input').checked=true;">
+
+                                <input type="radio" name="theme" value="dark" {{ user.theme == 'dark' ? 'checked' : '' }} style="display: none;">
+
+                                <div style="width: 100%; height: 80px; border-radius: 10px; margin-bottom: 14px; background: #0a0e1a; border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden;">
+
+                                    <div style="position: absolute; top: 8px; left: 8px; right: 8px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08);"></div>
+
+                                    <div style="position: absolute; top: 20px; left: 8px; width: 40%; height: 4px; border-radius: 2px; background: rgba(123,97,241,0.5);"></div>
+
+                                    <div style="position: absolute; top: 30px; left: 8px; right: 8px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.05);"></div>
+
+                                    <div style="position: absolute; top: 40px; left: 8px; width: 60%; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.05);"></div>
+
+                                    <div style="position: absolute; bottom: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: rgba(123,97,241,0.3);"></div>
+
+                                </div>
+
+                                <div style="font-weight: 600; color: var(--text); font-size: 0.92rem; margin-bottom: 2px;">
+
+                                    <i class='bx bx-moon' style="margin-right: 4px;"></i>{{ 'settings.appearance.dark'|trans }}
+
+                                </div>
+
+                                <div style="color: var(--muted); font-size: 0.76rem;">{{ 'settings.appearance.dark_desc'|trans }}</div>
+
+                            </label>
+
+
+
+                            {# Light card #}
+
+                            <label class="s-tile" style="cursor: pointer; text-align: center; padding: 22px 18px; transition: border-color 0.2s ease; {{ user.theme == 'light' ? 'border-color: rgba(123,97,241,0.5);' : '' }}" onclick="this.querySelector('input').checked=true;">
+
+                                <input type="radio" name="theme" value="light" {{ user.theme == 'light' ? 'checked' : '' }} style="display: none;">
+
+                                <div style="width: 100%; height: 80px; border-radius: 10px; margin-bottom: 14px; background: #f5f7fa; border: 1px solid rgba(0,0,0,0.08); position: relative; overflow: hidden;">
+
+                                    <div style="position: absolute; top: 8px; left: 8px; right: 8px; height: 6px; border-radius: 3px; background: rgba(0,0,0,0.06);"></div>
+
+                                    <div style="position: absolute; top: 20px; left: 8px; width: 40%; height: 4px; border-radius: 2px; background: rgba(123,97,241,0.4);"></div>
+
+                                    <div style="position: absolute; top: 30px; left: 8px; right: 8px; height: 4px; border-radius: 2px; background: rgba(0,0,0,0.04);"></div>
+
+                                    <div style="position: absolute; top: 40px; left: 8px; width: 60%; height: 4px; border-radius: 2px; background: rgba(0,0,0,0.04);"></div>
+
+                                    <div style="position: absolute; bottom: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: rgba(123,97,241,0.15);"></div>
+
+                                </div>
+
+                                <div style="font-weight: 600; color: var(--text); font-size: 0.92rem; margin-bottom: 2px;">
+
+                                    <i class='bx bx-sun' style="margin-right: 4px;"></i>{{ 'settings.appearance.light'|trans }}
+
+                                </div>
+
+                                <div style="color: var(--muted); font-size: 0.76rem;">{{ 'settings.appearance.light_desc'|trans }}</div>
+
+                            </label>
+
+                        </div>
+
+
+
+                        <div style="display: flex; justify-content: flex-end;">
+
+                            <button type="submit" class="s-btn-primary">{{ 'settings.appearance.save'|trans }}</button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+
+
+                <div style="margin-top: 28px; padding: 16px 18px; border-radius: 12px; background: rgba(123,97,241,0.06); border: 1px solid rgba(123,97,241,0.15);">
+
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+
+                        <i class='bx bx-palette' style="color: var(--purple); font-size: 1rem;"></i>
+
+                        <span style="font-size: 0.84rem; font-weight: 600; color: var(--text);">{{ 'settings.appearance.current'|trans }}: {% if user.theme == 'dark' %}{{ 'settings.appearance.dark'|trans }}{% else %}{{ 'settings.appearance.light'|trans }}{% endif %}</span>
+
+                    </div>
+
+                    <p style="font-size: 0.78rem; color: var(--muted);">{{ 'settings.appearance.select_hint'|trans }}</p>
+
+                </div>
+
+                {# ═══════════ PAYMENT ═══════════ #}
+
+                {% elseif section == 'payment' %}
+
+                <div class="s-label">{{ 'settings.payment.label'|trans }}</div>
+
+                <h2>{{ 'settings.payment.title'|trans }}</h2>
+
+                <p class="sub" style="margin-top: 4px; margin-bottom: 22px;">{{ 'settings.payment.subtitle'|trans }}</p>
+
+
+
+                {# Current payment methods #}
+
+                <div class="s-tile" style="margin-bottom: 16px;">
+
+                    <div style="display: flex; align-items: center; gap: 14px;">
+
+                        <div style="width: 48px; height: 32px; border-radius: 6px; background: linear-gradient(135deg, #1a1f71 0%, #2d5dab 100%); display: flex; align-items: center; justify-content: center;">
+
+                            <i class='bx bxl-visa' style="color: #fff; font-size: 1.4rem;"></i>
+
+                        </div>
+
+                        <div style="flex: 1;">
+
+                            <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">{{ 'settings.payment.no_method'|trans }}</div>
+
+                            <div style="color: var(--muted); font-size: 0.78rem; margin-top: 2px;">{{ 'settings.payment.no_method_hint'|trans }}</div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                {# Add card form #}
+
+                <div class="s-tile" style="margin-bottom: 18px;">
+
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+
+                        <i class='bx bx-credit-card' style="color: var(--purple); font-size: 1.1rem;"></i>
+
+                        <span style="font-weight: 600; color: var(--text); font-size: 0.92rem;">{{ 'settings.payment.add_card'|trans }}</span>
+
+                    </div>
+
+
+
+                    <form onsubmit="return false;" style="max-width: 460px;">
+
+                        <div style="margin-bottom: 14px;">
+
+                            <label class="s-field-label" style="margin-bottom: 4px;">{{ 'settings.payment.card_name'|trans }}</label>
+
+                            <input type="text" class="s-input" placeholder="{{ 'settings.payment.card_name_placeholder'|trans }}" disabled>
+
+                        </div>
+
+
+
+                        <div style="margin-bottom: 14px;">
+
+                            <label class="s-field-label" style="margin-bottom: 4px;">{{ 'settings.payment.card_number'|trans }}</label>
+
+                            <input type="text" class="s-input" placeholder="•••• •••• •••• ••••" disabled>
+
+                        </div>
+
+
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+
+                            <div>
+
+                                <label class="s-field-label" style="margin-bottom: 4px;">{{ 'settings.payment.expiry'|trans }}</label>
+
+                                <input type="text" class="s-input" placeholder="MM / YY" disabled>
+
+                            </div>
+
+                            <div>
+
+                                <label class="s-field-label" style="margin-bottom: 4px;">{{ 'settings.payment.cvv'|trans }}</label>
+
+                                <input type="text" class="s-input" placeholder="•••" disabled>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
+
+                            <button type="button" class="s-btn-brand-outline" disabled style="opacity: 0.5;">{{ 'settings.payment.coming_soon'|trans }}</button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+
+
+                {# Accepted payment methods #}
+
+                <div style="padding: 16px 18px; border-radius: 12px; background: rgba(123,97,241,0.06); border: 1px solid rgba(123,97,241,0.15);">
+
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+
+                        <i class='bx bx-lock-alt' style="color: var(--purple); font-size: 1rem;"></i>
+
+                        <span style="font-size: 0.84rem; font-weight: 600; color: var(--text);">{{ 'settings.payment.secure_title'|trans }}</span>
+
+                    </div>
+
+                    <p style="font-size: 0.78rem; color: var(--muted); margin-bottom: 10px;">{{ 'settings.payment.secure_desc'|trans }}</p>
+
+                    <div style="display: flex; gap: 12px; align-items: center;">
+
+                        <div style="width: 42px; height: 26px; border-radius: 4px; background: #1a1f71; display: flex; align-items: center; justify-content: center;"><span style="color: #fff; font-size: 0.6rem; font-weight: 700;">VISA</span></div>
+
+                        <div style="width: 42px; height: 26px; border-radius: 4px; background: #eb001b; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+
+                            <div style="position: absolute; left: 10px; width: 16px; height: 16px; border-radius: 50%; background: #eb001b; opacity: 0.8;"></div>
+
+                            <div style="position: absolute; right: 10px; width: 16px; height: 16px; border-radius: 50%; background: #f79e1b; opacity: 0.8;"></div>
+
+                        </div>
+
+                        <div style="width: 42px; height: 26px; border-radius: 4px; background: #0070ba; display: flex; align-items: center; justify-content: center;"><span style="color: #fff; font-size: 0.55rem; font-weight: 700;">PayPal</span></div>
+
+                        <div style="width: 42px; height: 26px; border-radius: 4px; background: linear-gradient(135deg, #635bff, #a259ff); display: flex; align-items: center; justify-content: center;"><span style="color: #fff; font-size: 0.55rem; font-weight: 700;">Stripe</span></div>
+
+                    </div>
+
+                </div>
+
+
+
+                {# â•â•â•â•â•â•â•â•â•â•â•â• DATA & PRIVACY â•â•â•â•â•â•â•â•â•â•â•â• #}
+                {% elseif section == 'data-export' %}
+                <div class="s-label">Governance</div>
+                <h2>Data & Privacy</h2>
+                <p class="sub" style="margin-top: 4px; margin-bottom: 22px;">Overview of your data stored on LearnAdapt.</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+                    <div class="s-data-stat">
+                        <span class="s-data-stat-label">Courses</span>
+                        <span class="s-data-stat-value">{{ coursesCount }}</span>
+                    </div>
+                    <div class="s-data-stat">
+                        <span class="s-data-stat-label">Quiz attempts</span>
+                        <span class="s-data-stat-value">{{ quizAttemptsCount }}</span>
+                    </div>
+                    <div class="s-data-stat">
+                        <span class="s-data-stat-label">Forum posts</span>
+                        <span class="s-data-stat-value">{{ forumPostsCount }}</span>
+                    </div>
+                    <div class="s-data-stat">
+                        <span class="s-data-stat-label">Tasks</span>
+                        <span class="s-data-stat-value">{{ tasksCount }}</span>
+                    </div>
+                    <div class="s-data-stat">
+                        <span class="s-data-stat-label">Notifications</span>
+                        <span class="s-data-stat-value">{{ notificationsCount }}</span>
+                    </div>
+                    <div class="s-data-stat">
+                        <span class="s-data-stat-label">Account status</span>
+                        <span class="s-data-stat-value" style="color: var(--green);">Active</span>
+                    </div>
+                </div>
+
+                <div class="s-tile" style="margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Export your data</div>
+                            <div style="color: var(--muted); font-size: 0.82rem; margin-top: 4px;">Download a copy of all your LearnAdapt data.</div>
+                        </div>
+                        <button type="button" class="s-btn-brand-outline" disabled style="opacity: 0.5;">Coming soon</button>
+                    </div>
+                </div>
+
+                <div class="s-tile">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <div style="font-weight: 600; color: #f87171; font-size: 0.9rem;">Delete all data</div>
+                            <div style="color: var(--muted); font-size: 0.82rem; margin-top: 4px;">Permanently remove your account and all associated data.</div>
+                        </div>
+                        <button type="button" class="s-btn-outline" style="color: #f87171; border-color: rgba(248,113,113,0.2);" onclick="document.getElementById('deleteModal').classList.add('open');">Delete everything</button>
+                    </div>
+                </div>
+
+                {% else %}
+                <div class="s-label">Workspace section</div>
+                <h2>{{ section|capitalize }}</h2>
+                <p class="sub" style="margin-top: 12px;">This section is under construction.</p>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{# â”€â”€ Delete Account Modal â”€â”€ #}
+<div class="s-modal-overlay" id="deleteModal">
+    <div class="s-modal">
+        <h3>Delete your account?</h3>
+        <p>This action is <strong style="color: #f87171;">permanent</strong>. All your courses, quiz data, posts, and profile will be erased. Type your email to confirm.</p>
+        <form action="{{ path('app_settings_delete_account') }}" method="post">
+            <input type="email" name="confirm_email" class="s-input" placeholder="Type {{ user.email }} to confirm" style="margin-bottom: 16px;" required>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="s-btn-outline" onclick="document.getElementById('deleteModal').classList.remove('open');">Cancel</button>
+                <button type="submit" class="s-btn-outline" style="color: #f87171; border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.08);">Delete forever</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// Auto-dismiss flashes after 5 seconds
+document.querySelectorAll('.s-flash').forEach(function(el) {
+    setTimeout(function() {
+        el.classList.add('fade-out');
+        setTimeout(function() { el.remove(); }, 500);
+    }, 5000);
+});
+
+// Avatar upload auto-submit
+var avatarInput = document.getElementById('settingsAvatarInput');
+if (avatarInput) {
+    avatarInput.addEventListener('change', function() {
+        if (this.files.length > 0) this.closest('form').submit();
+    });
+}
+
+// Close modal on backdrop click
+var deleteModal = document.getElementById('deleteModal');
+if (deleteModal) {
+    deleteModal.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.remove('open');
+    });
+}
+
+// Theme: instant switch on click + auto-submit
+document.querySelectorAll('input[name="theme"]').forEach(function(radio) {
+    var tile = radio.closest('.s-tile');
+    if (tile) {
+        tile.addEventListener('click', function(e) {
+            e.preventDefault();
+            radio.checked = true;
+            // Instant visual preview
+            document.documentElement.setAttribute('data-theme', radio.value);
+            // Highlight selected card, un-highlight other
+            document.querySelectorAll('input[name="theme"]').forEach(function(r) {
+                var t = r.closest('.s-tile');
+                if (t) t.style.borderColor = r.checked ? 'rgba(123,97,241,0.5)' : '';
+            });
+            // Auto-submit the form to save to DB
+            radio.closest('form').submit();
+        });
+    }
+});
+</script>
+{% endblock %}

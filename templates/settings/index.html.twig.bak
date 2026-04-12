@@ -1,0 +1,345 @@
+{% extends 'base.html.twig' %}
+
+{% set darkPage = true %}
+
+{% block title %}Settings - LearnAdapt{% endblock %}
+
+{% block stylesheets %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    :root {
+        --bg: #04060e;
+        --purple: #7b61f1;
+        --cyan: #38bdd1;
+        --green: #34d399;
+        --text: #f6f8fc;
+        --muted: #9aa9c0;
+        --glass: rgba(255,255,255,0.04);
+        --glass-b: rgba(255,255,255,0.07);
+        --grad: linear-gradient(135deg, #7856ed 0%, #3cc5d9 100%);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body, body.dark-page {
+        font-family: 'Inter', sans-serif !important;
+        background: var(--bg) !important;
+        color: var(--text);
+    }
+
+    footer { display: none !important; }
+
+    .s-site {
+        min-height: 100vh;
+        background:
+            radial-gradient(1100px 700px at 80% -10%, rgba(34,211,238,0.05), transparent 62%),
+            radial-gradient(900px 600px at 10% 5%, rgba(124,58,237,0.07), transparent 60%),
+            var(--bg);
+    }
+
+    /* ── Brand ── */
+    .s-brand {
+        position: fixed; top: 20px; left: 32px; z-index: 100;
+        text-decoration: none; font-size: 1.1rem; font-weight: 800;
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, #a78bfa, #22d3ee);
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Layout ── */
+    .s-container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+
+    .s-label {
+        font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--muted); font-weight: 700;
+    }
+
+    /* ── Header card ── */
+    .s-header-card {
+        border-radius: 18px; border: 1px solid var(--glass-b);
+        background: var(--glass); padding: 28px 30px; margin-bottom: 18px;
+        backdrop-filter: blur(12px);
+    }
+    .s-header-card h1 {
+        font-size: 2rem; font-weight: 800; letter-spacing: -0.04em;
+        margin-top: 8px; color: var(--text);
+    }
+    .s-header-card p {
+        color: var(--muted); font-size: 0.9rem; line-height: 1.7; margin-top: 8px;
+        max-width: 600px;
+    }
+
+    /* ── Sidebar ── */
+    .s-sidebar {
+        width: 220px; flex-shrink: 0; border-radius: 18px;
+        border: 1px solid var(--glass-b); background: var(--glass);
+        padding: 10px; height: fit-content;
+        backdrop-filter: blur(12px);
+    }
+    .s-sidebar ul { list-style: none; }
+    .s-sidebar-link {
+        display: block; padding: 11px 14px; border-radius: 12px;
+        font-size: 0.86rem; font-weight: 500; color: var(--muted);
+        text-decoration: none; transition: all 0.18s ease;
+        border: 1px solid transparent;
+    }
+    .s-sidebar-link:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .s-sidebar-link.active {
+        color: var(--text); font-weight: 600;
+        background: rgba(123,97,241,0.1);
+        border-color: rgba(123,97,241,0.2);
+    }
+
+    /* ── Content panel ── */
+    .s-panel {
+        flex: 1; border-radius: 18px; border: 1px solid var(--glass-b);
+        background: var(--glass); padding: 30px 32px;
+        backdrop-filter: blur(12px);
+    }
+    .s-panel h2 {
+        font-size: 1.4rem; font-weight: 800; letter-spacing: -0.03em;
+        margin-top: 8px; color: var(--text);
+    }
+    .s-panel p.sub { color: var(--muted); font-size: 0.88rem; }
+
+    /* ── Inputs ── */
+    .s-input {
+        width: 100%; padding: 11px 14px; border-radius: 12px;
+        border: 1px solid var(--glass-b); background: var(--glass);
+        color: var(--text); font-size: 0.88rem; font-family: inherit;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .s-input::placeholder { color: rgba(255,255,255,0.25); }
+    .s-input:focus {
+        outline: none; border-color: var(--purple);
+        box-shadow: 0 0 0 3px rgba(123,97,241,0.18);
+    }
+    .s-input:disabled { color: var(--muted); background: rgba(255,255,255,0.02); cursor: not-allowed; }
+
+    .s-field-label {
+        font-size: 0.84rem; font-weight: 600; color: var(--text);
+        display: block; margin-bottom: 4px;
+    }
+    .s-field-hint {
+        font-size: 0.72rem; color: var(--muted); float: right;
+    }
+
+    /* ── Buttons ── */
+    .s-btn-primary {
+        padding: 10px 22px; border-radius: 12px; border: none;
+        background: var(--grad); color: #fff; font-size: 0.84rem;
+        font-weight: 600; cursor: pointer; transition: opacity 0.2s ease;
+        font-family: inherit;
+    }
+    .s-btn-primary:hover { opacity: 0.88; }
+    .s-btn-outline {
+        padding: 8px 18px; border-radius: 12px;
+        border: 1px solid var(--glass-b); background: transparent;
+        color: var(--text); font-size: 0.82rem; font-weight: 500;
+        cursor: pointer; transition: background 0.18s ease; font-family: inherit;
+    }
+    .s-btn-outline:hover { background: rgba(255,255,255,0.04); }
+    .s-btn-brand-outline {
+        padding: 8px 18px; border-radius: 12px;
+        border: 1px solid rgba(123,97,241,0.25); background: rgba(123,97,241,0.08);
+        color: var(--purple); font-size: 0.82rem; font-weight: 600;
+        cursor: pointer; transition: background 0.18s ease; font-family: inherit;
+    }
+    .s-btn-brand-outline:hover { background: rgba(123,97,241,0.16); }
+
+    /* ── Toggle ── */
+    .s-toggle {
+        width: 44px; height: 26px; border-radius: 999px; position: relative;
+        cursor: pointer; transition: background 0.2s ease; flex-shrink: 0;
+        border: 1px solid var(--glass-b);
+    }
+    .s-toggle.on { background: rgba(123,97,241,0.25); border-color: rgba(123,97,241,0.35); }
+    .s-toggle.off { background: rgba(255,255,255,0.04); }
+    .s-toggle-dot {
+        position: absolute; top: 3px; width: 18px; height: 18px;
+        border-radius: 50%; transition: left 0.2s ease;
+    }
+    .s-toggle.on .s-toggle-dot { left: 22px; background: var(--purple); }
+    .s-toggle.off .s-toggle-dot { left: 3px; background: rgba(255,255,255,0.25); }
+
+    /* ── Misc ── */
+    .s-tile {
+        padding: 18px 20px; border-radius: 14px;
+        border: 1px solid var(--glass-b); background: var(--glass);
+    }
+
+    @media (max-width: 768px) {
+        .s-layout { flex-direction: column; }
+        .s-sidebar { width: 100%; }
+
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="s-site">
+
+
+    <div class="s-container" style="padding-top: 96px; padding-bottom: 80px;">
+        <div class="s-header-card">
+            <div class="s-label">Workspace controls</div>
+            <h1>Settings</h1>
+            <p>Manage account identity, notification rules, password access, integrations, and data handling.</p>
+        </div>
+
+        <div class="s-layout" style="display: flex; gap: 18px;">
+            <nav class="s-sidebar">
+                <ul>
+                    <li><a href="{{ path('app_settings', {section: 'account'}) }}" class="s-sidebar-link {{ section == 'account' ? 'active' : '' }}">Account</a></li>
+                    <li><a href="{{ path('app_settings', {section: 'notifications'}) }}" class="s-sidebar-link {{ section == 'notifications' ? 'active' : '' }}">Notifications</a></li>
+                    <li><a href="{{ path('app_settings', {section: 'password'}) }}" class="s-sidebar-link {{ section == 'password' ? 'active' : '' }}">Password</a></li>
+                    <li><a href="{{ path('app_settings', {section: 'integrations'}) }}" class="s-sidebar-link {{ section == 'integrations' ? 'active' : '' }}">Integrations</a></li>
+                    <li><a href="{{ path('app_settings', {section: 'data-export'}) }}" class="s-sidebar-link {{ section == 'data-export' ? 'active' : '' }}">Data export</a></li>
+                    <li><a href="{{ path('app_settings', {section: 'item'}) }}" class="s-sidebar-link {{ section == 'item' ? 'active' : '' }}">Item</a></li>
+                </ul>
+            </nav>
+
+            <div class="s-panel">
+
+                {% if section == 'account' %}
+                <div class="s-label">Identity</div>
+                <h2>Account</h2>
+
+                <div style="margin-top: 24px; margin-bottom: 28px;">
+                    <label class="s-field-label" style="margin-bottom: 10px;">Avatar</label>
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <img src="https://i.pravatar.cc/80?img=12" alt="Avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1);">
+                        <button type="button" class="s-btn-brand-outline">Upload</button>
+                        <button type="button" class="s-btn-outline">Remove</button>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <label class="s-field-label">Display name</label>
+                            <span class="s-field-hint">Visible to other members</span>
+                        </div>
+                        <input type="text" value="James" class="s-input">
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <label class="s-field-label">Full name</label>
+                            <span class="s-field-hint">How do you want to be called?</span>
+                        </div>
+                        <input type="text" value="James McDowel" class="s-input">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <label class="s-field-label">Email address</label>
+                            <span class="s-field-hint">For notifications and logging in</span>
+                        </div>
+                        <input type="email" value="james.mcdowel@learnadapt.com" disabled class="s-input">
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <label class="s-field-label">Phone number</label>
+                            <span class="s-field-hint">For receiving notifications</span>
+                        </div>
+                        <input type="tel" value="+31 6 12 34 56 78" class="s-input">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 28px;">
+                    <label class="s-field-label" style="margin-bottom: 4px;">Linked Accounts</label>
+                    <p class="s-field-hint" style="float: none; margin-bottom: 12px;">We use this to let you sign in and populate your profile information</p>
+                    <div class="s-tile" style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24">
+                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                            </svg>
+                            <span style="font-size: 0.88rem; color: var(--text);">Sign in with Google</span>
+                        </div>
+                        <button class="s-btn-brand-outline">Connect</button>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid var(--glass-b); padding-top: 20px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <label class="s-field-label">Delete account</label>
+                            <p style="font-size: 0.78rem; color: var(--muted); margin-top: 2px;">By deleting your account you will lose all your data</p>
+                        </div>
+                        <button class="s-btn-outline" style="color: #f87171; border-color: rgba(248,113,113,0.2);">Delete account...</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; padding-top: 8px;">
+                    <button class="s-btn-primary">Save changes</button>
+                </div>
+
+                {% elseif section == 'notifications' %}
+                <div class="s-label">Signal rules</div>
+                <h2>Notifications</h2>
+                <div style="display: grid; gap: 12px; margin-top: 22px;">
+                    <div class="s-tile" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Incident alerts</div>
+                            <div style="color: var(--muted); font-size: 0.82rem; margin-top: 4px;">Receive immediate alerts when delivery quality drops.</div>
+                        </div>
+                        <div class="s-toggle on"><span class="s-toggle-dot"></span></div>
+                    </div>
+                    <div class="s-tile" style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">Cohort summaries</div>
+                            <div style="color: var(--muted); font-size: 0.82rem; margin-top: 4px;">Daily digest of completion and learner engagement.</div>
+                        </div>
+                        <div class="s-toggle off"><span class="s-toggle-dot"></span></div>
+                    </div>
+                </div>
+
+                {% elseif section == 'password' %}
+                <div class="s-label">Secure access</div>
+                <h2>Password</h2>
+                <div style="display: grid; gap: 18px; margin-top: 22px; max-width: 420px;">
+                    <div>
+                        <label class="s-field-label" style="margin-bottom: 6px;">Current password</label>
+                        <input type="password" class="s-input">
+                    </div>
+                    <div>
+                        <label class="s-field-label" style="margin-bottom: 6px;">New password</label>
+                        <input type="password" class="s-input">
+                    </div>
+                    <div>
+                        <label class="s-field-label" style="margin-bottom: 6px;">Confirm new password</label>
+                        <input type="password" class="s-input">
+                    </div>
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button class="s-btn-primary">Update password</button>
+                    </div>
+                </div>
+
+                {% elseif section == 'integrations' %}
+                <div class="s-label">Connected systems</div>
+                <h2>Integrations</h2>
+                <p class="sub" style="margin-top: 12px;">Integration settings coming soon.</p>
+
+                {% elseif section == 'data-export' %}
+                <div class="s-label">Governance</div>
+                <h2>Data export</h2>
+                <p class="sub" style="margin-top: 12px;">Data export options coming soon.</p>
+
+                {% else %}
+                <div class="s-label">Workspace section</div>
+                <h2>{{ section|capitalize }}</h2>
+                <p class="sub" style="margin-top: 12px;">This section is under construction.</p>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

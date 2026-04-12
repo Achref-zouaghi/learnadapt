@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LearnAdapt — Task Report</title>
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#0a0c14;color:#f6f8fc;min-height:100vh;overflow-x:hidden}
+
+/* ══ ANIMATED INTRO OVERLAY ══ */
+.pdf-intro{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#04060e;animation:introFade 3s ease forwards}
+.pdf-intro-logo{width:90px;height:90px;border-radius:22px;background:linear-gradient(135deg,#7b61f1,#38bdd1);display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:logoFloat 2s ease-in-out infinite,logoPop .6s ease;box-shadow:0 0 60px rgba(123,97,241,0.4)}
+.pdf-intro-logo svg{width:48px;height:48px}
+.pdf-intro h1{font-size:2rem;font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,#7b61f1,#38bdd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:titleSlide .8s ease .2s both}
+.pdf-intro p{color:#8896ab;margin-top:6px;font-size:0.9rem;animation:titleSlide .8s ease .4s both}
+.pdf-intro .pdf-bar{width:200px;height:4px;background:rgba(255,255,255,0.06);border-radius:4px;margin-top:24px;overflow:hidden;animation:titleSlide .8s ease .5s both}
+.pdf-intro .pdf-bar-fill{width:0%;height:100%;background:linear-gradient(90deg,#7b61f1,#38bdd1);border-radius:4px;animation:barGrow 2s ease .6s forwards}
+
+@keyframes logoPop{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes titleSlide{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes barGrow{to{width:100%}}
+@keyframes introFade{0%,80%{opacity:1;pointer-events:all}100%{opacity:0;pointer-events:none}}
+
+/* ══ PAGE ══ */
+.pdf-page{max-width:900px;margin:0 auto;padding:40px 32px;opacity:0;animation:pageIn .8s ease 2.8s forwards}
+@keyframes pageIn{to{opacity:1}}
+
+/* ══ HEADER ══ */
+.pdf-header{display:flex;align-items:center;justify-content:space-between;padding:28px 32px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:20px;margin-bottom:32px;position:relative;overflow:hidden}
+.pdf-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7b61f1,#38bdd1,#34d399,#7b61f1);background-size:300% 100%;animation:headerShine 4s linear infinite}
+@keyframes headerShine{0%{background-position:0% 0}100%{background-position:300% 0}}
+.pdf-logo{display:flex;align-items:center;gap:16px}
+.pdf-logo-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#7b61f1,#38bdd1);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(123,97,241,0.3)}
+.pdf-logo-icon svg{width:28px;height:28px}
+.pdf-logo h1{font-size:1.4rem;font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,#7b61f1,#38bdd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.pdf-logo p{color:#8896ab;font-size:0.76rem;margin-top:2px}
+.pdf-meta{text-align:right;font-size:0.78rem;color:#8896ab}
+.pdf-meta strong{color:#f6f8fc;display:block;font-size:0.88rem;margin-bottom:2px}
+
+/* ══ STATS ══ */
+.pdf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
+.pdf-stat{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:18px 20px;text-align:center;transition:all .2s}
+.pdf-stat:hover{border-color:rgba(123,97,241,0.2);transform:translateY(-2px)}
+.pdf-stat-v{font-size:2rem;font-weight:900;letter-spacing:-0.02em}
+.pdf-stat-l{font-size:0.68rem;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px}
+
+/* ══ TABLE ══ */
+.pdf-section{margin-bottom:32px}
+.pdf-section h2{font-size:1.1rem;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:2px solid rgba(255,255,255,0.06)}
+.pdf-section h2 .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+.pdf-table{width:100%;border-collapse:separate;border-spacing:0;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.06);border-radius:14px;overflow:hidden}
+.pdf-table thead th{padding:14px 16px;text-align:left;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#8896ab;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06)}
+.pdf-table tbody tr{transition:background .15s}
+.pdf-table tbody tr:hover{background:rgba(123,97,241,0.04)}
+.pdf-table tbody td{padding:14px 16px;font-size:0.84rem;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle}
+.pdf-table tbody tr:last-child td{border-bottom:none}
+
+.pdf-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:8px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em}
+.badge-todo{background:rgba(59,130,246,0.12);color:#60a5fa}
+.badge-in-progress{background:rgba(245,158,11,0.12);color:#fbbf24}
+.badge-done{background:rgba(16,185,129,0.12);color:#34d399}
+.badge-blocked{background:rgba(239,68,68,0.12);color:#fca5a5}
+.badge-low{background:rgba(16,185,129,0.08);color:#34d399}
+.badge-medium{background:rgba(251,146,60,0.1);color:#fb923c}
+.badge-high{background:rgba(239,68,68,0.1);color:#f87171}
+.badge-overdue{background:rgba(239,68,68,0.12);color:#fca5a5;font-size:0.62rem}
+
+.task-title{font-weight:700;color:#f6f8fc}
+.task-desc{font-size:0.74rem;color:#8896ab;margin-top:3px;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ══ FOOTER ══ */
+.pdf-footer{text-align:center;padding:28px 0;border-top:1px solid rgba(255,255,255,0.06);margin-top:20px;color:#8896ab;font-size:0.74rem}
+.pdf-footer strong{background:linear-gradient(135deg,#7b61f1,#38bdd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ══ PRINT BUTTON ══ */
+.pdf-print-wrap{text-align:center;margin-bottom:28px}
+.pdf-print-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 36px;background:linear-gradient(135deg,#ef4444,#f97316);border:none;border-radius:14px;color:#fff;font-weight:800;font-size:0.92rem;cursor:pointer;font-family:inherit;box-shadow:0 6px 30px rgba(239,68,68,0.3);transition:all .2s;position:relative;overflow:hidden}
+.pdf-print-btn:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(239,68,68,0.4)}
+.pdf-print-btn i{font-size:1.2rem}
+.pdf-print-btn::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,0.15),transparent);transform:rotate(45deg);animation:btnShine 3s ease-in-out infinite}
+@keyframes btnShine{0%{transform:translateX(-100%) rotate(45deg)}30%,100%{transform:translateX(100%) rotate(45deg)}}
+
+/* ══ PRINT STYLES ══ */
+@media print{
+    body{background:#fff!important;color:#1a1a2e!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .pdf-intro,.pdf-print-wrap{display:none!important}
+    .pdf-page{opacity:1!important;animation:none!important;padding:0;max-width:100%}
+    .pdf-header{background:#f8f9fb!important;border-color:#e5e7eb!important;page-break-after:avoid}
+    .pdf-header::before{display:none}
+    .pdf-logo h1{-webkit-text-fill-color:#7b61f1!important}
+    .pdf-meta strong{color:#1a1a2e!important}
+    .pdf-meta{color:#6b7280!important}
+    .pdf-stat{background:#f8f9fb!important;border-color:#e5e7eb!important}
+    .pdf-stat-l{color:#6b7280!important}
+    .pdf-table{background:#fff!important;border-color:#e5e7eb!important}
+    .pdf-table thead th{background:#f1f3f5!important;color:#6b7280!important;border-bottom-color:#e5e7eb!important}
+    .pdf-table tbody td{border-bottom-color:#f0f0f0!important;color:#1a1a2e!important}
+    .task-title{color:#1a1a2e!important}
+    .task-desc{color:#6b7280!important}
+    .pdf-section h2{color:#1a1a2e!important;border-bottom-color:#e5e7eb!important}
+    .pdf-footer{color:#9ca3af!important;border-top-color:#e5e7eb!important}
+    .pdf-footer strong{-webkit-text-fill-color:#7b61f1!important}
+    .pdf-table tbody tr:hover{background:transparent!important}
+    .pdf-stat:hover{transform:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ ANIMATED INTRO ══ -->
+<div class="pdf-intro">
+    <div class="pdf-intro-logo">
+        <svg viewBox="0 0 48 48" fill="none">
+            <path d="M12 8h24a4 4 0 014 4v24a4 4 0 01-4 4H12a4 4 0 01-4-4V12a4 4 0 014-4z" fill="rgba(255,255,255,0.15)"/>
+            <path d="M16 18h16M16 24h12M16 30h8" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="34" cy="34" r="8" fill="#34d399"/>
+            <path d="M31 34l2 2 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+    <h1>LearnAdapt</h1>
+    <p>Generating your premium task report...</p>
+    <div class="pdf-bar"><div class="pdf-bar-fill"></div></div>
+</div>
+
+<!-- ══ CONTENT ══ -->
+<div class="pdf-page">
+
+    <!-- Print button -->
+    <div class="pdf-print-wrap">
+        <button class="pdf-print-btn" onclick="window.print()">
+            <i class='bx bx-download'></i> Download PDF / Print
+        </button>
+    </div>
+
+    <!-- Header -->
+    <div class="pdf-header">
+        <div class="pdf-logo">
+            <div class="pdf-logo-icon">
+                <svg viewBox="0 0 48 48" fill="none">
+                    <path d="M12 8h24a4 4 0 014 4v24a4 4 0 01-4 4H12a4 4 0 01-4-4V12a4 4 0 014-4z" fill="rgba(255,255,255,0.15)"/>
+                    <path d="M16 18h16M16 24h12M16 30h8" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+                    <circle cx="34" cy="34" r="8" fill="#34d399"/>
+                    <path d="M31 34l2 2 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div>
+                <h1>LearnAdapt</h1>
+                <p>Task Board Report</p>
+            </div>
+        </div>
+        <div class="pdf-meta">
+            <strong>{{ user.fullName|default(user.email) }}</strong>
+            {{ exportDate|date('d M Y, H:i') }}
+        </div>
+    </div>
+
+    <!-- Stats -->
+    {% set countByStatus = {} %}
+    {% set todoCount = 0 %}{% set inpCount = 0 %}{% set doneCount = 0 %}{% set blkCount = 0 %}
+    {% for t in tasks %}
+        {% if t.status == 'TODO' %}{% set todoCount = todoCount + 1 %}
+        {% elseif t.status == 'IN_PROGRESS' %}{% set inpCount = inpCount + 1 %}
+        {% elseif t.status == 'DONE' %}{% set doneCount = doneCount + 1 %}
+        {% elseif t.status == 'BLOCKED' %}{% set blkCount = blkCount + 1 %}
+        {% endif %}
+    {% endfor %}
+    <div class="pdf-stats">
+        <div class="pdf-stat">
+            <div class="pdf-stat-v" style="color:#3b82f6">{{ todoCount }}</div>
+            <div class="pdf-stat-l">To Do</div>
+        </div>
+        <div class="pdf-stat">
+            <div class="pdf-stat-v" style="color:#f59e0b">{{ inpCount }}</div>
+            <div class="pdf-stat-l">In Progress</div>
+        </div>
+        <div class="pdf-stat">
+            <div class="pdf-stat-v" style="color:#10b981">{{ doneCount }}</div>
+            <div class="pdf-stat-l">Done</div>
+        </div>
+        <div class="pdf-stat">
+            <div class="pdf-stat-v" style="color:#ef4444">{{ blkCount }}</div>
+            <div class="pdf-stat-l">Blocked</div>
+        </div>
+    </div>
+
+    <!-- Tasks by status -->
+    {% set statusGroups = {
+        'TODO':        { label: 'To Do',        color: '#3b82f6', badge: 'badge-todo' },
+        'IN_PROGRESS': { label: 'In Progress',  color: '#f59e0b', badge: 'badge-in-progress' },
+        'BLOCKED':     { label: 'Blocked',       color: '#ef4444', badge: 'badge-blocked' },
+        'DONE':        { label: 'Done',          color: '#10b981', badge: 'badge-done' }
+    } %}
+
+    {% for status, meta in statusGroups %}
+        {% set groupTasks = tasks|filter(t => t.status == status) %}
+        {% if groupTasks|length > 0 %}
+        <div class="pdf-section">
+            <h2><span class="dot" style="background:{{ meta.color }}"></span> {{ meta.label }} ({{ groupTasks|length }})</h2>
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th style="width:5%">#</th>
+                        <th style="width:35%">Task</th>
+                        <th style="width:12%">Priority</th>
+                        <th style="width:12%">Status</th>
+                        <th style="width:12%">Due Date</th>
+                        <th style="width:12%">Course</th>
+                        <th style="width:12%">Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in groupTasks %}
+                    <tr>
+                        <td style="color:#8896ab;font-weight:600">{{ loop.index }}</td>
+                        <td>
+                            <div class="task-title">{{ task.title }}</div>
+                            {% if task.description %}<div class="task-desc">{{ task.description }}</div>{% endif %}
+                        </td>
+                        <td><span class="pdf-badge badge-{{ task.priority|lower }}">{{ task.priority }}</span></td>
+                        <td><span class="pdf-badge {{ meta.badge }}">{{ meta.label }}</span></td>
+                        <td>
+                            {% if task.due_date %}
+                                {{ task.due_date|date('d M Y') }}
+                                {% set isOverdue = task.due_date|date('Y-m-d') < 'now'|date('Y-m-d') and task.status != 'DONE' %}
+                                {% if isOverdue %}<br><span class="pdf-badge badge-overdue">OVERDUE</span>{% endif %}
+                            {% else %}
+                                <span style="color:#8896ab">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.course_title %}
+                                <span style="color:#38bdd1;font-weight:600;font-size:0.78rem">{{ task.course_title }}</span>
+                            {% else %}
+                                <span style="color:#8896ab">—</span>
+                            {% endif %}
+                        </td>
+                        <td style="color:#8896ab;font-size:0.78rem">{{ task.created_at|date('d M Y') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Summary -->
+    <div class="pdf-section">
+        <h2><span class="dot" style="background:linear-gradient(135deg,#7b61f1,#38bdd1)"></span> Summary</h2>
+        <div class="pdf-stats" style="grid-template-columns:repeat(3,1fr)">
+            <div class="pdf-stat">
+                <div class="pdf-stat-v">{{ tasks|length }}</div>
+                <div class="pdf-stat-l">Total tasks</div>
+            </div>
+            <div class="pdf-stat">
+                <div class="pdf-stat-v" style="color:#f87171">{{ pomodoroStats.total_sessions }}</div>
+                <div class="pdf-stat-l">Pomodoro sessions</div>
+            </div>
+            <div class="pdf-stat">
+                <div class="pdf-stat-v" style="color:#38bdd1">{{ (pomodoroStats.total_minutes / 60)|number_format(1) }}h</div>
+                <div class="pdf-stat-l">Focus time</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="pdf-footer">
+        Generated by <strong>LearnAdapt</strong> &nbsp;•&nbsp; {{ exportDate|date('d/m/Y H:i') }} &nbsp;•&nbsp; {{ tasks|length }} tasks &nbsp;•&nbsp; Confidential
+    </div>
+</div>
+
+</body>
+</html>
