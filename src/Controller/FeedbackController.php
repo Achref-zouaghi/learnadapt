@@ -9,6 +9,7 @@ use App\Repository\UserRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -42,10 +43,14 @@ class FeedbackController extends AbstractController
         }
 
         $feedbacks = $this->connection->fetchAllAssociative(
-            'SELECT af.*, u.full_name as author_name, u.avatar_base64 as author_avatar
+            'SELECT af.*, u.full_name as author_name, u.avatar_base64 as author_avatar, u.role as author_role,
+                    (SELECT COUNT(*) FROM feedback_reactions fr WHERE fr.feedback_id = af.id AND fr.type = ?) as like_count,
+                    (SELECT COUNT(*) FROM feedback_reactions fr WHERE fr.feedback_id = af.id AND fr.type = ?) as dislike_count,
+                    (SELECT fr.type FROM feedback_reactions fr WHERE fr.feedback_id = af.id AND fr.user_id = ?) as my_reaction
              FROM app_feedback af
              JOIN users u ON af.user_id = u.id
-             ORDER BY af.created_at DESC'
+             ORDER BY af.created_at DESC',
+            ['like', 'dislike', $user->getId()]
         );
 
         $stats = $this->connection->fetchAssociative(
@@ -114,6 +119,161 @@ class FeedbackController extends AbstractController
         $this->entityManager->flush();
 
         $this->addFlash('success', 'Thank you for your feedback!');
+        return $this->redirectToRoute('app_feedback');
+    }
+
+    #[Route('/feedback/{id}/edit', name: 'app_feedback_edit', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function edit(int $id, Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $feedback = $this->entityManager->getRepository(AppFeedback::class)->find($id);
+        if (!$feedback || $feedback->getUser()?->getId() !== $user->getId()) {
+            $this->addFlash('error', 'You can only edit your own feedback.');
+            return $this->redirectToRoute('app_feedback');
+        }
+
+        $rating = (int) $request->request->get('rating', 0);
+        $comment = trim($request->request->get('comment', ''));
+
+        if ($rating < 1 || $rating > 5) {
+            $this->addFlash('error', 'Please select a rating between 1 and 5.');
+            return $this->redirectToRoute('app_feedback');
+        }
+
+        $feedback->setRating($rating);
+        $feedback->setComment($comment !== '' ? $comment : null);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Feedback updated!');
+        return $this->redirectToRoute('app_feedback');
+    }
+
+    #[Route('/feedback/{id}/delete', name: 'app_feedback_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function delete(int $id, Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $feedback = $this->entityManager->getRepository(AppFeedback::class)->find($id);
+        if (!$feedback || $feedback->getUser()?->getId() !== $user->getId()) {
+            $this->addFlash('error', 'You can only delete your own feedback.');
+            return $this->redirectToRoute('app_feedback');
+        }
+
+        $this->entityManager->remove($feedback);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Feedback deleted!');
+        return $this->redirectToRoute('app_feedback');
+    }
+
+    #[Route('/feedback/{id}/react', name: 'app_feedback_react', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function react(int $id, Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $type = $request->request->get('type', '');
+        if (!in_array($type, ['like', 'dislike'], true)) {
+            $this->addFlash('error', 'Invalid reaction.');
+            return $this->redirectToRoute('app_feedback');
+        }
+
+        $feedback = $this->connection->fetchAssociative(
+            'SELECT af.*, u.full_name as author_name FROM app_feedback af JOIN users u ON af.user_id = u.id WHERE af.id = ?',
+            [$id]
+        );
+        if (!$feedback) {
+            $this->addFlash('error', 'Feedback not found.');
+            return $this->redirectToRoute('app_feedback');
+        }
+
+        // Check existing reaction
+        $existing = $this->connection->fetchAssociative(
+            'SELECT * FROM feedback_reactions WHERE feedback_id = ? AND user_id = ?',
+            [$id, $user->getId()]
+        );
+
+        if ($existing) {
+            if ($existing['type'] === $type) {
+                // Toggle off — remove reaction
+                $this->connection->executeStatement(
+                    'DELETE FROM feedback_reactions WHERE id = ?',
+                    [$existing['id']]
+                );
+            } else {
+                // Switch reaction type
+                $this->connection->executeStatement(
+                    'UPDATE feedback_reactions SET type = ?, created_at = NOW() WHERE id = ?',
+                    [$type, $existing['id']]
+                );
+                // Notify feedback author
+                if ((int) $feedback['user_id'] !== $user->getId()) {
+                    $emoji = $type === 'like' ? '👍' : '👎';
+                    $this->connection->executeStatement(
+                        'INSERT INTO notifications (user_id, type, title, message, is_read, created_at)
+                         VALUES (?, ?, ?, ?, 0, NOW())',
+                        [
+                            $feedback['user_id'],
+                            'FEEDBACK_REACTION',
+                            "{$emoji} {$user->getFullName()} " . ($type === 'like' ? 'liked' : 'disliked') . " your review",
+                            "{$user->getFullName()} {$type}d your feedback: \"" . mb_substr($feedback['comment'] ?? 'No comment', 0, 60) . "\"",
+                        ]
+                    );
+                }
+            }
+        } else {
+            // New reaction
+            $this->connection->executeStatement(
+                'INSERT INTO feedback_reactions (feedback_id, user_id, type, created_at) VALUES (?, ?, ?, NOW())',
+                [$id, $user->getId(), $type]
+            );
+            // Notify feedback author (don't notify yourself)
+            if ((int) $feedback['user_id'] !== $user->getId()) {
+                $emoji = $type === 'like' ? '👍' : '👎';
+                $this->connection->executeStatement(
+                    'INSERT INTO notifications (user_id, type, title, message, is_read, created_at)
+                     VALUES (?, ?, ?, ?, 0, NOW())',
+                    [
+                        $feedback['user_id'],
+                        'FEEDBACK_REACTION',
+                        "{$emoji} {$user->getFullName()} " . ($type === 'like' ? 'liked' : 'disliked') . " your review",
+                        "{$user->getFullName()} {$type}d your feedback: \"" . mb_substr($feedback['comment'] ?? 'No comment', 0, 60) . "\"",
+                    ]
+                );
+            }
+        }
+
+        // Return JSON for AJAX requests
+        if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
+            $likeCount = (int) $this->connection->fetchOne(
+                'SELECT COUNT(*) FROM feedback_reactions WHERE feedback_id = ? AND type = ?',
+                [$id, 'like']
+            );
+            $dislikeCount = (int) $this->connection->fetchOne(
+                'SELECT COUNT(*) FROM feedback_reactions WHERE feedback_id = ? AND type = ?',
+                [$id, 'dislike']
+            );
+            $myReaction = $this->connection->fetchOne(
+                'SELECT type FROM feedback_reactions WHERE feedback_id = ? AND user_id = ?',
+                [$id, $user->getId()]
+            );
+
+            return new JsonResponse([
+                'like_count' => $likeCount,
+                'dislike_count' => $dislikeCount,
+                'my_reaction' => $myReaction ?: null,
+            ]);
+        }
+
         return $this->redirectToRoute('app_feedback');
     }
 }

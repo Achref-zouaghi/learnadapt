@@ -41,7 +41,7 @@ class NavbarExtension extends AbstractExtension implements GlobalsInterface
         }
 
         $unreadNotifications = $this->connection->fetchAllAssociative(
-            'SELECT id, type, title, message, created_at FROM notifications WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC LIMIT 10',
+            'SELECT id, type, title, message, created_at, related_topic_id FROM notifications WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC LIMIT 10',
             [$userId]
         );
 

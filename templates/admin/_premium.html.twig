@@ -1,0 +1,177 @@
+{# ═══ SHARED PREMIUM ADMIN STYLES & EFFECTS ═══ #}
+<style>
+/* ─── ANIMATED MESH BACKGROUND ─── */
+.adm-mesh{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.adm-mesh-blob{position:absolute;border-radius:50%;filter:blur(100px);mix-blend-mode:screen;animation:meshFloat 20s ease-in-out infinite}
+.adm-mesh-blob:nth-child(1){width:600px;height:600px;background:radial-gradient(circle,rgba(56,189,209,.07),transparent 70%);top:-10%;right:5%;animation-duration:22s}
+.adm-mesh-blob:nth-child(2){width:500px;height:500px;background:radial-gradient(circle,rgba(123,97,241,.06),transparent 70%);bottom:5%;left:15%;animation-duration:26s;animation-delay:-5s}
+.adm-mesh-blob:nth-child(3){width:400px;height:400px;background:radial-gradient(circle,rgba(52,211,153,.05),transparent 70%);top:40%;right:30%;animation-duration:30s;animation-delay:-10s}
+@keyframes meshFloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(40px,-30px) scale(1.05)}50%{transform:translate(-20px,50px) scale(.95)}75%{transform:translate(30px,20px) scale(1.03)}}
+
+/* ─── PREMIUM SIDEBAR ─── */
+.adm-side{background:rgba(6,12,22,.97)!important;border-right:none!important;box-shadow:1px 0 0 rgba(255,255,255,.04)}
+.adm-side::after{content:'';position:absolute;top:0;right:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent 5%,var(--cyan) 30%,var(--purple) 50%,var(--green) 70%,transparent 95%);opacity:.15;animation:sideGlow 6s ease-in-out infinite}
+@keyframes sideGlow{0%,100%{opacity:.08}50%{opacity:.25}}
+
+.adm-side-head h2{font-size:1.15rem!important;position:relative}
+.adm-side-head h2 span{background:linear-gradient(135deg,var(--cyan),var(--purple),var(--green))!important;background-size:200% 200%!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;animation:gradShift 6s ease infinite}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+/* Nav items premium hover */
+.adm-nav a{position:relative;overflow:hidden;border:1px solid transparent;transition:all .25s var(--ease)!important}
+.adm-nav a::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(56,189,209,.03),rgba(123,97,241,.02));opacity:0;transition:opacity .25s}
+.adm-nav a:hover{border-color:rgba(255,255,255,.04)!important;background:rgba(255,255,255,.03)!important;transform:translateX(4px)}
+.adm-nav a:hover::after{opacity:1}
+.adm-nav a:hover i{color:var(--cyan)!important;transform:scale(1.15);transition:all .25s var(--ease)}
+
+/* Active nav premium */
+.adm-nav a.is-active{background:linear-gradient(135deg,rgba(56,189,209,.1),rgba(56,189,209,.04))!important;border-color:rgba(56,189,209,.1)!important;box-shadow:0 0 20px rgba(56,189,209,.05),inset 0 0 20px rgba(56,189,209,.03)}
+.adm-nav a.is-active::before{width:3px!important;height:24px!important;background:linear-gradient(180deg,var(--cyan),var(--purple))!important;box-shadow:0 0 8px rgba(56,189,209,.4)!important;border-radius:0 4px 4px 0!important}
+.adm-nav a.is-active .adm-nav-ping{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:navPulse 2s ease-in-out infinite}
+@keyframes navPulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--cyan)}50%{opacity:.5;box-shadow:0 0 14px var(--cyan)}}
+
+/* ─── PREMIUM HERO ─── */
+.adm-hero{border:none!important;background:linear-gradient(135deg,rgba(56,189,209,.06),rgba(123,97,241,.04),rgba(52,211,153,.03))!important;box-shadow:0 4px 24px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.06);position:relative;overflow:hidden!important}
+.adm-hero::before{background:linear-gradient(90deg,transparent,rgba(56,189,209,.25),rgba(123,97,241,.2),rgba(52,211,153,.15),transparent)!important}
+.adm-hero::after{content:'';position:absolute;top:-50%;right:-20%;width:300px;height:300px;background:radial-gradient(circle,rgba(56,189,209,.06),transparent 70%);border-radius:50%;pointer-events:none;animation:heroOrb 12s ease-in-out infinite}
+@keyframes heroOrb{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-30px,20px) scale(1.1)}}
+
+.adm-hero h1{position:relative;display:inline-block;overflow:hidden}
+.adm-hero h1 .shimmer{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);animation:shimmerSlide 5s ease-in-out infinite 1s;pointer-events:none}
+@keyframes shimmerSlide{0%{left:-100%}40%,100%{left:200%}}
+
+/* ─── PREMIUM STAT CARDS ─── */
+@property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+.adm-stat,.aq-stat{position:relative!important;overflow:visible!important;border:1px solid rgba(255,255,255,.06)!important;transition:all .35s var(--ease)!important}
+.adm-stat:hover,.aq-stat:hover{transform:translateY(-4px)!important;border-color:rgba(255,255,255,.12)!important;box-shadow:0 12px 40px rgba(0,0,0,.2),0 0 0 1px rgba(255,255,255,.04)!important}
+.adm-stat::before{content:'';position:absolute;inset:-1px;border-radius:17px;padding:1px;background:conic-gradient(from var(--border-angle),transparent 40%,rgba(56,189,209,.3) 50%,transparent 60%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .3s;pointer-events:none}
+.adm-stat:hover::before{opacity:1;animation:borderRotate 4s linear infinite}
+@keyframes borderRotate{to{--border-angle:360deg}}
+
+/* Stat value glow on hover */
+.adm-stat:hover .adm-stat-val{text-shadow:0 0 20px currentColor;transition:text-shadow .3s}
+
+/* ─── PREMIUM PANELS ─── */
+.adm-panel{transition:all .35s var(--ease)!important;border:1px solid rgba(255,255,255,.05)!important}
+.adm-panel:hover{border-color:rgba(255,255,255,.1)!important;box-shadow:0 8px 32px rgba(0,0,0,.2)!important;transform:translateY(-2px)}
+.adm-panel-head{background:linear-gradient(135deg,rgba(255,255,255,.015),transparent)!important}
+.adm-panel-title i{transition:all .3s var(--ease)!important}
+.adm-panel:hover .adm-panel-title i{transform:scale(1.2);filter:drop-shadow(0 0 6px currentColor)}
+
+/* ─── PREMIUM TABLE ─── */
+.aq-table tr,.adm-table tr{transition:all .2s var(--ease)!important}
+.aq-table tr:hover td,.adm-table tr:hover td{background:rgba(56,189,209,.015)!important}
+.aq-table th,.adm-table th{background:linear-gradient(135deg,rgba(255,255,255,.02),rgba(255,255,255,.01))!important}
+
+/* ─── PREMIUM BUTTONS ─── */
+.aq-add-btn,.adm-action-btn{position:relative;overflow:hidden!important}
+.aq-add-btn::before,.adm-action-btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.1);transform:translate(-50%,-50%);transition:width .4s,height .4s}
+.aq-add-btn:hover::before,.adm-action-btn:hover::before{width:300px;height:300px}
+
+/* ─── PREMIUM MODALS ─── */
+.adm-modal{border:1px solid rgba(255,255,255,.1)!important;box-shadow:0 40px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.05),0 0 60px rgba(56,189,209,.05)!important}
+.adm-modal h3 i{animation:modalIconPulse 2s ease-in-out infinite}
+@keyframes modalIconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+/* ─── PREMIUM TOAST ─── */
+.adm-toast{backdrop-filter:blur(16px)!important;box-shadow:0 8px 32px rgba(0,0,0,.3)!important}
+
+/* ─── PREMIUM BADGES ─── */
+.adm-role-tag,.aq-status,.adm-cat-tag{transition:all .2s var(--ease)!important}
+.adm-role-tag:hover,.aq-status:hover,.adm-cat-tag:hover{transform:scale(1.05);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+
+/* ─── STAGGER ANIMATION HELPER ─── */
+.premium-stagger > *{opacity:0;transform:translateY(16px);animation:staggerIn .5s var(--ease) forwards}
+.premium-stagger > *:nth-child(1){animation-delay:.05s}
+.premium-stagger > *:nth-child(2){animation-delay:.1s}
+.premium-stagger > *:nth-child(3){animation-delay:.15s}
+.premium-stagger > *:nth-child(4){animation-delay:.2s}
+.premium-stagger > *:nth-child(5){animation-delay:.25s}
+.premium-stagger > *:nth-child(6){animation-delay:.3s}
+.premium-stagger > *:nth-child(7){animation-delay:.35s}
+.premium-stagger > *:nth-child(8){animation-delay:.4s}
+@keyframes staggerIn{to{opacity:1;transform:translateY(0)}}
+
+/* ─── SCROLLBAR PREMIUM ─── */
+.adm-main::-webkit-scrollbar{width:6px}
+.adm-main::-webkit-scrollbar-track{background:transparent}
+.adm-main::-webkit-scrollbar-thumb{background:rgba(56,189,209,.15);border-radius:3px}
+.adm-main::-webkit-scrollbar-thumb:hover{background:rgba(56,189,209,.3)}
+
+/* ─── LINK GLOW ─── */
+.adm-panel-link{position:relative!important}
+.adm-panel-link::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:1px;background:var(--cyan);transition:width .3s var(--ease)}
+.adm-panel-link:hover::after{width:100%}
+
+/* ─── ROW HOVER GLOW ─── */
+.adm-user-row:hover .adm-user-av,.adm-topic-row:hover .adm-topic-icon{box-shadow:0 0 12px rgba(56,189,209,.15);transition:box-shadow .3s}
+
+/* ─── FILTER CHIPS PREMIUM ─── */
+.adm-chip,.af-chip,.ae-chip{transition:all .2s var(--ease)!important;position:relative;overflow:hidden}
+.adm-chip:hover,.af-chip:hover,.ae-chip:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.adm-chip.active,.af-chip.active,.ae-chip.active{box-shadow:0 0 16px rgba(56,189,209,.15)}
+</style>
+
+{# Animated mesh background (replaces simple orbs) #}
+<div class="adm-mesh">
+	<div class="adm-mesh-blob"></div>
+	<div class="adm-mesh-blob"></div>
+	<div class="adm-mesh-blob"></div>
+</div>
+
+<script>
+// ─── ANIMATED NUMBER COUNTERS ───
+document.addEventListener('DOMContentLoaded',function(){
+	document.querySelectorAll('.adm-stat-val,.aq-stat-val,.adm-mini-val').forEach(function(el){
+		var text=el.textContent.trim();
+		var target=parseFloat(text);
+		if(isNaN(target)||target===0)return;
+		var isFloat=text.includes('.');
+		var decimals=isFloat?(text.split('.')[1]||'').length:0;
+		var suffix=text.replace(/[\d.,]/g,'').trim();
+		el.textContent=isFloat?'0.0':'0';
+		var duration=1400;
+		var startTime=null;
+		function animate(now){
+			if(!startTime)startTime=now;
+			var elapsed=now-startTime;
+			var progress=Math.min(elapsed/duration,1);
+			var eased=1-Math.pow(1-progress,4);
+			var current=target*eased;
+			el.textContent=(isFloat?current.toFixed(decimals):Math.round(current))+suffix;
+			if(progress<1)requestAnimationFrame(animate);
+		}
+		var observer=new IntersectionObserver(function(entries){
+			entries.forEach(function(entry){
+				if(entry.isIntersecting){
+					requestAnimationFrame(animate);
+					observer.disconnect();
+				}
+			});
+		},{threshold:0.3});
+		observer.observe(el);
+	});
+
+	// Add pulse dot to active sidebar nav items
+	document.querySelectorAll('.adm-nav a.is-active').forEach(function(a){
+		if(!a.querySelector('.adm-nav-ping')){
+			var dot=document.createElement('span');
+			dot.className='adm-nav-ping';
+			dot.style.cssText='position:absolute;right:14px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px rgba(56,189,209,.6);animation:navPulse 2s ease-in-out infinite';
+			a.appendChild(dot);
+		}
+	});
+
+	// Add shimmer to hero h1
+	document.querySelectorAll('.adm-hero h1').forEach(function(h1){
+		if(!h1.querySelector('.shimmer')){
+			var shimmer=document.createElement('span');
+			shimmer.className='shimmer';
+			h1.appendChild(shimmer);
+		}
+	});
+
+	// Stagger stat cards
+	document.querySelectorAll('.adm-stats,.aq-stats').forEach(function(g){g.classList.add('premium-stagger')});
+});
+</script>

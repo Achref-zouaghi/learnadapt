@@ -1,0 +1,274 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}Feedback Management — Admin{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
+@property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+
+.adm{display:flex;min-height:100vh;padding-top:72px}
+.adm-side{width:260px;position:fixed;top:72px;left:0;bottom:0;background:rgba(6,12,22,0.95);border-right:1px solid var(--border);backdrop-filter:blur(20px);padding:28px 16px;display:flex;flex-direction:column;z-index:50;overflow-y:auto}
+.adm-side-head{padding:0 12px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.adm-side-head h2{font-size:1.1rem;font-weight:900;letter-spacing:-0.03em}
+.adm-side-head h2 span{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.adm-side-head p{font-size:0.72rem;color:var(--muted);margin-top:4px}
+.adm-nav{list-style:none;display:flex;flex-direction:column;gap:4px;flex:1}
+.adm-nav a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;color:var(--muted);text-decoration:none;font-size:0.84rem;font-weight:600;transition:all .22s var(--ease);position:relative}
+.adm-nav a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+.adm-nav a.is-active{color:var(--cyan);background:rgba(56,189,209,0.08)}
+.adm-nav a.is-active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0}
+.adm-nav a i{font-size:1.2rem;width:22px;text-align:center}
+.adm-nav-divider{height:1px;background:var(--border);margin:12px 8px}
+.adm-main{flex:1;margin-left:260px;padding:32px;position:relative;overflow-y:auto}
+
+/* Premium heading */
+.pg-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;animation:fadeIn .5s var(--ease)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.pg-head h1{font-size:1.8rem;font-weight:900;letter-spacing:-0.04em;position:relative;display:inline-block}
+.pg-head h1 .head-gradient{background:linear-gradient(135deg,var(--yellow),var(--orange),var(--red));background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:headGrad 6s ease infinite}
+@keyframes headGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.pg-head h1::after{content:'';position:absolute;bottom:-6px;left:0;width:60px;height:3px;background:linear-gradient(90deg,var(--yellow),var(--orange));border-radius:3px;animation:headLine 3s ease-in-out infinite}
+@keyframes headLine{0%,100%{width:60px;opacity:.8}50%{width:100px;opacity:1}}
+.pg-head-sub{font-size:0.82rem;color:var(--muted);margin-top:8px}
+
+/* Overview panel with spinning borders */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes borderSpin{to{--border-angle:360deg}}
+.fb-overview{display:grid;grid-template-columns:280px 1fr;gap:20px;margin-bottom:28px}
+@media(max-width:800px){.fb-overview{grid-template-columns:1fr}}
+.fb-avg-card,.fb-bars-card{background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:18px;backdrop-filter:blur(14px);animation:fadeUp .4s var(--ease) backwards;position:relative;overflow:hidden;transition:all .35s var(--ease)}
+.fb-avg-card{padding:32px 28px;text-align:center}
+.fb-bars-card{padding:24px 28px;animation-delay:.1s}
+.fb-avg-card::before,.fb-bars-card::before{content:'';position:absolute;inset:-1px;border-radius:18px;padding:1px;background:conic-gradient(from var(--border-angle),transparent 40%,var(--yellow) 50%,var(--orange) 60%,transparent 70%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s;pointer-events:none}
+.fb-avg-card::after,.fb-bars-card::after{content:'';position:absolute;inset:0;border-radius:18px;background:radial-gradient(ellipse at 50% 0%,rgba(251,191,36,0.06),transparent 70%);opacity:0;transition:opacity .4s;pointer-events:none}
+.fb-avg-card:hover,.fb-bars-card:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,0.25)}
+.fb-avg-card:hover::before,.fb-bars-card:hover::before{opacity:1;animation:borderSpin 3s linear infinite}
+.fb-avg-card:hover::after,.fb-bars-card:hover::after{opacity:1}
+
+.fb-avg-big{font-size:3.5rem;font-weight:900;letter-spacing:-0.04em;line-height:1;margin-bottom:4px}
+.fb-avg-stars{display:flex;justify-content:center;gap:3px;color:var(--yellow);font-size:1.2rem;margin-bottom:8px}
+.fb-avg-lbl{font-size:0.78rem;color:var(--muted);font-weight:600}
+
+.fb-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.fb-bar-row:last-child{margin-bottom:0}
+.fb-bar-label{font-size:0.78rem;font-weight:700;width:55px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.fb-bar-label i{color:var(--yellow);font-size:0.9rem}
+.fb-bar-track{flex:1;height:10px;background:rgba(255,255,255,0.04);border-radius:5px;overflow:hidden}
+.fb-bar-fill{height:100%;border-radius:5px;transition:width .8s var(--ease)}
+.fb-bar-count{font-size:0.75rem;width:30px;text-align:right;font-weight:700;color:var(--muted)}
+
+/* Filter panel */
+.fb-filter-panel{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:20px;animation:fadeUp .4s var(--ease) .15s backwards;position:relative}
+.fb-filter-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,191,36,0.15),transparent);border-radius:16px 16px 0 0}
+.fb-filter-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.fb-filter-label i{font-size:0.85rem;color:var(--yellow)}
+
+/* Rating chips */
+.rating-chips{display:flex;gap:8px;flex-wrap:wrap}
+.rat-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:0.78rem;font-weight:600;text-decoration:none;transition:all .25s var(--ease);cursor:pointer;position:relative;overflow:hidden}
+.rat-chip::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(251,191,36,0.04),rgba(251,146,36,0.03));opacity:0;transition:opacity .25s}
+.rat-chip:hover{background:var(--glass-b);color:var(--text);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.2);border-color:rgba(255,255,255,0.08)}
+.rat-chip:hover::before{opacity:1}
+.rat-chip.is-active{background:rgba(251,191,36,0.08);border-color:rgba(251,191,36,0.25);color:var(--yellow);box-shadow:0 0 20px rgba(251,191,36,0.08)}
+.rat-chip.is-active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--yellow),transparent);border-radius:2px}
+.rat-chip i{color:var(--yellow);font-size:0.85rem;transition:transform .25s}
+.rat-chip:hover i{transform:scale(1.15)}
+
+/* Section header */
+.fb-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;animation:fadeUp .4s var(--ease) .2s backwards}
+.fb-section-title{font-size:0.82rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.fb-section-title i{font-size:1.05rem;color:var(--yellow)}
+.fb-section-count{font-size:0.72rem;font-weight:600;color:var(--muted);background:var(--glass);border:1px solid var(--border);padding:4px 12px;border-radius:8px}
+
+/* Feedback cards */
+.fb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px}
+@media(max-width:640px){.fb-grid{grid-template-columns:1fr}}
+.fb-card{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:22px 24px;transition:all .3s var(--ease);animation:fadeUp .4s var(--ease) backwards;position:relative;overflow:hidden}
+.fb-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,191,36,0.1),transparent);opacity:0;transition:opacity .3s}
+.fb-card:hover{background:rgba(251,191,36,0.015);transform:translateY(-4px);border-color:rgba(251,191,36,0.12);box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.fb-card:hover::before{opacity:1}
+.fb-card-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.fb-card-av{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,146,36,0.08));display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:0.72rem;font-weight:800;color:var(--yellow);transition:all .3s var(--ease)}
+.fb-card:hover .fb-card-av{box-shadow:0 0 12px rgba(251,191,36,0.15);transform:scale(1.05)}
+.fb-card-av img{width:100%;height:100%;object-fit:cover}
+.fb-card-info{flex:1}
+.fb-card-name{font-size:0.84rem;font-weight:700;transition:color .2s}
+.fb-card:hover .fb-card-name{color:var(--yellow)}
+.fb-card-email{font-size:0.7rem;color:var(--muted)}
+.fb-card-stars{display:flex;gap:2px;color:var(--yellow);font-size:0.9rem}
+.fb-card-date{font-size:0.7rem;color:var(--muted);margin-left:auto}
+.fb-card-text{font-size:0.82rem;color:var(--text);opacity:0.85;line-height:1.6;margin-bottom:14px}
+.fb-card-foot{display:flex;align-items:center;justify-content:space-between}
+.fb-card-role{padding:4px 12px;border-radius:8px;font-size:0.65rem;font-weight:700;text-transform:uppercase;border:1px solid transparent;transition:all .2s}
+.fb-card-role.student{background:rgba(56,189,209,0.1);color:var(--cyan);border-color:rgba(56,189,209,0.12)}
+.fb-card-role.teacher{background:rgba(123,97,241,0.1);color:var(--purple);border-color:rgba(123,97,241,0.12)}
+.fb-card-role.expert{background:rgba(52,211,153,0.1);color:var(--green);border-color:rgba(52,211,153,0.12)}
+.fb-card-role.parent{background:rgba(251,191,36,0.1);color:var(--yellow);border-color:rgba(251,191,36,0.12)}
+.fb-card-role.admin{background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.12)}
+.fb-card-role:hover{transform:scale(1.08)}
+.fb-del-btn{width:32px;height:32px;border-radius:10px;border:1px solid var(--border);background:var(--glass);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s var(--ease);color:var(--muted);font-size:0.85rem;position:relative;overflow:hidden}
+.fb-del-btn::before{content:'';position:absolute;inset:0;border-radius:10px;background:radial-gradient(circle,rgba(248,113,113,0.15),transparent);opacity:0;transition:opacity .25s}
+.fb-del-btn:hover{background:var(--glass-b);color:var(--red);border-color:rgba(248,113,113,0.25);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+.fb-del-btn:hover::before{opacity:1}
+.fb-del-btn:hover i{animation:btnWiggle .4s var(--ease)}
+@keyframes btnWiggle{0%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}100%{transform:rotate(0)}}
+
+/* Empty state */
+.fb-empty{text-align:center;padding:80px 20px;color:var(--muted)}
+.fb-empty i{font-size:3rem;opacity:0.2;margin-bottom:12px;display:block;animation:emptyFloat 4s ease-in-out infinite}
+@keyframes emptyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* Toast */
+.adm-toast{position:fixed;bottom:24px;right:24px;padding:14px 24px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);border-radius:14px;color:var(--green);font-size:0.82rem;font-weight:600;z-index:9999;transform:translateY(100px);opacity:0;transition:all .4s var(--ease);backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px}
+.adm-toast::before{content:'✓';width:22px;height:22px;border-radius:50%;background:rgba(52,211,153,0.15);display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0}
+.adm-toast.show{transform:translateY(0);opacity:1}
+.adm-toast.error{background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.25);color:var(--red)}
+.adm-toast.error::before{content:'✕';background:rgba(248,113,113,0.15)}
+
+/* Floating particles */
+.adm-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.adm-particle{position:absolute;border-radius:50%;opacity:0;animation:particleDrift linear infinite}
+.adm-particle:nth-child(1){width:3px;height:3px;background:var(--yellow);top:15%;left:80%;animation-duration:18s}
+.adm-particle:nth-child(2){width:2px;height:2px;background:var(--orange);top:60%;left:90%;animation-duration:22s;animation-delay:-4s}
+.adm-particle:nth-child(3){width:4px;height:4px;background:var(--green);top:80%;left:70%;animation-duration:25s;animation-delay:-8s}
+.adm-particle:nth-child(4){width:2px;height:2px;background:var(--purple);top:30%;left:75%;animation-duration:20s;animation-delay:-12s}
+@keyframes particleDrift{0%{transform:translate(0,0) scale(0);opacity:0}10%{opacity:.5}50%{opacity:.3}90%{opacity:.5}100%{transform:translate(-120px,-200px) scale(1.2);opacity:0}}
+
+/* Scrollbar */
+.adm-main::-webkit-scrollbar{width:6px}
+.adm-main::-webkit-scrollbar-track{background:transparent}
+.adm-main::-webkit-scrollbar-thumb{background:rgba(251,191,36,.15);border-radius:3px}
+.adm-main::-webkit-scrollbar-thumb:hover{background:rgba(251,191,36,.3)}
+
+@media(max-width:768px){.adm-side{display:none}.adm-main{margin-left:0}}
+</style>
+{% endblock %}
+
+{% block body %}
+{% include 'admin/_premium.html.twig' %}
+
+<div class="adm">
+	<aside class="adm-side">
+		<div class="adm-side-head"><h2><span>Admin</span> Panel</h2><p>LearnAdapt Management</p></div>
+		<ul class="adm-nav">
+			<li><a href="{{ path('app_admin') }}"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+			<li><a href="{{ path('app_admin_users') }}"><i class='bx bxs-group'></i> Users</a></li>
+			<li><a href="{{ path('app_admin_forum') }}"><i class='bx bxs-chat'></i> Forum</a></li>
+			<li><a href="{{ path('app_admin_feedback') }}" class="is-active"><i class='bx bxs-star-half'></i> Feedback</a></li>
+			<li><a href="{{ path('app_admin_exercises') }}"><i class='bx bxs-book-content'></i> Exercises</a></li>
+			<li><a href="{{ path('app_admin_quizzes') }}"><i class='bx bxs-brain'></i> Quizzes</a></li>
+			<li><a href="{{ path('app_admin_courses') }}"><i class='bx bxs-book-alt'></i> Courses</a></li>
+			<div class="adm-nav-divider"></div>
+			<li><a href="{{ path('app_home') }}"><i class='bx bx-arrow-back'></i> Back to App</a></li>
+			<li><a href="{{ path('app_settings') }}"><i class='bx bx-cog'></i> Settings</a></li>
+		</ul>
+	</aside>
+
+	<main class="adm-main">
+		<div class="adm-particles"><div class="adm-particle"></div><div class="adm-particle"></div><div class="adm-particle"></div><div class="adm-particle"></div></div>
+
+		<div class="pg-head">
+			<div>
+				<h1><span class="head-gradient">Feedback Management</span></h1>
+				<p class="pg-head-sub">Review and manage all user feedback and ratings</p>
+			</div>
+		</div>
+
+		<!-- Overview -->
+		{% set totalFb = stats.total|default(1) %}
+		{% set starCounts = {5: stats.five_star|default(0), 4: stats.four_star|default(0), 3: stats.three_star|default(0), 2: stats.two_star|default(0), 1: stats.one_star|default(0)} %}
+		<div class="fb-overview">
+			<div class="fb-avg-card">
+				<div class="fb-avg-big" style="color:var(--yellow)">{{ stats.avg_rating|default('0.0') }}</div>
+				<div class="fb-avg-stars">
+					{% for i in 1..5 %}
+						<i class='bx {{ (stats.avg_rating|default(0)|round) >= i ? "bxs-star" : "bx-star" }}'></i>
+					{% endfor %}
+				</div>
+				<div class="fb-avg-lbl">{{ stats.total|default(0) }} total reviews</div>
+			</div>
+			<div class="fb-bars-card">
+				{% for i in 5..1 %}
+				{% set cnt = starCounts[i]|default(0) %}
+				<div class="fb-bar-row">
+					<span class="fb-bar-label"><i class='bx bxs-star'></i> {{ i }}</span>
+					<div class="fb-bar-track">
+						<div class="fb-bar-fill" style="width:{{ totalFb > 0 ? (cnt / totalFb * 100) : 0 }}%;background:{{ i >= 4 ? 'var(--green)' : (i == 3 ? 'var(--yellow)' : 'var(--red)') }}"></div>
+					</div>
+					<span class="fb-bar-count">{{ cnt }}</span>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+
+		<!-- Filter panel -->
+		<div class="fb-filter-panel">
+			<div class="fb-filter-label"><i class='bx bx-star'></i> Filter by Rating</div>
+			<div class="rating-chips">
+				<a href="{{ path('app_admin_feedback') }}" class="rat-chip {{ currentRating == '' ? 'is-active' : '' }}">All</a>
+				{% for r in 5..1 %}
+				<a href="{{ path('app_admin_feedback', {rating: r}) }}" class="rat-chip {{ currentRating == r ? 'is-active' : '' }}">
+					<i class='bx bxs-star'></i> {{ r }} Star{{ r > 1 ? 's' : '' }}
+				</a>
+				{% endfor %}
+			</div>
+		</div>
+
+		<!-- Section header -->
+		<div class="fb-section-head">
+			<div class="fb-section-title"><i class='bx bxs-message-square-dots'></i> Feedback</div>
+			<div class="fb-section-count">{{ feedbacks|length }} review{{ feedbacks|length != 1 ? 's' : '' }}</div>
+		</div>
+
+		<!-- Feedback grid -->
+		<div class="fb-grid">
+			{% for fb in feedbacks %}
+			<div class="fb-card" id="fb-{{ fb.id }}" style="animation-delay:{{ loop.index0 * 0.04 }}s">
+				<div class="fb-card-head">
+					<div class="fb-card-av">
+						{{ fb.author_name|default('?')|slice(0,2)|upper }}
+					</div>
+					<div class="fb-card-info">
+						<div class="fb-card-name">{{ fb.author_name }}</div>
+						<div class="fb-card-email">{{ fb.author_email }}</div>
+					</div>
+					<div style="text-align:right">
+						<div class="fb-card-stars">
+							{% for i in 1..5 %}
+								<i class='bx {{ i <= fb.rating ? "bxs-star" : "bx-star" }}'></i>
+							{% endfor %}
+						</div>
+						<div class="fb-card-date">{{ fb.created_at|date('M d, Y') }}</div>
+					</div>
+				</div>
+				{% if fb.comment %}
+					<div class="fb-card-text">{{ fb.comment }}</div>
+				{% endif %}
+				<div class="fb-card-foot">
+					<span class="fb-card-role {{ fb.author_role|lower }}">{{ fb.author_role }}</span>
+					<button class="fb-del-btn" onclick="deleteFb({{ fb.id }})" title="Delete feedback"><i class='bx bx-trash'></i></button>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+	</main>
+</div>
+
+<div class="adm-toast" id="admToast"></div>
+<script>
+function showToast(m,e=false){const t=document.getElementById('admToast');t.textContent=m;t.className='adm-toast'+(e?' error':'')+' show';setTimeout(()=>t.classList.remove('show'),3000)}
+function deleteFb(id){
+	if(!confirm('Delete this feedback?'))return;
+	fetch('/admin/feedback/'+id+'/delete',{method:'POST'}).then(r=>r.json()).then(d=>{
+		if(d.success){document.getElementById('fb-'+id).remove();showToast('Feedback deleted')}
+		else showToast(d.error||'Error',true)
+	}).catch(()=>showToast('Network error',true));
+}
+</script>
+{% endblock %}

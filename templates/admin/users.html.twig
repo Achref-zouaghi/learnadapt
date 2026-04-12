@@ -1,0 +1,432 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}User Management — Admin{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
+@property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+
+.adm{display:flex;min-height:100vh;padding-top:72px}
+.adm-side{width:260px;position:fixed;top:72px;left:0;bottom:0;background:rgba(6,12,22,0.95);border-right:1px solid var(--border);backdrop-filter:blur(20px);padding:28px 16px;display:flex;flex-direction:column;z-index:50;overflow-y:auto}
+.adm-side-head{padding:0 12px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.adm-side-head h2{font-size:1.1rem;font-weight:900;letter-spacing:-0.03em}
+.adm-side-head h2 span{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.adm-side-head p{font-size:0.72rem;color:var(--muted);margin-top:4px}
+.adm-nav{list-style:none;display:flex;flex-direction:column;gap:4px;flex:1}
+.adm-nav a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;color:var(--muted);text-decoration:none;font-size:0.84rem;font-weight:600;transition:all .22s var(--ease);position:relative}
+.adm-nav a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+.adm-nav a.is-active{color:var(--cyan);background:rgba(56,189,209,0.08)}
+.adm-nav a.is-active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0}
+.adm-nav a i{font-size:1.2rem;width:22px;text-align:center}
+.adm-nav-divider{height:1px;background:var(--border);margin:12px 8px}
+.adm-main{flex:1;margin-left:260px;padding:32px;position:relative;overflow-y:auto}
+
+/* Premium heading */
+.pg-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;animation:fadeIn .5s var(--ease)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.pg-head h1{font-size:1.8rem;font-weight:900;letter-spacing:-0.04em;position:relative;display:inline-block}
+.pg-head h1 .head-gradient{background:linear-gradient(135deg,var(--cyan),var(--purple),var(--green));background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:headGrad 6s ease infinite}
+@keyframes headGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.pg-head h1::after{content:'';position:absolute;bottom:-6px;left:0;width:60px;height:3px;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:3px;animation:headLine 3s ease-in-out infinite}
+@keyframes headLine{0%,100%{width:60px;opacity:.8}50%{width:100px;opacity:1}}
+.pg-head-sub{font-size:0.82rem;color:var(--muted);margin-top:8px}
+
+/* Filter panel */
+.usr-filter-panel{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:20px;animation:fadeUp .4s var(--ease) .1s backwards;position:relative}
+.usr-filter-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.15),transparent);border-radius:16px 16px 0 0}
+.usr-filter-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.usr-filter-label i{font-size:0.85rem;color:var(--cyan)}
+
+/* Role chips */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.role-chips{display:flex;gap:8px;flex-wrap:wrap}
+.role-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:0.78rem;font-weight:600;text-decoration:none;transition:all .25s var(--ease);cursor:pointer;position:relative;overflow:hidden}
+.role-chip::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(56,189,209,0.04),rgba(123,97,241,0.03));opacity:0;transition:opacity .25s}
+.role-chip:hover{background:var(--glass-b);color:var(--text);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.2);border-color:rgba(255,255,255,0.08)}
+.role-chip:hover::before{opacity:1}
+.role-chip.is-active{background:rgba(56,189,209,0.08);border-color:rgba(56,189,209,0.25);color:var(--cyan);box-shadow:0 0 20px rgba(56,189,209,0.08)}
+.role-chip.is-active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);border-radius:2px}
+.role-chip i{font-size:0.9rem;transition:transform .25s}
+.role-chip:hover i{transform:scale(1.15)}
+.role-count{background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:6px;font-size:0.68rem;font-weight:800}
+
+/* Search toolbar */
+.usr-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px;animation:fadeUp .4s var(--ease) .15s backwards}
+.usr-search-bar{display:flex;gap:16px;flex:1;min-width:280px}
+.usr-search-wrap{flex:1;position:relative}
+.usr-search-wrap i{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:1.15rem;color:var(--muted);pointer-events:none;transition:all .3s var(--ease)}
+.usr-search-input{width:100%;background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));border:1px solid var(--border);border-radius:14px;padding:14px 18px 14px 48px;color:var(--text);font-size:0.88rem;font-family:inherit;outline:none;transition:all .35s var(--ease)}
+.usr-search-input:focus{border-color:rgba(56,189,209,0.35);box-shadow:0 0 24px rgba(56,189,209,0.08),0 0 0 1px rgba(56,189,209,0.1);background:rgba(56,189,209,0.02)}
+.usr-search-input:focus ~ i,.usr-search-wrap:focus-within i{color:var(--cyan);transform:translateY(-50%) scale(1.1)}
+.usr-search-input::placeholder{color:var(--muted)}
+.usr-search-btn{background:linear-gradient(135deg,var(--cyan),#2dd4bf);border:none;border-radius:14px;padding:14px 32px;color:#fff;font-weight:800;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.usr-search-btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.15);border-radius:50%;transform:translate(-50%,-50%);transition:width .5s,height .5s}
+.usr-search-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,189,209,0.3)}
+.usr-search-btn:hover::before{width:300px;height:300px}
+
+/* Section header */
+.usr-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;animation:fadeUp .4s var(--ease) .2s backwards}
+.usr-section-title{font-size:0.82rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.usr-section-title i{font-size:1.05rem;color:var(--cyan)}
+.usr-section-count{font-size:0.72rem;font-weight:600;color:var(--muted);background:var(--glass);border:1px solid var(--border);padding:4px 12px;border-radius:8px}
+
+/* Table */
+.usr-table-wrap{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:18px;backdrop-filter:blur(14px);overflow:hidden;animation:fadeUp .4s var(--ease) .25s backwards;position:relative}
+.usr-table-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.2),rgba(123,97,241,0.15),transparent);pointer-events:none}
+.usr-table{width:100%;border-collapse:collapse}
+.usr-table th{padding:16px 20px;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(255,255,255,0.02),rgba(255,255,255,0.005))}
+.usr-table td{padding:16px 20px;font-size:0.84rem;border-bottom:1px solid rgba(255,255,255,0.025);vertical-align:middle;transition:all .2s var(--ease)}
+.usr-table tbody tr{transition:all .25s var(--ease)}
+.usr-table tbody tr:hover td{background:rgba(56,189,209,0.015)}
+.usr-table tbody tr:hover{box-shadow:inset 3px 0 0 var(--cyan)}
+.usr-table tr:last-child td{border-bottom:none}
+
+.usr-user-cell{display:flex;align-items:center;gap:12px}
+.usr-av{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,rgba(56,189,209,0.15),rgba(123,97,241,0.1));display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:0.72rem;font-weight:800;color:var(--cyan);transition:all .3s var(--ease)}
+.usr-table tbody tr:hover .usr-av{box-shadow:0 0 12px rgba(56,189,209,0.15);transform:scale(1.05)}
+.usr-av img{width:100%;height:100%;object-fit:cover}
+.usr-name{font-weight:700;font-size:0.84rem;transition:color .2s}
+.usr-table tbody tr:hover .usr-name{color:var(--cyan)}
+.usr-email{font-size:0.72rem;color:var(--muted)}
+
+.role-tag{padding:5px 14px;border-radius:8px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;border:1px solid transparent;font-family:inherit;transition:all .2s var(--ease);display:inline-block}
+.role-tag.student{background:rgba(56,189,209,0.1);color:var(--cyan);border-color:rgba(56,189,209,0.15)}
+.role-tag.teacher{background:rgba(123,97,241,0.1);color:var(--purple);border-color:rgba(123,97,241,0.15)}
+.role-tag.expert{background:rgba(52,211,153,0.1);color:var(--green);border-color:rgba(52,211,153,0.15)}
+.role-tag.parent{background:rgba(251,191,36,0.1);color:var(--yellow);border-color:rgba(251,191,36,0.15)}
+.role-tag.admin{background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.15)}
+.role-tag:hover{transform:scale(1.08);box-shadow:0 2px 10px rgba(0,0,0,0.2)}
+
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;border:1px solid transparent;font-family:inherit;transition:all .2s var(--ease)}
+.status-pill.active{background:rgba(52,211,153,0.1);color:var(--green);border-color:rgba(52,211,153,0.15)}
+.status-pill.inactive{background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.15)}
+.status-pill:hover{transform:scale(1.08);box-shadow:0 2px 10px rgba(0,0,0,0.2)}
+.status-pill .dot{width:6px;height:6px;border-radius:50%}
+.status-pill.active .dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.status-pill.inactive .dot{background:var(--red);box-shadow:0 0 6px var(--red)}
+
+.usr-actions{display:flex;gap:6px}
+.usr-act-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--glass);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s var(--ease);color:var(--muted);font-size:0.9rem;position:relative;overflow:hidden}
+.usr-act-btn::before{content:'';position:absolute;inset:0;border-radius:10px;opacity:0;transition:opacity .25s}
+.usr-act-btn:hover{background:var(--glass-b);color:var(--text);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+.usr-act-btn.danger::before{background:radial-gradient(circle,rgba(248,113,113,0.15),transparent)}
+.usr-act-btn.danger:hover{color:var(--red);border-color:rgba(248,113,113,0.25)}
+.usr-act-btn.danger:hover::before{opacity:1}
+.usr-act-btn.edit::before{background:radial-gradient(circle,rgba(56,189,209,0.15),transparent)}
+.usr-act-btn.edit:hover{color:var(--cyan);border-color:rgba(56,189,209,0.25)}
+.usr-act-btn.edit:hover::before{opacity:1}
+.usr-act-btn:hover i{animation:btnWiggle .4s var(--ease)}
+@keyframes btnWiggle{0%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}100%{transform:rotate(0)}}
+
+/* Modals */
+.adm-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);z-index:9000;align-items:center;justify-content:center}
+.adm-modal-bg.show{display:flex}
+.adm-modal{background:rgba(10,16,28,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:22px;padding:32px;width:460px;max-width:90vw;box-shadow:0 32px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04),0 0 80px rgba(56,189,209,0.04);animation:modalIn .3s var(--ease);position:relative;overflow:hidden}
+.adm-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.3),rgba(123,97,241,0.2),transparent)}
+@keyframes modalIn{from{opacity:0;transform:scale(0.92) translateY(16px)}to{opacity:1;transform:none}}
+.adm-modal h3{font-size:1.15rem;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.adm-modal h3 i{color:var(--cyan);font-size:1.3rem;animation:mIconPulse 2s ease-in-out infinite}
+@keyframes mIconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.adm-modal-field{margin-bottom:14px}
+.adm-modal-field label{display:block;font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
+.adm-modal-field input,.adm-modal-field select{width:100%;padding:11px 15px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:11px;color:var(--text);font-size:0.85rem;font-family:inherit;outline:none;transition:all .25s var(--ease)}
+.adm-modal-field input:focus,.adm-modal-field select:focus{border-color:rgba(56,189,209,0.35);box-shadow:0 0 16px rgba(56,189,209,0.06);background:rgba(56,189,209,0.02)}
+.adm-modal-field select option{background:#0a101c;color:var(--text)}
+.adm-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+.adm-modal-btn{padding:10px 24px;border-radius:11px;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.adm-modal-btn.cancel{background:var(--glass);border:1px solid var(--border);color:var(--muted)}
+.adm-modal-btn.cancel:hover{color:var(--text);background:var(--glass-b);transform:translateY(-1px)}
+.adm-modal-btn.save{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;box-shadow:0 4px 20px rgba(56,189,209,0.15)}
+.adm-modal-btn.save:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,189,209,0.25)}
+.adm-modal-btn.save::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transition:left .6s}
+.adm-modal-btn.save:hover::before{left:200%}
+
+/* Role dropdown */
+.role-dropdown{position:relative;display:inline-block}
+.role-dropdown-menu{display:none;position:absolute;top:110%;left:0;background:rgba(10,16,28,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:6px;z-index:100;backdrop-filter:blur(20px);min-width:140px;box-shadow:0 16px 48px rgba(0,0,0,0.5)}
+.role-dropdown-menu.show{display:block}
+.role-dropdown-item{display:block;width:100%;padding:8px 14px;border:none;background:none;color:var(--muted);font-size:0.78rem;font-weight:600;cursor:pointer;border-radius:8px;text-align:left;font-family:inherit;transition:all .15s}
+.role-dropdown-item:hover{background:rgba(56,189,209,0.08);color:var(--cyan)}
+
+/* Empty state */
+.usr-empty{text-align:center;padding:80px 20px;color:var(--muted)}
+.usr-empty i{font-size:3rem;opacity:0.2;margin-bottom:12px;display:block;animation:emptyFloat 4s ease-in-out infinite}
+@keyframes emptyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* Toast */
+.adm-toast{position:fixed;bottom:24px;right:24px;padding:14px 24px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);border-radius:14px;color:var(--green);font-size:0.82rem;font-weight:600;z-index:9999;transform:translateY(100px);opacity:0;transition:all .4s var(--ease);backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px}
+.adm-toast::before{content:'✓';width:22px;height:22px;border-radius:50%;background:rgba(52,211,153,0.15);display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0}
+.adm-toast.show{transform:translateY(0);opacity:1}
+.adm-toast.error{background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.25);color:var(--red)}
+.adm-toast.error::before{content:'✕';background:rgba(248,113,113,0.15)}
+
+/* Floating particles */
+.adm-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.adm-particle{position:absolute;border-radius:50%;opacity:0;animation:particleDrift linear infinite}
+.adm-particle:nth-child(1){width:3px;height:3px;background:var(--cyan);top:15%;left:80%;animation-duration:18s}
+.adm-particle:nth-child(2){width:2px;height:2px;background:var(--purple);top:60%;left:90%;animation-duration:22s;animation-delay:-4s}
+.adm-particle:nth-child(3){width:4px;height:4px;background:var(--green);top:80%;left:70%;animation-duration:25s;animation-delay:-8s}
+.adm-particle:nth-child(4){width:2px;height:2px;background:var(--yellow);top:30%;left:75%;animation-duration:20s;animation-delay:-12s}
+@keyframes particleDrift{0%{transform:translate(0,0) scale(0);opacity:0}10%{opacity:.5}50%{opacity:.3}90%{opacity:.5}100%{transform:translate(-120px,-200px) scale(1.2);opacity:0}}
+
+/* Scrollbar */
+.adm-main::-webkit-scrollbar{width:6px}
+.adm-main::-webkit-scrollbar-track{background:transparent}
+.adm-main::-webkit-scrollbar-thumb{background:rgba(56,189,209,.15);border-radius:3px}
+.adm-main::-webkit-scrollbar-thumb:hover{background:rgba(56,189,209,.3)}
+
+@media(max-width:768px){.adm-side{display:none}.adm-main{margin-left:0}.usr-table-wrap{overflow-x:auto}}
+</style>
+{% endblock %}
+
+{% block body %}
+{% include 'admin/_premium.html.twig' %}
+
+<div class="adm">
+	<aside class="adm-side">
+		<div class="adm-side-head">
+			<h2><span>Admin</span> Panel</h2>
+			<p>LearnAdapt Management</p>
+		</div>
+		<ul class="adm-nav">
+			<li><a href="{{ path('app_admin') }}"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+			<li><a href="{{ path('app_admin_users') }}" class="is-active"><i class='bx bxs-group'></i> Users</a></li>
+			<li><a href="{{ path('app_admin_forum') }}"><i class='bx bxs-chat'></i> Forum</a></li>
+			<li><a href="{{ path('app_admin_feedback') }}"><i class='bx bxs-star-half'></i> Feedback</a></li>
+			<li><a href="{{ path('app_admin_exercises') }}"><i class='bx bxs-book-content'></i> Exercises</a></li>
+			<li><a href="{{ path('app_admin_quizzes') }}"><i class='bx bxs-brain'></i> Quizzes</a></li>
+			<li><a href="{{ path('app_admin_courses') }}"><i class='bx bxs-book-alt'></i> Courses</a></li>
+			<div class="adm-nav-divider"></div>
+			<li><a href="{{ path('app_home') }}"><i class='bx bx-arrow-back'></i> Back to App</a></li>
+			<li><a href="{{ path('app_settings') }}"><i class='bx bx-cog'></i> Settings</a></li>
+		</ul>
+	</aside>
+
+	<main class="adm-main">
+		<div class="adm-particles"><div class="adm-particle"></div><div class="adm-particle"></div><div class="adm-particle"></div><div class="adm-particle"></div></div>
+
+		<div class="pg-head">
+			<div>
+				<h1><span class="head-gradient">User Management</span></h1>
+				<p class="pg-head-sub">Manage all users, roles, and account statuses</p>
+			</div>
+		</div>
+
+		<!-- Filter panel -->
+		<div class="usr-filter-panel">
+			<div class="usr-filter-label"><i class='bx bx-filter-alt'></i> Filter by Role</div>
+			<div class="role-chips">
+			<a href="{{ path('app_admin_users') }}" class="role-chip {{ currentRole == '' and currentStatus == '' ? 'is-active' : '' }}">
+				<i class='bx bx-grid-alt'></i> All <span class="role-count">{{ roleCounts.total|default(0) }}</span>
+			</a>
+			<a href="{{ path('app_admin_users', {role: 'STUDENT'}) }}" class="role-chip {{ currentRole == 'STUDENT' ? 'is-active' : '' }}">
+				<i class='bx bx-user'></i> Students <span class="role-count">{{ roleCounts.students|default(0) }}</span>
+			</a>
+			<a href="{{ path('app_admin_users', {role: 'TEACHER'}) }}" class="role-chip {{ currentRole == 'TEACHER' ? 'is-active' : '' }}">
+				<i class='bx bx-chalkboard'></i> Teachers <span class="role-count">{{ roleCounts.teachers|default(0) }}</span>
+			</a>
+			<a href="{{ path('app_admin_users', {role: 'EXPERT'}) }}" class="role-chip {{ currentRole == 'EXPERT' ? 'is-active' : '' }}">
+				<i class='bx bx-shield-quarter'></i> Experts <span class="role-count">{{ roleCounts.experts|default(0) }}</span>
+			</a>
+			<a href="{{ path('app_admin_users', {role: 'PARENT'}) }}" class="role-chip {{ currentRole == 'PARENT' ? 'is-active' : '' }}">
+				<i class='bx bx-home-heart'></i> Parents <span class="role-count">{{ roleCounts.parents|default(0) }}</span>
+			</a>
+				<a href="{{ path('app_admin_users', {role: 'ADMIN'}) }}" class="role-chip {{ currentRole == 'ADMIN' ? 'is-active' : '' }}">
+					<i class='bx bx-crown'></i> Admins <span class="role-count">{{ roleCounts.admins|default(0) }}</span>
+				</a>
+			</div>
+		</div>
+
+		<!-- Search toolbar toolbar -->
+		<div class="usr-toolbar">
+			<form class="usr-search-bar" method="get" action="{{ path('app_admin_users') }}">
+				{% if currentRole %}<input type="hidden" name="role" value="{{ currentRole }}">{% endif %}
+				<div class="usr-search-wrap">
+					<i class='bx bx-search'></i>
+					<input class="usr-search-input" type="text" name="q" value="{{ searchQuery }}" placeholder="Search users by name or email...">
+				</div>
+				<button class="usr-search-btn" type="submit">Search</button>
+			</form>
+		</div>
+
+		<!-- Section header -->
+		<div class="usr-section-head">
+			<div class="usr-section-title"><i class='bx bxs-group'></i> User List</div>
+			<div class="usr-section-count">{{ users|length }} user{{ users|length != 1 ? 's' : '' }}</div>
+		</div>
+
+		<!-- Users table -->
+		{% if users|length > 0 %}
+		<div class="usr-table-wrap">
+			<table class="usr-table">
+				<thead>
+					<tr>
+						<th>User</th>
+						<th>Role</th>
+						<th>Status</th>
+						<th>Joined</th>
+						<th>Posts</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for u in users %}
+					<tr id="user-row-{{ u.id }}">
+						<td>
+							<div class="usr-user-cell">
+								<div class="usr-av">
+									{{ u.full_name|default('?')|slice(0,2)|upper }}
+								</div>
+								<div>
+									<div class="usr-name">{{ u.full_name }}</div>
+									<div class="usr-email">{{ u.email }}</div>
+								</div>
+							</div>
+						</td>
+						<td>
+							<div class="role-dropdown">
+								<button class="role-tag {{ u.role|lower }}" onclick="toggleRoleMenu(this)">{{ u.role }}</button>
+								<div class="role-dropdown-menu">
+									{% for r in ['STUDENT','TEACHER','EXPERT','PARENT','ADMIN'] %}
+									<button class="role-dropdown-item" onclick="changeRole({{ u.id }},'{{ r }}',this)">{{ r }}</button>
+									{% endfor %}
+								</div>
+							</div>
+						</td>
+						<td>
+							<button class="status-pill {{ u.is_active ? 'active' : 'inactive' }}" onclick="toggleStatus({{ u.id }},this)">
+								<span class="dot"></span> {{ u.is_active ? 'Active' : 'Inactive' }}
+							</button>
+						</td>
+						<td style="font-size:0.78rem;color:var(--muted)">{{ u.created_at|date('M d, Y') }}</td>
+						<td style="font-size:0.82rem;font-weight:700">{{ u.post_count }}</td>
+						<td>
+							<div class="usr-actions">
+								<button class="usr-act-btn edit" onclick="openEditUser({{ u.id }},'{{ u.full_name|e('js') }}','{{ u.email|e('js') }}','{{ u.phone|default('')|e('js') }}','{{ u.role }}')" title="Edit user">
+									<i class='bx bx-edit-alt'></i>
+								</button>
+								<button class="usr-act-btn danger" onclick="deleteUser({{ u.id }},'{{ u.full_name|e('js') }}')" title="Delete user">
+									<i class='bx bx-trash'></i>
+								</button>
+							</div>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		{% else %}
+		<div class="usr-empty">
+			<i class='bx bx-search-alt'></i>
+			<p>No users found matching your criteria</p>
+		</div>
+		{% endif %}
+	</main>
+</div>
+
+<div class="adm-toast" id="admToast"></div>
+
+<!-- Edit User Modal -->
+<div class="adm-modal-bg" id="editUserModal" onclick="if(event.target===this)closeEditUser()">
+	<div class="adm-modal">
+		<h3><i class='bx bx-edit-alt'></i> Edit User</h3>
+		<input type="hidden" id="editUserId">
+		<div class="adm-modal-field">
+			<label>Full Name</label>
+			<input type="text" id="editUserName">
+		</div>
+		<div class="adm-modal-field">
+			<label>Email</label>
+			<input type="email" id="editUserEmail">
+		</div>
+		<div class="adm-modal-field">
+			<label>Phone</label>
+			<input type="text" id="editUserPhone">
+		</div>
+		<div class="adm-modal-field">
+			<label>Role</label>
+			<select id="editUserRole">
+				<option value="STUDENT">STUDENT</option>
+				<option value="TEACHER">TEACHER</option>
+				<option value="EXPERT">EXPERT</option>
+				<option value="PARENT">PARENT</option>
+				<option value="ADMIN">ADMIN</option>
+			</select>
+		</div>
+		<div class="adm-modal-actions">
+			<button class="adm-modal-btn cancel" onclick="closeEditUser()">Cancel</button>
+			<button class="adm-modal-btn save" onclick="saveEditUser()">Save Changes</button>
+		</div>
+	</div>
+</div>
+
+<script>
+function showToast(msg, isError=false){
+	const t=document.getElementById('admToast');
+	t.textContent=msg;
+	t.className='adm-toast'+(isError?' error':'')+' show';
+	setTimeout(()=>t.classList.remove('show'),3000);
+}
+function toggleRoleMenu(btn){
+	document.querySelectorAll('.role-dropdown-menu.show').forEach(m=>{if(m!==btn.nextElementSibling)m.classList.remove('show')});
+	btn.nextElementSibling.classList.toggle('show');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.role-dropdown'))document.querySelectorAll('.role-dropdown-menu.show').forEach(m=>m.classList.remove('show'))});
+
+function changeRole(id,role,btn){
+	fetch('/admin/users/'+id+'/change-role',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:role})})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){
+			const dd=btn.closest('.role-dropdown');
+			const tag=dd.querySelector('.role-tag');
+			tag.textContent=role;tag.className='role-tag '+role.toLowerCase();
+			dd.querySelector('.role-dropdown-menu').classList.remove('show');
+			showToast('Role updated to '+role);
+		} else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+function toggleStatus(id,btn){
+	fetch('/admin/users/'+id+'/toggle-status',{method:'POST'})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){
+			const active=d.is_active;
+			btn.className='status-pill '+(active?'active':'inactive');
+			btn.innerHTML='<span class="dot"></span> '+(active?'Active':'Inactive');
+			showToast('Status updated');
+		} else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+function deleteUser(id,name){
+	if(!confirm('Delete user "'+name+'"? This cannot be undone.'))return;
+	fetch('/admin/users/'+id+'/delete',{method:'POST'})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){document.getElementById('user-row-'+id).remove();showToast('User deleted');}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+function openEditUser(id,name,email,phone,role){
+	document.getElementById('editUserId').value=id;
+	document.getElementById('editUserName').value=name;
+	document.getElementById('editUserEmail').value=email;
+	document.getElementById('editUserPhone').value=phone;
+	document.getElementById('editUserRole').value=role;
+	document.getElementById('editUserModal').classList.add('show');
+}
+function closeEditUser(){document.getElementById('editUserModal').classList.remove('show')}
+function saveEditUser(){
+	const id=document.getElementById('editUserId').value;
+	const data={full_name:document.getElementById('editUserName').value,email:document.getElementById('editUserEmail').value,phone:document.getElementById('editUserPhone').value,role:document.getElementById('editUserRole').value};
+	fetch('/admin/users/'+id+'/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){closeEditUser();showToast('User updated');setTimeout(()=>location.reload(),600)}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+</script>
+{% endblock %}

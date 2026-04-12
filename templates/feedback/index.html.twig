@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 {% set darkPage = true %}
 {% block title %}Feedback — LearnAdapt{% endblock %}
 
@@ -7,105 +7,236 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-:root{--bg:#04060e;--purple:#7b61f1;--purple-soft:#a78bfa;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.3)}
+:root{--bg:#04060e;--purple:#7b61f1;--purple-soft:#a78bfa;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--gold:#f59e0b;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.3)}
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
 footer{display:none!important}
 
-.av{min-height:100vh;padding:100px 0 60px;background:transparent;position:relative;z-index:1}
-.av-wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+/* ── Animations ── */
+@keyframes avSlideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes avCardFade{from{opacity:0;transform:translateY(18px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes avFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes avRotateStar{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(10deg) scale(1.1)}100%{transform:rotate(0deg) scale(1)}}
+@keyframes avCountUp{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+@keyframes avGradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes avPulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,0.4)}70%{box-shadow:0 0 0 12px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+@keyframes avPulseRed{0%{box-shadow:0 0 0 0 rgba(248,113,113,0.4)}70%{box-shadow:0 0 0 12px rgba(248,113,113,0)}100%{box-shadow:0 0 0 0 rgba(248,113,113,0)}}
+@keyframes avBounceIn{0%{transform:scale(0.3);opacity:0}50%{transform:scale(1.15)}70%{transform:scale(0.9)}100%{transform:scale(1);opacity:1}}
+@keyframes avThumbUp{0%{transform:scale(1) rotate(0)}15%{transform:scale(1.5) rotate(-15deg)}30%{transform:scale(1.3) rotate(10deg)}45%{transform:scale(1.4) rotate(-8deg)}60%{transform:scale(1.2) rotate(5deg)}75%{transform:scale(1.1) rotate(-2deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes avThumbDown{0%{transform:scale(1) rotate(0)}15%{transform:scale(1.5) rotate(15deg)}30%{transform:scale(1.3) rotate(-10deg)}45%{transform:scale(1.4) rotate(8deg)}60%{transform:scale(1.2) rotate(-5deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes avParticleUp{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--px),var(--py)) scale(0)}}
+@keyframes avCountBump{0%{transform:scale(1)}30%{transform:scale(1.5)}60%{transform:scale(0.85)}100%{transform:scale(1)}}
+@keyframes avRipple{0%{transform:scale(0);opacity:0.6}100%{transform:scale(3);opacity:0}}
+@keyframes avShine{0%{left:-100%}100%{left:200%}}
+@keyframes avGlowPulse{0%,100%{opacity:0.3}50%{opacity:0.8}}
+@keyframes avStaggerIn{from{opacity:0;transform:translateY(20px) rotateX(-10deg)}to{opacity:1;transform:translateY(0) rotateX(0)}}
 
-@keyframes avSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes avCardFade{from{opacity:0;transform:translateY(8px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes avStarPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.av{min-height:100vh;padding:100px 0 80px;background:transparent;position:relative;z-index:1}
+.av-wrap{max-width:1240px;margin:0 auto;padding:0 32px}
 
-/* ── Header ── */
-.av-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;animation:avSlideUp .5s ease-out}
-.av-head h1{font-size:1.85rem;font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--yellow),var(--orange));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.av-head p{color:var(--muted);font-size:0.84rem;margin-top:4px}
-.av-write-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:linear-gradient(135deg,var(--yellow),var(--orange));border:none;border-radius:12px;color:#fff;font-weight:700;font-size:0.84rem;cursor:pointer;transition:all .2s ease;box-shadow:0 4px 20px rgba(251,191,36,0.3);font-family:inherit}
-.av-write-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(251,191,36,0.4)}
-.av-write-btn i{font-size:1.1rem}
+/* ── Premium Header ── */
+.av-hero{position:relative;margin-bottom:48px;animation:avSlideUp .7s cubic-bezier(0.22,1,0.36,1)}
+.av-hero-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.av-hero-left{flex:1}
+.av-hero-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(249,115,22,0.06));border:1px solid rgba(251,191,36,0.15);font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);margin-bottom:14px}
+.av-hero-badge i{font-size:0.85rem;animation:avRotateStar 3s ease-in-out infinite}
+.av-hero h1{font-size:2.8rem;font-weight:900;letter-spacing:-0.05em;line-height:1.1;margin-bottom:10px}
+.av-hero h1 span{background:linear-gradient(135deg,var(--yellow),var(--orange),var(--red),var(--purple));background-size:300% 300%;animation:avGradientShift 5s ease infinite;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.av-hero p{color:var(--muted);font-size:0.92rem;max-width:450px;line-height:1.65}
+.av-hero-right{display:flex;gap:10px;flex-shrink:0}
+.av-write-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:linear-gradient(135deg,var(--gold),var(--orange));border:none;border-radius:16px;color:#fff;font-weight:800;font-size:0.88rem;cursor:pointer;transition:all .3s cubic-bezier(0.22,1,0.36,1);box-shadow:0 4px 28px rgba(251,191,36,0.35),inset 0 1px 0 rgba(255,255,255,0.15);font-family:inherit;letter-spacing:-0.01em;position:relative;overflow:hidden}
+.av-write-btn::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transition:none}
+.av-write-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 10px 40px rgba(251,191,36,0.45),inset 0 1px 0 rgba(255,255,255,0.2)}
+.av-write-btn:hover::after{animation:avShine 0.6s ease}
+.av-write-btn i{font-size:1.2rem}
 
-/* ── Overview Card ── */
-.av-overview{display:grid;grid-template-columns:260px 1fr;gap:0;background:var(--glass);border:1px solid var(--border);border-radius:22px;backdrop-filter:blur(14px);overflow:hidden;margin-bottom:28px;position:relative;animation:avSlideUp .5s ease-out .05s backwards}
-.av-overview::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--yellow),var(--orange),var(--red));z-index:2}
-.av-overview-left{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 28px;border-right:1px solid var(--border);background:radial-gradient(circle 180px at center,rgba(251,191,36,0.04),transparent)}
-.av-avg{font-size:3.5rem;font-weight:900;letter-spacing:-0.04em;background:linear-gradient(135deg,var(--yellow),var(--orange));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.av-avg-stars{display:flex;gap:3px;margin-top:6px}
-.av-avg-stars i{color:var(--yellow);font-size:1.3rem}
-.av-avg-stars i.empty{color:rgba(255,255,255,0.12)}
-.av-avg-total{color:var(--muted);font-size:0.76rem;font-weight:600;margin-top:8px}
-.av-overview-right{padding:28px 32px;display:flex;flex-direction:column;justify-content:center;gap:10px}
-.av-bar-row{display:flex;align-items:center;gap:10px}
-.av-bar-label{font-size:0.72rem;font-weight:700;color:var(--muted);width:14px;text-align:center}
-.av-bar-star{color:var(--yellow);font-size:0.8rem}
-.av-bar-track{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden}
-.av-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--yellow),var(--orange));transition:width 1s ease}
-.av-bar-count{font-size:0.7rem;font-weight:700;color:var(--muted);width:24px;text-align:right}
+/* ── Stats Dashboard ── */
+.av-dashboard{display:grid;grid-template-columns:280px 1fr 1fr;gap:0;background:var(--glass);border:1px solid var(--border);border-radius:28px;backdrop-filter:blur(20px);overflow:hidden;margin-bottom:40px;position:relative;animation:avSlideUp .7s ease-out .08s backwards}
+.av-dashboard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--orange),var(--red),var(--purple),var(--cyan),var(--gold));background-size:300% 100%;animation:avGradientShift 8s ease infinite;z-index:2}
+.av-dashboard::after{content:'';position:absolute;inset:0;background:radial-gradient(circle 350px at 15% 50%,rgba(251,191,36,0.04),transparent),radial-gradient(circle 250px at 85% 50%,rgba(123,97,241,0.03),transparent);pointer-events:none}
 
-/* ── Feedback Cards ── */
-.av-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:28px}
-.av-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;position:relative;overflow:hidden;animation:avCardFade .4s ease-out backwards;transition:all .22s ease}
-.av-card::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.02),transparent);transition:left .5s ease;pointer-events:none}
-.av-card:hover{border-color:rgba(251,191,36,0.18);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.15)}
-.av-card:hover::after{left:100%}
-.av-card-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.av-card-avatar{width:40px;height:40px;border-radius:12px;object-fit:cover;border:2px solid rgba(251,191,36,0.15);flex-shrink:0;background:rgba(255,255,255,0.03)}
-.av-card-name{font-weight:700;color:#fff;font-size:0.88rem}
-.av-card-date{font-size:0.7rem;color:rgba(148,163,184,0.5);margin-top:2px}
-.av-card-stars{display:flex;gap:2px;margin-bottom:10px}
-.av-card-stars i{font-size:0.9rem}
-.av-card-stars i.filled{color:var(--yellow)}
-.av-card-stars i.empty{color:rgba(255,255,255,0.1)}
-.av-card-comment{color:rgba(255,255,255,0.72);font-size:0.84rem;line-height:1.65}
-.av-card-no-comment{color:rgba(255,255,255,0.25);font-size:0.82rem;font-style:italic}
+.av-dash-score{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 32px;border-right:1px solid var(--border);position:relative}
+.av-dash-score-ring{position:relative;width:130px;height:130px;margin-bottom:14px}
+.av-dash-score-ring svg{width:130px;height:130px;transform:rotate(-90deg)}
+.av-dash-score-ring .ring-bg{fill:none;stroke:rgba(255,255,255,0.04);stroke-width:5}
+.av-dash-score-ring .ring-fill{fill:none;stroke:url(#goldGrad);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset 2s cubic-bezier(0.22,1,0.36,1)}
+.av-score-value{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.av-score-num{font-size:2.6rem;font-weight:900;letter-spacing:-0.04em;background:linear-gradient(135deg,var(--gold),var(--orange));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:avCountUp 1s ease-out}
+.av-score-max{font-size:0.72rem;color:var(--muted);font-weight:600;margin-top:-4px}
+.av-score-stars{display:flex;gap:3px;margin-top:6px}
+.av-score-stars i{color:var(--gold);font-size:1.15rem;filter:drop-shadow(0 0 4px rgba(251,191,36,0.3))}
+.av-score-stars i.empty{color:rgba(255,255,255,0.08);filter:none}
+.av-score-label{color:var(--muted);font-size:0.72rem;font-weight:700;margin-top:8px;text-transform:uppercase;letter-spacing:0.06em}
+
+.av-dash-bars{padding:36px 28px;border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;gap:10px;position:relative;z-index:1}
+.av-dash-bars-title{font-size:0.62rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px}
+.av-bar-row{display:flex;align-items:center;gap:8px}
+.av-bar-label{font-size:0.72rem;font-weight:800;color:var(--muted);width:14px;text-align:center}
+.av-bar-star{color:var(--gold);font-size:0.75rem}
+.av-bar-track{flex:1;height:10px;border-radius:5px;background:rgba(255,255,255,0.04);overflow:hidden;position:relative}
+.av-bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--gold),var(--orange));transition:width 1.5s cubic-bezier(0.22,1,0.36,1);position:relative}
+.av-bar-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25));border-radius:0 5px 5px 0}
+.av-bar-count{font-size:0.68rem;font-weight:800;color:var(--muted);width:28px;text-align:right}
+.av-bar-pct{font-size:0.58rem;font-weight:700;color:rgba(251,191,36,0.5);width:32px;text-align:right}
+
+.av-dash-quick{padding:36px 28px;display:flex;flex-direction:column;justify-content:center;gap:14px;position:relative;z-index:1}
+.av-dash-quick-title{font-size:0.62rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:4px}
+.av-quick-stat{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:14px;background:rgba(255,255,255,0.02);border:1px solid var(--border);transition:all .3s cubic-bezier(0.22,1,0.36,1)}
+.av-quick-stat:hover{background:rgba(255,255,255,0.05);border-color:rgba(251,191,36,0.12);transform:translateX(4px)}
+.av-quick-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.av-quick-icon.total{background:linear-gradient(135deg,rgba(123,97,241,0.15),rgba(123,97,241,0.05));color:var(--purple-soft)}
+.av-quick-icon.positive{background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(52,211,153,0.05));color:var(--green)}
+.av-quick-icon.recent{background:linear-gradient(135deg,rgba(56,189,209,0.15),rgba(56,189,209,0.05));color:var(--cyan)}
+.av-quick-info{flex:1}
+.av-quick-val{font-size:1.2rem;font-weight:900;color:#fff;letter-spacing:-0.02em}
+.av-quick-lbl{font-size:0.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
+
+/* ── Filter / Sort Bar ── */
+.av-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap;animation:avSlideUp .5s ease-out .15s backwards}
+.av-filter-btn{padding:8px 18px;border-radius:12px;font-size:0.72rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted);transition:all .25s cubic-bezier(0.22,1,0.36,1);font-family:inherit;text-transform:uppercase;letter-spacing:0.04em;position:relative;overflow:hidden}
+.av-filter-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(251,191,36,0.08),transparent);opacity:0;transition:opacity .25s}
+.av-filter-btn:hover{border-color:rgba(251,191,36,0.2);color:var(--gold);transform:translateY(-1px)}
+.av-filter-btn:hover::after{opacity:1}
+.av-filter-btn.active{background:linear-gradient(135deg,rgba(251,191,36,0.14),rgba(249,115,22,0.07));border-color:rgba(251,191,36,0.3);color:var(--gold);box-shadow:0 4px 16px rgba(251,191,36,0.1)}
+.av-toolbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.av-review-count{font-size:0.74rem;font-weight:700;color:var(--muted)}
 
 /* ── Section Title ── */
-.av-section-title{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px;animation:avSlideUp .5s ease-out}
-.av-section-title i{font-size:1rem;color:var(--yellow)}
+.av-section-title{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:20px;display:flex;align-items:center;gap:8px;animation:avSlideUp .5s ease-out .12s backwards}
+.av-section-title i{font-size:1.05rem;color:var(--gold);filter:drop-shadow(0 0 6px rgba(251,191,36,0.3))}
+.av-section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(251,191,36,0.15),transparent);margin-left:12px}
 
-/* ── Glow line ── */
-.av-glow-line{height:1px;border:none;margin:28px 0;background:linear-gradient(90deg,transparent,rgba(251,191,36,0.15),rgba(249,115,22,0.08),transparent)}
+/* ── Glow Line ── */
+.av-glow-line{height:1px;border:none;margin:36px 0;background:linear-gradient(90deg,transparent,rgba(251,191,36,0.15),rgba(123,97,241,0.08),transparent)}
+
+/* ── Feedback Cards ── */
+.av-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px;margin-bottom:40px;perspective:800px}
+
+.av-card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:0;position:relative;overflow:hidden;animation:avStaggerIn .5s ease-out backwards;transition:all .4s cubic-bezier(0.22,1,0.36,1)}
+.av-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--orange),var(--purple));opacity:0;transition:opacity .4s}
+.av-card::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.02),transparent);transition:left .7s ease;pointer-events:none}
+.av-card:hover{border-color:rgba(251,191,36,0.18);transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,0.25),0 0 0 1px rgba(251,191,36,0.08),0 0 80px rgba(251,191,36,0.03)}
+.av-card:hover::before{opacity:1}
+.av-card:hover::after{left:100%}
+
+.av-card-inner{padding:28px 28px 20px}
+
+.av-card-head{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.av-card-avatar{width:50px;height:50px;border-radius:16px;object-fit:cover;border:2px solid rgba(251,191,36,0.15);flex-shrink:0;background:rgba(255,255,255,0.03);box-shadow:0 6px 16px rgba(0,0,0,0.25);transition:all .3s}
+.av-card:hover .av-card-avatar{border-color:rgba(251,191,36,0.3);box-shadow:0 6px 20px rgba(251,191,36,0.1)}
+.av-card-info{flex:1;min-width:0}
+.av-card-name{font-weight:800;color:#fff;font-size:0.92rem;letter-spacing:-0.01em;display:flex;align-items:center;gap:6px}
+.av-card-verified{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:inline-flex;align-items:center;justify-content:center}
+.av-card-verified i{font-size:0.55rem;color:#fff}
+.av-card-date{font-size:0.68rem;color:rgba(148,163,184,0.5);margin-top:3px;font-weight:600}
+.av-card-role{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:6px;font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;margin-top:3px}
+.av-card-role.role-student{background:rgba(56,189,209,0.1);color:var(--cyan);border:1px solid rgba(56,189,209,0.12)}
+.av-card-role.role-expert{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.12)}
+.av-card-role.role-teacher{background:rgba(123,97,241,0.1);color:var(--purple-soft);border:1px solid rgba(123,97,241,0.12)}
+.av-card-role.role-admin{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.12)}
+.av-card-role.role-default{background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)}
+.av-card-role i{font-size:0.7rem}
+.av-card-actions{display:flex;gap:5px}
+.av-act-btn{padding:6px 11px;border-radius:10px;font-size:0.7rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--muted);transition:all .25s;font-family:inherit;display:inline-flex;align-items:center;gap:3px}
+.av-act-btn:hover{border-color:rgba(251,191,36,0.3);color:var(--gold);background:rgba(251,191,36,0.06);transform:scale(1.05)}
+.av-act-btn.delete:hover{border-color:rgba(239,68,68,0.3);color:var(--red);background:rgba(239,68,68,0.06)}
+
+.av-card-rating{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.av-card-stars{display:flex;gap:3px}
+.av-card-stars i{font-size:1rem;transition:all .2s}
+.av-card-stars i.filled{color:var(--gold);filter:drop-shadow(0 0 5px rgba(251,191,36,0.35))}
+.av-card-stars i.empty{color:rgba(255,255,255,0.06)}
+.av-card-rating-num{font-size:0.74rem;font-weight:900;color:var(--gold);padding:3px 10px;border-radius:8px;background:linear-gradient(135deg,rgba(251,191,36,0.1),rgba(251,191,36,0.04));border:1px solid rgba(251,191,36,0.1)}
+
+.av-card-comment{color:rgba(255,255,255,0.78);font-size:0.86rem;line-height:1.75;position:relative;padding-left:20px}
+.av-card-comment::before{content:'\201C';font-size:3rem;font-weight:900;color:rgba(251,191,36,0.08);position:absolute;top:-18px;left:-2px;font-family:Georgia,serif;line-height:1}
+.av-card-no-comment{color:rgba(255,255,255,0.18);font-size:0.82rem;font-style:italic;padding-left:20px}
+
+/* ── Reactions Footer — PREMIUM ── */
+.av-card-footer{display:flex;align-items:center;gap:6px;padding:16px 28px;background:rgba(255,255,255,0.012);border-top:1px solid var(--border);position:relative}
+
+.av-react-wrap{position:relative;display:inline-flex}
+.av-react-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:12px;font-size:0.76rem;font-weight:800;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .3s cubic-bezier(0.22,1,0.36,1);font-family:inherit;position:relative;overflow:hidden;user-select:none;-webkit-tap-highlight-color:transparent}
+.av-react-btn .av-ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,0.12);pointer-events:none;animation:avRipple .6s ease-out forwards}
+.av-react-btn i{font-size:1.15rem;transition:all .3s cubic-bezier(0.34,1.56,0.64,1);position:relative;z-index:1}
+.av-react-btn span{transition:all .3s;position:relative;z-index:1;min-width:12px;text-align:center}
+.av-react-btn:hover{border-color:rgba(255,255,255,0.15);color:var(--text);transform:translateY(-2px) scale(1.03);background:rgba(255,255,255,0.035)}
+.av-react-btn:hover i{transform:scale(1.2)}
+.av-react-btn:active{transform:scale(0.95)}
+
+/* Like active */
+.av-react-btn.active.like{background:linear-gradient(135deg,rgba(52,211,153,0.12),rgba(52,211,153,0.04));border-color:rgba(52,211,153,0.25);color:var(--green);box-shadow:0 0 20px rgba(52,211,153,0.08),inset 0 0 20px rgba(52,211,153,0.03)}
+.av-react-btn.active.like i{filter:drop-shadow(0 0 8px rgba(52,211,153,0.5));color:var(--green)}
+/* Dislike active */
+.av-react-btn.active.dislike{background:linear-gradient(135deg,rgba(248,113,113,0.12),rgba(248,113,113,0.04));border-color:rgba(248,113,113,0.25);color:var(--red);box-shadow:0 0 20px rgba(248,113,113,0.08),inset 0 0 20px rgba(248,113,113,0.03)}
+.av-react-btn.active.dislike i{filter:drop-shadow(0 0 8px rgba(248,113,113,0.5));color:var(--red)}
+
+/* Animation classes on click */
+.av-react-btn.anim-like i{animation:avThumbUp .7s cubic-bezier(0.34,1.56,0.64,1)}
+.av-react-btn.anim-dislike i{animation:avThumbDown .6s cubic-bezier(0.34,1.56,0.64,1)}
+.av-react-btn.anim-like{animation:avPulse .7s ease-out}
+.av-react-btn.anim-dislike{animation:avPulseRed .7s ease-out}
+.av-react-btn .av-count-bump{animation:avCountBump .4s cubic-bezier(0.34,1.56,0.64,1)}
+
+/* Particles container */
+.av-particles{position:absolute;inset:0;pointer-events:none;z-index:10;overflow:visible}
+.av-particle{position:absolute;border-radius:50%;pointer-events:none;animation:avParticleUp .8s cubic-bezier(0.22,1,0.36,1) forwards}
+
+.av-react-sep{width:1px;height:20px;background:var(--border);margin:0 6px}
+
+/* ── Empty State ── */
+.av-empty{text-align:center;padding:100px 20px;color:var(--muted);animation:avSlideUp .5s ease-out}
+.av-empty-icon{width:90px;height:90px;border-radius:28px;background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(251,191,36,0.02));border:1px solid rgba(251,191,36,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;animation:avFloat 4s ease-in-out infinite}
+.av-empty-icon i{font-size:2.5rem;color:rgba(251,191,36,0.3)}
+.av-empty h3{font-size:1.2rem;font-weight:800;color:rgba(255,255,255,0.6);margin-bottom:8px}
+.av-empty p{font-size:0.86rem;max-width:360px;margin:0 auto;line-height:1.65}
 
 /* ── Modal ── */
-.av-modal-bg{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.av-modal-bg{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:20px}
 .av-modal-bg.open{display:flex}
-.av-modal{background:rgba(10,14,26,0.95);border:1px solid var(--border);border-radius:22px;padding:32px;width:100%;max-width:480px;backdrop-filter:blur(20px);box-shadow:0 40px 100px rgba(0,0,0,0.5),0 0 40px rgba(251,191,36,0.06)}
-.av-modal h2{font-size:1.2rem;font-weight:900;color:#fff;margin-bottom:4px;background:linear-gradient(135deg,var(--yellow),var(--orange));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:inline-block}
-.av-modal p.sub{font-size:0.82rem;color:var(--muted);margin-bottom:20px}
+.av-modal{background:rgba(10,14,26,0.97);border:1px solid var(--border);border-radius:28px;padding:40px;width:100%;max-width:520px;backdrop-filter:blur(24px);box-shadow:0 50px 140px rgba(0,0,0,0.6),0 0 80px rgba(251,191,36,0.03);position:relative;overflow:hidden;animation:avBounceIn .5s cubic-bezier(0.34,1.56,0.64,1)}
+.av-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--orange),var(--purple));z-index:2}
+.av-modal h2{font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:4px;background:linear-gradient(135deg,var(--gold),var(--orange));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:inline-block}
+.av-modal p.sub{font-size:0.84rem;color:var(--muted);margin-bottom:24px}
 
-/* Star rating input */
-.av-star-input{display:flex;gap:6px;margin-bottom:18px;flex-direction:row-reverse;justify-content:flex-end}
+.av-star-input{display:flex;gap:8px;margin-bottom:22px;flex-direction:row-reverse;justify-content:flex-end}
 .av-star-input input{display:none}
-.av-star-input label{font-size:2rem;color:rgba(255,255,255,0.12);cursor:pointer;transition:color .15s,transform .15s}
-.av-star-input label:hover,.av-star-input label:hover~label,.av-star-input input:checked~label{color:var(--yellow)}
-.av-star-input label:hover{transform:scale(1.2)}
+.av-star-input label{font-size:2.4rem;color:rgba(255,255,255,0.08);cursor:pointer;transition:all .2s cubic-bezier(0.34,1.56,0.64,1)}
+.av-star-input label:hover,.av-star-input label:hover~label,.av-star-input input:checked~label{color:var(--gold);filter:drop-shadow(0 0 10px rgba(251,191,36,0.5))}
+.av-star-input label:hover{transform:scale(1.25) rotate(-8deg)}
 
-.av-modal textarea{width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:#fff;font-family:'Inter',sans-serif;font-size:0.86rem;line-height:1.6;resize:vertical;min-height:90px;outline:none;transition:border-color .2s}
-.av-modal textarea:focus{border-color:rgba(251,191,36,0.3);box-shadow:0 0 0 3px rgba(251,191,36,0.06)}
-.av-modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
-.av-modal-cancel{padding:10px 22px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-weight:600;font-size:0.84rem;cursor:pointer;transition:all .15s;font-family:inherit}
-.av-modal-cancel:hover{border-color:var(--red);color:var(--red)}
-.av-modal-submit{padding:10px 28px;background:linear-gradient(135deg,var(--yellow),var(--orange));border:none;border-radius:10px;color:#fff;font-weight:700;font-size:0.84rem;cursor:pointer;transition:all .15s;box-shadow:0 4px 16px rgba(251,191,36,0.25);font-family:inherit}
-.av-modal-submit:hover{opacity:.9;transform:translateY(-1px)}
+.av-modal textarea{width:100%;padding:18px 20px;border-radius:16px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:#fff;font-family:'Inter',sans-serif;font-size:0.88rem;line-height:1.7;resize:vertical;min-height:110px;outline:none;transition:all .3s}
+.av-modal textarea:focus{border-color:rgba(251,191,36,0.35);box-shadow:0 0 0 5px rgba(251,191,36,0.06),0 8px 30px rgba(251,191,36,0.05);background:rgba(255,255,255,0.04)}
+.av-modal textarea::placeholder{color:rgba(255,255,255,0.18)}
+.av-modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.av-modal-cancel{padding:12px 26px;background:transparent;border:1px solid var(--border);border-radius:14px;color:var(--muted);font-weight:700;font-size:0.86rem;cursor:pointer;transition:all .25s;font-family:inherit}
+.av-modal-cancel:hover{border-color:rgba(239,68,68,0.3);color:var(--red);background:rgba(239,68,68,0.04)}
+.av-modal-submit{padding:12px 32px;background:linear-gradient(135deg,var(--gold),var(--orange));border:none;border-radius:14px;color:#fff;font-weight:800;font-size:0.86rem;cursor:pointer;transition:all .3s;box-shadow:0 4px 24px rgba(251,191,36,0.3);font-family:inherit;letter-spacing:-0.01em;position:relative;overflow:hidden}
+.av-modal-submit::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)}
+.av-modal-submit:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(251,191,36,0.4)}
+.av-modal-submit:hover::after{animation:avShine .5s ease}
+.av-modal-label{display:block;font-size:0.7rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
 
 /* ── Toast ── */
-.av-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:center}
-.av-flash{padding:14px 24px;border-radius:14px;font-size:0.84rem;font-weight:600;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.4);display:flex;align-items:center;animation:avSlideUp .4s}
-.av-flash.success{background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.3);color:#34d399}
-.av-flash.error{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444}
-.av-flash.fade-out{opacity:0;transform:translateX(40px);transition:opacity .5s,transform .5s}
+.av-toast{position:fixed;top:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.av-flash{padding:14px 24px;border-radius:16px;font-size:0.84rem;font-weight:600;backdrop-filter:blur(20px);box-shadow:0 8px 36px rgba(0,0,0,0.45);display:flex;align-items:center;gap:8px;animation:avSlideUp .4s;max-width:400px}
+.av-flash.success{background:rgba(52,211,153,0.14);border:1px solid rgba(52,211,153,0.25);color:var(--green)}
+.av-flash.error{background:rgba(239,68,68,0.14);border:1px solid rgba(239,68,68,0.25);color:var(--red)}
+.av-flash.fade-out{opacity:0;transform:translateX(40px);transition:opacity .4s,transform .4s}
 
-/* ── Empty ── */
-.av-empty{text-align:center;padding:60px 20px;color:var(--muted)}
-.av-empty i{font-size:3.5rem;color:rgba(255,255,255,0.08);display:block;margin-bottom:16px}
-
+@media(max-width:1024px){
+    .av-dashboard{grid-template-columns:1fr}
+    .av-dash-score{border-right:none;border-bottom:1px solid var(--border);padding:28px}
+    .av-dash-bars{border-right:none;border-bottom:1px solid var(--border)}
+}
 @media(max-width:768px){
-    .av-overview{grid-template-columns:1fr}
-    .av-overview-left{border-right:none;border-bottom:1px solid var(--border);padding:28px}
+    .av-wrap{padding:0 16px}
+    .av-hero h1{font-size:1.8rem}
     .av-grid{grid-template-columns:1fr}
+    .av-dashboard{grid-template-columns:1fr}
+    .av-toolbar{flex-direction:column;align-items:stretch}
+    .av-toolbar-right{margin-left:0}
 }
 </style>
 {% endblock %}
@@ -113,94 +244,205 @@ footer{display:none!important}
 {% block body %}
 <script>document.documentElement.setAttribute('data-theme','dark');</script>
 {% include 'partials/_background.html.twig' %}
+
+<svg style="position:absolute;width:0;height:0">
+    <defs>
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#fbbf24"/>
+            <stop offset="100%" style="stop-color:#f97316"/>
+        </linearGradient>
+    </defs>
+</svg>
+
 <div class="av" style="position:relative;z-index:1">
 
     <div class="av-toast">
         {% for message in app.flashes('success') %}
-            <div class="av-flash success"><i class='bx bx-check-circle' style="margin-right:6px"></i>{{ message }}</div>
+            <div class="av-flash success"><i class='bx bx-check-circle'></i>{{ message }}</div>
         {% endfor %}
         {% for message in app.flashes('error') %}
-            <div class="av-flash error"><i class='bx bx-error-circle' style="margin-right:6px"></i>{{ message }}</div>
+            <div class="av-flash error"><i class='bx bx-error-circle'></i>{{ message }}</div>
         {% endfor %}
     </div>
 
     <div class="av-wrap">
 
-        {# ── Header ── #}
-        <div class="av-head">
-            <div>
-                <h1><i class='bx bxs-star' style="-webkit-text-fill-color:var(--yellow);margin-right:8px"></i>Feedback & Reviews</h1>
-                <p>Share your experience and help us improve LearnAdapt</p>
+        {# ── Premium Header ── #}
+        <div class="av-hero">
+            <div class="av-hero-inner">
+                <div class="av-hero-left">
+                    <div class="av-hero-badge"><i class='bx bxs-crown'></i> Community Reviews</div>
+                    <h1><span>Feedback & Reviews</span></h1>
+                    <p>See what learners are saying. Share your experience and help us build something amazing.</p>
+                </div>
+                <div class="av-hero-right">
+                    <button class="av-write-btn" onclick="document.getElementById('feedbackModal').classList.add('open')">
+                        <i class='bx bx-edit-alt'></i> Write a Review
+                    </button>
+                </div>
             </div>
-            <button class="av-write-btn" onclick="document.getElementById('feedbackModal').classList.add('open')">
-                <i class='bx bx-edit'></i> Write Review
-            </button>
         </div>
 
-        {# ── Overview ── #}
+        {# ── Stats Dashboard ── #}
         {% set avgRating = stats.avg_rating|default(0) %}
         {% set totalReviews = stats.total|default(0) %}
-        <div class="av-overview">
-            <div class="av-overview-left">
-                <div class="av-avg">{{ avgRating }}</div>
-                <div class="av-avg-stars">
+        {% set ringPct = avgRating > 0 ? (avgRating / 5 * 100) : 0 %}
+        {% set circumference = 301.59 %}
+        {% set positiveCount = (stats.five_star|default(0)) + (stats.four_star|default(0)) %}
+        {% set positivePct = totalReviews > 0 ? ((positiveCount / totalReviews) * 100)|round : 0 %}
+
+        <div class="av-dashboard">
+            <div class="av-dash-score">
+                <div class="av-dash-score-ring">
+                    <svg viewBox="0 0 130 130">
+                        <circle class="ring-bg" cx="65" cy="65" r="52"/>
+                        <circle class="ring-fill" cx="65" cy="65" r="52" stroke-dasharray="{{ 326.73 }}" stroke-dashoffset="{{ 326.73 - (326.73 * ringPct / 100) }}"/>
+                    </svg>
+                    <div class="av-score-value">
+                        <div class="av-score-num">{{ avgRating }}</div>
+                        <div class="av-score-max">out of 5</div>
+                    </div>
+                </div>
+                <div class="av-score-stars">
                     {% for i in 1..5 %}
-                        {% if i <= avgRating|round %}
-                            <i class='bx bxs-star'></i>
-                        {% else %}
-                            <i class='bx bxs-star empty'></i>
-                        {% endif %}
+                        <i class='bx bxs-star {{ i <= avgRating|round ? "" : "empty" }}'></i>
                     {% endfor %}
                 </div>
-                <div class="av-avg-total">{{ totalReviews }} review{{ totalReviews != 1 ? 's' : '' }}</div>
+                <div class="av-score-label">{{ totalReviews }} review{{ totalReviews != 1 ? 's' : '' }}</div>
             </div>
-            <div class="av-overview-right">
+
+            <div class="av-dash-bars">
+                <div class="av-dash-bars-title">Rating Distribution</div>
                 {% for star in 5..1 %}
                     {% set count = attribute(stats, star == 5 ? 'five_star' : (star == 4 ? 'four_star' : (star == 3 ? 'three_star' : (star == 2 ? 'two_star' : 'one_star'))))|default(0) %}
-                    {% set pct = totalReviews > 0 ? (count / totalReviews * 100) : 0 %}
+                    {% set pct = totalReviews > 0 ? ((count / totalReviews) * 100)|round : 0 %}
                     <div class="av-bar-row">
                         <span class="av-bar-label">{{ star }}</span>
                         <i class='bx bxs-star av-bar-star'></i>
                         <div class="av-bar-track"><div class="av-bar-fill" style="width:{{ pct }}%"></div></div>
                         <span class="av-bar-count">{{ count }}</span>
+                        <span class="av-bar-pct">{{ pct }}%</span>
                     </div>
                 {% endfor %}
+            </div>
+
+            <div class="av-dash-quick">
+                <div class="av-dash-quick-title">Quick Stats</div>
+                <div class="av-quick-stat">
+                    <div class="av-quick-icon total"><i class='bx bx-message-square-dots'></i></div>
+                    <div class="av-quick-info">
+                        <div class="av-quick-val">{{ totalReviews }}</div>
+                        <div class="av-quick-lbl">Total Reviews</div>
+                    </div>
+                </div>
+                <div class="av-quick-stat">
+                    <div class="av-quick-icon positive"><i class='bx bx-trending-up'></i></div>
+                    <div class="av-quick-info">
+                        <div class="av-quick-val">{{ positivePct }}%</div>
+                        <div class="av-quick-lbl">Positive (4-5 stars)</div>
+                    </div>
+                </div>
+                <div class="av-quick-stat">
+                    <div class="av-quick-icon recent"><i class='bx bx-user-check'></i></div>
+                    <div class="av-quick-info">
+                        <div class="av-quick-val">{{ myFeedbacks|length }}</div>
+                        <div class="av-quick-lbl">Your Reviews</div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <hr class="av-glow-line">
 
-        {# ── All Reviews ── #}
-        <div class="av-section-title"><i class='bx bx-message-square-dots'></i> All Reviews</div>
+        {# ── Filter Bar ── #}
+        <div class="av-toolbar">
+            <button class="av-filter-btn active" onclick="filterFeedback('all',this)">All</button>
+            <button class="av-filter-btn" onclick="filterFeedback('5',this)">5 Stars</button>
+            <button class="av-filter-btn" onclick="filterFeedback('4',this)">4 Stars</button>
+            <button class="av-filter-btn" onclick="filterFeedback('3',this)">3 Stars</button>
+            <button class="av-filter-btn" onclick="filterFeedback('2',this)">2 Stars</button>
+            <button class="av-filter-btn" onclick="filterFeedback('1',this)">1 Star</button>
+            <div class="av-toolbar-right">
+                <span class="av-review-count">{{ feedbacks|length }} review{{ feedbacks|length != 1 ? 's' : '' }}</span>
+            </div>
+        </div>
+
+        {# ── Reviews Section ── #}
+        <div class="av-section-title"><i class='bx bxs-star'></i> All Reviews</div>
 
         {% if feedbacks|length > 0 %}
             <div class="av-grid">
                 {% for fb in feedbacks %}
-                    <div class="av-card" style="animation-delay:{{ loop.index0 * 0.06 }}s">
-                        <div class="av-card-head">
-                            <img src="{{ fb.author_avatar ?: 'https://ui-avatars.com/api/?name=' ~ fb.author_name|url_encode ~ '&size=80&background=7c5cfc&color=fff&bold=true&format=svg' }}" alt="" class="av-card-avatar">
-                            <div>
-                                <div class="av-card-name">{{ fb.author_name }}</div>
-                                <div class="av-card-date">{{ fb.created_at|date('M d, Y · H:i') }}</div>
+                    <div class="av-card" data-rating="{{ fb.rating }}" style="animation-delay:{{ loop.index0 * 0.06 }}s">
+                        <div class="av-card-inner">
+                            <div class="av-card-head">
+                                <img src="{{ fb.author_avatar ?: 'https://ui-avatars.com/api/?name=' ~ fb.author_name|url_encode ~ '&size=100&background=7c5cfc&color=fff&bold=true&format=svg' }}" alt="" class="av-card-avatar">
+                                <div class="av-card-info">
+                                    <div class="av-card-name">
+                                        {{ fb.author_name }}
+                                        <span class="av-card-verified"><i class='bx bx-check'></i></span>
+                                    </div>
+                                    {% set roleClass = fb.author_role|lower in ['student','expert','teacher','admin'] ? 'role-' ~ fb.author_role|lower : 'role-default' %}
+                                    {% set roleIcon = fb.author_role|lower == 'student' ? 'bxs-graduation-cap' : (fb.author_role|lower == 'expert' ? 'bxs-crown' : (fb.author_role|lower == 'teacher' ? 'bxs-chalkboard' : (fb.author_role|lower == 'admin' ? 'bxs-shield' : 'bx-user'))) %}
+                                    <span class="av-card-role {{ roleClass }}"><i class='bx {{ roleIcon }}'></i> {{ fb.author_role|default('User') }}</span>
+                                    <div class="av-card-date">{{ fb.created_at|date('M d, Y') }}</div>
+                                </div>
+                                {% if fb.user_id == user.id %}
+                                    <div class="av-card-actions">
+                                        <button class="av-act-btn" onclick="openEditFeedback({{ fb.id }}, {{ fb.rating }}, {{ fb.comment|json_encode }})"><i class='bx bx-edit-alt'></i></button>
+                                        <form method="post" action="{{ path('app_feedback_delete', {id: fb.id}) }}" onsubmit="return confirm('Delete this review?');" style="display:inline">
+                                            <button type="submit" class="av-act-btn delete"><i class='bx bx-trash'></i></button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="av-card-rating">
+                                <div class="av-card-stars">
+                                    {% for i in 1..5 %}
+                                        <i class='bx bxs-star {{ i <= fb.rating ? "filled" : "empty" }}'></i>
+                                    {% endfor %}
+                                </div>
+                                <span class="av-card-rating-num">{{ fb.rating }}.0</span>
+                            </div>
+                            {% if fb.comment %}
+                                <div class="av-card-comment">{{ fb.comment }}</div>
+                            {% else %}
+                                <div class="av-card-no-comment">No written feedback</div>
+                            {% endif %}
+                        </div>
+                        <div class="av-card-footer" data-feedback-id="{{ fb.id }}">
+                            <div class="av-react-wrap">
+                                <div class="av-particles" id="particles-like-{{ fb.id }}"></div>
+                                <button type="button"
+                                    class="av-react-btn {{ fb.my_reaction == 'like' ? 'active like' : '' }}"
+                                    data-type="like"
+                                    data-id="{{ fb.id }}"
+                                    onclick="reactFeedback(this)">
+                                    <i class='bx {{ fb.my_reaction == "like" ? "bxs-like" : "bx-like" }}'></i>
+                                    <span>{{ fb.like_count }}</span>
+                                </button>
+                            </div>
+                            <div class="av-react-sep"></div>
+                            <div class="av-react-wrap">
+                                <div class="av-particles" id="particles-dislike-{{ fb.id }}"></div>
+                                <button type="button"
+                                    class="av-react-btn {{ fb.my_reaction == 'dislike' ? 'active dislike' : '' }}"
+                                    data-type="dislike"
+                                    data-id="{{ fb.id }}"
+                                    onclick="reactFeedback(this)">
+                                    <i class='bx {{ fb.my_reaction == "dislike" ? "bxs-dislike" : "bx-dislike" }}'></i>
+                                    <span>{{ fb.dislike_count }}</span>
+                                </button>
                             </div>
                         </div>
-                        <div class="av-card-stars">
-                            {% for i in 1..5 %}
-                                <i class='bx bxs-star {{ i <= fb.rating ? "filled" : "empty" }}'></i>
-                            {% endfor %}
-                        </div>
-                        {% if fb.comment %}
-                            <div class="av-card-comment">{{ fb.comment }}</div>
-                        {% else %}
-                            <div class="av-card-no-comment">No comment</div>
-                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
         {% else %}
             <div class="av-empty">
-                <i class='bx bx-star'></i>
-                <p>No reviews yet. Be the first to share your experience!</p>
+                <div class="av-empty-icon"><i class='bx bxs-star'></i></div>
+                <h3>No reviews yet</h3>
+                <p>Be the first to share your experience and help fellow learners!</p>
             </div>
         {% endif %}
 
@@ -213,15 +455,15 @@ footer{display:none!important}
         <h2>Write a Review</h2>
         <p class="sub">Rate your experience with LearnAdapt</p>
         <form method="post" action="{{ path('app_feedback_submit') }}">
-            <div style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Rating</div>
+            <span class="av-modal-label">Your Rating</span>
             <div class="av-star-input">
                 {% for i in 5..1 %}
                     <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}" {{ i == 5 ? 'required' : '' }}>
                     <label for="star{{ i }}"><i class='bx bxs-star'></i></label>
                 {% endfor %}
             </div>
-            <div style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Comment (optional)</div>
-            <textarea name="comment" placeholder="Tell us what you think..."></textarea>
+            <span class="av-modal-label">Your Feedback</span>
+            <textarea name="comment" placeholder="What did you love? What can be improved?"></textarea>
             <div class="av-modal-foot">
                 <button type="button" class="av-modal-cancel" onclick="document.getElementById('feedbackModal').classList.remove('open')">Cancel</button>
                 <button type="submit" class="av-modal-submit">Submit Review</button>
@@ -230,12 +472,195 @@ footer{display:none!important}
     </div>
 </div>
 
+{# ── Edit Feedback Modal ── #}
+<div class="av-modal-bg" id="editFeedbackModal">
+    <div class="av-modal">
+        <h2>Edit Review</h2>
+        <p class="sub">Update your feedback</p>
+        <form method="post" id="editFeedbackForm">
+            <span class="av-modal-label">Your Rating</span>
+            <div class="av-star-input">
+                {% for i in 5..1 %}
+                    <input type="radio" name="rating" id="edit_star{{ i }}" value="{{ i }}" {{ i == 5 ? 'required' : '' }}>
+                    <label for="edit_star{{ i }}"><i class='bx bxs-star'></i></label>
+                {% endfor %}
+            </div>
+            <span class="av-modal-label">Your Feedback</span>
+            <textarea name="comment" id="editFeedbackComment" placeholder="Update your thoughts..."></textarea>
+            <div class="av-modal-foot">
+                <button type="button" class="av-modal-cancel" onclick="document.getElementById('editFeedbackModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="av-modal-submit">Update Review</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
-document.getElementById('feedbackModal').addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('open');
-});
+/* ── Modal close on backdrop ── */
+document.getElementById('feedbackModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+document.getElementById('editFeedbackModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+
+/* ── Edit feedback ── */
+function openEditFeedback(id, rating, comment) {
+    document.getElementById('editFeedbackForm').action = '/feedback/' + id + '/edit';
+    document.getElementById('editFeedbackComment').value = comment || '';
+    document.querySelectorAll('#editFeedbackModal input[name="rating"]').forEach(function(r) {
+        r.checked = (parseInt(r.value) === rating);
+    });
+    document.getElementById('editFeedbackModal').classList.add('open');
+}
+
+/* ── Filter ── */
+function filterFeedback(rating, btn) {
+    document.querySelectorAll('.av-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var cards = document.querySelectorAll('.av-card');
+    var count = 0;
+    cards.forEach(function(card) {
+        if (rating === 'all' || card.dataset.rating === rating) {
+            card.style.display = '';
+            count++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    document.querySelector('.av-review-count').textContent = count + ' review' + (count !== 1 ? 's' : '');
+}
+
+/* ── Flash auto-dismiss ── */
 document.querySelectorAll('.av-flash').forEach(function(el) {
-    setTimeout(function() { el.classList.add('fade-out'); setTimeout(function(){ el.remove(); }, 500); }, 5000);
+    setTimeout(function() { el.classList.add('fade-out'); setTimeout(function(){ el.remove(); }, 400); }, 4000);
 });
+
+/* ══════════════════════════════════════════
+   ═══  EPIC LIKE / DISLIKE ANIMATIONS  ═══
+   ══════════════════════════════════════════ */
+
+function spawnParticles(container, color, count) {
+    for (var p = 0; p < count; p++) {
+        var dot = document.createElement('div');
+        dot.className = 'av-particle';
+        var size = Math.random() * 6 + 3;
+        var angle = (Math.PI * 2 / count) * p + (Math.random() - 0.5);
+        var dist = 30 + Math.random() * 40;
+        dot.style.cssText =
+            'width:' + size + 'px;height:' + size + 'px;' +
+            'background:' + color + ';' +
+            'left:50%;top:50%;' +
+            'margin-left:-' + (size/2) + 'px;margin-top:-' + (size/2) + 'px;' +
+            '--px:' + (Math.cos(angle) * dist) + 'px;' +
+            '--py:' + (Math.sin(angle) * dist) + 'px;' +
+            'animation-delay:' + (p * 0.03) + 's;' +
+            'box-shadow:0 0 ' + (size * 2) + 'px ' + color + ';' +
+            'opacity:0.9';
+        container.appendChild(dot);
+        setTimeout(function(d) { d.remove(); }.bind(null, dot), 900);
+    }
+}
+
+function spawnEmoji(btn, emoji) {
+    var em = document.createElement('span');
+    em.textContent = emoji;
+    em.style.cssText =
+        'position:absolute;font-size:1.4rem;pointer-events:none;z-index:20;' +
+        'left:50%;top:50%;transform:translate(-50%,-50%);' +
+        'animation:avParticleUp .9s cubic-bezier(0.22,1,0.36,1) forwards;' +
+        '--px:' + (Math.random() * 40 - 20) + 'px;--py:-' + (40 + Math.random() * 30) + 'px';
+    btn.parentElement.appendChild(em);
+    setTimeout(function() { em.remove(); }, 1000);
+}
+
+function addRipple(btn, e) {
+    var rect = btn.getBoundingClientRect();
+    var ripple = document.createElement('span');
+    ripple.className = 'av-ripple';
+    var size = Math.max(rect.width, rect.height) * 2;
+    ripple.style.cssText =
+        'width:' + size + 'px;height:' + size + 'px;' +
+        'left:' + (e.clientX - rect.left - size/2) + 'px;' +
+        'top:' + (e.clientY - rect.top - size/2) + 'px';
+    btn.appendChild(ripple);
+    setTimeout(function() { ripple.remove(); }, 700);
+}
+
+function reactFeedback(btn) {
+    var id = btn.dataset.id;
+    var type = btn.dataset.type;
+    var footer = btn.closest('.av-card-footer');
+    var otherType = type === 'like' ? 'dislike' : 'like';
+    var otherBtn = footer.querySelector('[data-type="' + otherType + '"]');
+    var wasActive = btn.classList.contains('active');
+    var event = window.event || {};
+
+    /* Ripple */
+    if (event.clientX) addRipple(btn, event);
+
+    /* Particles */
+    var particleContainer = document.getElementById('particles-' + type + '-' + id);
+    if (!wasActive && particleContainer) {
+        var pColor = type === 'like' ? '#34d399' : '#f87171';
+        spawnParticles(particleContainer, pColor, 14);
+    }
+
+    /* Emoji burst */
+    if (!wasActive) {
+        var emoji = type === 'like' ? '👍' : '👎';
+        for (var e = 0; e < 3; e++) {
+            setTimeout(function() { spawnEmoji(btn, emoji); }, e * 80);
+        }
+    }
+
+    /* Icon animation */
+    btn.classList.remove('anim-like', 'anim-dislike');
+    void btn.offsetWidth; /* force reflow */
+    btn.classList.add(type === 'like' ? 'anim-like' : 'anim-dislike');
+    setTimeout(function() { btn.classList.remove('anim-like', 'anim-dislike'); }, 800);
+
+    /* AJAX call */
+    var formData = new FormData();
+    formData.append('type', type);
+
+    fetch('/feedback/' + id + '/react', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+        body: formData
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        /* Update like btn */
+        var likeBtn = footer.querySelector('[data-type="like"]');
+        var dislikeBtn = footer.querySelector('[data-type="dislike"]');
+
+        /* Update counts with bump animation */
+        var likeSpan = likeBtn.querySelector('span');
+        var dislikeSpan = dislikeBtn.querySelector('span');
+        likeSpan.textContent = data.like_count;
+        dislikeSpan.textContent = data.dislike_count;
+        likeSpan.classList.remove('av-count-bump');
+        dislikeSpan.classList.remove('av-count-bump');
+        void likeSpan.offsetWidth;
+        if (type === 'like') likeSpan.classList.add('av-count-bump');
+        else dislikeSpan.classList.add('av-count-bump');
+        setTimeout(function() { likeSpan.classList.remove('av-count-bump'); dislikeSpan.classList.remove('av-count-bump'); }, 500);
+
+        /* Update active states */
+        likeBtn.classList.remove('active', 'like');
+        dislikeBtn.classList.remove('active', 'dislike');
+
+        if (data.my_reaction === 'like') {
+            likeBtn.classList.add('active', 'like');
+            likeBtn.querySelector('i').className = 'bx bxs-like';
+            dislikeBtn.querySelector('i').className = 'bx bx-dislike';
+        } else if (data.my_reaction === 'dislike') {
+            dislikeBtn.classList.add('active', 'dislike');
+            dislikeBtn.querySelector('i').className = 'bx bxs-dislike';
+            likeBtn.querySelector('i').className = 'bx bx-like';
+        } else {
+            likeBtn.querySelector('i').className = 'bx bx-like';
+            dislikeBtn.querySelector('i').className = 'bx bx-dislike';
+        }
+    })
+    .catch(function(err) { console.error('Reaction error:', err); });
+}
 </script>
 {% endblock %}

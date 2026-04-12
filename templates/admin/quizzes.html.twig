@@ -1,0 +1,602 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}Admin — Quizzes{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
+@property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+.adm{display:flex;min-height:100vh;padding-top:72px}
+.adm-side{width:260px;position:fixed;top:72px;left:0;bottom:0;background:rgba(6,12,22,0.95);border-right:1px solid var(--border);backdrop-filter:blur(20px);padding:28px 16px;display:flex;flex-direction:column;z-index:50;overflow-y:auto}
+.adm-side-head{padding:0 12px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.adm-side-head h2{font-size:1.1rem;font-weight:900;letter-spacing:-0.03em}
+.adm-side-head h2 span{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.adm-side-head p{font-size:0.72rem;color:var(--muted);margin-top:4px}
+.adm-nav{list-style:none;display:flex;flex-direction:column;gap:4px;flex:1}
+.adm-nav a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;color:var(--muted);text-decoration:none;font-size:0.84rem;font-weight:600;transition:all .22s var(--ease);position:relative}
+.adm-nav a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+.adm-nav a.is-active{color:var(--cyan);background:rgba(56,189,209,0.08)}
+.adm-nav a.is-active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0}
+.adm-nav a i{font-size:1.2rem;width:22px;text-align:center}
+.adm-nav-divider{height:1px;background:var(--border);margin:12px 8px}
+.adm-main{flex:1;margin-left:260px;padding:32px;overflow-x:hidden;position:relative;overflow-y:auto}
+
+/* Premium Hero */
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes headGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes headLine{0%,100%{width:60px;opacity:.8}50%{width:100px;opacity:1}}
+@keyframes borderSpin{to{--border-angle:360deg}}
+
+.adm-hero{position:relative;padding:28px 32px;background:linear-gradient(135deg,rgba(56,189,209,0.06),rgba(123,97,241,0.04));border:1px solid rgba(56,189,209,0.08);border-radius:20px;backdrop-filter:blur(20px);overflow:hidden;margin-bottom:28px;animation:fadeIn .5s var(--ease)}
+.adm-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.3),rgba(123,97,241,0.2),transparent)}
+.adm-hero h1{font-size:1.8rem;font-weight:900;letter-spacing:-0.04em;margin-bottom:4px;position:relative;display:inline-block}
+.adm-hero h1 .head-gradient{background:linear-gradient(135deg,var(--cyan),var(--purple),var(--green));background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:headGrad 6s ease infinite}
+.adm-hero h1::after{content:'';position:absolute;bottom:-6px;left:0;width:60px;height:3px;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:3px;animation:headLine 3s ease-in-out infinite}
+.adm-hero-sub{color:var(--muted);font-size:0.82rem;margin-top:8px}
+
+/* Stats with spinning border */
+.aq-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:1000px){.aq-stats{grid-template-columns:repeat(2,1fr)}}
+.aq-stat{background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:20px 22px;text-align:center;animation:fadeUp .4s var(--ease) backwards;position:relative;overflow:hidden;transition:all .35s var(--ease)}
+.aq-stat::before{content:'';position:absolute;inset:-1px;border-radius:16px;padding:1px;background:conic-gradient(from var(--border-angle),transparent 40%,var(--cyan) 50%,var(--purple) 60%,transparent 70%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s;pointer-events:none}
+.aq-stat::after{content:'';position:absolute;inset:0;border-radius:16px;background:radial-gradient(ellipse at 50% 0%,rgba(56,189,209,0.06),transparent 70%);opacity:0;transition:opacity .4s;pointer-events:none}
+.aq-stat:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,0.25)}
+.aq-stat:hover::before{opacity:1;animation:borderSpin 3s linear infinite}
+.aq-stat:hover::after{opacity:1}
+.aq-stat:nth-child(2){animation-delay:.06s}.aq-stat:nth-child(3){animation-delay:.12s}.aq-stat:nth-child(4){animation-delay:.18s}
+.aq-stat-val{font-size:1.7rem;font-weight:900}
+.aq-stat-lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-top:2px}
+
+/* Top bar / toolbar */
+.aq-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap;animation:fadeUp .4s var(--ease) .15s backwards}
+.aq-search{display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:14px;background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));border:1px solid var(--border);flex:1;max-width:380px;transition:all .35s var(--ease)}
+.aq-search:focus-within{border-color:rgba(56,189,209,0.35);box-shadow:0 0 24px rgba(56,189,209,0.08),0 0 0 1px rgba(56,189,209,0.1);background:rgba(56,189,209,0.02)}
+.aq-search input{background:none;border:none;outline:none;color:var(--text);font-size:.88rem;flex:1;font-family:inherit}
+.aq-search input::placeholder{color:var(--muted)}
+.aq-search i{color:var(--muted);font-size:1.1rem;transition:all .3s var(--ease)}
+.aq-search:focus-within i{color:var(--cyan);transform:scale(1.1)}
+.aq-add-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:14px;font-size:.85rem;font-weight:800;border:none;cursor:pointer;background:linear-gradient(135deg,var(--green),#10b981);color:#fff;box-shadow:0 4px 16px rgba(52,211,153,.2);transition:all .25s var(--ease);position:relative;overflow:hidden}
+.aq-add-btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.15);border-radius:50%;transform:translate(-50%,-50%);transition:width .5s,height .5s}
+.aq-add-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(52,211,153,.3)}
+.aq-add-btn:hover::before{width:300px;height:300px}
+
+/* Section header */
+.aq-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;animation:fadeUp .4s var(--ease) .2s backwards}
+.aq-section-title{font-size:0.82rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.aq-section-title i{font-size:1.05rem;color:var(--cyan)}
+.aq-section-count{font-size:0.72rem;font-weight:600;color:var(--muted);background:var(--glass);border:1px solid var(--border);padding:4px 12px;border-radius:8px}
+
+/* Table */
+.aq-table-wrap{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:18px;overflow:hidden;backdrop-filter:blur(14px);animation:fadeUp .4s var(--ease) .25s backwards;position:relative}
+.aq-table-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.2),rgba(123,97,241,0.15),transparent);pointer-events:none}
+.aq-table{width:100%;border-collapse:collapse}
+.aq-table th{text-align:left;padding:16px 20px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:linear-gradient(135deg,rgba(255,255,255,0.02),rgba(255,255,255,0.005));border-bottom:1px solid var(--border)}
+.aq-table td{padding:16px 20px;font-size:.88rem;border-bottom:1px solid rgba(255,255,255,0.025);vertical-align:middle;transition:all .2s var(--ease)}
+.aq-table tr:last-child td{border-bottom:none}
+.aq-table tbody tr[data-title]{transition:all .25s var(--ease)}
+.aq-table tbody tr[data-title]:hover td{background:rgba(56,189,209,0.015)}
+.aq-table tbody tr[data-title]:hover{box-shadow:inset 3px 0 0 var(--cyan)}
+.aq-status{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:8px;font-size:.72rem;font-weight:700;border:1px solid transparent;transition:all .2s var(--ease)}
+.aq-status.active{background:rgba(52,211,153,.1);color:var(--green);border-color:rgba(52,211,153,.15)}
+.aq-status.inactive{background:rgba(248,113,113,.1);color:var(--red);border-color:rgba(248,113,113,.15)}
+.aq-status:hover{transform:scale(1.08);box-shadow:0 2px 10px rgba(0,0,0,0.2)}
+.aq-actions{display:flex;gap:6px}
+.aq-actions button,.aq-actions a{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--glass);color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .25s var(--ease);text-decoration:none;font-size:1rem;position:relative;overflow:hidden}
+.aq-actions button::before,.aq-actions a::before{content:'';position:absolute;inset:0;border-radius:10px;opacity:0;transition:opacity .25s}
+.aq-actions button:hover,.aq-actions a:hover{color:var(--text);background:var(--glass-b);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+.aq-actions .del::before{background:radial-gradient(circle,rgba(248,113,113,0.15),transparent)}
+.aq-actions .del:hover{color:var(--red);border-color:rgba(248,113,113,.25)}
+.aq-actions .del:hover::before{opacity:1}
+.aq-actions .edit::before{background:radial-gradient(circle,rgba(56,189,209,0.15),transparent)}
+.aq-actions .edit:hover{color:var(--cyan);border-color:rgba(56,189,209,.25)}
+.aq-actions .edit:hover::before{opacity:1}
+.aq-actions .manage::before{background:radial-gradient(circle,rgba(123,97,241,0.15),transparent)}
+.aq-actions .manage:hover{color:var(--purple);border-color:rgba(123,97,241,.25)}
+.aq-actions .manage:hover::before{opacity:1}
+.aq-actions button:hover i,.aq-actions a:hover i{animation:btnWiggle .4s var(--ease)}
+@keyframes btnWiggle{0%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}100%{transform:rotate(0)}}
+
+/* Modal */
+.adm-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:200;opacity:0;visibility:hidden;display:flex;align-items:center;justify-content:center;transition:all .2s ease}
+.adm-modal-bg.show{opacity:1;visibility:visible}
+.adm-modal{background:rgba(10,16,28,0.98);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:32px;max-width:560px;width:92%;max-height:85vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04),0 0 80px rgba(56,189,209,.04);transform:scale(.92);transition:transform .3s var(--ease);position:relative;overflow-x:hidden}
+.adm-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.3),rgba(123,97,241,0.2),transparent)}
+.adm-modal-bg.show .adm-modal{transform:scale(1)}
+.adm-modal h3{font-size:1.15rem;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.adm-modal h3 i{animation:mIconPulse 2s ease-in-out infinite}
+@keyframes mIconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.adm-modal-field{margin-bottom:14px}
+.adm-modal-field label{display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.adm-modal-field input,.adm-modal-field select,.adm-modal-field textarea{width:100%;padding:11px 15px;border-radius:11px;background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--text);font-size:.88rem;font-family:inherit;outline:none;transition:all .25s var(--ease)}
+.adm-modal-field input:focus,.adm-modal-field select:focus,.adm-modal-field textarea:focus{border-color:rgba(56,189,209,.35);box-shadow:0 0 16px rgba(56,189,209,.06);background:rgba(56,189,209,.02)}
+.adm-modal-field textarea{min-height:70px;resize:vertical}
+.adm-modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.adm-modal-btn{padding:10px 24px;border-radius:11px;font-size:.85rem;font-weight:700;cursor:pointer;border:none;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.adm-modal-btn.cancel{background:var(--glass);border:1px solid var(--border);color:var(--muted)}
+.adm-modal-btn.cancel:hover{color:var(--text);background:var(--glass-b);transform:translateY(-1px)}
+.adm-modal-btn.save{background:linear-gradient(135deg,var(--cyan),var(--green));color:#fff;box-shadow:0 4px 20px rgba(56,189,209,.15)}
+.adm-modal-btn.save:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,189,209,.25)}
+.adm-modal-btn.save::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);transition:left .6s}
+.adm-modal-btn.save:hover::before{left:200%}
+
+/* Questions Panel */
+.aq-qpanel{margin-top:0;padding:24px;background:linear-gradient(135deg,rgba(255,255,255,.02),rgba(255,255,255,.005));border:none;border-radius:0;display:none;border-top:1px solid var(--border)}
+.aq-qpanel.show{display:block}
+.aq-qpanel h4{font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.aq-qpanel h4 i{color:var(--purple)}
+.aq-qlist{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.aq-qitem{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-radius:12px;background:linear-gradient(135deg,rgba(255,255,255,.025),rgba(255,255,255,.01));border:1px solid var(--border);transition:all .25s var(--ease)}
+.aq-qitem:hover{background:rgba(123,97,241,.02);border-color:rgba(123,97,241,.1);transform:translateX(3px)}
+.aq-qitem-num{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;background:rgba(123,97,241,.12);color:var(--purple);flex-shrink:0}
+.aq-qitem-body{flex:1;font-size:.85rem}
+.aq-qitem-type{font-size:.68rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.05em}
+.aq-qitem-del{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--glass);color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .25s var(--ease)}
+.aq-qitem-del:hover{color:var(--red);border-color:rgba(248,113,113,.25);background:rgba(248,113,113,.08);transform:scale(1.1)}
+
+/* Add Q Form */
+.aq-addq{padding:18px;border-radius:14px;background:linear-gradient(135deg,rgba(255,255,255,.02),rgba(255,255,255,.008));border:1px solid var(--border);position:relative}
+.aq-addq::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.1),transparent);border-radius:14px 14px 0 0}
+.aq-addq h5{font-size:.82rem;font-weight:700;margin-bottom:12px;color:var(--cyan)}
+.aq-addq-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+@media(max-width:600px){.aq-addq-row{grid-template-columns:1fr}}
+.aq-addq .adm-modal-field{margin-bottom:10px}
+.aq-mcq-fields,.aq-tf-fields,.aq-st-fields{display:none}
+.aq-mcq-fields.show,.aq-tf-fields.show,.aq-st-fields.show{display:block}
+
+/* Empty state */
+.aq-empty{text-align:center;padding:80px 20px;color:var(--muted)}
+.aq-empty i{font-size:3rem;opacity:0.2;margin-bottom:12px;display:block;animation:emptyFloat 4s ease-in-out infinite}
+@keyframes emptyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* Toast */
+.adm-toast{position:fixed;bottom:24px;right:24px;padding:14px 24px;border-radius:14px;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.25);color:var(--green);font-size:.85rem;font-weight:600;z-index:9999;transform:translateY(100px);opacity:0;transition:all .4s var(--ease);backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,.3);display:flex;align-items:center;gap:8px}
+.adm-toast::before{content:'✓';width:22px;height:22px;border-radius:50%;background:rgba(52,211,153,.15);display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0}
+.adm-toast.show{transform:translateY(0);opacity:1}
+.adm-toast.error{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.25);color:var(--red)}
+.adm-toast.error::before{content:'✕';background:rgba(248,113,113,.15)}
+
+/* Floating particles */
+.adm-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.adm-particle{position:absolute;border-radius:50%;opacity:0;animation:particleDrift linear infinite}
+.adm-particle:nth-child(1){width:3px;height:3px;background:var(--cyan);top:15%;left:80%;animation-duration:18s}
+.adm-particle:nth-child(2){width:2px;height:2px;background:var(--purple);top:60%;left:90%;animation-duration:22s;animation-delay:-4s}
+.adm-particle:nth-child(3){width:4px;height:4px;background:var(--green);top:80%;left:70%;animation-duration:25s;animation-delay:-8s}
+.adm-particle:nth-child(4){width:2px;height:2px;background:var(--orange);top:30%;left:75%;animation-duration:20s;animation-delay:-12s}
+@keyframes particleDrift{0%{transform:translate(0,0) scale(0);opacity:0}10%{opacity:.5}50%{opacity:.3}90%{opacity:.5}100%{transform:translate(-120px,-200px) scale(1.2);opacity:0}}
+
+/* Scrollbar */
+.adm-main::-webkit-scrollbar{width:6px}
+.adm-main::-webkit-scrollbar-track{background:transparent}
+.adm-main::-webkit-scrollbar-thumb{background:rgba(56,189,209,.15);border-radius:3px}
+.adm-main::-webkit-scrollbar-thumb:hover{background:rgba(56,189,209,.3)}
+
+@media(max-width:768px){.adm-side{display:none}.adm-main{margin-left:0}}
+</style>
+{% endblock %}
+
+{% block body %}
+{% include 'admin/_premium.html.twig' %}
+
+<div class="adm">
+
+	<aside class="adm-side">
+		<div class="adm-side-head">
+			<h2><span>Admin</span> Panel</h2>
+			<p>LearnAdapt Management</p>
+		</div>
+		<ul class="adm-nav">
+			<li><a href="{{ path('app_admin') }}"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+			<li><a href="{{ path('app_admin_users') }}"><i class='bx bxs-group'></i> Users</a></li>
+			<li><a href="{{ path('app_admin_forum') }}"><i class='bx bxs-chat'></i> Forum</a></li>
+			<li><a href="{{ path('app_admin_feedback') }}"><i class='bx bxs-star-half'></i> Feedback</a></li>
+			<li><a href="{{ path('app_admin_exercises') }}"><i class='bx bxs-book-content'></i> Exercises</a></li>
+			<li><a href="{{ path('app_admin_quizzes') }}" class="is-active"><i class='bx bxs-brain'></i> Quizzes</a></li>
+			<li><a href="{{ path('app_admin_courses') }}"><i class='bx bxs-book-alt'></i> Courses</a></li>
+			<div class="adm-nav-divider"></div>
+			<li><a href="{{ path('app_home') }}"><i class='bx bx-arrow-back'></i> Back to App</a></li>
+			<li><a href="{{ path('app_settings') }}"><i class='bx bx-cog'></i> Settings</a></li>
+		</ul>
+	</aside>
+
+	<main class="adm-main">
+		<div class="adm-particles"><div class="adm-particle"></div><div class="adm-particle"></div><div class="adm-particle"></div><div class="adm-particle"></div></div>
+
+		<div class="adm-hero">
+			<h1><i class='bx bxs-brain' style="font-size:1.5rem;vertical-align:middle;margin-right:6px"></i> <span class="head-gradient">Quiz Management</span>
+		<div class="adm-hero">
+			<h1><i class='bx bxs-brain' style="font-size:1.5rem;vertical-align:middle;margin-right:6px"></i> <span class="head-gradient">Quiz Management</span></h1>
+			<p class="adm-hero-sub">Create, manage and monitor diagnostic quizzes for students</p>
+		</div>
+
+		{% set totalQuizzes = quizzes|length %}
+		{% set activeQuizzes = quizzes|filter(q => q.is_active)|length %}
+		{% set totalAttempts = 0 %}
+		{% set totalQs = 0 %}
+		{% for q in quizzes %}
+			{% set totalAttempts = totalAttempts + q.attempt_count %}
+			{% set totalQs = totalQs + q.question_count %}
+		{% endfor %}
+
+		<div class="aq-stats">
+			<div class="aq-stat"><div class="aq-stat-val" style="color:var(--purple)">{{ totalQuizzes }}</div><div class="aq-stat-lbl">Total Quizzes</div></div>
+			<div class="aq-stat"><div class="aq-stat-val" style="color:var(--green)">{{ activeQuizzes }}</div><div class="aq-stat-lbl">Active</div></div>
+			<div class="aq-stat"><div class="aq-stat-val" style="color:var(--cyan)">{{ totalQs }}</div><div class="aq-stat-lbl">Questions</div></div>
+			<div class="aq-stat"><div class="aq-stat-val" style="color:var(--orange)">{{ totalAttempts }}</div><div class="aq-stat-lbl">Attempts</div></div>
+		</div>
+
+		<div class="aq-topbar">
+			<div class="aq-search">
+				<i class='bx bx-search'></i>
+				<input type="text" id="quizSearch" placeholder="Search quizzes..." oninput="filterQuizzes()">
+			</div>
+			<button class="aq-add-btn" onclick="openCreateQuiz()"><i class='bx bx-plus-circle'></i> New Quiz</button>
+		<!-- Section header -->
+		<div class="aq-section-head">
+			<div class="aq-section-title"><i class='bx bxs-brain'></i> Quiz List</div>
+			<div class="aq-section-count">{{ totalQuizzes }} quiz{{ totalQuizzes != 1 ? 'zes' : '' }}</div>
+		</div>
+
+		</div>
+
+		<!-- Section header -->
+		<div class="aq-section-head">
+			<div class="aq-section-title"><i class='bx bxs-brain'></i> Quiz List</div>
+			<div class="aq-section-count">{{ totalQuizzes }} quiz{{ totalQuizzes != 1 ? 'zes' : '' }}</div>
+		</div>
+
+		<div class="aq-table-wrap">
+			<table class="aq-table">
+				<thead>
+					<tr>
+						<th>Quiz</th>
+						<th>Questions</th>
+						<th>Time</th>
+						<th>Attempts</th>
+						<th>Avg Score</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody id="quizTableBody">
+					{% for q in quizzes %}
+					<tr id="quiz-row-{{ q.id }}" data-title="{{ q.title|lower }}">
+						<td>
+							<div style="font-weight:700">{{ q.title }}</div>
+							<div style="font-size:.75rem;color:var(--muted);margin-top:2px">{{ q.description|default('No description')|slice(0,60) }}{% if q.description|default('')|length > 60 %}...{% endif %}</div>
+						</td>
+						<td><span style="font-weight:700;color:var(--purple)">{{ q.question_count }}</span></td>
+						<td>
+							{% if q.time_limit_minutes %}
+							<span style="font-weight:600;color:var(--orange)"><i class='bx bx-timer' style="vertical-align:middle"></i> {{ q.time_limit_minutes }} min</span>
+							{% else %}
+							<span style="color:var(--muted)">No limit</span>
+							{% endif %}
+						</td>
+						<td><span style="font-weight:600">{{ q.attempt_count }}</span></td>
+						<td>
+							{% if q.avg_score %}
+							<span style="font-weight:700;color:{{ q.avg_score >= 80 ? 'var(--green)' : (q.avg_score >= 50 ? 'var(--orange)' : 'var(--red)') }}">{{ q.avg_score }}%</span>
+							{% else %}
+							<span style="color:var(--muted)">—</span>
+							{% endif %}
+						</td>
+						<td>
+							<span class="aq-status {{ q.is_active ? 'active' : 'inactive' }}" style="cursor:pointer" onclick="toggleQuiz({{ q.id }})">
+								<i class='bx {{ q.is_active ? "bx-check-circle" : "bx-x-circle" }}'></i>
+								{{ q.is_active ? 'Active' : 'Inactive' }}
+							</span>
+						</td>
+						<td>
+							<div class="aq-actions">
+								<button class="manage" title="Manage Questions" onclick="toggleQuestions({{ q.id }})"><i class='bx bx-list-ul'></i></button>
+								<button class="edit" title="Edit" onclick="openEditQuiz({{ q.id }},'{{ q.title|e('js') }}','{{ q.description|default('')|e('js') }}',{{ q.time_limit_minutes|default('null') }},{{ q.is_active }})"><i class='bx bx-edit-alt'></i></button>
+								<button class="del" title="Delete" onclick="deleteQuiz({{ q.id }},'{{ q.title|e('js') }}')"><i class='bx bx-trash'></i></button>
+							</div>
+						</td>
+					</tr>
+					<tr id="quiz-questions-{{ q.id }}" style="display:none">
+						<td colspan="7" style="padding:0">
+							<div class="aq-qpanel show" id="qpanel-{{ q.id }}">
+								<h4><i class='bx bx-list-check'></i> Questions for "{{ q.title }}"</h4>
+								<div class="aq-qlist" id="qlist-{{ q.id }}">
+									<div style="text-align:center;color:var(--muted);padding:12px;font-size:.85rem"><i class='bx bx-loader-alt bx-spin'></i> Loading...</div>
+								</div>
+								<div class="aq-addq">
+									<h5><i class='bx bx-plus'></i> Add Question</h5>
+									<div class="aq-addq-row">
+										<div class="adm-modal-field">
+											<label>Type</label>
+											<select id="addQType-{{ q.id }}" onchange="toggleQFields({{ q.id }})">
+												<option value="MCQ">Multiple Choice</option>
+												<option value="TRUE_FALSE">True / False</option>
+												<option value="SHORT_TEXT">Short Answer</option>
+											</select>
+										</div>
+										<div class="adm-modal-field">
+											<label>Difficulty</label>
+											<select id="addQDiff-{{ q.id }}">
+												<option value="EASY">Easy</option>
+												<option value="MEDIUM">Medium</option>
+												<option value="HARD">Hard</option>
+											</select>
+										</div>
+									</div>
+									<div class="adm-modal-field">
+										<label>Question Prompt</label>
+										<textarea id="addQPrompt-{{ q.id }}" placeholder="Type your question here..."></textarea>
+									</div>
+									<div class="adm-modal-field">
+										<label>Points</label>
+										<input type="number" id="addQPts-{{ q.id }}" value="1" min="1" max="100">
+									</div>
+
+									<!-- MCQ fields -->
+									<div class="aq-mcq-fields show" id="mcqFields-{{ q.id }}">
+										<div class="aq-addq-row">
+											<div class="adm-modal-field"><label>Option A</label><input type="text" id="addQA-{{ q.id }}"></div>
+											<div class="adm-modal-field"><label>Option B</label><input type="text" id="addQB-{{ q.id }}"></div>
+										</div>
+										<div class="aq-addq-row">
+											<div class="adm-modal-field"><label>Option C</label><input type="text" id="addQC-{{ q.id }}"></div>
+											<div class="adm-modal-field"><label>Option D</label><input type="text" id="addQD-{{ q.id }}"></div>
+										</div>
+										<div class="adm-modal-field">
+											<label>Correct Answer</label>
+											<select id="addQCorrectOpt-{{ q.id }}">
+												<option value="A">A</option>
+												<option value="B">B</option>
+												<option value="C">C</option>
+												<option value="D">D</option>
+											</select>
+										</div>
+									</div>
+
+									<!-- True/False fields -->
+									<div class="aq-tf-fields" id="tfFields-{{ q.id }}">
+										<div class="adm-modal-field">
+											<label>Correct Answer</label>
+											<select id="addQCorrectBool-{{ q.id }}">
+												<option value="1">True</option>
+												<option value="0">False</option>
+											</select>
+										</div>
+									</div>
+
+									<!-- Short Text fields -->
+									<div class="aq-st-fields" id="stFields-{{ q.id }}">
+										<div class="adm-modal-field">
+											<label>Correct Answer (text)</label>
+											<input type="text" id="addQCorrectText-{{ q.id }}" placeholder="Expected answer">
+										</div>
+									</div>
+
+									<button class="adm-modal-btn save" style="margin-top:10px" onclick="addQuestion({{ q.id }})"><i class='bx bx-plus'></i> Add Question</button>
+								</div>
+							</div>
+						<class="aq-empty">
+			<i class='bx bx-brain'
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+
+		{% if quizzes|length == 0 %}
+		<div class="aq-empty">
+			<i class='bx bx-brain'></i>
+			<p style="font-size:1.05rem;font-weight:600">No quizzes yet</p>
+			<p style="font-size:.85rem;margin-top:4px">Create your first quiz to get started</p>
+		</div>
+		{% endif %}
+	</main>
+</div>
+
+<div id="admToast" class="adm-toast"></div>
+
+<!-- Create Quiz Modal -->
+<div class="adm-modal-bg" id="createQuizModal" onclick="if(event.target===this)closeCreateQuiz()">
+	<div class="adm-modal">
+		<h3><i class='bx bx-plus-circle' style="color:var(--green)"></i> Create Quiz</h3>
+		<div class="adm-modal-field">
+			<label>Title</label>
+			<input type="text" id="createQuizTitle" placeholder="Quiz title...">
+		</div>
+		<div class="adm-modal-field">
+			<label>Description</label>
+			<textarea id="createQuizDesc" placeholder="Brief description of the quiz..."></textarea>
+		</div>
+		<div class="adm-modal-field">
+			<label>Time Limit (minutes) — leave empty for no limit</label>
+			<input type="number" id="createQuizTime" placeholder="e.g. 30" min="1" max="300">
+		</div>
+		<div class="adm-modal-actions">
+			<button class="adm-modal-btn cancel" onclick="closeCreateQuiz()">Cancel</button>
+			<button class="adm-modal-btn save" onclick="saveCreateQuiz()">Create Quiz</button>
+		</div>
+	</div>
+</div>
+
+<!-- Edit Quiz Modal -->
+<div class="adm-modal-bg" id="editQuizModal" onclick="if(event.target===this)closeEditQuiz()">
+	<div class="adm-modal">
+		<h3><i class='bx bx-edit-alt' style="color:var(--cyan)"></i> Edit Quiz</h3>
+		<input type="hidden" id="editQuizId">
+		<div class="adm-modal-field">
+			<label>Title</label>
+			<input type="text" id="editQuizTitle">
+		</div>
+		<div class="adm-modal-field">
+			<label>Description</label>
+			<textarea id="editQuizDesc"></textarea>
+		</div>
+		<div class="adm-modal-field">
+			<label>Time Limit (minutes)</label>
+			<input type="number" id="editQuizTime" min="1" max="300">
+		</div>
+		<div class="adm-modal-field">
+			<label>Status</label>
+			<select id="editQuizActive">
+				<option value="1">Active</option>
+				<option value="0">Inactive</option>
+			</select>
+		</div>
+		<div class="adm-modal-actions">
+			<button class="adm-modal-btn cancel" onclick="closeEditQuiz()">Cancel</button>
+			<button class="adm-modal-btn save" onclick="saveEditQuiz()">Save Changes</button>
+		</div>
+	</div>
+</div>
+
+<script>
+function showToast(m,e=false){const t=document.getElementById('admToast');t.textContent=m;t.className='adm-toast'+(e?' error':'')+' show';setTimeout(()=>t.classList.remove('show'),3000)}
+
+// Filter
+function filterQuizzes(){
+	const v=document.getElementById('quizSearch').value.toLowerCase();
+	document.querySelectorAll('#quizTableBody tr[data-title]').forEach(r=>{
+		r.style.display=r.dataset.title.includes(v)?'':'none';
+	});
+}
+
+// Create Quiz
+function openCreateQuiz(){document.getElementById('createQuizModal').classList.add('show');document.getElementById('createQuizTitle').focus()}
+function closeCreateQuiz(){document.getElementById('createQuizModal').classList.remove('show')}
+function saveCreateQuiz(){
+	const title=document.getElementById('createQuizTitle').value.trim();
+	if(!title){showToast('Title is required',true);return}
+	const data={title,description:document.getElementById('createQuizDesc').value,time_limit_minutes:document.getElementById('createQuizTime').value||null};
+	fetch('/admin/quizzes/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){closeCreateQuiz();showToast('Quiz created!');setTimeout(()=>location.reload(),600)}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+
+// Edit Quiz
+function openEditQuiz(id,title,desc,time,active){
+	document.getElementById('editQuizId').value=id;
+	document.getElementById('editQuizTitle').value=title;
+	document.getElementById('editQuizDesc').value=desc;
+	document.getElementById('editQuizTime').value=time||'';
+	document.getElementById('editQuizActive').value=active;
+	document.getElementById('editQuizModal').classList.add('show');
+}
+function closeEditQuiz(){document.getElementById('editQuizModal').classList.remove('show')}
+function saveEditQuiz(){
+	const id=document.getElementById('editQuizId').value;
+	const data={title:document.getElementById('editQuizTitle').value,description:document.getElementById('editQuizDesc').value,time_limit_minutes:document.getElementById('editQuizTime').value||null,is_active:parseInt(document.getElementById('editQuizActive').value)};
+	fetch('/admin/quizzes/'+id+'/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){closeEditQuiz();showToast('Quiz updated!');setTimeout(()=>location.reload(),600)}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+
+// Toggle status
+function toggleQuiz(id){
+	fetch('/admin/quizzes/'+id+'/toggle',{method:'POST'})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){showToast('Status toggled');setTimeout(()=>location.reload(),400)}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+
+// Delete
+function deleteQuiz(id,title){
+	if(!confirm('Delete quiz "'+title+'" and all its questions/attempts?'))return;
+	fetch('/admin/quizzes/'+id+'/delete',{method:'POST'})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){document.getElementById('quiz-row-'+id).remove();const qr=document.getElementById('quiz-questions-'+id);if(qr)qr.remove();showToast('Quiz deleted')}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+
+// Questions
+function toggleQuestions(quizId){
+	const row=document.getElementById('quiz-questions-'+quizId);
+	if(row.style.display==='none'){
+		row.style.display='';
+		loadQuestions(quizId);
+	} else {
+		row.style.display='none';
+	}
+}
+
+function loadQuestions(quizId){
+	const list=document.getElementById('qlist-'+quizId);
+	list.innerHTML='<div style="text-align:center;color:var(--muted);padding:12px;font-size:.85rem"><i class="bx bx-loader-alt bx-spin"></i> Loading...</div>';
+	fetch('/admin/quizzes/'+quizId+'/questions')
+	.then(r=>r.json()).then(d=>{
+		if(!d.questions||d.questions.length===0){
+			list.innerHTML='<div style="text-align:center;color:var(--muted);padding:16px;font-size:.85rem">No questions yet — add one below</div>';
+			return;
+		}
+		let html='';
+		d.questions.forEach((q,i)=>{
+			let info=q.question_type;
+			if(q.question_type==='MCQ') info+=' · Correct: '+q.correct_option;
+			else if(q.question_type==='TRUE_FALSE') info+=' · Correct: '+(q.correct_bool?'True':'False');
+			else if(q.question_type==='SHORT_TEXT') info+=' · Answer: '+(q.correct_text||'—');
+			html+=`<div class="aq-qitem" id="qitem-${q.id}">
+				<div class="aq-qitem-num">${i+1}</div>
+				<div class="aq-qitem-body">
+					<div class="aq-qitem-type">${info} · ${q.difficulty} · ${q.points} pts</div>
+					<div style="margin-top:4px">${q.prompt}</div>
+					${q.question_type==='MCQ'?`<div style="margin-top:6px;font-size:.78rem;color:var(--muted)">A: ${q.option_a||'—'} | B: ${q.option_b||'—'} | C: ${q.option_c||'—'} | D: ${q.option_d||'—'}</div>`:''}
+				</div>
+				<button class="aq-qitem-del" onclick="deleteQuestion(${q.id},${quizId})"><i class='bx bx-trash'></i></button>
+			</div>`;
+		});
+		list.innerHTML=html;
+	}).catch(()=>{list.innerHTML='<div style="color:var(--red);padding:12px">Error loading questions</div>'});
+}
+
+function toggleQFields(quizId){
+	const type=document.getElementById('addQType-'+quizId).value;
+	document.getElementById('mcqFields-'+quizId).className='aq-mcq-fields'+(type==='MCQ'?' show':'');
+	document.getElementById('tfFields-'+quizId).className='aq-tf-fields'+(type==='TRUE_FALSE'?' show':'');
+	document.getElementById('stFields-'+quizId).className='aq-st-fields'+(type==='SHORT_TEXT'?' show':'');
+}
+
+function addQuestion(quizId){
+	const type=document.getElementById('addQType-'+quizId).value;
+	const prompt=document.getElementById('addQPrompt-'+quizId).value.trim();
+	if(!prompt){showToast('Question prompt is required',true);return}
+	const data={question_type:type,prompt,difficulty:document.getElementById('addQDiff-'+quizId).value,points:parseInt(document.getElementById('addQPts-'+quizId).value)||1};
+	if(type==='MCQ'){
+		data.option_a=document.getElementById('addQA-'+quizId).value;
+		data.option_b=document.getElementById('addQB-'+quizId).value;
+		data.option_c=document.getElementById('addQC-'+quizId).value;
+		data.option_d=document.getElementById('addQD-'+quizId).value;
+		data.correct_option=document.getElementById('addQCorrectOpt-'+quizId).value;
+	}else if(type==='TRUE_FALSE'){
+		data.correct_bool=parseInt(document.getElementById('addQCorrectBool-'+quizId).value);
+	}else if(type==='SHORT_TEXT'){
+		data.correct_text=document.getElementById('addQCorrectText-'+quizId).value;
+	}
+	fetch('/admin/quizzes/'+quizId+'/questions/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){
+			showToast('Question added!');
+			loadQuestions(quizId);
+			document.getElementById('addQPrompt-'+quizId).value='';
+			['addQA-','addQB-','addQC-','addQD-','addQCorrectText-'].forEach(p=>{const e=document.getElementById(p+quizId);if(e)e.value=''});
+		} else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+
+function deleteQuestion(qid,quizId){
+	if(!confirm('Delete this question?'))return;
+	fetch('/admin/quizzes/questions/'+qid+'/delete',{method:'POST'})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){document.getElementById('qitem-'+qid).remove();showToast('Question deleted')}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+</script>
+{% endblock %}

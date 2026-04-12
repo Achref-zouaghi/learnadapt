@@ -542,6 +542,311 @@
         .pr-name { font-size: 1.6rem; }
         .pr-stats-grid { grid-template-columns: repeat(2, 1fr); }
     }
+
+    /* ═══ QR CODE PREMIUM SECTION ═══ */
+    @property --qr-border-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+
+    .pr-qr-card {
+        position: relative;
+        background: linear-gradient(145deg, rgba(251,146,60,0.04), rgba(251,191,36,0.02), rgba(255,255,255,0.015));
+        border: 1px solid rgba(251,146,60,0.1) !important;
+        overflow: hidden;
+    }
+    .pr-qr-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(251,146,60,0.4), rgba(251,191,36,0.3), transparent);
+    }
+    .pr-qr-card:hover {
+        border-color: rgba(251,146,60,0.18) !important;
+        box-shadow: 0 12px 50px rgba(251,146,60,0.06);
+    }
+
+    .pr-qr-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+    .pr-qr-left { flex: 1; min-width: 280px; }
+    .pr-qr-right { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+    .pr-qr-desc {
+        color: var(--muted);
+        font-size: 0.84rem;
+        line-height: 1.7;
+        margin-top: 10px;
+        max-width: 440px;
+    }
+
+    .pr-qr-signals {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+    }
+    .pr-qr-signal {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        color: #d8dee9;
+        font-size: 0.74rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+    }
+    .pr-qr-signal i {
+        color: var(--orange);
+        font-size: 0.95rem;
+    }
+
+    .pr-qr-user-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 22px;
+        padding: 16px 20px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 14px;
+    }
+    .pr-qr-avatar { width: 44px; height: 44px; border-radius: 12px; overflow: hidden; flex-shrink: 0; }
+    .pr-qr-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .pr-qr-avatar-placeholder {
+        width: 100%; height: 100%;
+        background: linear-gradient(135deg, rgba(251,146,60,0.15), rgba(251,191,36,0.1));
+        display: flex; align-items: center; justify-content: center;
+        color: var(--orange); font-size: 1.3rem;
+    }
+    .pr-qr-name { font-weight: 700; font-size: 0.88rem; color: #fff; }
+    .pr-qr-email { font-size: 0.76rem; color: var(--muted); margin-top: 2px; }
+
+    .pr-qr-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+    .pr-qr-download-btn {
+        background: linear-gradient(135deg, var(--orange), var(--yellow)) !important;
+        border: none !important;
+        color: #fff !important;
+    }
+    .pr-qr-download-btn:hover {
+        box-shadow: 0 8px 28px rgba(251,146,60,0.35);
+        transform: translateY(-2px);
+    }
+    .pr-qr-copy-btn i, .pr-qr-download-btn i {
+        font-size: 1rem;
+        margin-right: 2px;
+    }
+
+    /* QR Frame */
+    .pr-qr-frame {
+        position: relative;
+        width: min(290px, 100%);
+        min-height: 344px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 14px;
+        overflow: hidden;
+        background: linear-gradient(180deg, rgba(13,17,28,0.96), rgba(6,9,16,0.94));
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 22px;
+        padding: 16px;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    /* Spinning border */
+    .pr-qr-frame::after {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: 23px;
+        padding: 2px;
+        background: conic-gradient(from var(--qr-border-angle), transparent 30%, var(--orange) 50%, transparent 70%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: opacity .4s;
+        z-index: 0;
+    }
+    .pr-qr-card:hover .pr-qr-frame::after {
+        opacity: 1;
+        animation: qrBorderSpin 3s linear infinite;
+    }
+    @keyframes qrBorderSpin { to { --qr-border-angle: 360deg; } }
+
+    /* Corner brackets */
+    .pr-qr-frame-corner {
+        position: absolute;
+        width: 20px; height: 20px;
+        z-index: 3;
+    }
+    .pr-qr-fc-tl { top: 8px; left: 8px; border-top: 3px solid var(--orange); border-left: 3px solid var(--orange); border-radius: 6px 0 0 0; }
+    .pr-qr-fc-tr { top: 8px; right: 8px; border-top: 3px solid var(--yellow); border-right: 3px solid var(--yellow); border-radius: 0 6px 0 0; }
+    .pr-qr-fc-bl { bottom: 8px; left: 8px; border-bottom: 3px solid var(--yellow); border-left: 3px solid var(--yellow); border-radius: 0 0 0 6px; }
+    .pr-qr-fc-br { bottom: 8px; right: 8px; border-bottom: 3px solid var(--orange); border-right: 3px solid var(--orange); border-radius: 0 0 6px 0; }
+
+    /* Glow behind QR */
+    .pr-qr-glow {
+        position: absolute;
+        inset: 92px 18% auto 18%;
+        height: 140px;
+        background: radial-gradient(circle, rgba(251,146,60,0.16), rgba(56,189,248,0.06) 45%, transparent 72%);
+        border-radius: 50%;
+        filter: blur(8px);
+        z-index: 1;
+        pointer-events: none;
+        animation: qrGlowPulse 3s ease-in-out infinite;
+    }
+    @keyframes qrGlowPulse {
+        0%, 100% { opacity: 0.5; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    .pr-qr-preview-head,
+    .pr-qr-preview-foot {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .pr-qr-preview-foot {
+        margin-top: 2px;
+    }
+    .pr-qr-premium-pill,
+    .pr-qr-live-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        backdrop-filter: blur(12px);
+    }
+    .pr-qr-premium-pill {
+        color: #fff5d6;
+        background: linear-gradient(135deg, rgba(251,146,60,0.22), rgba(251,191,36,0.15));
+        border: 1px solid rgba(251,191,36,0.2);
+    }
+    .pr-qr-live-pill {
+        color: #d8fbe6;
+        background: rgba(52,211,153,0.08);
+        border: 1px solid rgba(52,211,153,0.16);
+    }
+    .pr-qr-live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #34d399;
+        box-shadow: 0 0 0 6px rgba(52,211,153,0.12);
+    }
+    .pr-qr-frame canvas {
+        width: 220px;
+        height: 220px;
+        border-radius: 18px;
+        position: relative;
+        z-index: 2;
+        display: block;
+        background: #fff;
+        box-shadow: 0 20px 35px rgba(0,0,0,0.3);
+    }
+    .pr-qr-preview-copy {
+        min-width: 0;
+        flex: 1;
+    }
+    .pr-qr-preview-title {
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+    }
+    .pr-qr-preview-url {
+        margin-top: 4px;
+        color: rgba(216,222,233,0.58);
+        font-size: 0.68rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
+    }
+    .pr-qr-preview-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.9rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: #fff;
+        background: linear-gradient(135deg, rgba(251,146,60,0.92), rgba(251,191,36,0.88));
+        box-shadow: 0 12px 28px rgba(251,146,60,0.22);
+    }
+    .pr-qr-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+    .pr-qr-source {
+        display: none !important;
+    }
+
+    /* Toast */
+    .pr-qr-toast {
+        position: fixed;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: rgba(15,18,28,0.95);
+        border: 1px solid rgba(251,146,60,0.2);
+        border-radius: 14px;
+        padding: 14px 28px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--orange);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(251,146,60,0.08);
+        z-index: 10000;
+        opacity: 0;
+        transition: all .4s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+    }
+    .pr-qr-toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    .pr-qr-toast i { font-size: 1.2rem; }
+
+    @media (max-width: 640px) {
+        .pr-qr-inner { flex-direction: column; align-items: stretch; gap: 24px; }
+        .pr-qr-right { align-items: center; }
+    }
 </style>
 {% endblock %}
 
@@ -906,6 +1211,72 @@
             </div>
         </div>
 
+        {# ── 6. QR Code Card ── #}
+        <div class="pr-card pr-qr-card" style="margin-top: 18px;">
+            <div class="pr-qr-inner">
+                <div class="pr-qr-left">
+                    <div class="pr-card-label" style="color: var(--orange);">Share Profile</div>
+                    <h2 style="font-size: 1.35rem;">Your QR Code</h2>
+                    <p class="pr-qr-desc">Scan this code to instantly access your public profile. Share it with classmates, teachers, or professionals.</p>
+                    <div class="pr-qr-signals">
+                        <div class="pr-qr-signal"><i class='bx bx-diamond'></i> Premium finish</div>
+                        <div class="pr-qr-signal"><i class='bx bx-shield-quarter'></i> High contrast</div>
+                        <div class="pr-qr-signal"><i class='bx bx-scan'></i> Fast scan</div>
+                    </div>
+                    <div class="pr-qr-user-info">
+                        <div class="pr-qr-avatar">
+                            {% if user.avatarBase64 %}
+                                <img src="{{ user.avatarBase64 starts with 'data:' ? user.avatarBase64 : 'data:image/jpeg;base64,' ~ user.avatarBase64 }}" alt="">
+                            {% else %}
+                                <div class="pr-qr-avatar-placeholder"><i class='bx bx-user'></i></div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="pr-qr-name">{{ user.fullName }}</div>
+                            <div class="pr-qr-email">{{ user.email }}</div>
+                        </div>
+                    </div>
+                    <div class="pr-qr-actions">
+                        <button class="pr-btn pr-btn-primary pr-qr-download-btn" onclick="downloadQR()">
+                            <i class='bx bx-download'></i> Download PNG
+                        </button>
+                        <button class="pr-btn pr-btn-ghost pr-qr-copy-btn" onclick="copyProfileLink()">
+                            <i class='bx bx-link'></i> Copy Link
+                        </button>
+                    </div>
+                </div>
+                <div class="pr-qr-right">
+                    <div class="pr-qr-frame">
+                        <div class="pr-qr-frame-corner pr-qr-fc-tl"></div>
+                        <div class="pr-qr-frame-corner pr-qr-fc-tr"></div>
+                        <div class="pr-qr-frame-corner pr-qr-fc-bl"></div>
+                        <div class="pr-qr-frame-corner pr-qr-fc-br"></div>
+                        <div class="pr-qr-glow"></div>
+                        <div class="pr-qr-preview-head">
+                            <div class="pr-qr-premium-pill"><i class='bx bx-diamond'></i> Premium Share</div>
+                            <div class="pr-qr-live-pill"><span class="pr-qr-live-dot"></span> Ready</div>
+                        </div>
+                        <canvas id="qrCanvas" width="220" height="220"></canvas>
+                        <div class="pr-qr-preview-foot">
+                            <div class="pr-qr-preview-copy">
+                                <div class="pr-qr-preview-title">LearnAdapt Identity</div>
+                                <div class="pr-qr-preview-url">{{ profileShareUrl|replace({'https://': '', 'http://': ''}) }}</div>
+                            </div>
+                            <div class="pr-qr-preview-mark">LA</div>
+                        </div>
+                        <img id="qrImageSource" class="pr-qr-source" src="{{ path('app_profile_qr', { size: 520 }) }}" alt="">
+                    </div>
+                    <div class="pr-qr-label">Scan with any camera app</div>
+                </div>
+            </div>
+        </div>
+
+        {# QR Code Toast #}
+        <div class="pr-qr-toast" id="qrToast">
+            <i class='bx bx-check-circle'></i>
+            <span id="qrToastMsg">Link copied!</span>
+        </div>
+
     </div>
 
     {# ── Bio Edit Modal ── #}
@@ -940,6 +1311,328 @@ document.querySelectorAll('.pr-flash').forEach(function(el) {
         setTimeout(function() { el.remove(); }, 500);
     }, 5000);
 });
+
+// ── QR Code Actions ──
+(function() {
+    var profileUrl = '{{ profileShareUrl|e('js') }}';
+    var qrCanvas = document.getElementById('qrCanvas');
+    var qrImageSource = document.getElementById('qrImageSource');
+    var qrDownloadSourceUrl = '{{ path('app_profile_qr', { size: 800 }) }}';
+    var userName = '{{ user.fullName|e('js') }}';
+    var userEmail = '{{ user.email|e('js') }}';
+
+    function roundedRectPath(ctx, x, y, width, height, radius) {
+        var r = Math.min(radius, width / 2, height / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + width, y, x + width, y + height, r);
+        ctx.arcTo(x + width, y + height, x, y + height, r);
+        ctx.arcTo(x, y + height, x, y, r);
+        ctx.arcTo(x, y, x + width, y, r);
+        ctx.closePath();
+    }
+
+    function drawBackdropPattern(ctx, size) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255,255,255,0.045)';
+        ctx.lineWidth = Math.max(1, size / 260);
+
+        for (var i = -size; i < size * 2; i += size / 7.5) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i - size, size);
+            ctx.stroke();
+        }
+
+        ctx.restore();
+    }
+
+    function drawPreviewQr(canvas, qrImage) {
+        var ctx = canvas.getContext('2d');
+        var size = canvas.width;
+        var scale = size / 220;
+        var tileX = 18 * scale;
+        var tileY = 18 * scale;
+        var tileSize = size - (36 * scale);
+        var qrPadding = 12 * scale;
+        var accent = ctx.createLinearGradient(0, 0, size, size);
+        var panel = ctx.createLinearGradient(0, 0, size, size);
+
+        panel.addColorStop(0, '#111827');
+        panel.addColorStop(0.58, '#0b1020');
+        panel.addColorStop(1, '#05070d');
+
+        ctx.clearRect(0, 0, size, size);
+        roundedRectPath(ctx, 0, 0, size, size, 30 * scale);
+        ctx.fillStyle = panel;
+        ctx.fill();
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+
+        var orbA = ctx.createRadialGradient(42 * scale, 38 * scale, 0, 42 * scale, 38 * scale, 96 * scale);
+        orbA.addColorStop(0, 'rgba(251,146,60,0.36)');
+        orbA.addColorStop(1, 'rgba(251,146,60,0)');
+        ctx.fillStyle = orbA;
+        ctx.fillRect(0, 0, size, size);
+
+        var orbB = ctx.createRadialGradient(size - (36 * scale), size - (34 * scale), 0, size - (36 * scale), size - (34 * scale), 90 * scale);
+        orbB.addColorStop(0, 'rgba(56,189,248,0.18)');
+        orbB.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = orbB;
+        ctx.fillRect(0, 0, size, size);
+        ctx.restore();
+
+        drawBackdropPattern(ctx, size);
+
+        accent.addColorStop(0, 'rgba(251,146,60,0)');
+        accent.addColorStop(0.35, 'rgba(251,146,60,0.9)');
+        accent.addColorStop(0.68, 'rgba(251,191,36,0.8)');
+        accent.addColorStop(1, 'rgba(251,191,36,0)');
+        ctx.fillStyle = accent;
+        ctx.fillRect(16 * scale, 10 * scale, size - (32 * scale), 4 * scale);
+
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.35)';
+        ctx.shadowBlur = 28 * scale;
+        ctx.shadowOffsetY = 18 * scale;
+        roundedRectPath(ctx, tileX, tileY, tileSize, tileSize, 24 * scale);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        roundedRectPath(ctx, tileX + (1.5 * scale), tileY + (1.5 * scale), tileSize - (3 * scale), tileSize - (3 * scale), 22 * scale);
+        ctx.clip();
+        ctx.drawImage(qrImage, tileX + qrPadding, tileY + qrPadding, tileSize - (qrPadding * 2), tileSize - (qrPadding * 2));
+        ctx.restore();
+
+        ctx.lineWidth = 3 * scale;
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        roundedRectPath(ctx, tileX, tileY, tileSize, tileSize, 24 * scale);
+        ctx.stroke();
+
+        var cornerLength = 18 * scale;
+        var cornerInset = 6 * scale;
+        ctx.lineWidth = 3 * scale;
+        ctx.lineCap = 'round';
+
+        ctx.strokeStyle = '#fb923c';
+        ctx.beginPath();
+        ctx.moveTo(tileX - cornerInset, tileY + cornerLength);
+        ctx.lineTo(tileX - cornerInset, tileY - cornerInset);
+        ctx.lineTo(tileX + cornerLength, tileY - cornerInset);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.moveTo(tileX + tileSize - cornerLength, tileY - cornerInset);
+        ctx.lineTo(tileX + tileSize + cornerInset, tileY - cornerInset);
+        ctx.lineTo(tileX + tileSize + cornerInset, tileY + cornerLength);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.moveTo(tileX - cornerInset, tileY + tileSize - cornerLength);
+        ctx.lineTo(tileX - cornerInset, tileY + tileSize + cornerInset);
+        ctx.lineTo(tileX + cornerLength, tileY + tileSize + cornerInset);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#fb923c';
+        ctx.beginPath();
+        ctx.moveTo(tileX + tileSize - cornerLength, tileY + tileSize + cornerInset);
+        ctx.lineTo(tileX + tileSize + cornerInset, tileY + tileSize + cornerInset);
+        ctx.lineTo(tileX + tileSize + cornerInset, tileY + tileSize - cornerLength);
+        ctx.stroke();
+    }
+
+    function drawDownloadCard(canvas, qrImage) {
+        var ctx = canvas.getContext('2d');
+        var width = canvas.width;
+        var height = canvas.height;
+        var cardX = 80;
+        var cardY = 80;
+        var cardWidth = width - 160;
+        var cardHeight = height - 160;
+        var qrTileSize = 780;
+        var qrTileX = (width - qrTileSize) / 2;
+        var qrTileY = 320;
+        var qrPadding = 56;
+        var background = ctx.createLinearGradient(0, 0, width, height);
+        var accent = ctx.createLinearGradient(cardX, cardY, cardX + cardWidth, cardY);
+
+        background.addColorStop(0, '#070b13');
+        background.addColorStop(0.5, '#0b1120');
+        background.addColorStop(1, '#05070c');
+        ctx.fillStyle = background;
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        var glowA = ctx.createRadialGradient(140, 150, 0, 140, 150, 360);
+        glowA.addColorStop(0, 'rgba(251,146,60,0.28)');
+        glowA.addColorStop(1, 'rgba(251,146,60,0)');
+        ctx.fillStyle = glowA;
+        ctx.fillRect(0, 0, width, height);
+
+        var glowB = ctx.createRadialGradient(width - 120, height - 180, 0, width - 120, height - 180, 320);
+        glowB.addColorStop(0, 'rgba(56,189,248,0.18)');
+        glowB.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.fillStyle = glowB;
+        ctx.fillRect(0, 0, width, height);
+        ctx.restore();
+
+        roundedRectPath(ctx, cardX, cardY, cardWidth, cardHeight, 42);
+        ctx.fillStyle = 'rgba(11,15,24,0.92)';
+        ctx.fill();
+
+        accent.addColorStop(0, 'rgba(251,146,60,0)');
+        accent.addColorStop(0.3, 'rgba(251,146,60,0.96)');
+        accent.addColorStop(0.7, 'rgba(251,191,36,0.92)');
+        accent.addColorStop(1, 'rgba(251,191,36,0)');
+        ctx.fillStyle = accent;
+        ctx.fillRect(cardX + 44, cardY + 18, cardWidth - 88, 6);
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.lineWidth = 2;
+        roundedRectPath(ctx, cardX, cardY, cardWidth, cardHeight, 42);
+        ctx.stroke();
+
+        ctx.fillStyle = '#fb923c';
+        ctx.font = '700 30px Arial, sans-serif';
+        ctx.fillText('PREMIUM SHARE QR', cardX + 70, cardY + 96);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 72px Arial, sans-serif';
+        ctx.fillText(userName, cardX + 70, cardY + 188);
+
+        ctx.fillStyle = 'rgba(216,222,233,0.75)';
+        ctx.font = '400 32px Arial, sans-serif';
+        ctx.fillText('Scan to open this LearnAdapt profile instantly.', cardX + 70, cardY + 240);
+
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.38)';
+        ctx.shadowBlur = 48;
+        ctx.shadowOffsetY = 24;
+        roundedRectPath(ctx, qrTileX, qrTileY, qrTileSize, qrTileSize, 54);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        roundedRectPath(ctx, qrTileX + 4, qrTileY + 4, qrTileSize - 8, qrTileSize - 8, 50);
+        ctx.clip();
+        ctx.drawImage(qrImage, qrTileX + qrPadding, qrTileY + qrPadding, qrTileSize - (qrPadding * 2), qrTileSize - (qrPadding * 2));
+        ctx.restore();
+
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        roundedRectPath(ctx, qrTileX, qrTileY, qrTileSize, qrTileSize, 54);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 40px Arial, sans-serif';
+        ctx.fillText('LearnAdapt Identity', cardX + 70, height - 290);
+
+        ctx.fillStyle = 'rgba(216,222,233,0.72)';
+        ctx.font = '400 28px Arial, sans-serif';
+        ctx.fillText(userEmail, cardX + 70, height - 232);
+        ctx.fillText(profileUrl, cardX + 70, height - 186);
+
+        roundedRectPath(ctx, width - 220, height - 260, 108, 108, 28);
+        ctx.fillStyle = '#fb923c';
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '800 42px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('LA', width - 166, height - 206);
+
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+    }
+
+    function renderPreview() {
+        if (!qrImageSource.complete || !qrImageSource.naturalWidth) {
+            return;
+        }
+
+        drawPreviewQr(qrCanvas, qrImageSource);
+    }
+
+    function loadQrImage(url) {
+        return new Promise(function(resolve, reject) {
+            var image = new Image();
+            image.onload = function() { resolve(image); };
+            image.onerror = reject;
+            image.src = url + (url.indexOf('?') === -1 ? '?' : '&') + 'v=' + Date.now();
+        });
+    }
+
+    if (qrImageSource.complete) {
+        renderPreview();
+    } else {
+        qrImageSource.addEventListener('load', renderPreview, { once: true });
+    }
+
+    qrImageSource.addEventListener('error', function() {
+        var ctx = qrCanvas.getContext('2d');
+        ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+        roundedRectPath(ctx, 0, 0, qrCanvas.width, qrCanvas.height, 30);
+        ctx.fillStyle = '#111827';
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 16px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('QR unavailable', qrCanvas.width / 2, qrCanvas.height / 2);
+    }, { once: true });
+
+    // Download
+    window.downloadQR = function() {
+        loadQrImage(qrDownloadSourceUrl).then(function(downloadQrImage) {
+            var downloadCanvas = document.createElement('canvas');
+            var link = document.createElement('a');
+
+            downloadCanvas.width = 1400;
+            downloadCanvas.height = 1680;
+            drawDownloadCard(downloadCanvas, downloadQrImage);
+
+            link.download = 'learnadapt-premium-profile-qr.png';
+            link.href = downloadCanvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showQRToast('Premium QR downloaded!');
+        }).catch(function() {
+            showQRToast('Unable to build the premium QR right now.');
+        });
+    };
+
+    // Copy link
+    window.copyProfileLink = function() {
+        navigator.clipboard.writeText(profileUrl).then(function() {
+            showQRToast('Profile link copied!');
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = profileUrl;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showQRToast('Profile link copied!');
+        });
+    };
+
+    window.showQRToast = function(msg) {
+        var toast = document.getElementById('qrToast');
+        document.getElementById('qrToastMsg').textContent = msg;
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 2500);
+    };
+})();
 
 // ── Inject floaters directly on <html> so no ancestor can break position:fixed ──
 (function() {

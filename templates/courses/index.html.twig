@@ -1,0 +1,333 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}Courses — LearnAdapt{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.3);--ease:cubic-bezier(0.4,0,0.2,1)}
+@property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+
+/* ═══ AMBIENT BACKGROUND ═══ */
+.cr-page{min-height:100vh;padding:100px 0 80px;display:flex;justify-content:center;background:transparent;position:relative;z-index:1;overflow:hidden}
+.cr-bg-orb{position:fixed;border-radius:50%;filter:blur(120px);opacity:0.12;pointer-events:none;z-index:0}
+.cr-bg-orb--1{width:600px;height:600px;background:radial-gradient(circle,var(--orange),transparent 70%);top:-10%;left:-5%;animation:orbFloat1 18s ease-in-out infinite}
+.cr-bg-orb--2{width:500px;height:500px;background:radial-gradient(circle,var(--yellow),transparent 70%);bottom:5%;right:-8%;animation:orbFloat2 22s ease-in-out infinite}
+.cr-bg-orb--3{width:350px;height:350px;background:radial-gradient(circle,var(--green),transparent 70%);top:40%;left:50%;animation:orbFloat3 15s ease-in-out infinite}
+@keyframes orbFloat1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+@keyframes orbFloat2{0%,100%{transform:translate(0,0)}50%{transform:translate(-50px,-30px)}}
+@keyframes orbFloat3{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,50px)}}
+
+.cr-wrap{width:100%;max-width:1360px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+
+/* ═══ HERO HEADER ═══ */
+.cr-hero{margin-bottom:40px;position:relative;padding:36px 40px 32px;background:linear-gradient(135deg,rgba(251,146,60,0.06),rgba(251,191,36,0.04));border:1px solid rgba(251,146,60,0.08);border-radius:24px;backdrop-filter:blur(20px);overflow:hidden;animation:heroIn .7s var(--ease) backwards}
+.cr-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,146,60,0.3),rgba(251,191,36,0.2),transparent)}
+.cr-hero::after{content:'';position:absolute;bottom:-60px;right:-30px;width:200px;height:200px;background:radial-gradient(circle,rgba(251,146,60,0.08),transparent 70%);border-radius:50%;pointer-events:none}
+@keyframes heroIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+.cr-hero-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.cr-hero h1{font-size:2.2rem;font-weight:900;letter-spacing:-0.04em;line-height:1.1}
+.cr-hero h1 span.t1{background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.cr-hero h1 span.t2{color:var(--text);-webkit-text-fill-color:var(--text)}
+.cr-hero-sub{color:var(--muted);font-size:0.88rem;margin-top:8px;max-width:500px;line-height:1.6}
+.cr-hero-icon{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,rgba(251,146,60,0.15),rgba(251,191,36,0.1));border:1px solid rgba(251,146,60,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cr-hero-icon i{font-size:2rem;background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ═══ STAT CARDS ═══ */
+.cr-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+@media(max-width:800px){.cr-stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.cr-stats{grid-template-columns:1fr}}
+.cr-st{position:relative;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 22px;backdrop-filter:blur(14px);transition:all .3s var(--ease);cursor:pointer;text-decoration:none;color:inherit;overflow:hidden;animation:stIn .5s var(--ease) backwards}
+.cr-st:nth-child(1){animation-delay:0s}.cr-st:nth-child(2){animation-delay:.06s}.cr-st:nth-child(3){animation-delay:.12s}.cr-st:nth-child(4){animation-delay:.18s}
+@keyframes stIn{from{opacity:0;transform:translateY(12px) scale(0.97)}to{opacity:1;transform:none}}
+.cr-st::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0;opacity:0;transition:opacity .3s}
+.cr-st:nth-child(1)::before{background:linear-gradient(90deg,var(--orange),var(--yellow))}
+.cr-st:nth-child(2)::before{background:linear-gradient(90deg,#22c55e,var(--green))}
+.cr-st:nth-child(3)::before{background:linear-gradient(90deg,var(--orange),var(--yellow))}
+.cr-st:nth-child(4)::before{background:linear-gradient(90deg,#ef4444,var(--red))}
+.cr-st:hover,.cr-st.is-active{background:var(--card-h);transform:translateY(-3px);border-color:rgba(255,255,255,0.1)}
+.cr-st:hover::before,.cr-st.is-active::before{opacity:1}
+.cr-st.is-active{box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.cr-st-row{display:flex;align-items:center;gap:14px}
+.cr-st-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.15rem}
+.cr-st:nth-child(1) .cr-st-icon{background:linear-gradient(135deg,rgba(251,146,60,0.15),rgba(251,191,36,0.1));color:var(--orange)}
+.cr-st:nth-child(2) .cr-st-icon{background:rgba(52,211,153,0.12);color:var(--green)}
+.cr-st:nth-child(3) .cr-st-icon{background:rgba(251,191,36,0.12);color:var(--yellow)}
+.cr-st:nth-child(4) .cr-st-icon{background:rgba(248,113,113,0.12);color:var(--red)}
+.cr-st-v{font-size:1.65rem;font-weight:900;letter-spacing:-0.03em;line-height:1}
+.cr-st-l{font-size:0.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px}
+
+/* ═══ MODULE FILTER ═══ */
+.cr-filters-section{margin-bottom:28px;animation:fadeUp .5s var(--ease) .2s backwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.cr-filters-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.cr-filters-label i{font-size:0.85rem;opacity:0.6}
+.cr-modules{display:flex;gap:8px;flex-wrap:wrap}
+.cr-mod-chip{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:0.78rem;font-weight:600;text-decoration:none;transition:all .25s var(--ease);cursor:pointer;font-family:inherit;position:relative;overflow:hidden}
+.cr-mod-chip::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(251,146,60,0.08),rgba(251,191,36,0.05));opacity:0;transition:opacity .25s}
+.cr-mod-chip:hover{background:var(--glass-b);color:var(--text);border-color:rgba(251,146,60,0.18);transform:translateY(-1px)}
+.cr-mod-chip:hover::before{opacity:1}
+.cr-mod-chip.is-active{background:rgba(251,146,60,0.08);border-color:rgba(251,146,60,0.3);color:var(--orange);box-shadow:0 0 20px rgba(251,146,60,0.08)}
+.cr-mod-chip.is-active::before{opacity:1}
+.cr-mod-chip i{font-size:0.9rem;position:relative;z-index:1}
+.cr-mod-chip span{position:relative;z-index:1}
+.cr-mod-count{background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:6px;font-size:0.68rem;font-weight:800;margin-left:2px}
+.cr-mod-chip.is-active .cr-mod-count{background:rgba(251,146,60,0.15)}
+
+/* ═══ SEARCH BAR ═══ */
+.cr-search-bar{display:flex;gap:16px;margin-bottom:32px;animation:fadeUp .5s var(--ease) .25s backwards;align-items:stretch}
+.cr-search{flex:1;width:100%;background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:18px 22px 18px 52px;color:var(--text);font-size:1rem;font-family:inherit;outline:none;transition:all .3s var(--ease)}
+.cr-search:focus{border-color:rgba(251,146,60,0.3);box-shadow:0 0 24px rgba(251,146,60,0.06);background:rgba(255,255,255,0.04)}
+.cr-search::placeholder{color:var(--muted)}
+.cr-search-wrap{flex:1;position:relative}
+.cr-search-wrap i{position:absolute;left:20px;top:50%;transform:translateY(-50%);font-size:1.25rem;color:var(--muted);pointer-events:none;z-index:2}
+.cr-search-btn{background:linear-gradient(135deg,var(--orange),var(--yellow));border:none;border-radius:16px;padding:18px 42px;color:#fff;font-weight:800;font-size:1rem;cursor:pointer;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden;white-space:nowrap;letter-spacing:0.01em}
+.cr-search-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);opacity:0;transition:opacity .25s}
+.cr-search-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(251,146,60,0.35)}
+.cr-search-btn:hover::before{opacity:1}
+
+/* ═══ RESULTS COUNT ═══ */
+.cr-results{font-size:0.78rem;color:var(--muted);margin-bottom:20px;display:flex;align-items:center;gap:8px;animation:fadeUp .5s var(--ease) .3s backwards}
+.cr-results strong{color:var(--text);font-weight:700}
+
+/* ═══ GRID ═══ */
+.cr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px;margin-bottom:50px}
+@media(max-width:640px){.cr-grid{grid-template-columns:1fr}}
+
+/* ═══ PREMIUM CARD ═══ */
+.cr-card{position:relative;background:linear-gradient(145deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:20px;padding:0;backdrop-filter:blur(16px);transition:all .35s var(--ease);overflow:hidden;animation:crCardIn .6s var(--ease) backwards}
+.cr-card:hover{border-color:rgba(251,146,60,0.12);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,0.25),0 0 40px rgba(251,146,60,0.04)}
+@keyframes crCardIn{from{opacity:0;transform:translateY(20px) scale(0.98)}to{opacity:1;transform:none}}
+
+/* Card shimmer effect on hover */
+.cr-card::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.03),transparent);transition:left .6s var(--ease);z-index:1;pointer-events:none}
+.cr-card:hover::before{left:120%}
+
+/* Level accent bar at top */
+.cr-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;z-index:2}
+.cr-card[data-level="EASY"]::after{background:linear-gradient(90deg,var(--green),#6ee7b7)}
+.cr-card[data-level="MEDIUM"]::after{background:linear-gradient(90deg,var(--orange),var(--yellow))}
+.cr-card[data-level="HARD"]::after{background:linear-gradient(90deg,#ef4444,var(--red))}
+
+/* Spinning border on hover */
+.cr-card .cr-card-border{position:absolute;inset:-1px;border-radius:21px;padding:1px;background:conic-gradient(from var(--border-angle),transparent 40%,var(--orange) 50%,transparent 60%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s;pointer-events:none;z-index:3}
+.cr-card:hover .cr-card-border{opacity:1;animation:borderSpin 3s linear infinite}
+@keyframes borderSpin{to{--border-angle:360deg}}
+
+.cr-card-body{padding:26px 26px 22px;position:relative;z-index:1}
+.cr-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.cr-card-title{font-size:1.08rem;font-weight:800;letter-spacing:-0.02em;line-height:1.3;transition:color .2s}
+.cr-card:hover .cr-card-title{color:var(--orange)}
+
+/* Premium badge */
+.cr-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:10px;font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;position:relative}
+.cr-badge i{font-size:0.75rem}
+.cr-badge.easy{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.12)}
+.cr-badge.medium{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.12)}
+.cr-badge.hard{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.12)}
+
+.cr-card-desc{font-size:0.82rem;color:var(--muted);line-height:1.65;margin-bottom:18px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* Module tag */
+.cr-card-module{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;background:rgba(123,97,241,0.08);border:1px solid rgba(123,97,241,0.1);border-radius:8px;font-size:0.72rem;font-weight:600;color:var(--purple);margin-bottom:14px}
+.cr-card-module i{font-size:0.8rem}
+
+.cr-card-meta{display:flex;flex-wrap:wrap;gap:14px;font-size:0.72rem;color:var(--muted);padding-top:14px;border-top:1px solid var(--border)}
+.cr-card-meta span{display:flex;align-items:center;gap:5px}
+.cr-card-meta i{font-size:0.85rem;opacity:0.5}
+
+/* Card footer */
+.cr-card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 26px;background:rgba(255,255,255,0.015);border-top:1px solid var(--border)}
+.cr-view-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,var(--orange),var(--yellow));border:none;border-radius:12px;color:#fff;font-weight:700;font-size:0.78rem;cursor:pointer;text-decoration:none;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.cr-view-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.18),transparent);opacity:0;transition:opacity .25s}
+.cr-view-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(251,146,60,0.35)}
+.cr-view-btn:hover::before{opacity:1}
+.cr-view-btn i{font-size:1rem}
+.cr-info-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:0.78rem;font-weight:600;text-decoration:none;transition:all .25s var(--ease);cursor:pointer;font-family:inherit}
+.cr-info-btn:hover{background:var(--glass-b);color:var(--text);border-color:rgba(255,255,255,0.12)}
+.cr-info-btn i{font-size:0.95rem}
+
+/* ═══ EMPTY STATE ═══ */
+.cr-empty{text-align:center;padding:100px 20px;color:var(--muted);animation:fadeUp .6s var(--ease)}
+.cr-empty-icon{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,rgba(251,146,60,0.08),rgba(251,191,36,0.05));border:1px solid rgba(251,146,60,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.cr-empty-icon i{font-size:2.2rem;color:var(--orange);opacity:0.5}
+.cr-empty h3{font-size:1.1rem;font-weight:700;margin-bottom:6px;color:var(--text)}
+.cr-empty p{font-size:0.85rem;max-width:340px;margin:0 auto;line-height:1.6}
+
+/* ═══ FLOATING PARTICLES ═══ */
+.cr-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.cr-particle{position:absolute;border-radius:50%;opacity:0;animation:particleDrift linear infinite}
+.cr-particle:nth-child(1){width:3px;height:3px;background:var(--orange);top:15%;left:80%;animation-duration:18s;animation-delay:0s}
+.cr-particle:nth-child(2){width:2px;height:2px;background:var(--yellow);top:60%;left:90%;animation-duration:22s;animation-delay:-4s}
+.cr-particle:nth-child(3){width:4px;height:4px;background:var(--green);top:80%;left:70%;animation-duration:25s;animation-delay:-8s}
+.cr-particle:nth-child(4){width:2px;height:2px;background:var(--purple);top:30%;left:75%;animation-duration:20s;animation-delay:-12s}
+@keyframes particleDrift{0%{transform:translate(0,0) scale(0);opacity:0}10%{opacity:.5}50%{opacity:.3}90%{opacity:.5}100%{transform:translate(-120px,-200px) scale(1.2);opacity:0}}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+	.cr-hero{padding:28px 24px}
+	.cr-hero h1{font-size:1.6rem}
+	.cr-card-body{padding:20px}
+	.cr-card-foot{padding:12px 20px}
+	.cr-wrap{padding:0 16px}
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Ambient orbs -->
+<div class="cr-bg-orb cr-bg-orb--1"></div>
+<div class="cr-bg-orb cr-bg-orb--2"></div>
+<div class="cr-bg-orb cr-bg-orb--3"></div>
+
+<!-- Floating particles -->
+<div class="cr-particles">
+	<div class="cr-particle"></div>
+	<div class="cr-particle"></div>
+	<div class="cr-particle"></div>
+	<div class="cr-particle"></div>
+</div>
+
+<div class="cr-page">
+<div class="cr-wrap">
+
+	<!-- Hero Header -->
+	<div class="cr-hero">
+		<div class="cr-hero-row">
+			<div>
+				<h1><span class="t1">{{ 'nav.courses'|trans }}</span> <span class="t2">Catalog</span></h1>
+				<p class="cr-hero-sub">Browse all available courses organized by level and module</p>
+			</div>
+			<div class="cr-hero-icon">
+				<i class='bx bxs-book-alt'></i>
+			</div>
+		</div>
+	</div>
+
+	<!-- Level Stats -->
+	<div class="cr-stats">
+		<a href="{{ path('app_courses', currentModule ? {module: currentModule} : {}) }}" class="cr-st {{ currentLevel == '' ? 'is-active' : '' }}">
+			<div class="cr-st-row">
+				<div class="cr-st-icon"><i class='bx bx-book-open'></i></div>
+				<div>
+					<div class="cr-st-v">{{ counts.total|default(0) }}</div>
+					<div class="cr-st-l">All Courses</div>
+				</div>
+			</div>
+		</a>
+		<a href="{{ path('app_courses', {level: 'EASY'}|merge(currentModule ? {module: currentModule} : {})) }}" class="cr-st {{ currentLevel == 'EASY' ? 'is-active' : '' }}">
+			<div class="cr-st-row">
+				<div class="cr-st-icon"><i class='bx bx-leaf'></i></div>
+				<div>
+					<div class="cr-st-v" style="color:var(--green)">{{ counts.easy|default(0) }}</div>
+					<div class="cr-st-l">Easy</div>
+				</div>
+			</div>
+		</a>
+		<a href="{{ path('app_courses', {level: 'MEDIUM'}|merge(currentModule ? {module: currentModule} : {})) }}" class="cr-st {{ currentLevel == 'MEDIUM' ? 'is-active' : '' }}">
+			<div class="cr-st-row">
+				<div class="cr-st-icon"><i class='bx bx-trending-up'></i></div>
+				<div>
+					<div class="cr-st-v" style="color:var(--yellow)">{{ counts.medium|default(0) }}</div>
+					<div class="cr-st-l">Medium</div>
+				</div>
+			</div>
+		</a>
+		<a href="{{ path('app_courses', {level: 'HARD'}|merge(currentModule ? {module: currentModule} : {})) }}" class="cr-st {{ currentLevel == 'HARD' ? 'is-active' : '' }}">
+			<div class="cr-st-row">
+				<div class="cr-st-icon"><i class='bx bx-trophy'></i></div>
+				<div>
+					<div class="cr-st-v" style="color:var(--red)">{{ counts.hard|default(0) }}</div>
+					<div class="cr-st-l">Hard</div>
+				</div>
+			</div>
+		</a>
+	</div>
+
+	<!-- Module Filter -->
+	{% if modules|length > 0 %}
+	<div class="cr-filters-section">
+		<div class="cr-filters-label"><i class='bx bx-filter-alt'></i> Filter by Module</div>
+		<div class="cr-modules">
+			<a href="{{ path('app_courses', currentLevel ? {level: currentLevel} : {}) }}" class="cr-mod-chip {{ currentModule == '' ? 'is-active' : '' }}">
+				<i class='bx bx-grid-alt'></i> <span>All</span>
+			</a>
+			{% for mod in modules %}
+			<a href="{{ path('app_courses', {module: mod.id}|merge(currentLevel ? {level: currentLevel} : {})) }}" class="cr-mod-chip {{ currentModule == mod.id ? 'is-active' : '' }}">
+				<i class='bx bx-book'></i> <span>{{ mod.name }}</span> <span class="cr-mod-count">{{ mod.course_count }}</span>
+			</a>
+			{% endfor %}
+		</div>
+	</div>
+	{% endif %}
+
+	<!-- Search -->
+	<form class="cr-search-bar" method="get" action="{{ path('app_courses') }}">
+		{% if currentLevel %}<input type="hidden" name="level" value="{{ currentLevel }}">{% endif %}
+		{% if currentModule %}<input type="hidden" name="module" value="{{ currentModule }}">{% endif %}
+		<div class="cr-search-wrap">
+			<i class='bx bx-search'></i>
+			<input class="cr-search" type="text" name="q" value="{{ searchQuery }}" placeholder="Search courses by title or description...">
+		</div>
+		<button class="cr-search-btn" type="submit">Search</button>
+	</form>
+
+	<!-- Results count -->
+	<div class="cr-results">
+		<i class='bx bx-list-ul'></i>
+		Showing <strong>{{ courses|length }}</strong> course{{ courses|length != 1 ? 's' : '' }}
+		{% if currentLevel %} &middot; Level: <strong>{{ currentLevel }}</strong>{% endif %}
+		{% if searchQuery %} &middot; Search: <strong>"{{ searchQuery }}"</strong>{% endif %}
+	</div>
+
+	<!-- Grid -->
+	{% if courses|length > 0 %}
+	<div class="cr-grid">
+		{% for course in courses %}
+		<div class="cr-card" data-level="{{ course.level }}" style="animation-delay:{{ loop.index0 * 0.07 }}s">
+			<div class="cr-card-border"></div>
+			<div class="cr-card-body">
+				<div class="cr-card-top">
+					<div class="cr-card-title">{{ course.title }}</div>
+					<span class="cr-badge {{ course.level|lower }}">
+						{% if course.level == 'EASY' %}<i class='bx bx-leaf'></i>{% elseif course.level == 'MEDIUM' %}<i class='bx bx-trending-up'></i>{% else %}<i class='bx bx-trophy'></i>{% endif %}
+						{{ course.level }}
+					</span>
+				</div>
+				{% if course.description %}
+					<div class="cr-card-desc">{{ course.description }}</div>
+				{% endif %}
+				{% if course.module_name %}
+					<div class="cr-card-module"><i class='bx bx-category'></i> {{ course.module_name }}</div>
+				{% endif %}
+				<div class="cr-card-meta">
+					{% if course.teacher_name %}
+						<span><i class='bx bx-user'></i> {{ course.teacher_name }}</span>
+					{% endif %}
+					<span><i class='bx bx-calendar'></i> {{ course.created_at|date('M d, Y') }}</span>
+				</div>
+			</div>
+			<div class="cr-card-foot">
+				<a href="{{ path('app_course_show', {id: course.id}) }}" class="cr-view-btn"><i class='bx bx-book-reader'></i> View Course</a>
+				<a href="{{ path('app_course_show', {id: course.id}) }}" class="cr-info-btn"><i class='bx bx-info-circle'></i> Details</a>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+	{% else %}
+	<div class="cr-empty">
+		<div class="cr-empty-icon"><i class='bx bx-book-open'></i></div>
+		<h3>No courses found</h3>
+		<p>No courses match your current filters. Try adjusting the level or search terms.</p>
+	</div>
+	{% endif %}
+
+</div>
+</div>
+{% endblock %}

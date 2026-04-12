@@ -1,0 +1,348 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}Forum Management — Admin{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
+@property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+
+.adm{display:flex;min-height:100vh;padding-top:72px}
+.adm-side{width:260px;position:fixed;top:72px;left:0;bottom:0;background:rgba(6,12,22,0.95);border-right:1px solid var(--border);backdrop-filter:blur(20px);padding:28px 16px;display:flex;flex-direction:column;z-index:50;overflow-y:auto}
+.adm-side-head{padding:0 12px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.adm-side-head h2{font-size:1.1rem;font-weight:900;letter-spacing:-0.03em}
+.adm-side-head h2 span{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.adm-side-head p{font-size:0.72rem;color:var(--muted);margin-top:4px}
+.adm-nav{list-style:none;display:flex;flex-direction:column;gap:4px;flex:1}
+.adm-nav a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;color:var(--muted);text-decoration:none;font-size:0.84rem;font-weight:600;transition:all .22s var(--ease);position:relative}
+.adm-nav a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+.adm-nav a.is-active{color:var(--cyan);background:rgba(56,189,209,0.08)}
+.adm-nav a.is-active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0}
+.adm-nav a i{font-size:1.2rem;width:22px;text-align:center}
+.adm-nav-divider{height:1px;background:var(--border);margin:12px 8px}
+.adm-main{flex:1;margin-left:260px;padding:32px;position:relative;overflow-y:auto}
+
+/* Premium heading */
+.pg-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;animation:fadeIn .5s var(--ease)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.pg-head h1{font-size:1.8rem;font-weight:900;letter-spacing:-0.04em;position:relative;display:inline-block}
+.pg-head h1 .head-gradient{background:linear-gradient(135deg,var(--purple),var(--cyan),var(--green));background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:headGrad 6s ease infinite}
+@keyframes headGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.pg-head h1::after{content:'';position:absolute;bottom:-6px;left:0;width:60px;height:3px;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:3px;animation:headLine 3s ease-in-out infinite}
+@keyframes headLine{0%,100%{width:60px;opacity:.8}50%{width:100px;opacity:1}}
+.pg-head-sub{font-size:0.82rem;color:var(--muted);margin-top:8px}
+
+/* Stats with spinning border */
+.forum-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:800px){.forum-stats{grid-template-columns:repeat(2,1fr)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes borderSpin{to{--border-angle:360deg}}
+.f-stat{background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:20px 22px;text-align:center;animation:fadeUp .4s var(--ease) backwards;position:relative;overflow:hidden;transition:all .35s var(--ease)}
+.f-stat::before{content:'';position:absolute;inset:-1px;border-radius:16px;padding:1px;background:conic-gradient(from var(--border-angle),transparent 40%,var(--cyan) 50%,var(--purple) 60%,transparent 70%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s;pointer-events:none}
+.f-stat::after{content:'';position:absolute;inset:0;border-radius:16px;background:radial-gradient(ellipse at 50% 0%,rgba(56,189,209,0.06),transparent 70%);opacity:0;transition:opacity .4s;pointer-events:none}
+.f-stat:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,0.25)}
+.f-stat:hover::before{opacity:1;animation:borderSpin 3s linear infinite}
+.f-stat:hover::after{opacity:1}
+.f-stat:nth-child(2){animation-delay:.06s}.f-stat:nth-child(3){animation-delay:.12s}.f-stat:nth-child(4){animation-delay:.18s}
+.f-stat-val{font-size:1.5rem;font-weight:900;letter-spacing:-0.03em}
+.f-stat-lbl{font-size:0.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+
+/* Filter panel */
+.frm-filter-panel{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:20px;animation:fadeUp .4s var(--ease) .1s backwards;position:relative}
+.frm-filter-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(123,97,241,0.15),transparent);border-radius:16px 16px 0 0}
+.frm-filter-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.frm-filter-label i{font-size:0.85rem;color:var(--purple)}
+
+/* Category chips */
+.cat-chips{display:flex;gap:8px;flex-wrap:wrap}
+.cat-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:0.78rem;font-weight:600;text-decoration:none;transition:all .25s var(--ease);cursor:pointer;position:relative;overflow:hidden}
+.cat-chip::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(123,97,241,0.04),rgba(56,189,209,0.03));opacity:0;transition:opacity .25s}
+.cat-chip:hover{background:var(--glass-b);color:var(--text);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.2);border-color:rgba(255,255,255,0.08)}
+.cat-chip:hover::before{opacity:1}
+.cat-chip.is-active{background:rgba(123,97,241,0.08);border-color:rgba(123,97,241,0.25);color:var(--purple);box-shadow:0 0 20px rgba(123,97,241,0.08)}
+.cat-chip.is-active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--purple),transparent);border-radius:2px}
+.cat-count{background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:6px;font-size:0.68rem;font-weight:800}
+
+/* Search toolbar */
+.frm-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px;animation:fadeUp .4s var(--ease) .15s backwards}
+.frm-search-bar{display:flex;gap:16px;flex:1;min-width:280px}
+.frm-search-wrap{flex:1;position:relative}
+.frm-search-wrap i{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:1.15rem;color:var(--muted);pointer-events:none;transition:all .3s var(--ease)}
+.frm-search-input{width:100%;background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));border:1px solid var(--border);border-radius:14px;padding:14px 18px 14px 48px;color:var(--text);font-size:0.88rem;font-family:inherit;outline:none;transition:all .35s var(--ease)}
+.frm-search-input:focus{border-color:rgba(123,97,241,0.35);box-shadow:0 0 24px rgba(123,97,241,0.08),0 0 0 1px rgba(123,97,241,0.1);background:rgba(123,97,241,0.02)}
+.frm-search-input:focus ~ i,.frm-search-wrap:focus-within i{color:var(--purple);transform:translateY(-50%) scale(1.1)}
+.frm-search-input::placeholder{color:var(--muted)}
+.frm-search-btn{background:linear-gradient(135deg,var(--purple),#a78bfa);border:none;border-radius:14px;padding:14px 32px;color:#fff;font-weight:800;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.frm-search-btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.15);border-radius:50%;transform:translate(-50%,-50%);transition:width .5s,height .5s}
+.frm-search-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(123,97,241,0.3)}
+.frm-search-btn:hover::before{width:300px;height:300px}
+
+/* Section header */
+.frm-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;animation:fadeUp .4s var(--ease) .2s backwards}
+.frm-section-title{font-size:0.82rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.frm-section-title i{font-size:1.05rem;color:var(--purple)}
+.frm-section-count{font-size:0.72rem;font-weight:600;color:var(--muted);background:var(--glass);border:1px solid var(--border);padding:4px 12px;border-radius:8px}
+
+/* Topic cards */
+.topic-grid{display:flex;flex-direction:column;gap:12px}
+.topic-card{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:16px;transition:all .3s var(--ease);animation:fadeUp .4s var(--ease) backwards;position:relative;overflow:hidden}
+.topic-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--purple),var(--cyan));border-radius:3px 0 0 3px;opacity:0;transition:opacity .3s}
+.topic-card:hover{background:rgba(123,97,241,0.02);transform:translateX(4px);border-color:rgba(123,97,241,0.12);box-shadow:0 4px 20px rgba(0,0,0,0.15)}
+.topic-card:hover::before{opacity:1}
+.topic-av{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,rgba(123,97,241,0.12),rgba(56,189,209,0.08));display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:0.75rem;font-weight:800;color:var(--purple);transition:all .3s var(--ease)}
+.topic-card:hover .topic-av{box-shadow:0 0 12px rgba(123,97,241,0.15);transform:scale(1.05)}
+.topic-av img{width:100%;height:100%;object-fit:cover}
+.topic-info{flex:1;min-width:0}
+.topic-title{font-size:0.9rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;transition:color .2s}
+.topic-card:hover .topic-title{color:var(--purple)}
+.topic-meta{display:flex;gap:12px;font-size:0.72rem;color:var(--muted)}
+.topic-meta span{display:flex;align-items:center;gap:4px}
+.topic-meta i{font-size:0.85rem}
+.topic-cat{padding:5px 14px;border-radius:8px;font-size:0.68rem;font-weight:700;text-transform:uppercase;background:rgba(123,97,241,0.08);color:var(--purple);letter-spacing:0.04em;border:1px solid rgba(123,97,241,0.12);transition:all .2s}
+.topic-cat:hover{transform:scale(1.05)}
+.topic-status{padding:5px 12px;border-radius:8px;font-size:0.68rem;font-weight:700;text-transform:uppercase;cursor:pointer;border:1px solid transparent;font-family:inherit;transition:all .25s var(--ease)}
+.topic-status.open{background:rgba(52,211,153,0.1);color:var(--green);border-color:rgba(52,211,153,0.15)}
+.topic-status.closed{background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.15)}
+.topic-status:hover{transform:scale(1.08);box-shadow:0 2px 10px rgba(0,0,0,0.2)}
+.topic-actions{display:flex;gap:6px}
+.t-act{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--glass);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s var(--ease);color:var(--muted);font-size:0.9rem;position:relative;overflow:hidden}
+.t-act::before{content:'';position:absolute;inset:0;border-radius:10px;opacity:0;transition:opacity .25s}
+.t-act:hover{background:var(--glass-b);color:var(--text);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+.t-act.danger::before{background:radial-gradient(circle,rgba(248,113,113,0.15),transparent)}
+.t-act.danger:hover{color:var(--red);border-color:rgba(248,113,113,0.25)}
+.t-act.danger:hover::before{opacity:1}
+.t-act.edit::before{background:radial-gradient(circle,rgba(56,189,209,0.15),transparent)}
+.t-act.edit:hover{color:var(--cyan);border-color:rgba(56,189,209,0.25)}
+.t-act.edit:hover::before{opacity:1}
+.t-act:hover i{animation:btnWiggle .4s var(--ease)}
+@keyframes btnWiggle{0%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}100%{transform:rotate(0)}}
+
+/* Empty state */
+.frm-empty{text-align:center;padding:80px 20px;color:var(--muted)}
+.frm-empty i{font-size:3rem;opacity:0.2;margin-bottom:12px;display:block;animation:emptyFloat 4s ease-in-out infinite}
+@keyframes emptyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* Modals */
+.adm-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);z-index:9000;align-items:center;justify-content:center}
+.adm-modal-bg.show{display:flex}
+.adm-modal{background:rgba(10,16,28,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:22px;padding:32px;width:460px;max-width:90vw;box-shadow:0 32px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04),0 0 80px rgba(123,97,241,0.04);animation:modalIn .3s var(--ease);position:relative;overflow:hidden}
+.adm-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(123,97,241,0.3),rgba(56,189,209,0.2),transparent)}
+@keyframes modalIn{from{opacity:0;transform:scale(0.92) translateY(16px)}to{opacity:1;transform:none}}
+.adm-modal h3{font-size:1.15rem;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.adm-modal h3 i{color:var(--purple);font-size:1.3rem;animation:mIconPulse 2s ease-in-out infinite}
+@keyframes mIconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.adm-modal-field{margin-bottom:14px}
+.adm-modal-field label{display:block;font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
+.adm-modal-field input,.adm-modal-field select{width:100%;padding:11px 15px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:11px;color:var(--text);font-size:0.85rem;font-family:inherit;outline:none;transition:all .25s var(--ease)}
+.adm-modal-field input:focus,.adm-modal-field select:focus{border-color:rgba(123,97,241,0.35);box-shadow:0 0 16px rgba(123,97,241,0.06);background:rgba(123,97,241,0.02)}
+.adm-modal-field select option{background:#0a101c;color:var(--text)}
+.adm-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+.adm-modal-btn{padding:10px 24px;border-radius:11px;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.adm-modal-btn.cancel{background:var(--glass);border:1px solid var(--border);color:var(--muted)}
+.adm-modal-btn.cancel:hover{color:var(--text);background:var(--glass-b);transform:translateY(-1px)}
+.adm-modal-btn.save{background:linear-gradient(135deg,var(--purple),var(--cyan));color:#fff;box-shadow:0 4px 20px rgba(123,97,241,0.15)}
+.adm-modal-btn.save:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(123,97,241,0.25)}
+.adm-modal-btn.save::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transition:left .6s}
+.adm-modal-btn.save:hover::before{left:200%}
+
+/* Toast */
+.adm-toast{position:fixed;bottom:24px;right:24px;padding:14px 24px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);border-radius:14px;color:var(--green);font-size:0.82rem;font-weight:600;z-index:9999;transform:translateY(100px);opacity:0;transition:all .4s var(--ease);backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px}
+.adm-toast::before{content:'✓';width:22px;height:22px;border-radius:50%;background:rgba(52,211,153,0.15);display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0}
+.adm-toast.show{transform:translateY(0);opacity:1}
+.adm-toast.error{background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.25);color:var(--red)}
+.adm-toast.error::before{content:'✕';background:rgba(248,113,113,0.15)}
+
+/* Floating particles */
+.adm-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.adm-particle{position:absolute;border-radius:50%;opacity:0;animation:particleDrift linear infinite}
+.adm-particle:nth-child(1){width:3px;height:3px;background:var(--purple);top:15%;left:80%;animation-duration:18s}
+.adm-particle:nth-child(2){width:2px;height:2px;background:var(--cyan);top:60%;left:90%;animation-duration:22s;animation-delay:-4s}
+.adm-particle:nth-child(3){width:4px;height:4px;background:var(--green);top:80%;left:70%;animation-duration:25s;animation-delay:-8s}
+.adm-particle:nth-child(4){width:2px;height:2px;background:var(--yellow);top:30%;left:75%;animation-duration:20s;animation-delay:-12s}
+@keyframes particleDrift{0%{transform:translate(0,0) scale(0);opacity:0}10%{opacity:.5}50%{opacity:.3}90%{opacity:.5}100%{transform:translate(-120px,-200px) scale(1.2);opacity:0}}
+
+/* Scrollbar */
+.adm-main::-webkit-scrollbar{width:6px}
+.adm-main::-webkit-scrollbar-track{background:transparent}
+.adm-main::-webkit-scrollbar-thumb{background:rgba(123,97,241,.15);border-radius:3px}
+.adm-main::-webkit-scrollbar-thumb:hover{background:rgba(123,97,241,.3)}
+
+@media(max-width:768px){.adm-side{display:none}.adm-main{margin-left:0}}
+</style>
+{% endblock %}
+
+{% block body %}
+{% include 'admin/_premium.html.twig' %}
+
+<div class="adm">
+	<aside class="adm-side">
+		<div class="adm-side-head"><h2><span>Admin</span> Panel</h2><p>LearnAdapt Management</p></div>
+		<ul class="adm-nav">
+			<li><a href="{{ path('app_admin') }}"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+			<li><a href="{{ path('app_admin_users') }}"><i class='bx bxs-group'></i> Users</a></li>
+			<li><a href="{{ path('app_admin_forum') }}" class="is-active"><i class='bx bxs-chat'></i> Forum</a></li>
+			<li><a href="{{ path('app_admin_feedback') }}"><i class='bx bxs-star-half'></i> Feedback</a></li>
+			<li><a href="{{ path('app_admin_exercises') }}"><i class='bx bxs-book-content'></i> Exercises</a></li>
+			<li><a href="{{ path('app_admin_quizzes') }}"><i class='bx bxs-brain'></i> Quizzes</a></li>
+			<li><a href="{{ path('app_admin_courses') }}"><i class='bx bxs-book-alt'></i> Courses</a></li>
+			<div class="adm-nav-divider"></div>
+			<li><a href="{{ path('app_home') }}"><i class='bx bx-arrow-back'></i> Back to App</a></li>
+			<li><a href="{{ path('app_settings') }}"><i class='bx bx-cog'></i> Settings</a></li>
+		</ul>
+	</aside>
+
+	<main class="adm-main">
+		<div class="adm-particles"><div class="adm-particle"></div><div class="adm-particle"></div><div class="adm-particle"></div><div class="adm-particle"></div></div>
+
+		<div class="pg-head">
+			<div>
+				<h1><span class="head-gradient">Forum Management</span></h1>
+				<p class="pg-head-sub">Moderate topics, close discussions, and keep the community healthy</p>
+			</div>
+		</div>
+
+		<!-- Stats -->
+		<div class="forum-stats">
+			<div class="f-stat">
+				<div class="f-stat-val" style="color:var(--purple)">{{ stats.total_topics|default(0) }}</div>
+				<div class="f-stat-lbl">Topics</div>
+			</div>
+			<div class="f-stat">
+				<div class="f-stat-val" style="color:var(--cyan)">{{ stats.total_posts|default(0) }}</div>
+				<div class="f-stat-lbl">Posts</div>
+			</div>
+			<div class="f-stat">
+				<div class="f-stat-val" style="color:var(--green)">{{ stats.open_topics|default(0) }}</div>
+				<div class="f-stat-lbl">Open</div>
+			</div>
+			<div class="f-stat">
+				<div class="f-stat-val" style="color:var(--red)">{{ stats.closed_topics|default(0) }}</div>
+				<div class="f-stat-lbl">Closed</div>
+			</div>
+		</div>
+
+		<!-- Filter panel -->
+		<div class="frm-filter-panel">
+			<div class="frm-filter-label"><i class='bx bx-category-alt'></i> Filter by Category</div>
+			<div class="cat-chips">
+			<a href="{{ path('app_admin_forum') }}" class="cat-chip {{ currentCategory == '' ? 'is-active' : '' }}">All</a>
+			{% for cc in categoryCounts %}
+			<a href="{{ path('app_admin_forum', {category: cc.category}) }}" class="cat-chip {{ currentCategory == cc.category ? 'is-active' : '' }}">
+				{{ cc.category }} <span class="cat-count">{{ cc.count }}</span>
+			</a>
+			{% endfor %}
+			</div>
+		</div>
+
+		<!-- Search toolbar -->
+		<div class="frm-toolbar">
+			<form class="frm-search-bar" method="get" action="{{ path('app_admin_forum') }}">
+				{% if currentCategory %}<input type="hidden" name="category" value="{{ currentCategory }}">{% endif %}
+				<div class="frm-search-wrap">
+					<i class='bx bx-search'></i>
+					<input class="frm-search-input" type="text" name="q" value="{{ searchQuery }}" placeholder="Search topics by title or author...">
+				</div>
+				<button class="frm-search-btn" type="submit">Search</button>
+			</form>
+		</div>
+
+		<!-- Section header -->
+		<div class="frm-section-head">
+			<div class="frm-section-title"><i class='bx bxs-chat'></i> Topics</div>
+			<div class="frm-section-count">{{ topics|length }} topic{{ topics|length != 1 ? 's' : '' }}</div>
+		</div>
+
+		<!-- Topics -->
+		<div class="topic-grid">
+			{% for t in topics %}
+			<div class="topic-card" id="topic-{{ t.id }}" style="animation-delay:{{ loop.index0 * 0.04 }}s">
+				<div class="topic-av">
+					{{ t.author_name|default('?')|slice(0,2)|upper }}
+				</div>
+				<div class="topic-info">
+					<div class="topic-title">{{ t.title }}</div>
+					<div class="topic-meta">
+						<span><i class='bx bx-user'></i> {{ t.author_name }}</span>
+						<span><i class='bx bx-message-dots'></i> {{ t.reply_count }} replies</span>
+						<span><i class='bx bx-time-five'></i> {{ t.created_at|date('M d, Y') }}</span>
+					</div>
+				</div>
+				<span class="topic-cat">{{ t.category }}</span>
+				<button class="topic-status {{ t.is_closed ? 'closed' : 'open' }}" onclick="toggleClose({{ t.id }},this)">
+					{{ t.is_closed ? 'Closed' : 'Open' }}
+				</button>
+				<div class="topic-actions">
+					<button class="t-act edit" onclick="openEditTopic({{ t.id }},'{{ t.title|e('js') }}','{{ t.category|e('js') }}')" title="Edit"><i class='bx bx-edit-alt'></i></button>
+					<button class="t-act" onclick="window.location='{{ path('app_forum_topic', {id: t.id}) }}'" title="View"><i class='bx bx-link-external'></i></button>
+					<button class="t-act danger" onclick="deleteTopic({{ t.id }},'{{ t.title|e('js') }}')" title="Delete"><i class='bx bx-trash'></i></button>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+	</main>
+</div>
+
+<div class="adm-toast" id="admToast"></div>
+
+<!-- Edit Topic Modal -->
+<div class="adm-modal-bg" id="editTopicModal" onclick="if(event.target===this)closeEditTopic()">
+	<div class="adm-modal">
+		<h3><i class='bx bx-edit-alt'></i> Edit Topic</h3>
+		<input type="hidden" id="editTopicId">
+		<div class="adm-modal-field">
+			<label>Title</label>
+			<input type="text" id="editTopicTitle">
+		</div>
+		<div class="adm-modal-field">
+			<label>Category</label>
+			<select id="editTopicCategory">
+				{% for cat in categoryCounts|keys %}
+				<option value="{{ cat }}">{{ cat }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="adm-modal-actions">
+			<button class="adm-modal-btn cancel" onclick="closeEditTopic()">Cancel</button>
+			<button class="adm-modal-btn save" onclick="saveEditTopic()">Save Changes</button>
+		</div>
+	</div>
+</div>
+
+<script>
+function showToast(msg,err=false){const t=document.getElementById('admToast');t.textContent=msg;t.className='adm-toast'+(err?' error':'')+' show';setTimeout(()=>t.classList.remove('show'),3000)}
+function toggleClose(id,btn){
+	fetch('/admin/forum/'+id+'/toggle-close',{method:'POST'}).then(r=>r.json()).then(d=>{
+		if(d.success){btn.className='topic-status '+(d.is_closed?'closed':'open');btn.textContent=d.is_closed?'Closed':'Open';showToast('Topic '+(d.is_closed?'closed':'reopened'))}
+		else showToast(d.error||'Error',true)
+	}).catch(()=>showToast('Network error',true));
+}
+function deleteTopic(id,title){
+	if(!confirm('Delete topic "'+title+'"? All replies will be removed.'))return;
+	fetch('/admin/forum/'+id+'/delete',{method:'POST'}).then(r=>r.json()).then(d=>{
+		if(d.success){document.getElementById('topic-'+id).remove();showToast('Topic deleted')}
+		else showToast(d.error||'Error',true)
+	}).catch(()=>showToast('Network error',true));
+}
+function openEditTopic(id,title,category){
+	document.getElementById('editTopicId').value=id;
+	document.getElementById('editTopicTitle').value=title;
+	document.getElementById('editTopicCategory').value=category;
+	document.getElementById('editTopicModal').classList.add('show');
+}
+function closeEditTopic(){document.getElementById('editTopicModal').classList.remove('show')}
+function saveEditTopic(){
+	const id=document.getElementById('editTopicId').value;
+	const data={title:document.getElementById('editTopicTitle').value,category:document.getElementById('editTopicCategory').value};
+	fetch('/admin/forum/'+id+'/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){closeEditTopic();showToast('Topic updated');setTimeout(()=>location.reload(),600)}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+</script>
+{% endblock %}

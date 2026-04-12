@@ -46,7 +46,7 @@ class ForumController extends AbstractController
         $filterCategory = $request->query->get('category', '');
         $search = trim($request->query->get('q', ''));
 
-        $sql = 'SELECT ft.*, u.full_name as author_name, u.avatar_base64 as author_avatar,
+        $sql = 'SELECT ft.*, u.full_name as author_name, u.avatar_base64 as author_avatar, u.role as author_role,
                        (SELECT COUNT(*) FROM forum_posts fp WHERE fp.topic_id = ft.id) as reply_count,
                        (SELECT MAX(fp2.created_at) FROM forum_posts fp2 WHERE fp2.topic_id = ft.id) as last_reply_at
                 FROM forum_topics ft
@@ -92,7 +92,7 @@ class ForumController extends AbstractController
         }
 
         $topic = $this->connection->fetchAssociative(
-            'SELECT ft.*, u.full_name as author_name, u.avatar_base64 as author_avatar
+            'SELECT ft.*, u.full_name as author_name, u.avatar_base64 as author_avatar, u.role as author_role
              FROM forum_topics ft JOIN users u ON ft.created_by_user_id = u.id
              WHERE ft.id = ?',
             [$id]
@@ -199,7 +199,145 @@ class ForumController extends AbstractController
         $this->entityManager->persist($post);
         $this->entityManager->flush();
 
+        // Notify topic creator (don't notify yourself)
+        $topicOwnerId = $topicEntity->getUser()?->getId();
+        if ($topicOwnerId && $topicOwnerId !== $user->getId()) {
+            $snippetText = mb_substr($content, 0, 80);
+            $this->connection->executeStatement(
+                'INSERT INTO notifications (user_id, type, title, message, is_read, created_at)
+                 VALUES (?, ?, ?, ?, 0, NOW())',
+                [
+                    $topicOwnerId,
+                    'FORUM_REPLY',
+                    "💬 {$user->getFullName()} replied to your topic",
+                    "{$user->getFullName()} replied to \"{$topicEntity->getTitle()}\": \"{$snippetText}\"",
+                ]
+            );
+        }
+
         $this->addFlash('success', 'Reply posted!');
         return $this->redirectToRoute('app_forum_topic', ['id' => $id]);
+    }
+
+    #[Route('/forum/topic/{id}/edit', name: 'app_forum_topic_edit', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function editTopic(int $id, Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $topicEntity = $this->entityManager->getRepository(ForumTopic::class)->find($id);
+        if (!$topicEntity || $topicEntity->getUser()?->getId() !== $user->getId()) {
+            $this->addFlash('error', 'You can only edit your own topics.');
+            return $this->redirectToRoute('app_forum');
+        }
+
+        $title = trim($request->request->get('title', ''));
+        $category = $request->request->get('category', $topicEntity->getCategory());
+        $content = trim($request->request->get('content', ''));
+
+        if ($title === '') {
+            $this->addFlash('error', 'Title is required.');
+            return $this->redirectToRoute('app_forum_topic', ['id' => $id]);
+        }
+        if (!in_array($category, self::CATEGORIES, true)) {
+            $category = $topicEntity->getCategory();
+        }
+
+        $topicEntity->setTitle($title);
+        $topicEntity->setCategory($category);
+        $topicEntity->setUpdated_at(new \DateTime());
+
+        // Update the first post content if provided
+        if ($content !== '') {
+            $firstPost = $this->connection->fetchAssociative(
+                'SELECT id FROM forum_posts WHERE topic_id = ? ORDER BY created_at ASC LIMIT 1',
+                [$id]
+            );
+            if ($firstPost) {
+                $postEntity = $this->entityManager->getRepository(ForumPost::class)->find($firstPost['id']);
+                if ($postEntity) {
+                    $postEntity->setContent($content);
+                }
+            }
+        }
+
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Topic updated successfully!');
+        return $this->redirectToRoute('app_forum_topic', ['id' => $id]);
+    }
+
+    #[Route('/forum/topic/{id}/delete', name: 'app_forum_topic_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function deleteTopic(int $id, Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $topicEntity = $this->entityManager->getRepository(ForumTopic::class)->find($id);
+        if (!$topicEntity || $topicEntity->getUser()?->getId() !== $user->getId()) {
+            $this->addFlash('error', 'You can only delete your own topics.');
+            return $this->redirectToRoute('app_forum');
+        }
+
+        // Delete all posts first
+        $this->connection->executeStatement('DELETE FROM forum_posts WHERE topic_id = ?', [$id]);
+        $this->entityManager->remove($topicEntity);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Topic deleted successfully!');
+        return $this->redirectToRoute('app_forum');
+    }
+
+    #[Route('/forum/post/{id}/edit', name: 'app_forum_post_edit', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function editPost(int $id, Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $postEntity = $this->entityManager->getRepository(ForumPost::class)->find($id);
+        if (!$postEntity || $postEntity->getUser()?->getId() !== $user->getId()) {
+            $this->addFlash('error', 'You can only edit your own posts.');
+            return $this->redirectToRoute('app_forum');
+        }
+
+        $content = trim($request->request->get('content', ''));
+        if ($content === '') {
+            $this->addFlash('error', 'Content cannot be empty.');
+            return $this->redirectToRoute('app_forum_topic', ['id' => $postEntity->getForumTopic()->getId()]);
+        }
+
+        $postEntity->setContent($content);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Post updated!');
+        return $this->redirectToRoute('app_forum_topic', ['id' => $postEntity->getForumTopic()->getId()]);
+    }
+
+    #[Route('/forum/post/{id}/delete', name: 'app_forum_post_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function deletePost(int $id, Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $postEntity = $this->entityManager->getRepository(ForumPost::class)->find($id);
+        if (!$postEntity || $postEntity->getUser()?->getId() !== $user->getId()) {
+            $this->addFlash('error', 'You can only delete your own posts.');
+            return $this->redirectToRoute('app_forum');
+        }
+
+        $topicId = $postEntity->getForumTopic()->getId();
+        $this->entityManager->remove($postEntity);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Post deleted!');
+        return $this->redirectToRoute('app_forum_topic', ['id' => $topicId]);
     }
 }

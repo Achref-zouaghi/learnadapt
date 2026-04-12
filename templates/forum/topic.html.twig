@@ -54,9 +54,12 @@ footer{display:none!important}
 .ft-post-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
 .ft-post-avatar{width:40px;height:40px;border-radius:12px;object-fit:cover;border:2px solid rgba(123,97,241,0.12);flex-shrink:0;background:rgba(255,255,255,0.03)}
 .ft-post-author{font-weight:700;color:#fff;font-size:0.9rem}
-.ft-post-role{display:inline-flex;padding:2px 8px;border-radius:6px;font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;margin-left:6px}
+.ft-post-role{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:6px;font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;margin-left:6px}
 .ft-post-role.expert-role{background:rgba(56,189,209,0.12);color:var(--cyan);border:1px solid rgba(56,189,209,0.12)}
 .ft-post-role.admin-role{background:rgba(251,191,36,0.12);color:var(--yellow);border:1px solid rgba(251,191,36,0.12)}
+.ft-post-role.student-role{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.12)}
+.ft-post-role.teacher-role{background:rgba(123,97,241,0.1);color:var(--purple-soft);border:1px solid rgba(123,97,241,0.12)}
+.ft-post-role.default-role{background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)}
 .ft-post-time{font-size:0.7rem;color:rgba(148,163,184,0.5);margin-top:2px}
 .ft-post-content{color:rgba(255,255,255,0.82);font-size:0.88rem;line-height:1.75;white-space:pre-wrap;word-break:break-word}
 
@@ -71,6 +74,23 @@ footer{display:none!important}
 .ft-reply-btn i{font-size:1rem}
 
 .ft-closed-msg{text-align:center;padding:24px;border-radius:16px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.12);color:var(--red);font-size:0.84rem;font-weight:600}
+
+/* ── Action buttons ── */
+.ft-actions{display:flex;gap:6px;margin-left:auto}
+.ft-act-btn{padding:5px 12px;border-radius:8px;font-size:0.7rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted);transition:all .2s;font-family:inherit;display:inline-flex;align-items:center;gap:4px}
+.ft-act-btn:hover{border-color:rgba(123,97,241,0.3);color:var(--purple-soft)}
+.ft-act-btn.delete:hover{border-color:rgba(239,68,68,0.3);color:var(--red)}
+.ft-edit-modal-bg{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.ft-edit-modal-bg.open{display:flex}
+.ft-edit-modal{background:rgba(10,14,26,0.95);border:1px solid var(--border);border-radius:22px;padding:32px;width:100%;max-width:520px;backdrop-filter:blur(20px);box-shadow:0 40px 100px rgba(0,0,0,0.5)}
+.ft-edit-modal h2{font-size:1.2rem;font-weight:900;color:#fff;margin-bottom:16px;background:linear-gradient(135deg,var(--purple),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:inline-block}
+.ft-edit-modal label{display:block;font-size:0.72rem;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.06em}
+.ft-edit-modal input,.ft-edit-modal select,.ft-edit-modal textarea{width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:0.86rem;margin-bottom:14px;transition:border-color .2s;font-family:inherit;outline:none}
+.ft-edit-modal input:focus,.ft-edit-modal select:focus,.ft-edit-modal textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(123,97,241,0.1)}
+.ft-edit-modal select option{background:#1a1e2e;color:#f6f8fc}
+.ft-edit-modal textarea{resize:vertical;min-height:100px}
+.ft-edit-modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+.ft-edit-modal-foot .ft-act-btn{padding:10px 22px;font-size:0.84rem}
 
 /* ── Toast ── */
 .ft-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:center}
@@ -106,10 +126,23 @@ footer{display:none!important}
         <a href="{{ path('app_forum') }}" class="ft-back"><i class='bx bx-arrow-back'></i> Back to Forum</a>
 
         <div class="ft-header cat-{{ topic.category }}">
-            <h1>{{ topic.title }}</h1>
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+                <h1 style="flex:1">{{ topic.title }}</h1>
+                {% if topic.created_by_user_id == user.id %}
+                    <div class="ft-actions">
+                        <button class="ft-act-btn" onclick="document.getElementById('editTopicModal').classList.add('open')"><i class='bx bx-edit-alt'></i> Edit</button>
+                        <form method="post" action="{{ path('app_forum_topic_delete', {id: topic.id}) }}" onsubmit="return confirm('Delete this topic and all its replies?');" style="display:inline">
+                            <button type="submit" class="ft-act-btn delete"><i class='bx bx-trash'></i> Delete</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
             <div class="ft-header-meta">
                 <img src="{{ topic.author_avatar ?: 'https://ui-avatars.com/api/?name=' ~ topic.author_name|url_encode ~ '&size=56&background=7c5cfc&color=fff&bold=true&format=svg' }}" alt="">
                 <span>{{ topic.author_name }}</span>
+                {% set trClass = topic.author_role|lower in ['student','expert','teacher','admin'] ? topic.author_role|lower ~ '-role' : 'default-role' %}
+                {% set trIcon = topic.author_role|lower == 'student' ? 'bxs-graduation-cap' : (topic.author_role|lower == 'expert' ? 'bxs-crown' : (topic.author_role|lower == 'teacher' ? 'bxs-chalkboard' : (topic.author_role|lower == 'admin' ? 'bxs-shield' : 'bx-user'))) %}
+                <span class="ft-post-role {{ trClass }}"><i class='bx {{ trIcon }}'></i> {{ topic.author_role|default('User') }}</span>
                 <span class="ft-cat-tag cat-{{ topic.category }}">{{ topic.category|replace({'_': ' '}) }}</span>
                 <span><i class='bx bx-time-five'></i> {{ topic.created_at|date('M d, Y · H:i') }}</span>
                 {% if topic.is_closed %}<span style="color:var(--red);font-weight:700"><i class='bx bx-lock-alt'></i> Closed</span>{% endif %}
@@ -121,17 +154,23 @@ footer{display:none!important}
                 <div class="ft-post {{ post.is_expert_reply ? 'expert' : '' }}" style="animation-delay:{{ loop.index0 * 0.06 }}s">
                     <div class="ft-post-head">
                         <img src="{{ post.author_avatar ?: 'https://ui-avatars.com/api/?name=' ~ post.author_name|url_encode ~ '&size=80&background=7c5cfc&color=fff&bold=true&format=svg' }}" alt="" class="ft-post-avatar">
-                        <div>
+                        <div style="flex:1">
                             <div>
                                 <span class="ft-post-author">{{ post.author_name }}</span>
-                                {% if post.author_role == 'EXPERT' %}
-                                    <span class="ft-post-role expert-role"><i class='bx bxs-badge-check' style="margin-right:3px"></i>Expert</span>
-                                {% elseif post.author_role == 'ADMIN' %}
-                                    <span class="ft-post-role admin-role"><i class='bx bxs-crown' style="margin-right:3px"></i>Admin</span>
-                                {% endif %}
+                                {% set prClass = post.author_role|lower in ['student','expert','teacher','admin'] ? post.author_role|lower ~ '-role' : 'default-role' %}
+                                {% set prIcon = post.author_role|lower == 'student' ? 'bxs-graduation-cap' : (post.author_role|lower == 'expert' ? 'bxs-crown' : (post.author_role|lower == 'teacher' ? 'bxs-chalkboard' : (post.author_role|lower == 'admin' ? 'bxs-shield' : 'bx-user'))) %}
+                                <span class="ft-post-role {{ prClass }}"><i class='bx {{ prIcon }}'></i> {{ post.author_role|default('User') }}</span>
                             </div>
                             <div class="ft-post-time">{{ post.created_at|date('M d, Y · H:i') }}</div>
                         </div>
+                        {% if post.author_user_id == user.id %}
+                            <div class="ft-actions">
+                                <button class="ft-act-btn" onclick="openEditPost({{ post.id }}, {{ post.content|json_encode }})"><i class='bx bx-edit-alt'></i></button>
+                                <form method="post" action="{{ path('app_forum_post_delete', {id: post.id}) }}" onsubmit="return confirm('Delete this post?');" style="display:inline">
+                                    <button type="submit" class="ft-act-btn delete"><i class='bx bx-trash'></i></button>
+                                </form>
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="ft-post-content">{{ post.content }}</div>
                 </div>
@@ -152,7 +191,54 @@ footer{display:none!important}
     </div>
 </div>
 
+{# ── Edit Topic Modal ── #}
+{% if topic.created_by_user_id == user.id %}
+<div class="ft-edit-modal-bg" id="editTopicModal">
+    <div class="ft-edit-modal">
+        <h2>Edit Topic</h2>
+        <form method="post" action="{{ path('app_forum_topic_edit', {id: topic.id}) }}">
+            <label>Title</label>
+            <input type="text" name="title" value="{{ topic.title }}" required maxlength="220">
+            <label>Category</label>
+            <select name="category">
+                {% for cat in ['GENERAL','ADVICE','DIFFICULTIES','APP_HELP','SUCCESS_STORY'] %}
+                    <option value="{{ cat }}" {{ topic.category == cat ? 'selected' : '' }}>{{ cat|replace({'_': ' '})|title }}</option>
+                {% endfor %}
+            </select>
+            <label>Content (first post)</label>
+            <textarea name="content">{% if posts|length > 0 %}{{ posts[0].content }}{% endif %}</textarea>
+            <div class="ft-edit-modal-foot">
+                <button type="button" class="ft-act-btn" onclick="document.getElementById('editTopicModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="ft-act-btn" style="background:linear-gradient(135deg,var(--purple),#9b7bf7);color:#fff;border:none">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{# ── Edit Post Modal ── #}
+<div class="ft-edit-modal-bg" id="editPostModal">
+    <div class="ft-edit-modal">
+        <h2>Edit Post</h2>
+        <form method="post" id="editPostForm">
+            <label>Content</label>
+            <textarea name="content" id="editPostContent" required></textarea>
+            <div class="ft-edit-modal-foot">
+                <button type="button" class="ft-act-btn" onclick="document.getElementById('editPostModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="ft-act-btn" style="background:linear-gradient(135deg,var(--purple),#9b7bf7);color:#fff;border:none">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+function openEditPost(postId, content) {
+    document.getElementById('editPostForm').action = '/forum/post/' + postId + '/edit';
+    document.getElementById('editPostContent').value = content;
+    document.getElementById('editPostModal').classList.add('open');
+}
+document.getElementById('editTopicModal')?.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+document.getElementById('editPostModal').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
 document.querySelectorAll('.ft-flash').forEach(function(el) {
     setTimeout(function() { el.classList.add('fade-out'); setTimeout(function(){ el.remove(); }, 500); }, 5000);
 });

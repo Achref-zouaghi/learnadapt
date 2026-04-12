@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+
+{% block title %}{{ 'quiz.results'|trans }} — {{ attempt.quiz_title }}{% endblock %}
+
+{% block stylesheets %}
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<style>
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,.035);--border:rgba(255,255,255,.06);--card:rgba(255,255,255,.028);--ease:cubic-bezier(.22,1,.36,1)}
+body{background:var(--bg)!important;color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+footer{display:none!important}
+.qr-bg-orb{position:fixed;border-radius:50%;pointer-events:none;filter:blur(120px);opacity:.25;z-index:0}
+.qr-bg-orb.a{width:500px;height:500px;top:-80px;left:-60px;background:radial-gradient(circle,rgba(52,211,153,.25),transparent 70%)}
+.qr-bg-orb.b{width:400px;height:400px;bottom:-40px;right:-30px;background:radial-gradient(circle,rgba(123,97,241,.2),transparent 70%)}
+
+.qr-page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:120px 24px 60px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Score Hero */
+.qr-score-hero{text-align:center;margin-bottom:48px;animation:fadeIn .6s var(--ease) both}
+.qr-score-ring{position:relative;width:180px;height:180px;margin:0 auto 24px}
+.qr-score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.qr-score-ring .bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:10}
+.qr-score-ring .fg{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.5s var(--ease)}
+.qr-score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.qr-score-pct{font-size:2.8rem;font-weight:900;letter-spacing:-.02em}
+.qr-score-label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.qr-level{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border-radius:999px;font-size:.88rem;font-weight:700;margin-bottom:8px}
+.qr-level.BEGINNER{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.qr-level.INTERMEDIATE{background:rgba(251,146,60,.12);color:var(--orange);border:1px solid rgba(251,146,60,.2)}
+.qr-level.ADVANCED{background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.2)}
+.qr-score-hero h2{font-size:1.5rem;font-weight:800;margin-bottom:4px}
+.qr-score-hero p{color:var(--muted);font-size:.92rem}
+
+/* Stats */
+.qr-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:40px;animation:fadeIn .6s var(--ease) .1s both}
+.qr-stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;backdrop-filter:blur(12px)}
+.qr-stat-val{font-size:1.5rem;font-weight:800}
+.qr-stat-lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-top:2px}
+
+/* Questions Review */
+.qr-review-title{font-size:1.15rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px;animation:fadeIn .5s var(--ease) .2s both}
+.qr-review-title i{font-size:1.3rem;color:var(--cyan)}
+
+.qr-q{background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.015));border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;animation:fadeIn .4s var(--ease) both}
+.qr-q-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.qr-q-num{width:32px;height:32px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0}
+.qr-q-num.correct{background:rgba(52,211,153,.15);color:var(--green)}
+.qr-q-num.wrong{background:rgba(248,113,113,.15);color:var(--red)}
+.qr-q-num.skipped{background:rgba(255,255,255,.06);color:var(--muted)}
+.qr-q-result{margin-left:auto;display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;font-size:.72rem;font-weight:700}
+.qr-q-result.correct{background:rgba(52,211,153,.12);color:var(--green)}
+.qr-q-result.wrong{background:rgba(248,113,113,.12);color:var(--red)}
+.qr-q-result.skipped{background:rgba(255,255,255,.06);color:var(--muted)}
+.qr-q-prompt{font-size:1rem;font-weight:600;line-height:1.5;margin-bottom:14px}
+.qr-q-answers{display:flex;flex-direction:column;gap:6px}
+.qr-q-ans{padding:10px 14px;border-radius:10px;font-size:.88rem;display:flex;align-items:center;gap:10px;border:1px solid var(--border);background:rgba(255,255,255,.02)}
+.qr-q-ans.user-correct{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.06)}
+.qr-q-ans.user-wrong{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.06)}
+.qr-q-ans.is-correct{border-color:rgba(52,211,153,.2);background:rgba(52,211,153,.04)}
+.qr-q-ans i.mark{font-size:1.1rem;flex-shrink:0}
+
+/* Actions */
+.qr-actions{display:flex;gap:12px;justify-content:center;margin-top:36px;animation:fadeIn .5s var(--ease) .3s both}
+.qr-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:14px;font-size:.92rem;font-weight:700;text-decoration:none;border:none;cursor:pointer;transition:all .25s var(--ease)}
+.qr-btn-primary{background:linear-gradient(135deg,var(--purple),var(--cyan));color:#fff;box-shadow:0 8px 24px rgba(123,97,241,.2)}
+.qr-btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(123,97,241,.3)}
+.qr-btn-secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
+.qr-btn-secondary:hover{background:rgba(255,255,255,.1)}
+
+@media(max-width:600px){.qr-score-ring{width:140px;height:140px}.qr-score-pct{font-size:2rem}}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="qr-bg-orb a"></div>
+<div class="qr-bg-orb b"></div>
+
+<div class="qr-page">
+	{% set pct = attempt.score_percent|round %}
+	{% set scoreColor = pct >= 80 ? 'var(--green)' : (pct >= 50 ? 'var(--orange)' : 'var(--red)') %}
+
+	<div class="qr-score-hero">
+		<div class="qr-score-ring">
+			<svg viewBox="0 0 200 200">
+				<circle class="bg" cx="100" cy="100" r="88"/>
+				<circle class="fg" cx="100" cy="100" r="88"
+					stroke="{{ scoreColor }}"
+					stroke-dasharray="{{ 2 * 3.14159 * 88 }}"
+					stroke-dashoffset="{{ 2 * 3.14159 * 88 * (1 - pct / 100) }}"
+					filter="url(#glow)"/>
+				<defs><filter id="glow"><feGaussianBlur stdDeviation="4" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+			</svg>
+			<div class="qr-score-center">
+				<div class="qr-score-pct" style="color:{{ scoreColor }}">{{ pct }}%</div>
+				<div class="qr-score-label">{{ 'quiz.score'|trans }}</div>
+			</div>
+		</div>
+		<div class="qr-level {{ attempt.level_result }}">
+			{% if attempt.level_result == 'ADVANCED' %}<i class='bx bx-trophy'></i>
+			{% elseif attempt.level_result == 'INTERMEDIATE' %}<i class='bx bx-medal'></i>
+			{% else %}<i class='bx bx-book-open'></i>{% endif %}
+			{{ attempt.level_result }}
+		</div>
+		<h2>{{ attempt.quiz_title }}</h2>
+		<p>{{ 'quiz.completed_on'|trans }} {{ attempt.finished_at|date('d M Y, H:i') }}</p>
+	</div>
+
+	{% set correctCount = 0 %}
+	{% set wrongCount = 0 %}
+	{% set skippedCount = 0 %}
+	{% for q in questions %}
+		{% if q.is_correct %}{% set correctCount = correctCount + 1 %}
+		{% elseif q.user_earned is not null %}{% set wrongCount = wrongCount + 1 %}
+		{% else %}{% set skippedCount = skippedCount + 1 %}{% endif %}
+	{% endfor %}
+
+	<div class="qr-stats">
+		<div class="qr-stat"><div class="qr-stat-val" style="color:var(--green)">{{ correctCount }}</div><div class="qr-stat-lbl">{{ 'quiz.correct'|trans }}</div></div>
+		<div class="qr-stat"><div class="qr-stat-val" style="color:var(--red)">{{ wrongCount }}</div><div class="qr-stat-lbl">{{ 'quiz.wrong'|trans }}</div></div>
+		<div class="qr-stat"><div class="qr-stat-val" style="color:var(--muted)">{{ skippedCount }}</div><div class="qr-stat-lbl">{{ 'quiz.skipped'|trans }}</div></div>
+		<div class="qr-stat"><div class="qr-stat-val" style="color:var(--cyan)">{{ attempt.earned_points }}/{{ attempt.total_points }}</div><div class="qr-stat-lbl">{{ 'quiz.points'|trans }}</div></div>
+	</div>
+
+	<div class="qr-review-title"><i class='bx bx-list-check'></i> {{ 'quiz.review'|trans }}</div>
+
+	{% for q in questions %}
+	<div class="qr-q" style="animation-delay:{{ loop.index0 * 0.05 }}s">
+		<div class="qr-q-head">
+			<div class="qr-q-num {{ q.is_correct ? 'correct' : (q.user_earned is not null ? 'wrong' : 'skipped') }}">{{ loop.index }}</div>
+			<span style="font-size:.75rem;color:var(--muted);font-weight:600">{{ q.question_type }} · {{ q.difficulty }} · {{ q.points }} pts</span>
+			<span class="qr-q-result {{ q.is_correct ? 'correct' : (q.user_earned is not null ? 'wrong' : 'skipped') }}">
+				{% if q.is_correct %}<i class='bx bx-check'></i> {{ 'quiz.correct'|trans }}
+				{% elseif q.user_earned is not null %}<i class='bx bx-x'></i> {{ 'quiz.wrong'|trans }}
+				{% else %}<i class='bx bx-minus'></i> {{ 'quiz.skipped'|trans }}{% endif %}
+			</span>
+		</div>
+		<div class="qr-q-prompt">{{ q.prompt }}</div>
+
+		<div class="qr-q-answers">
+			{% if q.question_type == 'MCQ' %}
+				{% set opts = {'A': q.option_a, 'B': q.option_b, 'C': q.option_c, 'D': q.option_d} %}
+				{% for letter, text in opts %}
+				{% if text %}
+				{% set isUser = q.chosen_option == letter %}
+				{% set isAnswer = q.correct_option == letter %}
+				<div class="qr-q-ans {{ isUser and isAnswer ? 'user-correct' : (isUser ? 'user-wrong' : (isAnswer ? 'is-correct' : '')) }}">
+					{% if isUser and isAnswer %}<i class='bx bx-check-circle mark' style="color:var(--green)"></i>
+					{% elseif isUser %}<i class='bx bx-x-circle mark' style="color:var(--red)"></i>
+					{% elseif isAnswer %}<i class='bx bx-check mark' style="color:var(--green)"></i>
+					{% else %}<span style="width:18px;display:inline-block"></span>{% endif %}
+					<strong style="min-width:20px">{{ letter }}.</strong> {{ text }}
+				</div>
+				{% endif %}
+				{% endfor %}
+
+			{% elseif q.question_type == 'TRUE_FALSE' %}
+				<div class="qr-q-ans {{ q.chosen_bool is not null and q.chosen_bool == q.correct_bool ? 'user-correct' : (q.chosen_bool is not null ? 'user-wrong' : '') }}">
+					<strong>{{ 'quiz.your_answer'|trans }}:</strong>
+					{% if q.chosen_bool is not null %}{{ q.chosen_bool ? 'True' : 'False' }}{% else %}—{% endif %}
+				</div>
+				<div class="qr-q-ans is-correct">
+					<i class='bx bx-check mark' style="color:var(--green)"></i>
+					<strong>{{ 'quiz.correct_answer'|trans }}:</strong> {{ q.correct_bool ? 'True' : 'False' }}
+				</div>
+
+			{% elseif q.question_type == 'SHORT_TEXT' %}
+				<div class="qr-q-ans {{ q.is_correct ? 'user-correct' : 'user-wrong' }}">
+					<strong>{{ 'quiz.your_answer'|trans }}:</strong> {{ q.typed_answer|default('—') }}
+				</div>
+				{% if q.correct_text %}
+				<div class="qr-q-ans is-correct">
+					<i class='bx bx-check mark' style="color:var(--green)"></i>
+					<strong>{{ 'quiz.correct_answer'|trans }}:</strong> {{ q.correct_text }}
+				</div>
+				{% endif %}
+			{% endif %}
+		</div>
+	</div>
+	{% endfor %}
+
+	<div class="qr-actions">
+		<a href="{{ path('app_quizzes') }}" class="qr-btn qr-btn-primary"><i class='bx bx-arrow-back'></i> {{ 'quiz.back_to_quizzes'|trans }}</a>
+		<form method="post" action="{{ path('app_quiz_start', {id: attempt.quiz_id}) }}" style="display:inline">
+			<button type="submit" class="qr-btn qr-btn-secondary"><i class='bx bx-refresh'></i> {{ 'quiz.retake'|trans }}</button>
+		</form>
+	</div>
+</div>
+{% endblock %}

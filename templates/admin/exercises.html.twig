@@ -1,0 +1,540 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}Exercise Management — Admin{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
+@property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+@property --shine-pos{syntax:'<percentage>';initial-value:0%;inherits:false}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+
+.adm{display:flex;min-height:100vh;padding-top:72px}
+.adm-side{width:260px;position:fixed;top:72px;left:0;bottom:0;background:rgba(6,12,22,0.95);border-right:1px solid var(--border);backdrop-filter:blur(20px);padding:28px 16px;display:flex;flex-direction:column;z-index:50;overflow-y:auto}
+.adm-side-head{padding:0 12px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.adm-side-head h2{font-size:1.1rem;font-weight:900;letter-spacing:-0.03em}
+.adm-side-head h2 span{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.adm-side-head p{font-size:0.72rem;color:var(--muted);margin-top:4px}
+.adm-nav{list-style:none;display:flex;flex-direction:column;gap:4px;flex:1}
+.adm-nav a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;color:var(--muted);text-decoration:none;font-size:0.84rem;font-weight:600;transition:all .22s var(--ease);position:relative}
+.adm-nav a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+.adm-nav a.is-active{color:var(--cyan);background:rgba(56,189,209,0.08)}
+.adm-nav a.is-active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0}
+.adm-nav a i{font-size:1.2rem;width:22px;text-align:center}
+.adm-nav-divider{height:1px;background:var(--border);margin:12px 8px}
+.adm-main{flex:1;margin-left:260px;padding:32px;position:relative;overflow-y:auto}
+
+/* ─── PREMIUM PAGE HEADER ─── */
+.pg-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;animation:fadeIn .5s var(--ease)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.pg-head h1{font-size:1.8rem;font-weight:900;letter-spacing:-0.04em;position:relative;display:inline-block}
+.pg-head h1 .ex-head-gradient{background:linear-gradient(135deg,var(--cyan),var(--purple),var(--green));background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:headGrad 6s ease infinite}
+@keyframes headGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.pg-head h1::after{content:'';position:absolute;bottom:-6px;left:0;width:60px;height:3px;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:3px;animation:headLine 3s ease-in-out infinite}
+@keyframes headLine{0%,100%{width:60px;opacity:.8}50%{width:100px;opacity:1}}
+.pg-head-sub{font-size:0.82rem;color:var(--muted);margin-top:8px}
+
+/* ─── PREMIUM STAT CARDS ─── */
+.ex-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+@media(max-width:800px){.ex-stats{grid-template-columns:repeat(2,1fr)}}
+.ex-st{background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:22px 22px;backdrop-filter:blur(14px);animation:fadeUp .4s var(--ease) backwards;position:relative;overflow:hidden;transition:all .35s var(--ease)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.ex-st:nth-child(2){animation-delay:.08s}.ex-st:nth-child(3){animation-delay:.16s}.ex-st:nth-child(4){animation-delay:.24s}
+
+/* Spinning conic-gradient border */
+.ex-st::before{content:'';position:absolute;inset:-1px;border-radius:17px;padding:1px;background:conic-gradient(from var(--border-angle),transparent 40%,var(--cyan) 50%,transparent 60%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s;pointer-events:none}
+.ex-st:hover::before{opacity:1;animation:borderSpin 3s linear infinite}
+@keyframes borderSpin{to{--border-angle:360deg}}
+
+/* Inner glow on hover */
+.ex-st::after{content:'';position:absolute;inset:0;border-radius:16px;opacity:0;transition:opacity .4s;pointer-events:none}
+.ex-st:nth-child(1)::after{background:radial-gradient(circle at 30% 50%,rgba(56,189,209,0.06),transparent 70%)}
+.ex-st:nth-child(2)::after{background:radial-gradient(circle at 30% 50%,rgba(52,211,153,0.06),transparent 70%)}
+.ex-st:nth-child(3)::after{background:radial-gradient(circle at 30% 50%,rgba(251,191,36,0.06),transparent 70%)}
+.ex-st:nth-child(4)::after{background:radial-gradient(circle at 30% 50%,rgba(248,113,113,0.06),transparent 70%)}
+.ex-st:hover::after{opacity:1}
+.ex-st:hover{transform:translateY(-4px);border-color:rgba(255,255,255,0.1);box-shadow:0 12px 40px rgba(0,0,0,0.25)}
+
+.ex-st-row{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.ex-st-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;transition:all .35s var(--ease);position:relative}
+.ex-st:nth-child(1) .ex-st-icon{background:rgba(56,189,209,0.12);color:var(--cyan)}
+.ex-st:nth-child(2) .ex-st-icon{background:rgba(52,211,153,0.12);color:var(--green)}
+.ex-st:nth-child(3) .ex-st-icon{background:rgba(251,191,36,0.12);color:var(--yellow)}
+.ex-st:nth-child(4) .ex-st-icon{background:rgba(248,113,113,0.12);color:var(--red)}
+.ex-st:hover .ex-st-icon{transform:scale(1.12) rotate(-5deg);box-shadow:0 0 20px rgba(56,189,209,0.15)}
+.ex-st:nth-child(2):hover .ex-st-icon{box-shadow:0 0 20px rgba(52,211,153,0.15)}
+.ex-st:nth-child(3):hover .ex-st-icon{box-shadow:0 0 20px rgba(251,191,36,0.15)}
+.ex-st:nth-child(4):hover .ex-st-icon{box-shadow:0 0 20px rgba(248,113,113,0.15)}
+.ex-st-val{font-size:1.6rem;font-weight:900;letter-spacing:-0.03em;transition:text-shadow .3s}
+.ex-st:hover .ex-st-val{text-shadow:0 0 18px currentColor}
+.ex-st-lbl{font-size:0.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+
+/* ─── PREMIUM FILTER CHIPS ─── */
+.ex-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px;animation:fadeUp .4s var(--ease) .1s backwards}
+.ex-toolbar .ex-search-bar{flex:1;margin-bottom:0;min-width:280px}
+
+.ex-filter-panel{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:24px;display:flex;gap:0;flex-wrap:wrap;animation:fadeUp .4s var(--ease) .15s backwards;position:relative}
+.ex-filter-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.15),transparent);border-radius:16px 16px 0 0}
+.ex-filter-section{flex:1;min-width:200px}
+.ex-filter-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ex-filter-label i{font-size:0.85rem;color:var(--cyan)}
+.ex-filter-divider{width:1px;background:var(--border);margin:0 20px;align-self:stretch}
+
+.ex-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0}
+.ex-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:0.78rem;font-weight:600;text-decoration:none;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.ex-chip::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(56,189,209,0.04),rgba(123,97,241,0.03));opacity:0;transition:opacity .25s}
+.ex-chip:hover{background:var(--glass-b);color:var(--text);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.2);border-color:rgba(255,255,255,0.08)}
+.ex-chip:hover::before{opacity:1}
+.ex-chip.is-active{background:rgba(56,189,209,0.08);border-color:rgba(56,189,209,0.25);color:var(--cyan);box-shadow:0 0 20px rgba(56,189,209,0.08)}
+.ex-chip.is-active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);border-radius:2px}
+.ex-chip i{font-size:0.9rem;transition:transform .25s var(--ease)}
+.ex-chip:hover i{transform:scale(1.15)}
+.ex-cnt{background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:6px;font-size:0.68rem;font-weight:800}
+
+/* ─── PREMIUM SEARCH BAR ─── */
+.ex-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;animation:fadeUp .4s var(--ease) .2s backwards}
+.ex-section-title{font-size:0.82rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.ex-section-title i{font-size:1.05rem;color:var(--cyan)}
+.ex-section-count{font-size:0.72rem;font-weight:600;color:var(--muted);background:var(--glass);border:1px solid var(--border);padding:4px 12px;border-radius:8px}
+
+.ex-search-bar{display:flex;gap:16px;margin-bottom:28px}
+.ex-search-wrap{flex:1;position:relative}
+.ex-search-wrap i{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:1.15rem;color:var(--muted);pointer-events:none;transition:all .3s var(--ease)}
+.ex-search-input{width:100%;background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));border:1px solid var(--border);border-radius:14px;padding:14px 18px 14px 48px;color:var(--text);font-size:0.88rem;font-family:inherit;outline:none;transition:all .35s var(--ease)}
+.ex-search-input:focus{border-color:rgba(56,189,209,0.35);box-shadow:0 0 24px rgba(56,189,209,0.08),0 0 0 1px rgba(56,189,209,0.1);background:rgba(56,189,209,0.02)}
+.ex-search-input:focus ~ i,.ex-search-wrap:focus-within i{color:var(--cyan);transform:translateY(-50%) scale(1.1)}
+.ex-search-input::placeholder{color:var(--muted)}
+.ex-search-btn{background:linear-gradient(135deg,var(--cyan),#2dd4bf);border:none;border-radius:14px;padding:14px 32px;color:#fff;font-weight:800;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.ex-search-btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.15);border-radius:50%;transform:translate(-50%,-50%);transition:width .5s,height .5s}
+.ex-search-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,189,209,0.3)}
+.ex-search-btn:hover::before{width:300px;height:300px}
+
+/* ─── PREMIUM TABLE ─── */
+.ex-table-wrap{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:18px;backdrop-filter:blur(14px);overflow:hidden;animation:fadeUp .4s var(--ease) .2s backwards;position:relative}
+.ex-table-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.2),rgba(123,97,241,0.15),transparent);pointer-events:none}
+.ex-table{width:100%;border-collapse:collapse}
+.ex-table thead{position:relative}
+.ex-table th{padding:16px 20px;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(255,255,255,0.02),rgba(255,255,255,0.005))}
+.ex-table td{padding:16px 20px;font-size:0.84rem;border-bottom:1px solid rgba(255,255,255,0.025);vertical-align:middle;transition:all .2s var(--ease)}
+.ex-table tbody tr{transition:all .25s var(--ease);position:relative}
+.ex-table tbody tr:hover td{background:rgba(56,189,209,0.015)}
+.ex-table tbody tr:hover{box-shadow:inset 3px 0 0 var(--cyan)}
+.ex-table tr:last-child td{border-bottom:none}
+
+.ex-title-cell{font-weight:700;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+.ex-table tbody tr:hover .ex-title-cell{color:var(--cyan)}
+.lvl-badge{padding:5px 14px;border-radius:8px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;transition:all .2s var(--ease);display:inline-block}
+.lvl-badge.easy{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.15)}
+.lvl-badge.medium{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.15)}
+.lvl-badge.hard{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.15)}
+.lvl-badge:hover{transform:scale(1.08);box-shadow:0 2px 10px rgba(0,0,0,0.2)}
+.mod-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:8px;font-size:0.7rem;font-weight:600;background:rgba(123,97,241,0.08);color:var(--purple);border:1px solid rgba(123,97,241,0.12);transition:all .2s}
+.mod-tag:hover{background:rgba(123,97,241,0.12);transform:scale(1.05)}
+
+/* ─── PREMIUM ACTION BUTTONS ─── */
+.ex-act{display:flex;gap:6px}
+.ex-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--glass);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s var(--ease);color:var(--muted);font-size:0.9rem;text-decoration:none;position:relative;overflow:hidden}
+.ex-btn::before{content:'';position:absolute;inset:0;border-radius:10px;opacity:0;transition:opacity .25s}
+.ex-btn:hover{background:var(--glass-b);color:var(--text);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+.ex-btn.danger::before{background:radial-gradient(circle,rgba(248,113,113,0.15),transparent)}
+.ex-btn.danger:hover{color:var(--red);border-color:rgba(248,113,113,0.25)}
+.ex-btn.danger:hover::before{opacity:1}
+.ex-btn.edit::before{background:radial-gradient(circle,rgba(56,189,209,0.15),transparent)}
+.ex-btn.edit:hover{color:var(--cyan);border-color:rgba(56,189,209,0.25)}
+.ex-btn.edit:hover::before{opacity:1}
+.ex-btn:hover i{animation:btnWiggle .4s var(--ease)}
+@keyframes btnWiggle{0%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}100%{transform:rotate(0)}}
+
+/* ─── PREMIUM MODALS ─── */
+.adm-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);z-index:9000;align-items:center;justify-content:center}
+.adm-modal-bg.show{display:flex}
+.adm-modal{background:rgba(10,16,28,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:22px;padding:32px;width:460px;max-width:90vw;box-shadow:0 32px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04),0 0 80px rgba(56,189,209,0.04);animation:modalIn .3s var(--ease);position:relative;overflow:hidden}
+.adm-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.3),rgba(123,97,241,0.2),transparent)}
+@keyframes modalIn{from{opacity:0;transform:scale(0.92) translateY(16px)}to{opacity:1;transform:none}}
+.adm-modal h3{font-size:1.15rem;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.adm-modal h3 i{color:var(--cyan);font-size:1.3rem;animation:mIconPulse 2s ease-in-out infinite}
+@keyframes mIconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.adm-modal-field{margin-bottom:14px}
+.adm-modal-field label{display:block;font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
+.adm-modal-field input,.adm-modal-field select,.adm-modal-field textarea{width:100%;padding:11px 15px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:11px;color:var(--text);font-size:0.85rem;font-family:inherit;outline:none;transition:all .25s var(--ease)}
+.adm-modal-field textarea{resize:vertical;min-height:70px}
+.adm-modal-field input:focus,.adm-modal-field select:focus,.adm-modal-field textarea:focus{border-color:rgba(56,189,209,0.35);box-shadow:0 0 16px rgba(56,189,209,0.06);background:rgba(56,189,209,0.02)}
+.adm-modal-field select option{background:#0a101c;color:var(--text)}
+.adm-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+.adm-modal-btn{padding:10px 24px;border-radius:11px;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.adm-modal-btn.cancel{background:var(--glass);border:1px solid var(--border);color:var(--muted)}
+.adm-modal-btn.cancel:hover{color:var(--text);background:var(--glass-b);transform:translateY(-1px)}
+.adm-modal-btn.save{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;box-shadow:0 4px 20px rgba(56,189,209,0.15)}
+.adm-modal-btn.save:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,189,209,0.25)}
+.adm-modal-btn.save::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transition:left .6s}
+.adm-modal-btn.save:hover::before{left:200%}
+
+/* ─── PREMIUM TOAST ─── */
+.adm-toast{position:fixed;bottom:24px;right:24px;padding:14px 24px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);border-radius:14px;color:var(--green);font-size:0.82rem;font-weight:600;z-index:9999;transform:translateY(100px);opacity:0;transition:all .4s var(--ease);backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px}
+.adm-toast::before{content:'✓';width:22px;height:22px;border-radius:50%;background:rgba(52,211,153,0.15);display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0}
+.adm-toast.show{transform:translateY(0);opacity:1}
+.adm-toast.error{background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.25);color:var(--red)}
+.adm-toast.error::before{content:'✕';background:rgba(248,113,113,0.15)}
+
+/* ─── PREMIUM EMPTY STATE ─── */
+.ex-empty{text-align:center;padding:80px 20px;color:var(--muted);position:relative}
+.ex-empty i{font-size:3rem;opacity:0.2;display:block;margin-bottom:12px;animation:emptyFloat 4s ease-in-out infinite}
+@keyframes emptyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.ex-empty p{font-size:0.88rem}
+
+/* ─── PREMIUM ADD BUTTON ─── */
+.ex-add-btn{white-space:nowrap;display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--green),var(--cyan))!important;position:relative;overflow:hidden}
+.ex-add-btn::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:addShine 4s ease-in-out infinite 2s}
+@keyframes addShine{0%{left:-100%}30%,100%{left:200%}}
+
+/* ─── FLOATING ACCENT PARTICLES ─── */
+.ex-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.ex-particle{position:absolute;border-radius:50%;opacity:0;animation:particleDrift linear infinite}
+.ex-particle:nth-child(1){width:3px;height:3px;background:var(--cyan);top:15%;left:80%;animation-duration:18s;animation-delay:0s}
+.ex-particle:nth-child(2){width:2px;height:2px;background:var(--purple);top:60%;left:90%;animation-duration:22s;animation-delay:-4s}
+.ex-particle:nth-child(3){width:4px;height:4px;background:var(--green);top:80%;left:70%;animation-duration:25s;animation-delay:-8s}
+.ex-particle:nth-child(4){width:2px;height:2px;background:var(--yellow);top:30%;left:75%;animation-duration:20s;animation-delay:-12s}
+.ex-particle:nth-child(5){width:3px;height:3px;background:var(--cyan);top:50%;left:85%;animation-duration:16s;animation-delay:-6s}
+@keyframes particleDrift{0%{transform:translate(0,0) scale(0);opacity:0}10%{opacity:.5}50%{opacity:.3}90%{opacity:.5}100%{transform:translate(-120px,-200px) scale(1.2);opacity:0}}
+
+/* ─── SCROLLBAR ─── */
+.adm-main::-webkit-scrollbar{width:6px}
+.adm-main::-webkit-scrollbar-track{background:transparent}
+.adm-main::-webkit-scrollbar-thumb{background:rgba(56,189,209,.15);border-radius:3px}
+.adm-main::-webkit-scrollbar-thumb:hover{background:rgba(56,189,209,.3)}
+
+@media(max-width:768px){.adm-side{display:none}.adm-main{margin-left:0}.ex-table-wrap{overflow-x:auto}}
+</style>
+{% endblock %}
+
+{% block body %}
+{% include 'admin/_premium.html.twig' %}
+
+<div class="adm">
+	<aside class="adm-side">
+		<div class="adm-side-head"><h2><span>Admin</span> Panel</h2><p>LearnAdapt Management</p></div>
+		<ul class="adm-nav">
+			<li><a href="{{ path('app_admin') }}"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+			<li><a href="{{ path('app_admin_users') }}"><i class='bx bxs-group'></i> Users</a></li>
+			<li><a href="{{ path('app_admin_forum') }}"><i class='bx bxs-chat'></i> Forum</a></li>
+			<li><a href="{{ path('app_admin_feedback') }}"><i class='bx bxs-star-half'></i> Feedback</a></li>
+			<li><a href="{{ path('app_admin_exercises') }}" class="is-active"><i class='bx bxs-book-content'></i> Exercises</a></li>
+			<li><a href="{{ path('app_admin_quizzes') }}"><i class='bx bxs-brain'></i> Quizzes</a></li>
+			<li><a href="{{ path('app_admin_courses') }}"><i class='bx bxs-book-alt'></i> Courses</a></li>
+			<div class="adm-nav-divider"></div>
+			<li><a href="{{ path('app_home') }}"><i class='bx bx-arrow-back'></i> Back to App</a></li>
+			<li><a href="{{ path('app_settings') }}"><i class='bx bx-cog'></i> Settings</a></li>
+		</ul>
+	</aside>
+
+	<main class="adm-main">
+		<!-- Floating accent particles -->
+		<div class="ex-particles">
+			<div class="ex-particle"></div>
+			<div class="ex-particle"></div>
+			<div class="ex-particle"></div>
+			<div class="ex-particle"></div>
+			<div class="ex-particle"></div>
+		</div>
+
+		<div class="pg-head">
+			<div>
+				<h1><span class="ex-head-gradient">Exercise Management</span></h1>
+				<p class="pg-head-sub">Manage exercises, modules, and difficulty levels</p>
+			</div>
+		</div>
+
+		<!-- Stats -->
+		<div class="ex-stats">
+			<div class="ex-st">
+				<div class="ex-st-row">
+					<div class="ex-st-icon"><i class='bx bx-collection'></i></div>
+					<div>
+						<div class="ex-st-val">{{ stats.total|default(0) }}</div>
+						<div class="ex-st-lbl">Total</div>
+					</div>
+				</div>
+			</div>
+			<div class="ex-st">
+				<div class="ex-st-row">
+					<div class="ex-st-icon"><i class='bx bx-leaf'></i></div>
+					<div>
+						<div class="ex-st-val" style="color:var(--green)">{{ stats.easy|default(0) }}</div>
+						<div class="ex-st-lbl">Easy</div>
+					</div>
+				</div>
+			</div>
+			<div class="ex-st">
+				<div class="ex-st-row">
+					<div class="ex-st-icon"><i class='bx bx-trending-up'></i></div>
+					<div>
+						<div class="ex-st-val" style="color:var(--yellow)">{{ stats.medium|default(0) }}</div>
+						<div class="ex-st-lbl">Medium</div>
+					</div>
+				</div>
+			</div>
+			<div class="ex-st">
+				<div class="ex-st-row">
+					<div class="ex-st-icon"><i class='bx bx-trophy'></i></div>
+					<div>
+						<div class="ex-st-val" style="color:var(--red)">{{ stats.hard|default(0) }}</div>
+						<div class="ex-st-lbl">Hard</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Toolbar: Search + Add -->
+		<div class="ex-toolbar">
+			<form class="ex-search-bar" method="get" action="{{ path('app_admin_exercises') }}">
+				{% if currentLevel %}<input type="hidden" name="level" value="{{ currentLevel }}">{% endif %}
+				{% if currentModule %}<input type="hidden" name="module" value="{{ currentModule }}">{% endif %}
+				<div class="ex-search-wrap">
+					<i class='bx bx-search'></i>
+					<input class="ex-search-input" type="text" name="q" value="{{ searchQuery }}" placeholder="Search exercises by title or description...">
+				</div>
+				<button class="ex-search-btn" type="submit">Search</button>
+			</form>
+			<button class="ex-search-btn ex-add-btn" onclick="openAddEx()"><i class='bx bx-plus' style="font-size:1.1rem"></i> Add Exercise</button>
+		</div>
+
+		<!-- Filters Panel -->
+		<div class="ex-filter-panel">
+			<div class="ex-filter-section">
+				<div class="ex-filter-label"><i class='bx bx-slider-alt'></i> Difficulty</div>
+				<div class="ex-filters">
+					<a href="{{ path('app_admin_exercises', currentModule ? {module: currentModule} : {}) }}" class="ex-chip {{ currentLevel == '' ? 'is-active' : '' }}">
+						<i class='bx bx-grid-alt'></i> All
+					</a>
+					<a href="{{ path('app_admin_exercises', {level: 'EASY'}|merge(currentModule ? {module: currentModule} : {})) }}" class="ex-chip {{ currentLevel == 'EASY' ? 'is-active' : '' }}">
+						<i class='bx bx-leaf'></i> Easy
+					</a>
+					<a href="{{ path('app_admin_exercises', {level: 'MEDIUM'}|merge(currentModule ? {module: currentModule} : {})) }}" class="ex-chip {{ currentLevel == 'MEDIUM' ? 'is-active' : '' }}">
+						<i class='bx bx-trending-up'></i> Medium
+					</a>
+					<a href="{{ path('app_admin_exercises', {level: 'HARD'}|merge(currentModule ? {module: currentModule} : {})) }}" class="ex-chip {{ currentLevel == 'HARD' ? 'is-active' : '' }}">
+						<i class='bx bx-trophy'></i> Hard
+					</a>
+				</div>
+			</div>
+			{% if modules|length > 0 %}
+			<div class="ex-filter-divider"></div>
+			<div class="ex-filter-section">
+				<div class="ex-filter-label"><i class='bx bx-category'></i> Module</div>
+				<div class="ex-filters">
+					<a href="{{ path('app_admin_exercises', currentLevel ? {level: currentLevel} : {}) }}" class="ex-chip {{ currentModule == '' ? 'is-active' : '' }}">
+						All Modules
+					</a>
+					{% for m in modules %}
+					<a href="{{ path('app_admin_exercises', {module: m.id}|merge(currentLevel ? {level: currentLevel} : {})) }}" class="ex-chip {{ currentModule == m.id ? 'is-active' : '' }}">
+						{{ m.name }} <span class="ex-cnt">{{ m.exercise_count }}</span>
+					</a>
+					{% endfor %}
+				</div>
+			</div>
+			{% endif %}
+		</div>
+
+		<!-- Exercise List -->
+		<div class="ex-section-head">
+			<div class="ex-section-title"><i class='bx bx-list-ul'></i> Exercise List</div>
+			<span class="ex-section-count">{{ exercises|length }} result{{ exercises|length != 1 ? 's' : '' }}</span>
+		</div>
+		{% if exercises|length > 0 %}
+		<div class="ex-table-wrap">
+			<table class="ex-table">
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Level</th>
+						<th>Module</th>
+						<th>Teacher</th>
+						<th>PDF</th>
+						<th>Created</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for ex in exercises %}
+					<tr id="ex-row-{{ ex.id }}" style="animation:fadeUp .3s var(--ease) {{ loop.index0 * 0.03 }}s backwards">
+						<td><span class="ex-title-cell">{{ ex.title }}</span></td>
+						<td><span class="lvl-badge {{ ex.level|lower }}">{{ ex.level }}</span></td>
+						<td>
+							{% if ex.module_name %}
+								<span class="mod-tag"><i class='bx bx-category'></i> {{ ex.module_name }}</span>
+							{% else %}
+								<span style="color:var(--muted);font-size:0.75rem">—</span>
+							{% endif %}
+						</td>
+						<td style="font-size:0.8rem;color:var(--muted)">{{ ex.teacher_name|default('—') }}</td>
+						<td>
+							<div class="ex-act">
+							{% if ex.pdf_path %}
+								<a href="{{ path('app_exercise_download', {id: ex.id}) }}" class="ex-btn" title="Download PDF"><i class='bx bx-download'></i></a>
+							{% endif %}
+								<button class="ex-btn edit" onclick="document.getElementById('pdf-input-{{ ex.id }}').click()" title="{{ ex.pdf_path ? 'Replace PDF' : 'Upload PDF' }}"><i class='bx bx-upload'></i></button>
+								<input type="file" id="pdf-input-{{ ex.id }}" accept=".pdf" style="display:none" onchange="uploadPdf({{ ex.id }},this)">
+							</div>
+						</td>
+						<td style="font-size:0.78rem;color:var(--muted)">{{ ex.created_at|date('M d, Y') }}</td>
+						<td>
+							<div class="ex-act">
+								<button class="ex-btn edit" onclick="openEditEx({{ ex.id }},'{{ ex.title|e('js') }}','{{ ex.description|default('')|e('js') }}','{{ ex.level }}',{{ ex.module_id|default('null') }})" title="Edit"><i class='bx bx-edit-alt'></i></button>
+								<button class="ex-btn danger" onclick="deleteExercise({{ ex.id }},'{{ ex.title|e('js') }}')" title="Delete"><i class='bx bx-trash'></i></button>
+							</div>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		{% else %}
+		<div class="ex-empty">
+			<i class='bx bx-search-alt'></i>
+			<p>No exercises found matching your criteria</p>
+		</div>
+		{% endif %}
+	</main>
+</div>
+
+<div class="adm-toast" id="admToast"></div>
+
+<!-- Edit Exercise Modal -->
+<div class="adm-modal-bg" id="editExModal" onclick="if(event.target===this)closeEditEx()">
+	<div class="adm-modal">
+		<h3><i class='bx bx-edit-alt'></i> Edit Exercise</h3>
+		<input type="hidden" id="editExId">
+		<div class="adm-modal-field">
+			<label>Title</label>
+			<input type="text" id="editExTitle">
+		</div>
+		<div class="adm-modal-field">
+			<label>Description</label>
+			<textarea id="editExDesc"></textarea>
+		</div>
+		<div class="adm-modal-field">
+			<label>Level</label>
+			<select id="editExLevel">
+				<option value="EASY">EASY</option>
+				<option value="MEDIUM">MEDIUM</option>
+				<option value="HARD">HARD</option>
+			</select>
+		</div>
+		<div class="adm-modal-field">
+			<label>Module</label>
+			<select id="editExModule">
+				<option value="">— No module —</option>
+				{% for mod in modules %}
+				<option value="{{ mod.id }}">{{ mod.name }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="adm-modal-actions">
+			<button class="adm-modal-btn cancel" onclick="closeEditEx()">Cancel</button>
+			<button class="adm-modal-btn save" onclick="saveEditEx()">Save Changes</button>
+		</div>
+	</div>
+</div>
+
+<!-- Add Exercise Modal -->
+<div class="adm-modal-bg" id="addExModal" onclick="if(event.target===this)closeAddEx()">
+	<div class="adm-modal">
+		<h3><i class='bx bx-plus-circle'></i> Add Exercise</h3>
+		<div class="adm-modal-field">
+			<label>Title</label>
+			<input type="text" id="addExTitle" placeholder="Exercise title...">
+		</div>
+		<div class="adm-modal-field">
+			<label>Description</label>
+			<textarea id="addExDesc" placeholder="Brief description..."></textarea>
+		</div>
+		<div class="adm-modal-field">
+			<label>Level</label>
+			<select id="addExLevel">
+				<option value="EASY">EASY</option>
+				<option value="MEDIUM">MEDIUM</option>
+				<option value="HARD">HARD</option>
+			</select>
+		</div>
+		<div class="adm-modal-field">
+			<label>Module</label>
+			<select id="addExModule">
+				<option value="">— No module —</option>
+				{% for mod in modules %}
+				<option value="{{ mod.id }}">{{ mod.name }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="adm-modal-field">
+			<label>PDF File</label>
+			<input type="file" id="addExPdf" accept=".pdf" style="padding:8px">
+		</div>
+		<div class="adm-modal-actions">
+			<button class="adm-modal-btn cancel" onclick="closeAddEx()">Cancel</button>
+			<button class="adm-modal-btn save" onclick="saveAddEx()">Create Exercise</button>
+		</div>
+	</div>
+</div>
+
+<script>
+function showToast(m,e=false){const t=document.getElementById('admToast');t.textContent=m;t.className='adm-toast'+(e?' error':'')+' show';setTimeout(()=>t.classList.remove('show'),3000)}
+function deleteExercise(id,title){
+	if(!confirm('Delete exercise "'+title+'"?'))return;
+	fetch('/admin/exercises/'+id+'/delete',{method:'POST'}).then(r=>r.json()).then(d=>{
+		if(d.success){document.getElementById('ex-row-'+id).remove();showToast('Exercise deleted')}
+		else showToast(d.error||'Error',true)
+	}).catch(()=>showToast('Network error',true));
+}
+function openEditEx(id,title,desc,level,moduleId){
+	document.getElementById('editExId').value=id;
+	document.getElementById('editExTitle').value=title;
+	document.getElementById('editExDesc').value=desc;
+	document.getElementById('editExLevel').value=level;
+	document.getElementById('editExModule').value=moduleId||'';
+	document.getElementById('editExModal').classList.add('show');
+}
+function closeEditEx(){document.getElementById('editExModal').classList.remove('show')}
+function saveEditEx(){
+	const id=document.getElementById('editExId').value;
+	const data={title:document.getElementById('editExTitle').value,description:document.getElementById('editExDesc').value,level:document.getElementById('editExLevel').value,module_id:document.getElementById('editExModule').value||null};
+	fetch('/admin/exercises/'+id+'/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){closeEditEx();showToast('Exercise updated');setTimeout(()=>location.reload(),600)}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+function uploadPdf(id,input){
+	if(!input.files[0])return;
+	const fd=new FormData();fd.append('pdf',input.files[0]);
+	showToast('Uploading PDF...');
+	fetch('/admin/exercises/'+id+'/upload-pdf',{method:'POST',body:fd})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){showToast('PDF uploaded: '+d.filename);setTimeout(()=>location.reload(),800)}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+function openAddEx(){document.getElementById('addExModal').classList.add('show')}
+function closeAddEx(){document.getElementById('addExModal').classList.remove('show')}
+function saveAddEx(){
+	const title=document.getElementById('addExTitle').value;
+	if(!title.trim()){showToast('Title is required',true);return}
+	const fd=new FormData();
+	fd.append('title',title);
+	fd.append('description',document.getElementById('addExDesc').value);
+	fd.append('level',document.getElementById('addExLevel').value);
+	fd.append('module_id',document.getElementById('addExModule').value);
+	const pdf=document.getElementById('addExPdf').files[0];
+	if(pdf)fd.append('pdf',pdf);
+	showToast('Creating exercise...');
+	fetch('/admin/exercises/create',{method:'POST',body:fd})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){closeAddEx();showToast('Exercise created');setTimeout(()=>location.reload(),600)}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+</script>
+{% endblock %}

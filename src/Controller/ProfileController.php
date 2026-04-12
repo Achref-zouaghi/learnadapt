@@ -9,6 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ProfileController extends AbstractController
 {
@@ -19,6 +21,7 @@ class ProfileController extends AbstractController
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly HttpClientInterface $httpClient,
     ) {
     }
 
@@ -99,7 +102,7 @@ class ProfileController extends AbstractController
 
         // Unread notifications
         $unreadNotifications = $conn->fetchAllAssociative(
-            'SELECT id, type, title, message, created_at FROM notifications WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC LIMIT 10',
+            'SELECT id, type, title, message, created_at, related_topic_id FROM notifications WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC LIMIT 10',
             [$userId]
         );
         $unreadCount = count($unreadNotifications);
@@ -116,7 +119,62 @@ class ProfileController extends AbstractController
             'courses' => $courses,
             'unreadNotifications' => $unreadNotifications,
             'unreadCount' => $unreadCount,
+            'profileShareUrl' => $this->generateUrl('app_profile', [], UrlGeneratorInterface::ABSOLUTE_URL),
         ]);
+    }
+
+    #[Route('/profile/qr-code', name: 'app_profile_qr', methods: ['GET'])]
+    public function qrCode(Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+
+        if (!$user instanceof User) {
+            return new Response('', Response::HTTP_UNAUTHORIZED);
+        }
+
+        $size = max(160, min(800, $request->query->getInt('size', 220)));
+        $profileUrl = $this->generateUrl('app_profile', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        foreach ($this->getQrProviderUrls($profileUrl, $size) as $remoteUrl) {
+            try {
+                $remoteResponse = $this->httpClient->request('GET', $remoteUrl, [
+                    'timeout' => 10,
+                ]);
+
+                if ($remoteResponse->getStatusCode() !== Response::HTTP_OK) {
+                    continue;
+                }
+
+                $content = $remoteResponse->getContent(false);
+
+                if ($content === '') {
+                    continue;
+                }
+
+                $response = new Response($content, Response::HTTP_OK, [
+                    'Content-Type' => 'image/png',
+                    'Cache-Control' => 'private, max-age=3600',
+                ]);
+
+                if ($request->query->getBoolean('download')) {
+                    $response->headers->set('Content-Disposition', 'attachment; filename="learnadapt-profile-qr.png"');
+                }
+
+                return $response;
+            } catch (\Throwable) {
+                continue;
+            }
+        }
+
+        return new Response(
+            sprintf(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="%1$d" height="%1$d" viewBox="0 0 %1$d %1$d"><rect width="%1$d" height="%1$d" rx="18" fill="#0f121c"/><rect x="14" y="14" width="%2$d" height="%2$d" rx="10" fill="#ffffff"/><text x="50%%" y="50%%" fill="#0f121c" font-family="Arial, sans-serif" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="middle">QR unavailable</text></svg>',
+                $size,
+                $size - 28,
+            ),
+            Response::HTTP_SERVICE_UNAVAILABLE,
+            ['Content-Type' => 'image/svg+xml']
+        );
     }
 
     #[Route('/profile/upload-avatar', name: 'app_profile_upload_avatar', methods: ['POST'])]
@@ -228,5 +286,13 @@ class ProfileController extends AbstractController
         }
 
         return $this->userRepository->find((int) $auth['id']);
+    }
+
+    private function getQrProviderUrls(string $profileUrl, int $size): array
+    {
+        return [
+            'https://quickchart.io/qr?text=' . rawurlencode($profileUrl) . '&size=' . $size . '&margin=1&ecLevel=M',
+            'https://api.qrserver.com/v1/create-qr-code/?size=' . $size . 'x' . $size . '&data=' . rawurlencode($profileUrl),
+        ];
     }
 }

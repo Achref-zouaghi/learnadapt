@@ -39,31 +39,17 @@
 	}
 	.page-brand {
 		position: fixed; top: 20px; left: 32px; z-index: 1001;
-		display: inline-flex; align-items: center; gap: 16px;
+		display: inline-flex; align-items: center; gap: 0;
 		text-decoration: none; padding: 0; background: transparent; border: 0; box-shadow: none;
 		transition: transform 0.2s var(--ease), opacity 0.2s ease;
 	}
 	.page-brand:hover { transform: translateY(-2px); opacity: 0.95; }
-	.page-brand-mark {
-		width: 74px; height: 74px; display: inline-flex; align-items: center; justify-content: center;
-		background: transparent; border: 0; box-shadow: none; flex-shrink: 0;
+	.page-brand-logo {
+		display: block;
+		width: min(248px, 38vw);
+		height: auto;
+		filter: drop-shadow(0 10px 26px rgba(8, 15, 35, 0.4));
 	}
-	.page-brand-text { display: flex; flex-direction: column; line-height: 1.05; }
-	.page-brand-kicker {
-		font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
-		text-transform: uppercase; color: rgba(148,163,184,0.74);
-	}
-	.page-brand-name {
-		font-size: clamp(1.45rem, 1.2vw, 1.95rem); font-weight: 800; letter-spacing: -0.02em;
-		background: linear-gradient(135deg, #a78bfa, #22d3ee);
-		-webkit-background-clip: text; background-clip: text;
-		-webkit-text-fill-color: transparent;
-		text-shadow: 0 0 16px rgba(124,58,237,0.12);
-	}
-	.page-brand .learnadapt-mark { gap: 3px; }
-	.page-brand .learnadapt-mark .wire { height: 30px; width: 2px; }
-	.page-brand .learnadapt-mark .wire::before { bottom: -8px; width: 12px; height: 9px; }
-	.page-brand .learnadapt-mark .wire::after { bottom: -22px; width: 15px; height: 15px; }
 	.nav-inner { width: 100%; display: flex; align-items: center; justify-content: center; }
 	.nav-menu-shell {
 		display: flex; align-items: center; gap: 14px; padding: 9px 13px; border-radius: 12px;
@@ -238,12 +224,13 @@
 		position: relative; display: inline-flex; align-items: center;
 		width: 40px; height: 40px; border-radius: 10px;
 		background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-		overflow: hidden; backdrop-filter: blur(14px);
+		overflow: visible; backdrop-filter: blur(14px);
 		transition: width 0.35s var(--ease), border-color 0.2s ease, background 0.2s ease;
 	}
 	.top-search-form:focus-within {
-		width: 220px; border-color: rgba(123,97,241,0.35);
+		width: 280px; border-color: rgba(123,97,241,0.35);
 		background: rgba(255,255,255,0.06);
+		overflow: visible;
 	}
 	.top-search-input {
 		width: 100%; height: 100%; border: none; outline: none;
@@ -263,15 +250,20 @@
 	.top-search-btn:hover { color: #e2e8f0; }
 	.top-search-btn svg { width: 16px; height: 16px; }
 	.top-search-dropdown {
-		position: absolute; top: calc(100% + 8px); right: 0; width: 260px;
-		border-radius: 12px; overflow: hidden; z-index: 1200;
+		position: absolute; top: calc(100% + 8px); right: 0; width: 340px;
+		max-height: 400px; overflow-y: auto;
+		border-radius: 12px; z-index: 1200;
 		background: linear-gradient(180deg, rgba(17,21,33,0.98), rgba(10,13,23,0.98));
 		border: 1px solid rgba(255,255,255,0.12);
 		box-shadow: 0 20px 50px rgba(0,0,0,0.6); backdrop-filter: blur(16px);
 		opacity: 0; visibility: hidden; transform: translateY(8px);
 		transition: opacity 0.2s ease, transform 0.2s var(--ease), visibility 0.2s ease;
 	}
-	.top-search-form:focus-within .top-search-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+	.top-search-dropdown::-webkit-scrollbar { width: 6px; }
+	.top-search-dropdown::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.28); border-radius: 999px; }
+	.top-search-dropdown::-webkit-scrollbar-track { background: transparent; }
+	.top-search-form:focus-within .top-search-dropdown,
+	.top-search-dropdown.is-open { opacity: 1; visibility: visible; transform: translateY(0); }
 	.top-search-suggestion {
 		display: flex; align-items: center; gap: 10px; padding: 10px 14px;
 		font-size: 0.8rem; color: #94a3b8; cursor: pointer;
@@ -295,6 +287,102 @@
 		width: 18px; height: 18px; fill: none; stroke: currentColor;
 		stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
 	}
+
+	/* ── Friend Requests Button (matches top-action-btn) ── */
+	.nav-friends-btn {
+		position: relative; display: inline-flex; align-items: center; justify-content: center;
+		width: 40px; height: 40px; border-radius: 10px;
+		background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+		color: #cbd5e1; cursor: pointer; text-decoration: none;
+		transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s var(--ease);
+		backdrop-filter: blur(14px);
+	}
+	.nav-friends-btn:hover {
+		color: #e2e8f0; border-color: rgba(148,163,184,0.3);
+		transform: translateY(-1px); background: rgba(255,255,255,0.06);
+	}
+	.nav-friends-btn:active { transform: translateY(0) scale(0.97); }
+	.nav-friends-btn svg {
+		width: 18px; height: 18px; fill: none; stroke: currentColor;
+		stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+	}
+
+	/* ── Friend Requests Button & Panel ── */
+	.nav-friends-badge {
+		position: absolute; top: 6px; right: 6px; min-width: 14px; height: 14px;
+		padding: 0 3px; border-radius: 999px;
+		display: inline-flex; align-items: center; justify-content: center;
+		font-size: 0.6rem; font-weight: 700; line-height: 1; color: #fff;
+		background: linear-gradient(135deg, #fbbf24, #f472b6);
+		border: 1px solid rgba(255,255,255,0.22);
+		box-shadow: 0 0 10px rgba(245,158,11,0.42);
+		animation: notifBadgePulse 2.2s ease-in-out infinite;
+	}
+	.nav-friends-panel {
+		position: absolute; top: calc(100% + 10px); right: 0; width: min(92vw, 360px);
+		border-radius: 16px; overflow: hidden;
+		background: radial-gradient(120% 120% at 100% 0%, rgba(245,158,11,0.08), transparent 38%), linear-gradient(180deg, rgba(17,21,33,0.98), rgba(10,13,23,0.98));
+		border: 1px solid rgba(255,255,255,0.12);
+		box-shadow: 0 24px 58px rgba(0,0,0,0.6), 0 0 0 1px rgba(245,158,11,0.08), 0 0 28px rgba(245,158,11,0.12);
+		backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+		opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.98);
+		transform-origin: top right;
+		transition: opacity 0.22s ease, transform 0.22s var(--ease), visibility 0.22s ease;
+		z-index: 1200;
+	}
+	.nav-friends-panel.is-open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+	.nav-friends-panel::before {
+		content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+		background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+		pointer-events: none;
+	}
+	.nav-friends-head {
+		display: flex; align-items: center; justify-content: space-between;
+		padding: 14px 14px 10px; border-bottom: 1px solid rgba(255,255,255,0.08);
+	}
+	.nav-friends-title { font-size: 0.95rem; font-weight: 700; color: #f8fafc; }
+	.nav-friends-list { list-style: none; max-height: 340px; overflow-y: auto; margin: 0; padding: 0; }
+	.nav-friends-list::-webkit-scrollbar { width: 8px; }
+	.nav-friends-list::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.28); border-radius: 999px; }
+	.nav-friends-list::-webkit-scrollbar-track { background: transparent; }
+	.nav-friends-empty { padding: 24px; text-align: center; color: #64748b; font-size: 0.84rem; }
+	.nav-fr-item {
+		display: flex; align-items: center; gap: 10px;
+		padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,0.06);
+		transition: background 0.2s ease;
+	}
+	.nav-fr-item:hover { background: rgba(255,255,255,0.04); }
+	.nav-fr-item:last-child { border-bottom: 0; }
+	.nav-fr-avatar {
+		width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+		display: inline-flex; align-items: center; justify-content: center;
+		font-size: 1rem; font-weight: 700; color: #f8fafc;
+		background: linear-gradient(135deg, rgba(123,97,241,0.3), rgba(56,189,209,0.3));
+		border: 1px solid rgba(255,255,255,0.14); overflow: hidden;
+	}
+	.nav-fr-avatar img { width: 100%; height: 100%; object-fit: cover; }
+	.nav-fr-info { flex: 1; min-width: 0; }
+	.nav-fr-name { font-size: 0.85rem; font-weight: 600; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	.nav-fr-role {
+		display: inline-flex; align-items: center; gap: 3px;
+		font-size: 0.68rem; font-weight: 600; padding: 2px 7px; border-radius: 999px; margin-top: 2px;
+	}
+	.nav-fr-role.role-student { background: rgba(34,211,238,0.15); color: #22d3ee; }
+	.nav-fr-role.role-expert { background: rgba(250,204,21,0.15); color: #facc15; }
+	.nav-fr-role.role-teacher { background: rgba(168,85,247,0.15); color: #a855f7; }
+	.nav-fr-role.role-admin { background: rgba(239,68,68,0.15); color: #ef4444; }
+	.nav-fr-role.role-default { background: rgba(148,163,184,0.15); color: #94a3b8; }
+	.nav-fr-actions { display: flex; gap: 6px; flex-shrink: 0; }
+	.nav-fr-accept, .nav-fr-decline {
+		display: inline-flex; align-items: center; justify-content: center;
+		width: 30px; height: 30px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+		cursor: pointer; font-size: 0.82rem; transition: all 0.2s ease;
+	}
+	.nav-fr-accept { background: rgba(34,197,94,0.15); color: #22c55e; }
+	.nav-fr-accept:hover { background: rgba(34,197,94,0.3); transform: scale(1.08); }
+	.nav-fr-decline { background: rgba(239,68,68,0.15); color: #ef4444; }
+	.nav-fr-decline:hover { background: rgba(239,68,68,0.3); transform: scale(1.08); }
+
 	.nav-notifications { position: relative; display: inline-flex; }
 	.nav-notif-btn {
 		position: relative; display: inline-flex; align-items: center; justify-content: center;
@@ -530,6 +618,8 @@
 	.nav-links li:nth-child(4) { animation-delay: 0.16s; }
 	.nav-links li:nth-child(5) { animation-delay: 0.24s; }
 	.nav-links li:nth-child(6) { animation-delay: 0.32s; }
+	.nav-links li:nth-child(7) { animation-delay: 0.40s; }
+	.nav-links li:nth-child(8) { animation-delay: 0.48s; }
 	@keyframes navLinkStagger { to { opacity: 1; transform: translateY(0); } }
 	.nav-right { opacity: 0; animation: navRightFade 0.55s var(--ease) 0.3s forwards; }
 	@keyframes navRightFade { to { opacity: 1; } }
@@ -698,23 +788,16 @@
 
 	/* ── RESPONSIVE NAVBAR ── */
 	@media (max-width: 980px) {
-		.page-brand { left: 20px; top: 18px; gap: 10px; }
-		.page-brand-kicker { display: none; }
-		.page-brand-mark { width: 56px; height: 56px; }
-		.page-brand-name { font-size: 1.15rem; }
-		.page-brand .learnadapt-mark .wire { height: 24px; }
-		.page-brand .learnadapt-mark .wire::after { bottom: -18px; width: 13px; height: 13px; }
+		.page-brand { left: 20px; top: 18px; }
+		.page-brand-logo { width: min(220px, 44vw); }
 		.nav { padding: 0 20px; }
 		.nav-menu-shell { width: min(760px, 100%); justify-content: center; padding: 10px 12px; }
 		.nav-links { display: none; }
 		.nav-search:focus-within { width: 180px; }
 	}
 	@media (max-width: 640px) {
-		.page-brand { left: 14px; top: 14px; padding: 0; gap: 6px; }
-		.page-brand-mark { width: 44px; height: 44px; }
-		.page-brand-name { font-size: 1rem; max-width: 108px; overflow: hidden; text-overflow: ellipsis; }
-		.page-brand .learnadapt-mark .wire { height: 20px; }
-		.page-brand .learnadapt-mark .wire::after { bottom: -15px; width: 11px; height: 11px; }
+		.page-brand { left: 14px; top: 14px; padding: 0; }
+		.page-brand-logo { width: min(184px, 48vw); }
 		.nav { padding: 0 14px; height: 70px; }
 		.nav-menu-shell { padding: 9px 10px; gap: 8px; border-radius: 14px; justify-content: center; }
 		.nav-right { padding-left: 8px; }
@@ -728,19 +811,7 @@
 
 <!-- BRAND -->
 <a href="{{ path('app_home') }}" class="page-brand" aria-label="LearnAdapt home">
-	<span class="page-brand-mark" aria-hidden="true">
-		<span class="learnadapt-mark is-large" aria-hidden="true">
-			<span class="wire left"></span>
-			<span class="wire"></span>
-			<span class="wire is-glow"></span>
-			<span class="wire"></span>
-			<span class="wire right"></span>
-		</span>
-	</span>
-	<span class="page-brand-text">
-		<span class="page-brand-kicker">Adaptive Learning</span>
-		<span class="page-brand-name">LearnAdapt</span>
-	</span>
+	<img src="/brand/learnadapt-premium-logo.svg" alt="LearnAdapt" class="page-brand-logo">
 </a>
 
 <!-- NAVBAR -->
@@ -794,14 +865,12 @@
 				<li><a href="{{ path('app_profile') }}" class="{{ currentRoute == 'app_profile' ? 'is-active' : '' }}">{{ 'nav.profile'|trans }}<span class="nav-link-underline"></span></a></li>
 				<li><a href="{{ path('app_taskboard') }}" class="{{ currentRoute == 'app_taskboard' ? 'is-active' : '' }}">{{ 'nav.taskboard'|trans }}<span class="nav-link-underline"></span></a></li>
 				<li><a href="{{ path('app_forum') }}" class="{{ currentRoute starts with 'app_forum' ? 'is-active' : '' }}">{{ 'nav.forum'|trans }}<span class="nav-link-underline"></span></a></li>
+				<li><a href="{{ path('app_exercises') }}" class="{{ currentRoute == 'app_exercises' ? 'is-active' : '' }}">{{ 'nav.exercises'|trans }}<span class="nav-link-underline"></span></a></li>
+				<li><a href="{{ path('app_courses') }}" class="{{ currentRoute == 'app_courses' ? 'is-active' : '' }}">{{ 'nav.courses'|trans }}<span class="nav-link-underline"></span></a></li>
+				<li><a href="{{ path('app_quizzes') }}" class="{{ currentRoute starts with 'app_quiz' ? 'is-active' : '' }}">{{ 'nav.quizzes'|trans }}<span class="nav-link-underline"></span></a></li>
 				<li><a href="{{ path('app_feedback') }}" class="{{ currentRoute == 'app_feedback' ? 'is-active' : '' }}">Feedback<span class="nav-link-underline"></span></a></li>
-				<li><a href="#">Blog<span class="nav-link-underline"></span></a></li>
 			</ul>
 			<div class="nav-right">
-				<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
-					<svg viewBox="0 0 20 20" fill="currentColor" class="sun-icon"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/></svg>
-				</button>
-				<button class="sound-toggle" id="soundToggle" type="button" aria-label="Toggle notification sounds" title="Toggle sounds">🔔</button>
 				{% if not navUser %}<a href="{{ path('app_login') }}" class="nav-cta">Log In</a>{% endif %}
 			</div>
 		</div>
@@ -810,18 +879,31 @@
 
 <!-- TOP-RIGHT ACTIONS (fixed) -->
 <div class="page-top-actions">
-	<form class="top-search-form" action="#" role="search">
-		<input class="top-search-input" type="text" placeholder="Search courses" aria-label="Search courses" autocomplete="off">
+	<form class="top-search-form" action="#" role="search" autocomplete="off">
+		<input class="top-search-input" id="topPeopleSearch" type="text" placeholder="Search people..." aria-label="Search people" autocomplete="off">
 		<button class="top-search-btn" type="submit" aria-label="Search">
 			<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
 		</button>
-		<div class="top-search-dropdown">
-			<div class="top-search-suggestion" data-href="{{ path('app_home') }}#features"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>AI Adaptive Learning</div>
-			<div class="top-search-suggestion" data-href="{{ path('app_home') }}#features"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Machine Learning Basics</div>
-			<div class="top-search-suggestion" data-href="{{ path('app_home') }}#pricing"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Data Science Bootcamp</div>
-			<div class="top-search-suggestion" data-href="{{ path('app_home') }}#features"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Python for Beginners</div>
+		<div class="top-search-dropdown" id="topPeopleResults">
+			<div class="top-search-hint" style="padding:14px;color:#64748b;font-size:0.82rem;text-align:center;">Type a name to search for people</div>
 		</div>
 	</form>
+	<!-- FRIEND REQUESTS -->
+	<div class="nav-friends" style="position:relative;display:inline-flex;">
+		   <button class="nav-friends-btn" id="navFriendsBtn" type="button" title="Friend Requests" aria-expanded="false">
+			   <span class="nav-friends-ripple" aria-hidden="true"></span>
+			   <svg viewBox="0 0 24 24" id="navFriendsIcon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+			   <span class="nav-friends-badge" id="navFriendsBadge" style="display:none;" aria-hidden="true">0</span>
+		   </button>
+		<div class="nav-friends-panel" id="navFriendsPanel">
+			<div class="nav-friends-head">
+				<div class="nav-friends-title">Friend Requests</div>
+			</div>
+			<ul class="nav-friends-list" id="navFriendsList">
+				<li class="nav-friends-empty">No pending requests</li>
+			</ul>
+		</div>
+	</div>
 	<a href="{{ path('app_settings') }}" class="top-action-btn" title="Settings">
 		<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
 	</a>
@@ -848,10 +930,10 @@
 			<ul class="nav-notif-list">
 				{% if unreadNotifications|default([])|length > 0 %}
 					{% for notif in unreadNotifications|default([]) %}
-					<li class="nav-notif-item" data-notif-category="inbox" data-unread="true">
+					<li class="nav-notif-item" data-notif-category="inbox" data-unread="true" {% if notif.type == 'PRIVATE_MESSAGE' and notif.related_topic_id %}data-chat-user-id="{{ notif.related_topic_id }}"{% endif %}>
 						<a href="{{ path('app_notification_read', {id: notif.id}) }}" class="nav-notif-link" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;width:100%">
 							<span class="nav-notif-avatar" aria-hidden="true">
-								{% if notif.type == 'TASK_OVERDUE' %}⚠️{% elseif notif.type == 'TASK_DUE_TODAY' %}⏰{% elseif notif.type == 'quiz' %}🧠{% elseif notif.type == 'forum' %}💬{% else %}🔔{% endif %}
+								{% if notif.type == 'PRIVATE_MESSAGE' %}💬{% elseif notif.type == 'TASK_OVERDUE' %}⚠️{% elseif notif.type == 'TASK_DUE_TODAY' %}⏰{% elseif notif.type == 'quiz' %}🧠{% elseif notif.type == 'forum' %}💬{% else %}🔔{% endif %}
 							</span>
 							<div class="nav-notif-text">
 								<p><strong>{{ notif.title }}</strong></p>
@@ -983,8 +1065,142 @@
 		document.addEventListener('click', closeNotifPanel);
 		document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeNotifPanel(); });
 		setNotifTab('inbox');
+
+		/* ── Click on PRIVATE_MESSAGE notification → open chat ── */
+		navNotifItems.forEach(function(item) {
+			var chatUserId = item.dataset.chatUserId;
+			if (chatUserId) {
+				item.addEventListener('click', function(e) {
+					e.preventDefault();
+					e.stopPropagation();
+					/* Mark as read via the existing link */
+					var link = item.querySelector('.nav-notif-link');
+					if (link) {
+						fetch(link.href, {credentials:'same-origin'}).catch(function(){});
+					}
+					/* Update UI to mark as read */
+					item.dataset.unread = 'false';
+					var dot = item.querySelector('.nav-notif-dot');
+					if (dot) dot.classList.add('is-read');
+					updateNotifBadge();
+					closeNotifPanel();
+					/* Open chat with sender */
+					if (typeof window.openChatWithUser === 'function') {
+						window.openChatWithUser(parseInt(chatUserId));
+					}
+				});
+			}
+		});
 		updateNotifBadge();
 	}
+
+	/* ── FRIEND REQUESTS PANEL ── */
+	(function() {
+		var frBtn = document.getElementById('navFriendsBtn');
+		var frPanel = document.getElementById('navFriendsPanel');
+		var frList = document.getElementById('navFriendsList');
+		var frBadge = document.getElementById('navFriendsBadge');
+		if (!frBtn || !frPanel) return;
+
+		function roleClass(role) {
+			if (!role) return 'role-default';
+			var r = role.toLowerCase();
+			if (r === 'student') return 'role-student';
+			if (r === 'expert') return 'role-expert';
+			if (r === 'teacher') return 'role-teacher';
+			if (r === 'admin') return 'role-admin';
+			return 'role-default';
+		}
+		function roleIcon(role) {
+			if (!role) return 'person';
+			var r = role.toLowerCase();
+			if (r === 'student') return 'school';
+			if (r === 'expert') return 'workspace_premium';
+			if (r === 'teacher') return 'menu_book';
+			if (r === 'admin') return 'shield';
+			return 'person';
+		}
+		function avatarHtml(req) {
+			if (req.avatar_base64) return '<img src="' + req.avatar_base64 + '" alt="">';
+			var name = req.full_name || '?';
+			return name.charAt(0).toUpperCase();
+		}
+
+		function loadFriendRequests() {
+			fetch('{{ path("app_friend_requests") }}')
+				.then(function(r) { return r.json(); })
+				.then(function(data) {
+					var reqs = data.requests || [];
+					if (frBadge) {
+						if (reqs.length > 0) {
+							frBadge.textContent = reqs.length;
+							frBadge.style.display = '';
+						} else {
+							frBadge.style.display = 'none';
+						}
+					}
+					if (reqs.length === 0) {
+						frList.innerHTML = '<li class="nav-friends-empty">No pending requests</li>';
+						return;
+					}
+					var html = '';
+					reqs.forEach(function(req) {
+						html += '<li class="nav-fr-item" data-id="' + req.id + '">'
+							+ '<div class="nav-fr-avatar">' + avatarHtml(req) + '</div>'
+							+ '<div class="nav-fr-info">'
+							+ '<div class="nav-fr-name">' + (req.full_name || 'Unknown') + '</div>'
+							+ '<span class="nav-fr-role ' + roleClass(req.role) + '"><span class="material-icons" style="font-size:11px">' + roleIcon(req.role) + '</span> ' + (req.role || 'User') + '</span>'
+							+ '</div>'
+							+ '<div class="nav-fr-actions">'
+							+ '<button class="nav-fr-accept" title="Accept" onclick="friendAction(\'accept\',' + req.id + ',this)"><span class="material-icons" style="font-size:16px">check</span></button>'
+							+ '<button class="nav-fr-decline" title="Decline" onclick="friendAction(\'decline\',' + req.id + ',this)"><span class="material-icons" style="font-size:16px">close</span></button>'
+							+ '</div></li>';
+					});
+					frList.innerHTML = html;
+				}).catch(function() {});
+		}
+
+		window.friendAction = function(action, reqId, btn) {
+			var url = action === 'accept' ? '/friends/accept/' + reqId : '/friends/decline/' + reqId;
+			fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+				.then(function(r) { return r.json(); })
+				.then(function(data) {
+					if (data.success) {
+						var item = btn.closest('.nav-fr-item');
+						if (item) {
+							item.style.transition = 'opacity 0.3s, transform 0.3s';
+							item.style.opacity = '0';
+							item.style.transform = 'translateX(' + (action === 'accept' ? '20px' : '-20px') + ')';
+							setTimeout(function() {
+								item.remove();
+								var remaining = frList.querySelectorAll('.nav-fr-item').length;
+								if (remaining === 0) {
+									frList.innerHTML = '<li class="nav-friends-empty">No pending requests</li>';
+								}
+								if (frBadge) {
+									if (remaining > 0) { frBadge.textContent = remaining; }
+									else { frBadge.style.display = 'none'; }
+								}
+							}, 300);
+						}
+					}
+				}).catch(function() {});
+		};
+
+		var closeFrPanel = function() { frPanel.classList.remove('is-open'); frBtn.setAttribute('aria-expanded', 'false'); };
+		var openFrPanel = function() { frPanel.classList.add('is-open'); frBtn.setAttribute('aria-expanded', 'true'); loadFriendRequests(); };
+
+		frBtn.addEventListener('click', function(e) {
+			e.stopPropagation();
+			if (frPanel.classList.contains('is-open')) { closeFrPanel(); } else { openFrPanel(); }
+		});
+		frPanel.addEventListener('click', function(e) { e.stopPropagation(); });
+		document.addEventListener('click', closeFrPanel);
+		document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeFrPanel(); });
+
+		// Load badge count on page load
+		loadFriendRequests();
+	})();
 
 	/* ── N1. MAGNETIC NAV LINKS ── */
 	document.querySelectorAll('.nav-links a').forEach(function(link) {
@@ -1024,28 +1240,102 @@
 		});
 	});
 
-	/* ── N12. TOP SEARCH LIVE SUGGESTIONS ── */
+	/* ── N12. TOP SEARCH — PEOPLE SEARCH ── */
 	(function() {
 		var searchForm = document.querySelector('.top-search-form');
 		if (!searchForm) return;
-		var input = searchForm.querySelector('.top-search-input');
-		var suggestions = searchForm.querySelectorAll('.top-search-suggestion');
-		if (!input || !suggestions.length) return;
+		var input = document.getElementById('topPeopleSearch');
+		var dropdown = document.getElementById('topPeopleResults');
+		if (!input || !dropdown) return;
+		var timer = null;
+
+		function roleClass(role) {
+			if (!role) return 'role-default';
+			var r = role.toLowerCase();
+			if (r === 'student') return 'role-student';
+			if (r === 'expert') return 'role-expert';
+			if (r === 'teacher') return 'role-teacher';
+			if (r === 'admin') return 'role-admin';
+			return 'role-default';
+		}
+		function roleIcon(role) {
+			if (!role) return 'person';
+			var r = role.toLowerCase();
+			if (r === 'student') return 'school';
+			if (r === 'expert') return 'workspace_premium';
+			if (r === 'teacher') return 'menu_book';
+			if (r === 'admin') return 'shield';
+			return 'person';
+		}
+		function avatarHtml(u) {
+			if (u.avatar_base64) return '<img src="' + u.avatar_base64 + '" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">';
+			var name = u.full_name || '?';
+			return '<span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,rgba(123,97,241,0.3),rgba(56,189,209,0.3));font-weight:700;font-size:0.85rem;color:#f8fafc;">' + name.charAt(0).toUpperCase() + '</span>';
+		}
+		function friendBtnHtml(u) {
+			if (u.friendship_status === 'accepted') return '<span style="font-size:0.72rem;color:#22c55e;font-weight:600;">✓ Friends</span>';
+			if (u.friendship_status === 'pending') return '<span style="font-size:0.72rem;color:#f59e0b;font-weight:600;">⏳ Pending</span>';
+			if (u.friendship_status === 'declined') return '<button class="search-add-friend" data-uid="' + u.id + '" style="font-size:0.72rem;padding:3px 10px;border-radius:999px;background:rgba(123,97,241,0.2);color:#a78bfa;border:1px solid rgba(123,97,241,0.3);cursor:pointer;transition:all 0.2s;">Add Friend</button>';
+			return '<button class="search-add-friend" data-uid="' + u.id + '" style="font-size:0.72rem;padding:3px 10px;border-radius:999px;background:rgba(123,97,241,0.2);color:#a78bfa;border:1px solid rgba(123,97,241,0.3);cursor:pointer;transition:all 0.2s;">Add Friend</button>';
+		}
+
+		searchForm.addEventListener('submit', function(e) { e.preventDefault(); });
+
+		// Keep dropdown open while interacting with it
+		dropdown.addEventListener('mousedown', function(e) { e.preventDefault(); });
+
 		input.addEventListener('input', function() {
-			var q = input.value.toLowerCase();
-			suggestions.forEach(function(s) {
-				s.style.display = (s.textContent.toLowerCase().indexOf(q) !== -1 || q === '') ? '' : 'none';
-			});
-		});
-		suggestions.forEach(function(s) {
-			s.addEventListener('click', function() {
-				var href = s.dataset.href;
-				if (href) {
-					var target = document.querySelector(href);
-					if (target) { target.scrollIntoView({ behavior: 'smooth' }); input.blur(); }
-					else { window.location.href = href; }
-				}
-			});
+			clearTimeout(timer);
+			var q = input.value.trim();
+			if (q.length < 2) {
+				dropdown.innerHTML = '<div class="top-search-hint" style="padding:14px;color:#64748b;font-size:0.82rem;text-align:center;">Type a name to search for people</div>';
+				return;
+			}
+			timer = setTimeout(function() {
+				fetch('{{ path("app_friend_search") }}?q=' + encodeURIComponent(q))
+					.then(function(r) { return r.json(); })
+					.then(function(data) {
+						var results = data.results || [];
+						if (results.length === 0) {
+							dropdown.innerHTML = '<div style="padding:14px;color:#64748b;font-size:0.82rem;text-align:center;">No people found</div>';
+							return;
+						}
+						var html = '';
+						results.forEach(function(u) {
+							html += '<div class="search-person-item" style="display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background=\'rgba(123,97,241,0.08)\'" onmouseout="this.style.background=\'transparent\'">'
+								+ '<div>' + avatarHtml(u) + '</div>'
+								+ '<div style="flex:1;min-width:0;">'
+								+ '<div style="font-size:0.84rem;font-weight:600;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (u.full_name || 'Unknown') + '</div>'
+								+ '<span class="nav-fr-role ' + roleClass(u.role) + '" style="display:inline-flex;align-items:center;gap:3px;font-size:0.66rem;font-weight:600;padding:1px 6px;border-radius:999px;margin-top:1px;"><span class="material-icons" style="font-size:10px">' + roleIcon(u.role) + '</span> ' + (u.role || 'User') + '</span>'
+								+ '</div>'
+								+ '<div>' + friendBtnHtml(u) + '</div>'
+								+ '</div>';
+						});
+						dropdown.innerHTML = html;
+						// Bind add friend buttons
+						dropdown.querySelectorAll('.search-add-friend').forEach(function(btn) {
+							btn.addEventListener('click', function(e) {
+								e.stopPropagation();
+								var uid = btn.dataset.uid;
+								btn.disabled = true;
+								btn.textContent = 'Sending...';
+								fetch('/friends/send/' + uid, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+									.then(function(r) { return r.json(); })
+									.then(function(data) {
+										if (data.success) {
+											btn.outerHTML = '<span style="font-size:0.72rem;color:#f59e0b;font-weight:600;">⏳ Pending</span>';
+										} else if (data.status === 'exists') {
+											btn.outerHTML = '<span style="font-size:0.72rem;color:#f59e0b;font-weight:600;">⏳ Pending</span>';
+										} else {
+											btn.textContent = 'Error';
+										}
+									}).catch(function() { btn.textContent = 'Error'; });
+							});
+						});
+					}).catch(function() {
+						dropdown.innerHTML = '<div style="padding:14px;color:#ef4444;font-size:0.82rem;text-align:center;">Search failed</div>';
+					});
+			}, 300);
 		});
 	})();
 
@@ -1295,6 +1585,724 @@
     </div>
 </nav>
 {% endif %}
+
+<!-- ═══════ PRIVATE CHAT WIDGET ═══════ -->
+<style>
+	/* ── Chat FAB ── */
+	.chat-fab {
+		position: fixed; bottom: 28px; right: 104px; z-index: 9000;
+		width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
+		background: linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%);
+		box-shadow: 0 8px 32px rgba(6,182,212,0.45), 0 0 0 0 rgba(6,182,212,0.25), inset 0 1px 0 rgba(255,255,255,0.22);
+		display: flex; align-items: center; justify-content: center;
+		transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease;
+		animation: chatFabPulse 3s ease-in-out infinite;
+	}
+	.chat-fab::before {
+		content: ''; position: absolute; inset: -3px; border-radius: 50%; z-index: -1;
+		background: conic-gradient(from 0deg, #06b6d4, #8b5cf6, #06b6d4);
+		opacity: 0; transition: opacity 0.4s ease;
+		animation: chatFabRing 4s linear infinite;
+	}
+	.chat-fab:hover::before { opacity: 0.6; }
+	.chat-fab:hover { transform: scale(1.1); box-shadow: 0 12px 44px rgba(6,182,212,0.6), inset 0 1px 0 rgba(255,255,255,0.22); }
+	.chat-fab.is-open { animation: none; transform: rotate(0deg); }
+	.chat-fab.is-open::before { display: none; }
+	.chat-fab svg { width: 24px; height: 24px; fill: #fff; transition: transform 0.3s ease; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
+	.chat-fab.is-open .chat-fab-icon { display: none; }
+	.chat-fab.is-open .chat-fab-close { display: block; }
+	.chat-fab-close { display: none; }
+	.chat-fab-badge {
+		position: absolute; top: -2px; right: -2px; min-width: 20px; height: 20px;
+		padding: 0 5px;
+		background: linear-gradient(135deg, #ef4444, #f97316); border-radius: 999px; border: 2px solid #080b14;
+		font-size: 0.65rem; font-weight: 800; color: #fff;
+		display: none; align-items: center; justify-content: center;
+		animation: aiBadgePop 0.4s cubic-bezier(0.22,1,0.36,1);
+	}
+	.chat-fab-badge.has-unread { display: flex; }
+	@keyframes chatFabPulse {
+		0%, 100% { box-shadow: 0 8px 32px rgba(6,182,212,0.45), 0 0 0 0 rgba(6,182,212,0.2), inset 0 1px 0 rgba(255,255,255,0.22); }
+		50% { box-shadow: 0 8px 32px rgba(6,182,212,0.45), 0 0 0 14px rgba(6,182,212,0), inset 0 1px 0 rgba(255,255,255,0.22); }
+	}
+	@keyframes chatFabRing { to { transform: rotate(360deg); } }
+
+	/* ── Chat Panel ── */
+	.chat-panel {
+		position: fixed; bottom: 96px; right: 28px; z-index: 8998;
+		width: 480px; height: 580px; max-height: calc(100vh - 120px);
+		border-radius: 24px; overflow: hidden;
+		background: linear-gradient(180deg, #0e1225 0%, #080b14 100%);
+		border: 1px solid rgba(6,182,212,0.15);
+		box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(6,182,212,0.08), 0 0 60px rgba(6,182,212,0.06);
+		display: flex; flex-direction: column;
+		opacity: 0; visibility: hidden; transform: translateY(24px) scale(0.92);
+		transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22,1,0.36,1), visibility 0.4s ease;
+		backdrop-filter: blur(20px);
+	}
+	.chat-panel.is-open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+
+	/* ── Chat Header ── */
+	.chat-head {
+		padding: 16px 18px 12px; display: flex; align-items: center; gap: 12px;
+		border-bottom: 1px solid rgba(255,255,255,0.06);
+		background: linear-gradient(135deg, rgba(6,182,212,0.08), rgba(139,92,246,0.04));
+		position: relative; flex-shrink: 0;
+	}
+	.chat-head::after {
+		content: ''; position: absolute; bottom: 0; left: 18px; right: 18px; height: 1px;
+		background: linear-gradient(90deg, transparent, rgba(6,182,212,0.3), transparent);
+	}
+	.chat-head-icon {
+		width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0;
+		background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+		display: flex; align-items: center; justify-content: center;
+		box-shadow: 0 4px 16px rgba(6,182,212,0.3);
+	}
+	.chat-head-icon svg { width: 20px; height: 20px; fill: #fff; }
+	.chat-head-info { flex: 1; }
+	.chat-head-info h3 { font-size: 0.92rem; font-weight: 700; color: #fff; margin: 0; }
+	.chat-head-info p {
+		font-size: 0.7rem; color: #67e8f9; margin: 2px 0 0; font-weight: 500;
+		display: flex; align-items: center; gap: 5px;
+	}
+	.chat-head-info p::before {
+		content: ''; width: 6px; height: 6px; border-radius: 50%; background: #34d399;
+		box-shadow: 0 0 8px rgba(52,211,153,0.6);
+	}
+	.chat-head-back {
+		width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer;
+		background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5);
+		display: none; align-items: center; justify-content: center;
+		transition: all 0.2s ease;
+	}
+	.chat-head-back:hover { background: rgba(255,255,255,0.1); color: #fff; }
+	.chat-head-back svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; }
+	.chat-panel.in-conversation .chat-head-back { display: flex; }
+
+	/* ── Contacts view ── */
+	.chat-contacts {
+		flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+		scrollbar-width: thin; scrollbar-color: rgba(6,182,212,0.2) transparent;
+	}
+	.chat-contacts::-webkit-scrollbar { width: 4px; }
+	.chat-contacts::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.25); border-radius: 99px; }
+	.chat-panel.in-conversation .chat-contacts { display: none; }
+	.chat-panel.in-conversation .chat-search-bar { display: none; }
+	.chat-panel.in-conversation .chat-filter-chips { display: none; }
+	.chat-section-label {
+		padding: 12px 18px 6px; font-size: 0.62rem; font-weight: 700;
+		text-transform: uppercase; letter-spacing: 0.1em; color: rgba(103,232,249,0.6);
+		display: flex; align-items: center; gap: 8px;
+	}
+	.chat-section-label::after {
+		content: ''; flex: 1; height: 1px;
+		background: linear-gradient(90deg, rgba(6,182,212,0.15), transparent);
+	}
+	.chat-contact {
+		display: flex; align-items: center; gap: 11px;
+		padding: 10px 18px; cursor: pointer;
+		transition: background 0.2s ease;
+		border-bottom: 1px solid rgba(255,255,255,0.03);
+	}
+	.chat-contact:hover { background: rgba(6,182,212,0.06); }
+	.chat-contact-avatar {
+		width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+		display: flex; align-items: center; justify-content: center;
+		font-size: 0.9rem; font-weight: 700; color: #f8fafc;
+		background: linear-gradient(135deg, rgba(6,182,212,0.3), rgba(139,92,246,0.3));
+		border: 1px solid rgba(255,255,255,0.12);
+		position: relative; overflow: hidden;
+	}
+	.chat-contact-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+	.chat-contact-online {
+		position: absolute; bottom: 0; right: 0; width: 10px; height: 10px;
+		border-radius: 50%; background: #34d399; border: 2px solid #0e1225;
+	}
+	.chat-contact-info { flex: 1; min-width: 0; }
+	.chat-contact-name {
+		font-size: 0.82rem; font-weight: 600; color: #f8fafc;
+		white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+	}
+	.chat-contact-role {
+		display: inline-flex; align-items: center; gap: 3px;
+		font-size: 0.62rem; font-weight: 600; padding: 1px 6px; border-radius: 999px; margin-top: 2px;
+	}
+	.chat-contact-role.role-teacher { background: rgba(168,85,247,0.15); color: #a855f7; }
+	.chat-contact-role.role-expert { background: rgba(250,204,21,0.15); color: #facc15; }
+	.chat-contact-role.role-admin { background: rgba(239,68,68,0.15); color: #ef4444; }
+	.chat-contact-role.role-student { background: rgba(34,211,238,0.15); color: #22d3ee; }
+	.chat-contact-role.role-default { background: rgba(148,163,184,0.15); color: #94a3b8; }
+	.chat-contact-preview {
+		font-size: 0.72rem; color: #64748b; margin-top: 1px;
+		white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+	}
+	.chat-contact-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+	.chat-contact-time { font-size: 0.6rem; color: #475569; }
+	.chat-contact-unread {
+		min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px;
+		background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+		font-size: 0.6rem; font-weight: 700; color: #fff;
+		display: flex; align-items: center; justify-content: center;
+	}
+	.chat-contacts-empty {
+		padding: 30px; text-align: center; color: #475569; font-size: 0.8rem;
+	}
+
+	/* ── Chat Search & Filters ── */
+	.chat-search-bar {
+		padding: 10px 14px 6px; flex-shrink: 0;
+	}
+	.chat-search-wrap {
+		display: flex; align-items: center; gap: 8px;
+		background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+		border-radius: 10px; padding: 0 10px; height: 34px;
+		transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	}
+	.chat-search-wrap:focus-within {
+		border-color: rgba(6,182,212,0.3); box-shadow: 0 0 0 3px rgba(6,182,212,0.06);
+	}
+	.chat-search-wrap svg { width: 14px; height: 14px; stroke: #64748b; stroke-width: 2; fill: none; flex-shrink: 0; }
+	.chat-search-wrap input {
+		flex: 1; background: none; border: none; outline: none;
+		color: #e2e8f0; font-size: 0.76rem; font-family: inherit;
+	}
+	.chat-search-wrap input::placeholder { color: rgba(148,163,184,0.4); }
+	.chat-filter-chips {
+		display: flex; gap: 5px; padding: 6px 14px 8px; flex-shrink: 0; flex-wrap: wrap;
+	}
+	.chat-filter-chip {
+		padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1);
+		background: rgba(255,255,255,0.03); color: #94a3b8;
+		font-size: 0.65rem; font-weight: 600; cursor: pointer; font-family: inherit;
+		transition: all 0.2s ease; white-space: nowrap;
+	}
+	.chat-filter-chip:hover { background: rgba(255,255,255,0.06); color: #cbd5e1; }
+	.chat-filter-chip.is-active {
+		background: rgba(6,182,212,0.15); border-color: rgba(6,182,212,0.3); color: #67e8f9;
+	}
+
+	/* ── Conversation view ── */
+	.chat-conversation {
+		flex: 1; display: none; flex-direction: column; min-height: 0;
+	}
+	.chat-panel.in-conversation .chat-conversation { display: flex; }
+	.chat-messages {
+		flex: 1; overflow-y: auto; padding: 16px 16px; display: flex; flex-direction: column; gap: 8px;
+		scrollbar-width: thin; scrollbar-color: rgba(6,182,212,0.2) transparent;
+	}
+	.chat-messages::-webkit-scrollbar { width: 4px; }
+	.chat-messages::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.25); border-radius: 99px; }
+	.chat-msg {
+		max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 0.82rem; line-height: 1.55;
+		animation: chatMsgIn 0.35s cubic-bezier(0.22,1,0.36,1) both;
+		position: relative; word-wrap: break-word;
+	}
+	@keyframes chatMsgIn {
+		from { opacity: 0; transform: translateY(10px) scale(0.97); }
+		to { opacity: 1; transform: translateY(0) scale(1); }
+	}
+	.chat-msg.sent {
+		align-self: flex-end;
+		background: linear-gradient(135deg, #06b6d4, #0891b2);
+		color: #fff; border-bottom-right-radius: 4px;
+		box-shadow: 0 4px 16px rgba(6,182,212,0.2);
+	}
+	.chat-msg.received {
+		align-self: flex-start; color: rgba(241,245,249,0.9);
+		background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);
+		border-bottom-left-radius: 4px;
+	}
+	.chat-msg-time {
+		font-size: 0.58rem; color: rgba(255,255,255,0.35); margin-top: 4px;
+		display: block; text-align: right;
+	}
+	.chat-msg.received .chat-msg-time { text-align: left; }
+	.chat-msg-date-divider {
+		text-align: center; font-size: 0.62rem; color: #475569;
+		padding: 8px 0; font-weight: 600;
+	}
+
+	/* ── Chat Input ── */
+	.chat-input-area {
+		padding: 12px 14px; border-top: 1px solid rgba(255,255,255,0.06);
+		background: rgba(255,255,255,0.02); flex-shrink: 0;
+		position: relative;
+	}
+	.chat-input-area::before {
+		content: ''; position: absolute; top: 0; left: 14px; right: 14px; height: 1px;
+		background: linear-gradient(90deg, transparent, rgba(6,182,212,0.2), transparent);
+	}
+	.chat-input-wrap {
+		display: flex; align-items: center; gap: 8px;
+		background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+		border-radius: 14px; padding: 4px 6px 4px 14px;
+		transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	}
+	.chat-input-wrap:focus-within {
+		border-color: rgba(6,182,212,0.3);
+		box-shadow: 0 0 0 3px rgba(6,182,212,0.08);
+	}
+	.chat-input-wrap input {
+		flex: 1; background: transparent; border: none; outline: none;
+		color: #f1f5f9; font-size: 0.82rem; font-family: inherit; padding: 8px 0;
+	}
+	.chat-input-wrap input::placeholder { color: rgba(148,163,184,0.45); }
+	.chat-send-btn {
+		width: 34px; height: 34px; border-radius: 10px; border: none; cursor: pointer;
+		background: linear-gradient(135deg, #06b6d4, #0891b2);
+		display: flex; align-items: center; justify-content: center;
+		transition: all 0.25s cubic-bezier(0.22,1,0.36,1); flex-shrink: 0;
+		box-shadow: 0 2px 10px rgba(6,182,212,0.3);
+	}
+	.chat-send-btn:hover { transform: scale(1.08); box-shadow: 0 4px 20px rgba(6,182,212,0.5); }
+	.chat-send-btn:active { transform: scale(0.95); }
+	.chat-send-btn svg { width: 15px; height: 15px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+	.chat-panel.in-conversation .chat-input-area { display: flex; }
+	.chat-panel:not(.in-conversation) .chat-input-area { display: none; }
+
+	/* ── Responsive ── */
+	@media (max-width: 640px) {
+		.chat-panel { width: calc(100vw - 20px); right: 10px; bottom: 88px; height: 520px; border-radius: 20px; }
+		.chat-fab { bottom: 20px; right: 80px; width: 50px; height: 50px; }
+	}
+</style>
+
+<!-- Chat FAB Button -->
+<button class="chat-fab" id="chatFab" type="button" aria-label="Open Private Chat">
+	<svg class="chat-fab-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+	<svg class="chat-fab-close" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="#fff" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>
+	<span class="chat-fab-badge" id="chatFabBadge">0</span>
+</button>
+
+<!-- Chat Panel -->
+<div class="chat-panel" id="chatPanel">
+	<!-- Header -->
+	<div class="chat-head">
+		<button class="chat-head-back" id="chatBackBtn" type="button" title="Back to contacts">
+			<svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+		</button>
+		<div class="chat-head-icon" id="chatHeadIcon">
+			<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+		</div>
+		<div class="chat-head-info">
+			<h3 id="chatHeadTitle">Messages</h3>
+			<p id="chatHeadSub">Talk to teachers & experts</p>
+		</div>
+	</div>
+
+	<!-- Contacts List -->
+	<div class="chat-search-bar">
+		<div class="chat-search-wrap">
+			<svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14" stroke-linecap="round"/></svg>
+			<input type="text" id="chatSearchInput" placeholder="Search by name..." autocomplete="off">
+		</div>
+	</div>
+	<div class="chat-filter-chips" id="chatFilterChips">
+		<button class="chat-filter-chip is-active" data-role="all" type="button">All</button>
+		<button class="chat-filter-chip" data-role="teacher" type="button">👨‍🏫 Teachers</button>
+		<button class="chat-filter-chip" data-role="expert" type="button">⭐ Experts</button>
+		<button class="chat-filter-chip" data-role="admin" type="button">🛡️ Admins</button>
+		<button class="chat-filter-chip" data-role="student" type="button">🎓 Students</button>
+		<button class="chat-filter-chip" data-role="friend" type="button">🤝 Friends</button>
+	</div>
+	<div class="chat-contacts" id="chatContacts">
+		<div class="chat-contacts-empty">Loading contacts...</div>
+	</div>
+
+	<!-- Conversation View -->
+	<div class="chat-conversation">
+		<div class="chat-messages" id="chatMessages"></div>
+	</div>
+
+	<!-- Input -->
+	<div class="chat-input-area">
+		<div class="chat-input-wrap">
+			<input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off">
+			<button class="chat-send-btn" id="chatSendBtn" type="button" aria-label="Send">
+				<svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+			</button>
+		</div>
+	</div>
+</div>
+
+<script>
+(function() {
+	var fab = document.getElementById('chatFab');
+	var panel = document.getElementById('chatPanel');
+	var contactsEl = document.getElementById('chatContacts');
+	var messagesEl = document.getElementById('chatMessages');
+	var inputEl = document.getElementById('chatInput');
+	var sendBtn = document.getElementById('chatSendBtn');
+	var backBtn = document.getElementById('chatBackBtn');
+	var headTitle = document.getElementById('chatHeadTitle');
+	var headSub = document.getElementById('chatHeadSub');
+	var headIcon = document.getElementById('chatHeadIcon');
+	var badgeEl = document.getElementById('chatFabBadge');
+	if (!fab || !panel) return;
+
+	var currentContactId = null;
+	var pollTimer = null;
+	var sending = false;
+	var allContactsData = null;
+	var activeFilter = 'all';
+	var searchQuery = '';
+	var chatSearchInput = document.getElementById('chatSearchInput');
+	var chatFilterChips = document.getElementById('chatFilterChips');
+
+	function escapeHtml(t) {
+		var d = document.createElement('div'); d.textContent = t; return d.innerHTML;
+	}
+
+	function timeAgo(dateStr) {
+		var d = new Date(dateStr);
+		var now = new Date();
+		var diff = Math.floor((now - d) / 1000);
+		if (diff < 60) return 'now';
+		if (diff < 3600) return Math.floor(diff/60) + 'm';
+		if (diff < 86400) return Math.floor(diff/3600) + 'h';
+		return Math.floor(diff/86400) + 'd';
+	}
+
+	function fmtTime(dateStr) {
+		var d = new Date(dateStr);
+		return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+	}
+
+	function getInitials(name) {
+		return name.split(' ').map(function(w){ return w[0]; }).join('').substring(0,2).toUpperCase();
+	}
+
+	function getRoleClass(role) {
+		if (role === 'teacher') return 'role-teacher';
+		if (role === 'expert') return 'role-expert';
+		if (role === 'admin') return 'role-admin';
+		if (role === 'student') return 'role-student';
+		return 'role-default';
+	}
+
+	function getRoleLabel(role) {
+		if (role === 'teacher') return '👨‍🏫 Teacher';
+		if (role === 'expert') return '⭐ Expert';
+		if (role === 'admin') return '🛡️ Admin';
+		if (role === 'student') return '🎓 Student';
+		return role;
+	}
+
+	function renderAvatar(c) {
+		if (c.avatar_base64) return '<img src="' + escapeHtml(c.avatar_base64) + '" alt="">';
+		return getInitials(c.full_name || '?');
+	}
+
+	function updateBadge(count) {
+		badgeEl.textContent = count;
+		if (count > 0) { badgeEl.classList.add('has-unread'); }
+		else { badgeEl.classList.remove('has-unread'); }
+	}
+
+	/* ── Load contacts ── */
+	function loadContacts() {
+		fetch('/chat/contacts', {credentials:'same-origin'})
+		.then(function(r){ return r.json(); })
+		.then(function(data) {
+			updateBadge(data.totalUnread || 0);
+			allContactsData = data;
+			renderContacts();
+		})
+		.catch(function(){ contactsEl.innerHTML = '<div class="chat-contacts-empty">Could not load contacts</div>'; });
+	}
+
+	function matchesFilter(role) {
+		if (activeFilter === 'all') return true;
+		if (activeFilter === 'friend') return false;
+		return role === activeFilter;
+	}
+
+	function matchesSearch(name) {
+		if (!searchQuery) return true;
+		return name.toLowerCase().indexOf(searchQuery.toLowerCase()) !== -1;
+	}
+
+	function renderContacts() {
+		if (!allContactsData) return;
+		var data = allContactsData;
+		var html = '';
+
+		// Teachers & Experts section
+		var advisors = (data.advisors || []).filter(function(c){ return matchesFilter(c.role) && matchesSearch(c.full_name); });
+		if (advisors.length) {
+			html += '<div class="chat-section-label">👨‍🏫 Teachers & Experts</div>';
+			advisors.forEach(function(c) {
+				html += '<div class="chat-contact" data-id="'+c.id+'" data-name="'+escapeHtml(c.full_name)+'" data-role="'+escapeHtml(c.role)+'">' 
+					+ '<div class="chat-contact-avatar">'+renderAvatar(c)+'<span class="chat-contact-online"></span></div>'
+					+ '<div class="chat-contact-info">'
+					+ '<div class="chat-contact-name">'+escapeHtml(c.full_name)+'</div>'
+					+ '<span class="chat-contact-role '+getRoleClass(c.role)+'">'+getRoleLabel(c.role)+'</span>'
+					+ '</div>'
+					+ '</div>';
+			});
+		}
+
+		// Admins section
+		var admins = (data.admins || []).filter(function(c){ return matchesFilter(c.role) && matchesSearch(c.full_name); });
+		if (admins.length) {
+			html += '<div class="chat-section-label">🛡️ Admins</div>';
+			admins.forEach(function(c) {
+				html += '<div class="chat-contact" data-id="'+c.id+'" data-name="'+escapeHtml(c.full_name)+'" data-role="'+escapeHtml(c.role)+'">' 
+					+ '<div class="chat-contact-avatar">'+renderAvatar(c)+'<span class="chat-contact-online"></span></div>'
+					+ '<div class="chat-contact-info">'
+					+ '<div class="chat-contact-name">'+escapeHtml(c.full_name)+'</div>'
+					+ '<span class="chat-contact-role '+getRoleClass(c.role)+'">'+getRoleLabel(c.role)+'</span>'
+					+ '</div>'
+					+ '</div>';
+			});
+		}
+
+		// Students section
+		var students = (data.students || []).filter(function(c){ return matchesFilter(c.role) && matchesSearch(c.full_name); });
+		if (students.length) {
+			html += '<div class="chat-section-label">🎓 Students</div>';
+			students.forEach(function(c) {
+				html += '<div class="chat-contact" data-id="'+c.id+'" data-name="'+escapeHtml(c.full_name)+'" data-role="'+escapeHtml(c.role)+'">' 
+					+ '<div class="chat-contact-avatar">'+renderAvatar(c)+'<span class="chat-contact-online"></span></div>'
+					+ '<div class="chat-contact-info">'
+					+ '<div class="chat-contact-name">'+escapeHtml(c.full_name)+'</div>'
+					+ '<span class="chat-contact-role '+getRoleClass(c.role)+'">'+getRoleLabel(c.role)+'</span>'
+					+ '</div>'
+					+ '</div>';
+			});
+		}
+
+		// Friends section
+		var friends = (data.friends || []).filter(function(c){ return (activeFilter === 'all' || activeFilter === 'friend') && matchesSearch(c.full_name); });
+		if (friends.length) {
+			html += '<div class="chat-section-label">🤝 Friends</div>';
+			friends.forEach(function(c) {
+				html += '<div class="chat-contact" data-id="'+c.id+'" data-name="'+escapeHtml(c.full_name)+'" data-role="'+escapeHtml(c.role)+'">' 
+					+ '<div class="chat-contact-avatar">'+renderAvatar(c)+'<span class="chat-contact-online"></span></div>'
+					+ '<div class="chat-contact-info">'
+					+ '<div class="chat-contact-name">'+escapeHtml(c.full_name)+'</div>'
+					+ '<span class="chat-contact-role '+getRoleClass(c.role)+'">'+getRoleLabel(c.role)+' · Friend</span>'
+					+ '</div>'
+					+ '</div>';
+			});
+		}
+
+		if (!html) html = '<div class="chat-contacts-empty">No contacts found</div>';
+		contactsEl.innerHTML = html;
+
+		// Attach click handlers
+		contactsEl.querySelectorAll('.chat-contact').forEach(function(el) {
+			el.addEventListener('click', function() {
+				openConversation(
+					parseInt(el.dataset.id),
+					el.dataset.name,
+					el.dataset.role
+				);
+			});
+		});
+	}
+
+	/* ── Search & Filter ── */
+	if (chatSearchInput) {
+		chatSearchInput.addEventListener('input', function() {
+			searchQuery = this.value;
+			renderContacts();
+		});
+	}
+	if (chatFilterChips) {
+		chatFilterChips.addEventListener('click', function(e) {
+			var chip = e.target.closest('.chat-filter-chip');
+			if (!chip) return;
+			chatFilterChips.querySelectorAll('.chat-filter-chip').forEach(function(c){ c.classList.remove('is-active'); });
+			chip.classList.add('is-active');
+			activeFilter = chip.dataset.role;
+			renderContacts();
+		});
+	}
+
+	/* ── Open conversation ── */
+	function openConversation(contactId, name, role) {
+		currentContactId = contactId;
+		panel.classList.add('in-conversation');
+		headTitle.textContent = name;
+		headSub.innerHTML = '<span class="chat-contact-role '+getRoleClass(role)+'">'+getRoleLabel(role)+'</span>';
+		messagesEl.innerHTML = '<div style="text-align:center;padding:20px;color:#475569;font-size:0.75rem;">Loading...</div>';
+		inputEl.value = '';
+		inputEl.focus();
+		loadMessages();
+		startPolling();
+	}
+
+	/* Expose for notification click */
+	window.openChatWithUser = function(userId) {
+		/* Open the chat panel if not already open */
+		if (!panel.classList.contains('is-open')) {
+			panel.classList.add('is-open');
+			fab.classList.add('is-open');
+		}
+		/* Find the contact in our loaded data */
+		var found = null;
+		if (allContactsData) {
+			var allContacts = (allContactsData.advisors||[]).concat(allContactsData.admins||[]).concat(allContactsData.students||[]).concat(allContactsData.friends||[]);
+			for (var i = 0; i < allContacts.length; i++) {
+				if (allContacts[i].id == userId) { found = allContacts[i]; break; }
+			}
+		}
+		if (found) {
+			openConversation(found.id, found.full_name, found.role);
+		} else {
+			/* Contact not yet loaded — fetch contacts first, then open */
+			fetch('/chat/contacts', {credentials:'same-origin'})
+			.then(function(r){ return r.json(); })
+			.then(function(data) {
+				allContactsData = data;
+				renderContacts();
+				var all2 = (data.advisors||[]).concat(data.admins||[]).concat(data.students||[]).concat(data.friends||[]);
+				for (var j = 0; j < all2.length; j++) {
+					if (all2[j].id == userId) { found = all2[j]; break; }
+				}
+				if (found) {
+					openConversation(found.id, found.full_name, found.role);
+				} else {
+					/* fallback: open conversation with minimal info */
+					openConversation(userId, 'User', 'student');
+				}
+			});
+		}
+	};
+
+	/* ── Load messages ── */
+	function loadMessages() {
+		if (!currentContactId) return;
+		fetch('/chat/messages/' + currentContactId, {credentials:'same-origin'})
+		.then(function(r){ return r.json(); })
+		.then(function(data) {
+			var html = '';
+			var lastDate = '';
+			(data.messages || []).forEach(function(m) {
+				var d = new Date(m.created_at);
+				var dateStr = d.toLocaleDateString();
+				if (dateStr !== lastDate) {
+					html += '<div class="chat-msg-date-divider">'+dateStr+'</div>';
+					lastDate = dateStr;
+				}
+				var cls = (m.sender_id == currentContactId) ? 'received' : 'sent';
+				html += '<div class="chat-msg '+cls+'">'
+					+ escapeHtml(m.content)
+					+ '<span class="chat-msg-time">'+fmtTime(m.created_at)+'</span>'
+					+ '</div>';
+			});
+			if (!html) html = '<div style="text-align:center;padding:40px 20px;color:#475569;font-size:0.8rem;">No messages yet. Say hello! 👋</div>';
+			messagesEl.innerHTML = html;
+			messagesEl.scrollTop = messagesEl.scrollHeight;
+		});
+	}
+
+	/* ── Send message ── */
+	function sendMessage() {
+		var text = inputEl.value.trim();
+		if (!text || sending || !currentContactId) return;
+		sending = true;
+
+		// Optimistic add
+		var div = document.createElement('div');
+		div.className = 'chat-msg sent';
+		div.innerHTML = escapeHtml(text) + '<span class="chat-msg-time">' + fmtTime(new Date().toISOString()) + '</span>';
+		messagesEl.appendChild(div);
+		messagesEl.scrollTop = messagesEl.scrollHeight;
+		inputEl.value = '';
+
+		fetch('/chat/send', {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: {'Content-Type':'application/json'},
+			body: JSON.stringify({receiver_id: currentContactId, content: text})
+		})
+		.then(function(r){ return r.json(); })
+		.then(function(data) {
+			if (data.error) { div.style.opacity = '0.5'; div.title = data.error; }
+		})
+		.catch(function(){ div.style.opacity = '0.5'; })
+		.finally(function(){ sending = false; });
+	}
+
+	/* ── Polling ── */
+	function startPolling() {
+		stopPolling();
+		pollTimer = setInterval(function() {
+			if (currentContactId && panel.classList.contains('is-open')) loadMessages();
+		}, 5000);
+	}
+	function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+
+	/* ── Back to contacts ── */
+	backBtn.addEventListener('click', function() {
+		panel.classList.remove('in-conversation');
+		currentContactId = null;
+		headTitle.textContent = 'Messages';
+		headSub.textContent = 'Talk to teachers & experts';
+		headIcon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" fill="#fff"/></svg>';
+		stopPolling();
+		loadContacts();
+	});
+
+	/* ── Toggle panel ── */
+	fab.addEventListener('click', function() {
+		var open = panel.classList.toggle('is-open');
+		fab.classList.toggle('is-open', open);
+		// Close AI chat if open
+		var aiChat = document.getElementById('aiChat');
+		var aiFab = document.getElementById('aiFab');
+		if (open && aiChat && aiChat.classList.contains('is-open')) {
+			aiChat.classList.remove('is-open');
+			if (aiFab) aiFab.classList.remove('is-open');
+		}
+		if (open) {
+			if (!panel.classList.contains('in-conversation')) loadContacts();
+			else { inputEl.focus(); startPolling(); }
+		} else { stopPolling(); }
+	});
+
+	/* ── Send events ── */
+	sendBtn.addEventListener('click', sendMessage);
+	inputEl.addEventListener('keydown', function(e) {
+		if (e.key === 'Enter') { e.preventDefault(); sendMessage(); }
+	});
+
+	/* ── Close on outside click ── */
+	document.addEventListener('click', function(e) {
+		if (panel.classList.contains('is-open') && !panel.contains(e.target) && !fab.contains(e.target)) {
+			panel.classList.remove('is-open');
+			fab.classList.remove('is-open');
+			stopPolling();
+		}
+	});
+	document.addEventListener('keydown', function(e) {
+		if (e.key === 'Escape' && panel.classList.contains('is-open')) {
+			panel.classList.remove('is-open');
+			fab.classList.remove('is-open');
+			stopPolling();
+		}
+	});
+
+	/* ── Initial badge check ── */
+	fetch('/chat/unread-count', {credentials:'same-origin'})
+	.then(function(r){ return r.json(); })
+	.then(function(d){ updateBadge(d.count || 0); })
+	.catch(function(){});
+
+	/* ── Periodic badge check ── */
+	setInterval(function() {
+		if (!panel.classList.contains('is-open')) {
+			fetch('/chat/unread-count', {credentials:'same-origin'})
+			.then(function(r){ return r.json(); })
+			.then(function(d){ updateBadge(d.count || 0); })
+			.catch(function(){});
+		}
+	}, 30000);
+})();
+</script>
 
 <!-- AI ASSISTANT CHAT WIDGET (all pages) -->
 <style>
@@ -1560,7 +2568,7 @@
 
 <!-- FAB Button -->
 <button class="ai-fab" id="aiFab" type="button" aria-label="Open AI Assistant">
-	<svg class="ai-fab-chat" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.04 2 11c0 2.53 1.17 4.8 3 6.4V22l4.05-2.22c.9.25 1.9.39 2.95.39 5.52 0 10-4.04 10-9S17.52 2 12 2zm1 13h-2v-2h2v2zm0-4h-2V6h2v5z"/></svg>
+	<svg class="ai-fab-chat" viewBox="0 0 24 24"><path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 110 2h-1.07A7 7 0 0113 22h-2a7 7 0 01-6.93-6H3a1 1 0 110-2h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2zm-1 9a5 5 0 00-5 5 5 5 0 005 5h2a5 5 0 005-5 5 5 0 00-5-5h-2zm-1 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm4 0a1.5 1.5 0 110 3 1.5 1.5 0 010-3z"/></svg>
 	<svg class="ai-fab-close" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="#fff" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>
 </button>
 
@@ -1816,3 +2824,86 @@
 	}
 })();
 </script>
+
+{% if navUser and navUser.role == 'ADMIN' %}
+<!-- Floating Admin Button — Premium -->
+<style>
+.admin-fab{position:fixed;bottom:32px;left:32px;z-index:9000;text-decoration:none;display:flex;align-items:center;gap:0;cursor:pointer;-webkit-user-select:none;user-select:none;filter:drop-shadow(0 8px 24px rgba(123,97,241,.25))}
+
+/* Outer glow ring */
+.admin-fab-ring{position:absolute;inset:-8px;border-radius:24px;border:2px solid transparent;background:conic-gradient(from 0deg,#7b61f1,#38bdd1,#34d399,#fb923c,#f87171,#7b61f1) border-box;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:adminRingSpin 4s linear infinite;opacity:0;transition:opacity .4s}
+.admin-fab:hover .admin-fab-ring{opacity:.7}
+
+/* Core button */
+.admin-fab-core{width:60px;height:60px;border-radius:18px;background:linear-gradient(135deg,#7b61f1 0%,#a855f7 30%,#f87171 60%,#fb923c 100%);background-size:300% 300%;animation:adminFabGrad 6s ease infinite;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(123,97,241,.4),0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.2);transition:all .4s cubic-bezier(.4,0,.2,1);position:relative;overflow:visible}
+
+/* Glass reflection */
+.admin-fab-core::before{content:'';position:absolute;inset:0;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.25) 0%,rgba(255,255,255,.05) 40%,transparent 60%);pointer-events:none;z-index:2}
+
+/* Hover glow aura */
+.admin-fab-core::after{content:'';position:absolute;inset:-12px;border-radius:30px;background:radial-gradient(circle,rgba(123,97,241,.3),rgba(248,113,113,.15),transparent 70%);z-index:-1;opacity:0;transition:opacity .4s;animation:adminAuraPulse 3s ease-in-out infinite}
+.admin-fab:hover .admin-fab-core{transform:scale(1.12) rotate(-8deg);box-shadow:0 16px 48px rgba(123,97,241,.5),0 0 30px rgba(248,113,113,.2),0 0 0 1px rgba(255,255,255,.12),inset 0 1px 0 rgba(255,255,255,.3)}
+.admin-fab:hover .admin-fab-core::after{opacity:1}
+
+/* Crown icon */
+.admin-fab-icon{color:#fff;font-size:1.7rem;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4));transition:all .4s cubic-bezier(.4,0,.2,1);z-index:3;position:relative}
+.admin-fab:hover .admin-fab-icon{transform:rotate(20deg) scale(1.2);filter:drop-shadow(0 0 8px rgba(255,255,255,.4)) drop-shadow(0 2px 6px rgba(0,0,0,.4))}
+
+/* Floating crown sparkles */
+.admin-fab-sparkle{position:absolute;z-index:4;opacity:0;transition:opacity .3s}
+.admin-fab:hover .admin-fab-sparkle{opacity:1}
+.admin-fab-sparkle i{position:absolute;color:#fbbf24;font-size:.6rem;animation:sparkleFloat 1.5s ease-in-out infinite}
+.admin-fab-sparkle i:nth-child(1){top:-8px;left:8px;animation-delay:0s}
+.admin-fab-sparkle i:nth-child(2){top:-4px;right:6px;animation-delay:.3s}
+.admin-fab-sparkle i:nth-child(3){top:2px;left:-2px;animation-delay:.6s}
+
+/* Expanding label */
+.admin-fab-label{max-width:0;overflow:hidden;white-space:nowrap;font-size:.82rem;font-weight:800;letter-spacing:.03em;color:#fff;background:linear-gradient(135deg,rgba(123,97,241,.92),rgba(168,85,247,.9),rgba(248,113,113,.88));backdrop-filter:blur(16px);padding:12px 0;border-radius:0 14px 14px 0;margin-left:-6px;transition:all .4s cubic-bezier(.25,.46,.45,.94);box-shadow:0 4px 20px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.08);border-left:none}
+.admin-fab:hover .admin-fab-label{max-width:160px;padding:12px 20px 12px 16px}
+
+/* Live ping dot */
+.admin-fab-ping{position:absolute;top:-3px;right:-3px;width:16px;height:16px;border-radius:50%;z-index:5}
+.admin-fab-ping::before{content:'';position:absolute;inset:0;border-radius:50%;background:#34d399;animation:adminPing 2s ease-in-out infinite}
+.admin-fab-ping::after{content:'';position:absolute;inset:3px;border-radius:50%;background:#34d399;box-shadow:0 0 8px rgba(52,211,153,.6)}
+
+/* Particle burst */
+.admin-fab-particles{position:absolute;inset:-24px;pointer-events:none;z-index:0}
+.admin-fab-particles span{position:absolute;width:5px;height:5px;border-radius:50%;opacity:0}
+.admin-fab:hover .admin-fab-particles span{animation:adminParticle .8s ease-out forwards}
+.admin-fab:hover .admin-fab-particles span:nth-child(1){background:#38bdd1;top:5%;left:15%;animation-delay:0s}
+.admin-fab:hover .admin-fab-particles span:nth-child(2){background:#fb923c;top:20%;left:85%;animation-delay:.06s}
+.admin-fab:hover .admin-fab-particles span:nth-child(3){background:#34d399;top:75%;left:5%;animation-delay:.12s}
+.admin-fab:hover .admin-fab-particles span:nth-child(4){background:#fbbf24;top:85%;left:75%;animation-delay:.18s}
+.admin-fab:hover .admin-fab-particles span:nth-child(5){background:#7b61f1;top:45%;left:50%;animation-delay:.08s}
+.admin-fab:hover .admin-fab-particles span:nth-child(6){background:#f87171;top:10%;left:60%;animation-delay:.14s}
+.admin-fab:hover .admin-fab-particles span:nth-child(7){background:#a855f7;top:60%;left:90%;animation-delay:.1s}
+.admin-fab:hover .admin-fab-particles span:nth-child(8){background:#38bdd1;top:90%;left:40%;animation-delay:.2s}
+
+/* Entrance animation */
+.admin-fab{animation:adminFabEntrance .8s cubic-bezier(.34,1.56,.64,1) .5s backwards}
+
+@keyframes adminFabEntrance{from{opacity:0;transform:translateY(40px) scale(.5) rotate(30deg)}to{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
+@keyframes adminFabGrad{0%,100%{background-position:0% 50%}33%{background-position:100% 0%}66%{background-position:50% 100%}}
+@keyframes adminRingSpin{to{transform:rotate(360deg)}}
+@keyframes adminPing{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(2.5);opacity:0}}
+@keyframes adminAuraPulse{0%,100%{transform:scale(1);opacity:0}50%{transform:scale(1.08);opacity:.5}}
+@keyframes adminParticle{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(calc(var(--px,20)*1px),calc(var(--py,-30)*1px)) scale(0);opacity:0}}
+@keyframes sparkleFloat{0%,100%{transform:translateY(0) scale(1);opacity:.8}50%{transform:translateY(-6px) scale(1.3);opacity:1}}
+
+@media(max-width:768px){.admin-fab{bottom:20px;left:20px}.admin-fab-core{width:52px;height:52px;border-radius:15px}.admin-fab-icon{font-size:1.4rem}.admin-fab-ring{inset:-6px;border-radius:21px}}
+</style>
+<a href="{{ path('app_admin') }}" class="admin-fab" title="Admin Panel">
+	<div class="admin-fab-ring"></div>
+	<div class="admin-fab-core">
+		<i class='bx bxs-crown admin-fab-icon'></i>
+		<div class="admin-fab-sparkle">
+			<i class='bx bxs-star'></i>
+			<i class='bx bxs-star'></i>
+			<i class='bx bxs-star'></i>
+		</div>
+		<span class="admin-fab-ping"></span>
+		<div class="admin-fab-particles"><span style="--px:-25;--py:-35"></span><span style="--px:30;--py:-25"></span><span style="--px:-30;--py:20"></span><span style="--px:25;--py:30"></span><span style="--px:0;--py:-40"></span><span style="--px:35;--py:-10"></span><span style="--px:-15;--py:35"></span><span style="--px:20;--py:15"></span></div>
+	</div>
+	<span class="admin-fab-label">Admin Panel</span>
+</a>
+{% endif %}

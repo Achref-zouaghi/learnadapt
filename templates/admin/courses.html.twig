@@ -1,0 +1,514 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}Course Management — Admin{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
+@property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+@property --shine-pos{syntax:'<percentage>';initial-value:0%;inherits:false}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+
+.adm{display:flex;min-height:100vh;padding-top:72px}
+.adm-side{width:260px;position:fixed;top:72px;left:0;bottom:0;background:rgba(6,12,22,0.95);border-right:1px solid var(--border);backdrop-filter:blur(20px);padding:28px 16px;display:flex;flex-direction:column;z-index:50;overflow-y:auto}
+.adm-side-head{padding:0 12px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.adm-side-head h2{font-size:1.1rem;font-weight:900;letter-spacing:-0.03em}
+.adm-side-head h2 span{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.adm-side-head p{font-size:0.72rem;color:var(--muted);margin-top:4px}
+.adm-nav{list-style:none;display:flex;flex-direction:column;gap:4px;flex:1}
+.adm-nav a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;color:var(--muted);text-decoration:none;font-size:0.84rem;font-weight:600;transition:all .22s var(--ease);position:relative}
+.adm-nav a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+.adm-nav a.is-active{color:var(--cyan);background:rgba(56,189,209,0.08)}
+.adm-nav a.is-active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0}
+.adm-nav a i{font-size:1.2rem;width:22px;text-align:center}
+.adm-nav-divider{height:1px;background:var(--border);margin:12px 8px}
+.adm-main{flex:1;margin-left:260px;padding:32px;position:relative;overflow-y:auto}
+
+/* ─── PREMIUM PAGE HEADER ─── */
+.pg-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;animation:fadeIn .5s var(--ease)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.pg-head h1{font-size:1.8rem;font-weight:900;letter-spacing:-0.04em;position:relative;display:inline-block}
+.pg-head h1 .cr-head-gradient{background:linear-gradient(135deg,var(--orange),var(--yellow),var(--green));background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:headGrad 6s ease infinite}
+@keyframes headGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.pg-head h1::after{content:'';position:absolute;bottom:-6px;left:0;width:60px;height:3px;background:linear-gradient(90deg,var(--orange),var(--yellow));border-radius:3px;animation:headLine 3s ease-in-out infinite}
+@keyframes headLine{0%,100%{width:60px;opacity:.8}50%{width:100px;opacity:1}}
+.pg-head-sub{font-size:0.82rem;color:var(--muted);margin-top:8px}
+
+/* ─── PREMIUM STAT CARDS ─── */
+.cr-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+@media(max-width:800px){.cr-stats{grid-template-columns:repeat(2,1fr)}}
+.cr-st{background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:22px 22px;backdrop-filter:blur(14px);animation:fadeUp .4s var(--ease) backwards;position:relative;overflow:hidden;transition:all .35s var(--ease)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.cr-st:nth-child(2){animation-delay:.08s}.cr-st:nth-child(3){animation-delay:.16s}.cr-st:nth-child(4){animation-delay:.24s}
+
+/* Spinning conic-gradient border */
+.cr-st::before{content:'';position:absolute;inset:-1px;border-radius:17px;padding:1px;background:conic-gradient(from var(--border-angle),transparent 40%,var(--orange) 50%,transparent 60%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s;pointer-events:none}
+.cr-st:hover::before{opacity:1;animation:borderSpin 3s linear infinite}
+@keyframes borderSpin{to{--border-angle:360deg}}
+
+/* Inner glow on hover */
+.cr-st::after{content:'';position:absolute;inset:0;border-radius:16px;opacity:0;transition:opacity .4s;pointer-events:none}
+.cr-st:nth-child(1)::after{background:radial-gradient(circle at 30% 50%,rgba(251,146,60,0.06),transparent 70%)}
+.cr-st:nth-child(2)::after{background:radial-gradient(circle at 30% 50%,rgba(52,211,153,0.06),transparent 70%)}
+.cr-st:nth-child(3)::after{background:radial-gradient(circle at 30% 50%,rgba(251,191,36,0.06),transparent 70%)}
+.cr-st:nth-child(4)::after{background:radial-gradient(circle at 30% 50%,rgba(248,113,113,0.06),transparent 70%)}
+.cr-st:hover::after{opacity:1}
+.cr-st:hover{transform:translateY(-4px);border-color:rgba(255,255,255,0.1);box-shadow:0 12px 40px rgba(0,0,0,0.25)}
+
+.cr-st-row{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.cr-st-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;transition:all .35s var(--ease);position:relative}
+.cr-st:nth-child(1) .cr-st-icon{background:rgba(251,146,60,0.12);color:var(--orange)}
+.cr-st:nth-child(2) .cr-st-icon{background:rgba(52,211,153,0.12);color:var(--green)}
+.cr-st:nth-child(3) .cr-st-icon{background:rgba(251,191,36,0.12);color:var(--yellow)}
+.cr-st:nth-child(4) .cr-st-icon{background:rgba(248,113,113,0.12);color:var(--red)}
+.cr-st:hover .cr-st-icon{transform:scale(1.12) rotate(-5deg);box-shadow:0 0 20px rgba(251,146,60,0.15)}
+.cr-st:nth-child(2):hover .cr-st-icon{box-shadow:0 0 20px rgba(52,211,153,0.15)}
+.cr-st:nth-child(3):hover .cr-st-icon{box-shadow:0 0 20px rgba(251,191,36,0.15)}
+.cr-st:nth-child(4):hover .cr-st-icon{box-shadow:0 0 20px rgba(248,113,113,0.15)}
+.cr-st-val{font-size:1.6rem;font-weight:900;letter-spacing:-0.03em;transition:text-shadow .3s}
+.cr-st:hover .cr-st-val{text-shadow:0 0 18px currentColor}
+.cr-st-lbl{font-size:0.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px}
+
+/* ─── PREMIUM FILTER CHIPS ─── */
+.cr-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px;animation:fadeUp .4s var(--ease) .1s backwards}
+.cr-toolbar .cr-search-bar{flex:1;margin-bottom:0;min-width:280px}
+
+.cr-filter-panel{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:24px;display:flex;gap:0;flex-wrap:wrap;animation:fadeUp .4s var(--ease) .15s backwards;position:relative}
+.cr-filter-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,146,60,0.15),transparent);border-radius:16px 16px 0 0}
+.cr-filter-section{flex:1;min-width:200px}
+.cr-filter-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.cr-filter-label i{font-size:0.85rem;color:var(--orange)}
+
+.cr-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0}
+.cr-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:0.78rem;font-weight:600;text-decoration:none;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.cr-chip::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(251,146,60,0.04),rgba(251,191,36,0.03));opacity:0;transition:opacity .25s}
+.cr-chip:hover{background:var(--glass-b);color:var(--text);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.2);border-color:rgba(255,255,255,0.08)}
+.cr-chip:hover::before{opacity:1}
+.cr-chip.is-active{background:rgba(251,146,60,0.08);border-color:rgba(251,146,60,0.25);color:var(--orange);box-shadow:0 0 20px rgba(251,146,60,0.08)}
+.cr-chip.is-active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--orange),transparent);border-radius:2px}
+.cr-chip i{font-size:0.9rem;transition:transform .25s var(--ease)}
+.cr-chip:hover i{transform:scale(1.15)}
+.cr-cnt{background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:6px;font-size:0.68rem;font-weight:800}
+
+/* ─── PREMIUM SEARCH BAR ─── */
+.cr-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;animation:fadeUp .4s var(--ease) .2s backwards}
+.cr-section-title{font-size:0.82rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.cr-section-title i{font-size:1.05rem;color:var(--orange)}
+.cr-section-count{font-size:0.72rem;font-weight:600;color:var(--muted);background:var(--glass);border:1px solid var(--border);padding:4px 12px;border-radius:8px}
+
+.cr-search-bar{display:flex;gap:16px;margin-bottom:28px}
+.cr-search-wrap{flex:1;position:relative}
+.cr-search-wrap i{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:1.15rem;color:var(--muted);pointer-events:none;transition:all .3s var(--ease)}
+.cr-search-input{width:100%;background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));border:1px solid var(--border);border-radius:14px;padding:14px 18px 14px 48px;color:var(--text);font-size:0.88rem;font-family:inherit;outline:none;transition:all .35s var(--ease)}
+.cr-search-input:focus{border-color:rgba(251,146,60,0.35);box-shadow:0 0 24px rgba(251,146,60,0.08),0 0 0 1px rgba(251,146,60,0.1);background:rgba(251,146,60,0.02)}
+.cr-search-input:focus ~ i,.cr-search-wrap:focus-within i{color:var(--orange);transform:translateY(-50%) scale(1.1)}
+.cr-search-input::placeholder{color:var(--muted)}
+.cr-search-btn{background:linear-gradient(135deg,var(--orange),var(--yellow));border:none;border-radius:14px;padding:14px 32px;color:#fff;font-weight:800;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.cr-search-btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.15);border-radius:50%;transform:translate(-50%,-50%);transition:width .5s,height .5s}
+.cr-search-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(251,146,60,0.3)}
+.cr-search-btn:hover::before{width:300px;height:300px}
+
+/* ─── PREMIUM TABLE ─── */
+.cr-table-wrap{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:18px;backdrop-filter:blur(14px);overflow:hidden;animation:fadeUp .4s var(--ease) .2s backwards;position:relative}
+.cr-table-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,146,60,0.2),rgba(251,191,36,0.15),transparent);pointer-events:none}
+.cr-table{width:100%;border-collapse:collapse}
+.cr-table thead{position:relative}
+.cr-table th{padding:16px 20px;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(255,255,255,0.02),rgba(255,255,255,0.005))}
+.cr-table td{padding:16px 20px;font-size:0.84rem;border-bottom:1px solid rgba(255,255,255,0.025);vertical-align:middle;transition:all .2s var(--ease)}
+.cr-table tbody tr{transition:all .25s var(--ease);position:relative}
+.cr-table tbody tr:hover td{background:rgba(251,146,60,0.015)}
+.cr-table tbody tr:hover{box-shadow:inset 3px 0 0 var(--orange)}
+.cr-table tr:last-child td{border-bottom:none}
+
+.cr-title-cell{font-weight:700;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
+.cr-table tbody tr:hover .cr-title-cell{color:var(--orange)}
+.lvl-badge{padding:5px 14px;border-radius:8px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;transition:all .2s var(--ease);display:inline-block}
+.lvl-badge.easy{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.15)}
+.lvl-badge.medium{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.15)}
+.lvl-badge.hard{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.15)}
+.lvl-badge:hover{transform:scale(1.08);box-shadow:0 2px 10px rgba(0,0,0,0.2)}
+.mod-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:8px;font-size:0.7rem;font-weight:600;background:rgba(123,97,241,0.08);color:var(--purple);border:1px solid rgba(123,97,241,0.12);transition:all .2s}
+.mod-tag:hover{background:rgba(123,97,241,0.12);transform:scale(1.05)}
+
+/* ─── PREMIUM ACTION BUTTONS ─── */
+.cr-act{display:flex;gap:6px}
+.cr-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:var(--glass);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s var(--ease);color:var(--muted);font-size:0.9rem;text-decoration:none;position:relative;overflow:hidden}
+.cr-btn::before{content:'';position:absolute;inset:0;border-radius:10px;opacity:0;transition:opacity .25s}
+.cr-btn:hover{background:var(--glass-b);color:var(--text);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.2)}
+.cr-btn.danger::before{background:radial-gradient(circle,rgba(248,113,113,0.15),transparent)}
+.cr-btn.danger:hover{color:var(--red);border-color:rgba(248,113,113,0.25)}
+.cr-btn.danger:hover::before{opacity:1}
+.cr-btn.edit::before{background:radial-gradient(circle,rgba(251,146,60,0.15),transparent)}
+.cr-btn.edit:hover{color:var(--orange);border-color:rgba(251,146,60,0.25)}
+.cr-btn.edit:hover::before{opacity:1}
+.cr-btn:hover i{animation:btnWiggle .4s var(--ease)}
+@keyframes btnWiggle{0%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}100%{transform:rotate(0)}}
+
+/* ─── PREMIUM MODALS ─── */
+.adm-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);z-index:9000;align-items:center;justify-content:center}
+.adm-modal-bg.show{display:flex}
+.adm-modal{background:rgba(10,16,28,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:22px;padding:32px;width:460px;max-width:90vw;box-shadow:0 32px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04),0 0 80px rgba(251,146,60,0.04);animation:modalIn .3s var(--ease);position:relative;overflow:hidden}
+.adm-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,146,60,0.3),rgba(251,191,36,0.2),transparent)}
+@keyframes modalIn{from{opacity:0;transform:scale(0.92) translateY(16px)}to{opacity:1;transform:none}}
+.adm-modal h3{font-size:1.15rem;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.adm-modal h3 i{color:var(--orange);font-size:1.3rem;animation:mIconPulse 2s ease-in-out infinite}
+@keyframes mIconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.adm-modal-field{margin-bottom:14px}
+.adm-modal-field label{display:block;font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
+.adm-modal-field input,.adm-modal-field select,.adm-modal-field textarea{width:100%;padding:11px 15px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:11px;color:var(--text);font-size:0.85rem;font-family:inherit;outline:none;transition:all .25s var(--ease)}
+.adm-modal-field textarea{resize:vertical;min-height:70px}
+.adm-modal-field input:focus,.adm-modal-field select:focus,.adm-modal-field textarea:focus{border-color:rgba(251,146,60,0.35);box-shadow:0 0 16px rgba(251,146,60,0.06);background:rgba(251,146,60,0.02)}
+.adm-modal-field select option{background:#0a101c;color:var(--text)}
+.adm-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+.adm-modal-btn{padding:10px 24px;border-radius:11px;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.adm-modal-btn.cancel{background:var(--glass);border:1px solid var(--border);color:var(--muted)}
+.adm-modal-btn.cancel:hover{color:var(--text);background:var(--glass-b);transform:translateY(-1px)}
+.adm-modal-btn.save{background:linear-gradient(135deg,var(--orange),var(--yellow));color:#fff;box-shadow:0 4px 20px rgba(251,146,60,0.15)}
+.adm-modal-btn.save:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(251,146,60,0.25)}
+.adm-modal-btn.save::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transition:left .6s}
+.adm-modal-btn.save:hover::before{left:200%}
+
+/* ─── PREMIUM TOAST ─── */
+.adm-toast{position:fixed;bottom:24px;right:24px;padding:14px 24px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);border-radius:14px;color:var(--green);font-size:0.82rem;font-weight:600;z-index:9999;transform:translateY(100px);opacity:0;transition:all .4s var(--ease);backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px}
+.adm-toast::before{content:'✓';width:22px;height:22px;border-radius:50%;background:rgba(52,211,153,0.15);display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0}
+.adm-toast.show{transform:translateY(0);opacity:1}
+.adm-toast.error{background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.25);color:var(--red)}
+.adm-toast.error::before{content:'✕';background:rgba(248,113,113,0.15)}
+
+/* ─── PREMIUM EMPTY STATE ─── */
+.cr-empty{text-align:center;padding:80px 20px;color:var(--muted);position:relative}
+.cr-empty i{font-size:3rem;opacity:0.2;display:block;margin-bottom:12px;animation:emptyFloat 4s ease-in-out infinite}
+@keyframes emptyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.cr-empty p{font-size:0.88rem}
+
+/* ─── PREMIUM ADD BUTTON ─── */
+.cr-add-btn{white-space:nowrap;display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--orange),var(--yellow))!important;position:relative;overflow:hidden}
+.cr-add-btn::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:addShine 4s ease-in-out infinite 2s}
+@keyframes addShine{0%{left:-100%}30%,100%{left:200%}}
+
+/* ─── FLOATING ACCENT PARTICLES ─── */
+.adm-particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.adm-particle{position:absolute;border-radius:50%;opacity:0;animation:particleDrift linear infinite}
+.adm-particle:nth-child(1){width:3px;height:3px;background:var(--orange);top:15%;left:80%;animation-duration:18s;animation-delay:0s}
+.adm-particle:nth-child(2){width:2px;height:2px;background:var(--yellow);top:60%;left:90%;animation-duration:22s;animation-delay:-4s}
+.adm-particle:nth-child(3){width:4px;height:4px;background:var(--green);top:80%;left:70%;animation-duration:25s;animation-delay:-8s}
+.adm-particle:nth-child(4){width:2px;height:2px;background:var(--purple);top:30%;left:75%;animation-duration:20s;animation-delay:-12s}
+@keyframes particleDrift{0%{transform:translate(0,0) scale(0);opacity:0}10%{opacity:.5}50%{opacity:.3}90%{opacity:.5}100%{transform:translate(-120px,-200px) scale(1.2);opacity:0}}
+
+/* ─── SCROLLBAR ─── */
+.adm-main::-webkit-scrollbar{width:6px}
+.adm-main::-webkit-scrollbar-track{background:transparent}
+.adm-main::-webkit-scrollbar-thumb{background:rgba(251,146,60,.15);border-radius:3px}
+.adm-main::-webkit-scrollbar-thumb:hover{background:rgba(251,146,60,.3)}
+
+@media(max-width:768px){.adm-side{display:none}.adm-main{margin-left:0}.cr-table-wrap{overflow-x:auto}}
+</style>
+{% endblock %}
+
+{% block body %}
+{% include 'admin/_premium.html.twig' %}
+
+<div class="adm">
+	<aside class="adm-side">
+		<div class="adm-side-head"><h2><span>Admin</span> Panel</h2><p>LearnAdapt Management</p></div>
+		<ul class="adm-nav">
+			<li><a href="{{ path('app_admin') }}"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+			<li><a href="{{ path('app_admin_users') }}"><i class='bx bxs-group'></i> Users</a></li>
+			<li><a href="{{ path('app_admin_forum') }}"><i class='bx bxs-chat'></i> Forum</a></li>
+			<li><a href="{{ path('app_admin_feedback') }}"><i class='bx bxs-star-half'></i> Feedback</a></li>
+			<li><a href="{{ path('app_admin_exercises') }}"><i class='bx bxs-book-content'></i> Exercises</a></li>
+			<li><a href="{{ path('app_admin_quizzes') }}"><i class='bx bxs-brain'></i> Quizzes</a></li>
+			<li><a href="{{ path('app_admin_courses') }}" class="is-active"><i class='bx bxs-book-alt'></i> Courses</a></li>
+			<div class="adm-nav-divider"></div>
+			<li><a href="{{ path('app_home') }}"><i class='bx bx-arrow-back'></i> Back to App</a></li>
+			<li><a href="{{ path('app_settings') }}"><i class='bx bx-cog'></i> Settings</a></li>
+		</ul>
+	</aside>
+
+	<main class="adm-main">
+		<!-- Floating accent particles -->
+		<div class="adm-particles">
+			<div class="adm-particle"></div>
+			<div class="adm-particle"></div>
+			<div class="adm-particle"></div>
+			<div class="adm-particle"></div>
+		</div>
+
+		<div class="pg-head">
+			<div>
+				<h1><span class="cr-head-gradient">Course Management</span></h1>
+				<p class="pg-head-sub">Create, manage and organize courses for students</p>
+			</div>
+		</div>
+
+		<!-- Stats -->
+		<div class="cr-stats">
+			<div class="cr-st">
+				<div class="cr-st-row">
+					<div class="cr-st-icon"><i class='bx bx-book-open'></i></div>
+					<div>
+						<div class="cr-st-val">{{ stats.total|default(0) }}</div>
+						<div class="cr-st-lbl">Total</div>
+					</div>
+				</div>
+			</div>
+			<div class="cr-st">
+				<div class="cr-st-row">
+					<div class="cr-st-icon"><i class='bx bx-leaf'></i></div>
+					<div>
+						<div class="cr-st-val" style="color:var(--green)">{{ stats.easy|default(0) }}</div>
+						<div class="cr-st-lbl">Easy</div>
+					</div>
+				</div>
+			</div>
+			<div class="cr-st">
+				<div class="cr-st-row">
+					<div class="cr-st-icon"><i class='bx bx-trending-up'></i></div>
+					<div>
+						<div class="cr-st-val" style="color:var(--yellow)">{{ stats.medium|default(0) }}</div>
+						<div class="cr-st-lbl">Medium</div>
+					</div>
+				</div>
+			</div>
+			<div class="cr-st">
+				<div class="cr-st-row">
+					<div class="cr-st-icon"><i class='bx bx-trophy'></i></div>
+					<div>
+						<div class="cr-st-val" style="color:var(--red)">{{ stats.hard|default(0) }}</div>
+						<div class="cr-st-lbl">Hard</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Toolbar: Search + Add -->
+		<div class="cr-toolbar">
+			<form class="cr-search-bar" method="get" action="{{ path('app_admin_courses') }}">
+				{% if currentLevel %}<input type="hidden" name="level" value="{{ currentLevel }}">{% endif %}
+				<div class="cr-search-wrap">
+					<i class='bx bx-search'></i>
+					<input class="cr-search-input" type="text" name="q" value="{{ searchQuery }}" placeholder="Search courses by title or description...">
+				</div>
+				<button class="cr-search-btn" type="submit">Search</button>
+			</form>
+			<button class="cr-search-btn cr-add-btn" onclick="openAddCourse()"><i class='bx bx-plus' style="font-size:1.1rem"></i> Add Course</button>
+		</div>
+
+		<!-- Filters Panel -->
+		<div class="cr-filter-panel">
+			<div class="cr-filter-section">
+				<div class="cr-filter-label"><i class='bx bx-slider-alt'></i> Difficulty</div>
+				<div class="cr-filters">
+					<a href="{{ path('app_admin_courses') }}" class="cr-chip {{ currentLevel == '' ? 'is-active' : '' }}">
+						<i class='bx bx-grid-alt'></i> All
+					</a>
+					<a href="{{ path('app_admin_courses', {level: 'EASY'}) }}" class="cr-chip {{ currentLevel == 'EASY' ? 'is-active' : '' }}">
+						<i class='bx bx-leaf'></i> Easy
+					</a>
+					<a href="{{ path('app_admin_courses', {level: 'MEDIUM'}) }}" class="cr-chip {{ currentLevel == 'MEDIUM' ? 'is-active' : '' }}">
+						<i class='bx bx-trending-up'></i> Medium
+					</a>
+					<a href="{{ path('app_admin_courses', {level: 'HARD'}) }}" class="cr-chip {{ currentLevel == 'HARD' ? 'is-active' : '' }}">
+						<i class='bx bx-trophy'></i> Hard
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<!-- Section Header -->
+		<div class="cr-section-head">
+			<div class="cr-section-title"><i class='bx bx-list-ul'></i> Course List</div>
+			<span class="cr-section-count">{{ courses|length }} result{{ courses|length != 1 ? 's' : '' }}</span>
+		</div>
+
+		{% if courses|length > 0 %}
+		<div class="cr-table-wrap">
+			<table class="cr-table">
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Level</th>
+						<th>Module</th>
+						<th>Teacher</th>
+						<th>Description</th>
+						<th>Created</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for course in courses %}
+					<tr id="cr-row-{{ course.id }}" style="animation:fadeUp .3s var(--ease) {{ loop.index0 * 0.03 }}s backwards">
+						<td><span class="cr-title-cell">{{ course.title }}</span></td>
+						<td><span class="lvl-badge {{ course.level|lower }}">{{ course.level }}</span></td>
+						<td>
+							{% if course.module_name %}
+								<span class="mod-tag"><i class='bx bx-category'></i> {{ course.module_name }}</span>
+							{% else %}
+								<span style="color:var(--muted);font-size:0.75rem">—</span>
+							{% endif %}
+						</td>
+						<td style="font-size:0.8rem;color:var(--muted)">{{ course.teacher_name|default('—') }}</td>
+						<td style="font-size:0.78rem;color:var(--muted);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ course.description|default('—') }}</td>
+						<td style="font-size:0.78rem;color:var(--muted)">{{ course.created_at|date('M d, Y') }}</td>
+						<td>
+							<div class="cr-act">
+								<button class="cr-btn edit" onclick="openEditCourse({{ course.id }},'{{ course.title|e('js') }}','{{ course.description|default('')|e('js') }}','{{ course.level }}',{{ course.module_id|default('null') }},{{ course.teacher_user_id|default('null') }})" title="Edit"><i class='bx bx-edit-alt'></i></button>
+								<button class="cr-btn danger" onclick="deleteCourse({{ course.id }},'{{ course.title|e('js') }}')" title="Delete"><i class='bx bx-trash'></i></button>
+							</div>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		{% else %}
+		<div class="cr-empty">
+			<i class='bx bx-book-open'></i>
+			<p>No courses found matching your criteria</p>
+		</div>
+		{% endif %}
+	</main>
+</div>
+
+<div class="adm-toast" id="admToast"></div>
+
+<!-- Edit Course Modal -->
+<div class="adm-modal-bg" id="editCrModal" onclick="if(event.target===this)closeEditCourse()">
+	<div class="adm-modal">
+		<h3><i class='bx bx-edit-alt'></i> Edit Course</h3>
+		<input type="hidden" id="editCrId">
+		<div class="adm-modal-field">
+			<label>Title</label>
+			<input type="text" id="editCrTitle">
+		</div>
+		<div class="adm-modal-field">
+			<label>Description</label>
+			<textarea id="editCrDesc"></textarea>
+		</div>
+		<div class="adm-modal-field">
+			<label>Level</label>
+			<select id="editCrLevel">
+				<option value="EASY">EASY</option>
+				<option value="MEDIUM">MEDIUM</option>
+				<option value="HARD">HARD</option>
+			</select>
+		</div>
+		<div class="adm-modal-field">
+			<label>Module</label>
+			<select id="editCrModule">
+				<option value="">— No module —</option>
+				{% for mod in modules %}
+				<option value="{{ mod.id }}">{{ mod.name }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="adm-modal-field">
+			<label>Teacher</label>
+			<select id="editCrTeacher">
+				<option value="">— No teacher —</option>
+				{% for t in teachers %}
+				<option value="{{ t.id }}">{{ t.full_name }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="adm-modal-actions">
+			<button class="adm-modal-btn cancel" onclick="closeEditCourse()">Cancel</button>
+			<button class="adm-modal-btn save" onclick="saveEditCourse()">Save Changes</button>
+		</div>
+	</div>
+</div>
+
+<!-- Add Course Modal -->
+<div class="adm-modal-bg" id="addCrModal" onclick="if(event.target===this)closeAddCourse()">
+	<div class="adm-modal">
+		<h3><i class='bx bx-plus-circle'></i> Add Course</h3>
+		<div class="adm-modal-field">
+			<label>Title</label>
+			<input type="text" id="addCrTitle" placeholder="Course title...">
+		</div>
+		<div class="adm-modal-field">
+			<label>Description</label>
+			<textarea id="addCrDesc" placeholder="Brief description..."></textarea>
+		</div>
+		<div class="adm-modal-field">
+			<label>Level</label>
+			<select id="addCrLevel">
+				<option value="EASY">EASY</option>
+				<option value="MEDIUM">MEDIUM</option>
+				<option value="HARD">HARD</option>
+			</select>
+		</div>
+		<div class="adm-modal-field">
+			<label>Module</label>
+			<select id="addCrModule">
+				<option value="">— No module —</option>
+				{% for mod in modules %}
+				<option value="{{ mod.id }}">{{ mod.name }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="adm-modal-field">
+			<label>Teacher</label>
+			<select id="addCrTeacher">
+				<option value="">— No teacher —</option>
+				{% for t in teachers %}
+				<option value="{{ t.id }}">{{ t.full_name }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="adm-modal-actions">
+			<button class="adm-modal-btn cancel" onclick="closeAddCourse()">Cancel</button>
+			<button class="adm-modal-btn save" onclick="saveAddCourse()">Create Course</button>
+		</div>
+	</div>
+</div>
+
+<script>
+function showToast(m,e=false){const t=document.getElementById('admToast');t.textContent=m;t.className='adm-toast'+(e?' error':'')+' show';setTimeout(()=>t.classList.remove('show'),3000)}
+
+function deleteCourse(id,title){
+	if(!confirm('Delete course "'+title+'"?'))return;
+	fetch('/admin/courses/'+id+'/delete',{method:'POST'}).then(r=>r.json()).then(d=>{
+		if(d.success){document.getElementById('cr-row-'+id).remove();showToast('Course deleted')}
+		else showToast(d.error||'Error',true)
+	}).catch(()=>showToast('Network error',true));
+}
+
+function openEditCourse(id,title,desc,level,moduleId,teacherId){
+	document.getElementById('editCrId').value=id;
+	document.getElementById('editCrTitle').value=title;
+	document.getElementById('editCrDesc').value=desc;
+	document.getElementById('editCrLevel').value=level;
+	document.getElementById('editCrModule').value=moduleId||'';
+	document.getElementById('editCrTeacher').value=teacherId||'';
+	document.getElementById('editCrModal').classList.add('show');
+}
+function closeEditCourse(){document.getElementById('editCrModal').classList.remove('show')}
+function saveEditCourse(){
+	const id=document.getElementById('editCrId').value;
+	const data={title:document.getElementById('editCrTitle').value,description:document.getElementById('editCrDesc').value,level:document.getElementById('editCrLevel').value,module_id:document.getElementById('editCrModule').value||null,teacher_id:document.getElementById('editCrTeacher').value||null};
+	fetch('/admin/courses/'+id+'/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){closeEditCourse();showToast('Course updated');setTimeout(()=>location.reload(),600)}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+
+function openAddCourse(){document.getElementById('addCrModal').classList.add('show')}
+function closeAddCourse(){document.getElementById('addCrModal').classList.remove('show')}
+function saveAddCourse(){
+	const title=document.getElementById('addCrTitle').value;
+	if(!title.trim()){showToast('Title is required',true);return}
+	const data={title:title,description:document.getElementById('addCrDesc').value,level:document.getElementById('addCrLevel').value,module_id:document.getElementById('addCrModule').value||null,teacher_id:document.getElementById('addCrTeacher').value||null};
+	fetch('/admin/courses/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){closeAddCourse();showToast('Course created');setTimeout(()=>location.reload(),600)}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+</script>
+{% endblock %}

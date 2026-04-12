@@ -187,29 +187,14 @@
             z-index: 30;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            font-family: 'Sora', sans-serif;
-            font-size: 0.94rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
+            gap: 0;
         }
 
-        .auth-brand-mark {
-            width: 34px;
-            height: 34px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            background: linear-gradient(135deg, rgba(121, 240, 255, 0.24), rgba(45, 169, 255, 0.22));
-            border: 1px solid rgba(190, 225, 255, 0.16);
-            box-shadow: var(--glow);
-        }
-
-        .auth-brand-mark i {
-            font-size: 1.1rem;
-            color: #b8f8ff;
-            animation: brandPulse 2.8s ease-in-out infinite;
+        .auth-brand-logo {
+            display: block;
+            width: 208px;
+            height: auto;
+            filter: drop-shadow(0 10px 24px rgba(7, 16, 32, 0.42));
         }
 
         @keyframes brandPulse {
@@ -829,8 +814,7 @@
 
     <main class="auth-shell {{ showRegister|default(false) ? 'active' : '' }}" id="authShell">
         <div class="auth-brand">
-            <span class="auth-brand-mark"><i class="bx bxs-brain"></i></span>
-            <span>LearnAdapt</span>
+            <img src="/brand/learnadapt-premium-logo.svg" alt="LearnAdapt" class="auth-brand-logo">
         </div>
 
         <section class="form-pane sign-in">

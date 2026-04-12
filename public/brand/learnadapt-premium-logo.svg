@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="96" viewBox="0 0 340 96" fill="none" role="img" aria-labelledby="learnadaptLogoTitle learnadaptLogoDesc">
+  <title id="learnadaptLogoTitle">LearnAdapt premium logo</title>
+  <desc id="learnadaptLogoDesc">A premium animated LearnAdapt wordmark with metallic pillars and luminous gold adaptive nodes.</desc>
+  <defs>
+    <!-- Metallic pillar gradient -->
+    <linearGradient id="laMetal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8FAFC"/>
+      <stop offset="48%" stop-color="#CBD5E1"/>
+      <stop offset="100%" stop-color="#64748B"/>
+    </linearGradient>
+    <!-- Animated shimmer sweep on pillars -->
+    <linearGradient id="laShimmer" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#F8FAFC" stop-opacity="0"/>
+      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.85"/>
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#F8FAFC" stop-opacity="0"/>
+      <animate attributeName="y1" values="-1;2" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="0;3" dur="3s" repeatCount="indefinite"/>
+    </linearGradient>
+    <linearGradient id="laMetalBase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#94A3B8"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+    <!-- Gold node gradients -->
+    <radialGradient id="laGoldA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(28 60) rotate(51.2) scale(24.6)">
+      <stop offset="0%" stop-color="#FFF7D6"/>
+      <stop offset="28%" stop-color="#FCD34D"/>
+      <stop offset="62%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#78350F"/>
+    </radialGradient>
+    <radialGradient id="laGoldB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(51 63) rotate(44.5) scale(26.8)">
+      <stop offset="0%" stop-color="#FFF8E1"/>
+      <stop offset="30%" stop-color="#FBBF24"/>
+      <stop offset="68%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#713F12"/>
+    </radialGradient>
+    <radialGradient id="laGoldC" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(73 60) rotate(132.3) scale(24.6)">
+      <stop offset="0%" stop-color="#FFF7D6"/>
+      <stop offset="28%" stop-color="#FCD34D"/>
+      <stop offset="62%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#78350F"/>
+    </radialGradient>
+    <!-- Text gradient with animated sweep -->
+    <linearGradient id="laWord" x1="108" y1="16" x2="304" y2="74" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="38%" stop-color="#A5B4FC"/>
+      <stop offset="72%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#22D3EE"/>
+    </linearGradient>
+    <!-- Animated text shine overlay -->
+    <linearGradient id="laTextShine" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.5"/>
+      <stop offset="55%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <animate attributeName="x1" values="-0.5;1.5" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="0.5;2.5" dur="4s" repeatCount="indefinite"/>
+    </linearGradient>
+    <!-- Accent rule gradient -->
+    <linearGradient id="laRule" x1="108" y1="64" x2="240" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FB923C"/>
+      <stop offset="100%" stop-color="#22D3EE"/>
+    </linearGradient>
+    <!-- Animated energy particle glow -->
+    <radialGradient id="laParticle" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="40%" stop-color="#FCD34D"/>
+      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Filters -->
+    <filter id="laSoftGlow" x="-10" y="-10" width="130" height="112" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 0.75 0 0 0  0 0 0 0 0  0 0 0 0.4 0" result="goldGlow"/>
+      <feBlend in="SourceGraphic" in2="goldGlow" mode="screen"/>
+    </filter>
+    <filter id="laTextGlow" x="94" y="4" width="238" height="78" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.38  0 0 0 0 0.59  0 0 0 0 1  0 0 0 0.18 0"/>
+      <feBlend in="SourceGraphic" mode="screen"/>
+    </filter>
+    <filter id="laParticleGlow" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="2"/>
+    </filter>
+  </defs>
+
+  <!-- === ICON GROUP === -->
+  <g transform="translate(8 8)">
+
+    <!-- Arc connections with animated dash -->
+    <g opacity="0.55">
+      <path d="M14 18C26 7 39 4 52 4C64 4 77 8 88 18" stroke="#0EA5E9" stroke-opacity="0.28" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 4">
+        <animate attributeName="stroke-dashoffset" values="0;-40" dur="3s" repeatCount="indefinite"/>
+      </path>
+      <path d="M10 70C24 79 37 82 52 82C67 82 80 78 94 70" stroke="#FB923C" stroke-opacity="0.22" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 4">
+        <animate attributeName="stroke-dashoffset" values="0;40" dur="3s" repeatCount="indefinite"/>
+      </path>
+    </g>
+
+    <!-- Gold nodes with pulsing glow -->
+    <g filter="url(#laSoftGlow)">
+      <!-- Base glow ellipse - breathing -->
+      <ellipse cx="51" cy="61" rx="35" ry="15" fill="#F59E0B" fill-opacity="0.16">
+        <animate attributeName="fill-opacity" values="0.10;0.22;0.10" dur="2.5s" repeatCount="indefinite"/>
+        <animate attributeName="rx" values="34;37;34" dur="2.5s" repeatCount="indefinite"/>
+      </ellipse>
+      <!-- Left node - gentle float -->
+      <circle cx="28" cy="59" r="12" fill="url(#laGoldA)">
+        <animate attributeName="cy" values="59;56;59" dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="12;12.8;12" dur="2.5s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Center node - gentle float offset -->
+      <circle cx="51" cy="63" r="14" fill="url(#laGoldB)">
+        <animate attributeName="cy" values="63;60;63" dur="2.8s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="14;15;14" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Right node - gentle float -->
+      <circle cx="74" cy="59" r="12" fill="url(#laGoldC)">
+        <animate attributeName="cy" values="59;56;59" dur="3.2s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="12;12.8;12" dur="2.7s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Specular highlights - twinkling -->
+      <circle cx="24" cy="55" r="4" fill="#FFF7D6" fill-opacity="0.42">
+        <animate attributeName="fill-opacity" values="0.25;0.6;0.25" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="3.5;4.5;3.5" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="47" cy="58" r="4.6" fill="#FFF7D6" fill-opacity="0.44">
+        <animate attributeName="fill-opacity" values="0.3;0.65;0.3" dur="2.3s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="4;5;4" dur="2.3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="70" cy="55" r="4" fill="#FFF7D6" fill-opacity="0.42">
+        <animate attributeName="fill-opacity" values="0.25;0.6;0.25" dur="2.6s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="3.5;4.5;3.5" dur="2.6s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <!-- Energy particles traveling along stems -->
+    <g filter="url(#laParticleGlow)" opacity="0.7">
+      <circle r="2" fill="url(#laParticle)">
+        <animate attributeName="cx" values="22.5;28" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="38;48" dur="1.8s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="1.8s" repeatCount="indefinite"/>
+      </circle>
+      <circle r="2" fill="url(#laParticle)">
+        <animate attributeName="cx" values="36.5;40" dur="2s" begin="0.4s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="38;48" dur="2s" begin="0.4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="2s" begin="0.4s" repeatCount="indefinite"/>
+      </circle>
+      <circle r="1.8" fill="url(#laParticle)">
+        <animate attributeName="cx" values="51;51" dur="1.6s" begin="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="42;48" dur="1.6s" begin="0.8s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="1.6s" begin="0.8s" repeatCount="indefinite"/>
+      </circle>
+      <circle r="2" fill="url(#laParticle)">
+        <animate attributeName="cx" values="66.5;62" dur="1.9s" begin="0.6s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="38;48" dur="1.9s" begin="0.6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="1.9s" begin="0.6s" repeatCount="indefinite"/>
+      </circle>
+      <circle r="2" fill="url(#laParticle)">
+        <animate attributeName="cx" values="80.5;74" dur="2.1s" begin="1s" repeatCount="indefinite"/>
+        <animate attributeName="cy" values="38;48" dur="2.1s" begin="1s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="2.1s" begin="1s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <!-- Metallic pillars -->
+    <g>
+      <rect x="20" y="2" width="5" height="36" rx="2.5" fill="url(#laMetal)"/>
+      <rect x="34" y="2" width="5" height="36" rx="2.5" fill="url(#laMetal)"/>
+      <rect x="48" y="2" width="6" height="40" rx="3" fill="url(#laMetal)"/>
+      <rect x="64" y="2" width="5" height="36" rx="2.5" fill="url(#laMetal)"/>
+      <rect x="78" y="2" width="5" height="36" rx="2.5" fill="url(#laMetal)"/>
+      <!-- Shimmer overlay on pillars -->
+      <rect x="20" y="2" width="5" height="36" rx="2.5" fill="url(#laShimmer)"/>
+      <rect x="34" y="2" width="5" height="36" rx="2.5" fill="url(#laShimmer)"/>
+      <rect x="48" y="2" width="6" height="40" rx="3" fill="url(#laShimmer)"/>
+      <rect x="64" y="2" width="5" height="36" rx="2.5" fill="url(#laShimmer)"/>
+      <rect x="78" y="2" width="5" height="36" rx="2.5" fill="url(#laShimmer)"/>
+      <!-- Bases -->
+      <rect x="16" y="34" width="13" height="8" rx="3" fill="url(#laMetalBase)"/>
+      <rect x="30" y="34" width="13" height="8" rx="3" fill="url(#laMetalBase)"/>
+      <rect x="45" y="38" width="13" height="8" rx="3" fill="url(#laMetalBase)"/>
+      <rect x="60" y="34" width="13" height="8" rx="3" fill="url(#laMetalBase)"/>
+      <rect x="74" y="34" width="13" height="8" rx="3" fill="url(#laMetalBase)"/>
+      <!-- Stems connecting pillars to nodes -->
+      <path d="M22.5 38L28 48" stroke="#CBD5E1" stroke-opacity="0.55" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M36.5 38L40 48" stroke="#CBD5E1" stroke-opacity="0.55" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M51 42L51 48" stroke="#CBD5E1" stroke-opacity="0.6" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M66.5 38L62 48" stroke="#CBD5E1" stroke-opacity="0.55" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M80.5 38L74 48" stroke="#CBD5E1" stroke-opacity="0.55" stroke-width="1.6" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- === TEXT GROUP === -->
+  <g filter="url(#laTextGlow)">
+    <!-- Kicker text -->
+    <text x="108" y="29" fill="#8F9BB2" font-family="Inter, Sora, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="3.3">ADAPTIVE LEARNING</text>
+    <!-- Main wordmark -->
+    <text x="108" y="66" fill="url(#laWord)" font-family="Inter, Sora, 'Segoe UI', Arial, sans-serif" font-size="38" font-weight="800" letter-spacing="-1.1">LearnAdapt</text>
+    <!-- Shine sweep over wordmark -->
+    <text x="108" y="66" fill="url(#laTextShine)" font-family="Inter, Sora, 'Segoe UI', Arial, sans-serif" font-size="38" font-weight="800" letter-spacing="-1.1">LearnAdapt</text>
+    <!-- Accent rule bar with animated width -->
+    <rect x="110" y="73" width="134" height="3" rx="1.5" fill="url(#laRule)" fill-opacity="0.9">
+      <animate attributeName="width" values="0;134" dur="1.2s" fill="freeze"/>
+      <animate attributeName="fill-opacity" values="0;0.9" dur="1.2s" fill="freeze"/>
+    </rect>
+  </g>
+</svg>

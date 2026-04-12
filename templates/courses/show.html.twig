@@ -1,0 +1,183 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}{{ course.title }} — LearnAdapt{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.3);--ease:cubic-bezier(0.4,0,0.2,1)}
+@property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+
+/* ═══ AMBIENT BACKGROUND ═══ */
+.cs-page{min-height:100vh;padding:100px 0 80px;display:flex;justify-content:center;background:transparent;position:relative;z-index:1;overflow:hidden}
+.cs-bg-orb{position:fixed;border-radius:50%;filter:blur(120px);opacity:0.12;pointer-events:none;z-index:0}
+.cs-bg-orb--1{width:600px;height:600px;background:radial-gradient(circle,var(--orange),transparent 70%);top:-10%;left:-5%;animation:orbFloat1 18s ease-in-out infinite}
+.cs-bg-orb--2{width:500px;height:500px;background:radial-gradient(circle,var(--yellow),transparent 70%);bottom:5%;right:-8%;animation:orbFloat2 22s ease-in-out infinite}
+@keyframes orbFloat1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+@keyframes orbFloat2{0%,100%{transform:translate(0,0)}50%{transform:translate(-50px,-30px)}}
+
+.cs-wrap{width:100%;max-width:1100px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+
+/* ═══ BACK LINK ═══ */
+.cs-back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:0.82rem;font-weight:600;text-decoration:none;margin-bottom:28px;transition:all .25s var(--ease);padding:8px 16px;border-radius:12px;background:var(--glass);border:1px solid var(--border)}
+.cs-back:hover{color:var(--orange);border-color:rgba(251,146,60,0.2);background:rgba(251,146,60,0.05);transform:translateX(-4px)}
+.cs-back i{font-size:1.1rem}
+
+/* ═══ HERO HEADER ═══ */
+.cs-hero{margin-bottom:36px;position:relative;padding:40px 44px 36px;background:linear-gradient(135deg,rgba(251,146,60,0.06),rgba(251,191,36,0.04));border:1px solid rgba(251,146,60,0.08);border-radius:24px;backdrop-filter:blur(20px);overflow:hidden;animation:heroIn .7s var(--ease) backwards}
+.cs-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,146,60,0.3),rgba(251,191,36,0.2),transparent)}
+.cs-hero::after{content:'';position:absolute;bottom:-60px;right:-30px;width:200px;height:200px;background:radial-gradient(circle,rgba(251,146,60,0.08),transparent 70%);border-radius:50%;pointer-events:none}
+@keyframes heroIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+.cs-hero-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.cs-hero-left{flex:1;min-width:0}
+.cs-hero h1{font-size:2rem;font-weight:900;letter-spacing:-0.04em;line-height:1.15;background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+.cs-hero-icon{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,rgba(251,146,60,0.15),rgba(251,191,36,0.1));border:1px solid rgba(251,146,60,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cs-hero-icon i{font-size:2rem;background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ═══ BADGE ═══ */
+.cs-badge{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:10px;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;margin-bottom:16px}
+.cs-badge i{font-size:0.8rem}
+.cs-badge.easy{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.12)}
+.cs-badge.medium{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.12)}
+.cs-badge.hard{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.12)}
+
+/* ═══ META ROW ═══ */
+.cs-meta{display:flex;flex-wrap:wrap;gap:18px;font-size:0.8rem;color:var(--muted)}
+.cs-meta span{display:flex;align-items:center;gap:6px}
+.cs-meta i{font-size:1rem;opacity:0.5}
+
+/* ═══ DESCRIPTION SECTION ═══ */
+.cs-section{margin-bottom:32px;animation:fadeUp .6s var(--ease) .15s backwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.cs-section-title{font-size:1rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:16px;display:flex;align-items:center;gap:10px;color:var(--text)}
+.cs-section-title i{font-size:1.15rem;color:var(--orange)}
+.cs-desc-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px 30px;backdrop-filter:blur(14px);font-size:0.88rem;line-height:1.8;color:var(--muted)}
+
+/* ═══ EXERCISES GRID ═══ */
+.cs-ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.cs-ex-card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;backdrop-filter:blur(14px);transition:all .3s var(--ease);overflow:hidden}
+.cs-ex-card:hover{background:var(--card-h);border-color:rgba(123,97,241,0.15);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.2)}
+.cs-ex-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--purple),var(--cyan));opacity:0;transition:opacity .3s}
+.cs-ex-card:hover::after{opacity:1}
+.cs-ex-title{font-size:0.92rem;font-weight:700;margin-bottom:8px}
+.cs-ex-meta{display:flex;flex-wrap:wrap;gap:10px;font-size:0.72rem;color:var(--muted)}
+.cs-ex-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:rgba(123,97,241,0.08);border:1px solid rgba(123,97,241,0.1);border-radius:8px;font-size:0.7rem;font-weight:600;color:var(--purple)}
+.cs-ex-lvl{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;font-size:0.7rem;font-weight:700}
+.cs-ex-lvl.facile{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.1)}
+.cs-ex-lvl.moyen{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.1)}
+.cs-ex-lvl.difficile{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.1)}
+.cs-ex-links{display:flex;gap:8px;margin-top:12px}
+.cs-ex-links a{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:10px;font-size:0.72rem;font-weight:700;text-decoration:none;transition:all .25s var(--ease)}
+.cs-ex-dl{background:linear-gradient(135deg,var(--orange),var(--yellow));color:#fff}
+.cs-ex-dl:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(251,146,60,0.3)}
+.cs-ex-corr{background:var(--glass);border:1px solid var(--border);color:var(--muted)}
+.cs-ex-corr:hover{color:var(--text);border-color:rgba(255,255,255,0.12)}
+
+/* ═══ EMPTY EXERCISES ═══ */
+.cs-ex-empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.cs-ex-empty-icon{width:64px;height:64px;border-radius:18px;background:rgba(123,97,241,0.08);border:1px solid rgba(123,97,241,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.cs-ex-empty-icon i{font-size:1.6rem;color:var(--purple);opacity:0.5}
+.cs-ex-empty h4{font-size:0.95rem;font-weight:700;margin-bottom:6px;color:var(--text)}
+.cs-ex-empty p{font-size:0.8rem;max-width:300px;margin:0 auto;line-height:1.5}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+	.cs-hero{padding:28px 22px}
+	.cs-hero h1{font-size:1.5rem}
+	.cs-wrap{padding:0 16px}
+	.cs-desc-box{padding:20px}
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="cs-bg-orb cs-bg-orb--1"></div>
+<div class="cs-bg-orb cs-bg-orb--2"></div>
+
+<div class="cs-page">
+<div class="cs-wrap">
+
+	<a href="{{ path('app_courses') }}" class="cs-back"><i class='bx bx-arrow-back'></i> Back to Courses</a>
+
+	<!-- Hero -->
+	<div class="cs-hero">
+		<div class="cs-hero-row">
+			<div class="cs-hero-left">
+				<h1>{{ course.title }}</h1>
+				<span class="cs-badge {{ course.level|lower }}">
+					{% if course.level == 'EASY' %}<i class='bx bx-leaf'></i>{% elseif course.level == 'MEDIUM' %}<i class='bx bx-trending-up'></i>{% else %}<i class='bx bx-trophy'></i>{% endif %}
+					{{ course.level }}
+				</span>
+				<div class="cs-meta">
+					{% if course.teacher_name %}
+						<span><i class='bx bx-user'></i> {{ course.teacher_name }}</span>
+					{% endif %}
+					{% if course.module_name %}
+						<span><i class='bx bx-category'></i> {{ course.module_name }}</span>
+					{% endif %}
+					<span><i class='bx bx-calendar'></i> {{ course.created_at|date('M d, Y') }}</span>
+					{% if course.updated_at != course.created_at %}
+						<span><i class='bx bx-revision'></i> Updated {{ course.updated_at|date('M d, Y') }}</span>
+					{% endif %}
+				</div>
+			</div>
+			<div class="cs-hero-icon">
+				<i class='bx bxs-book-alt'></i>
+			</div>
+		</div>
+	</div>
+
+	<!-- Description -->
+	{% if course.description %}
+	<div class="cs-section">
+		<div class="cs-section-title"><i class='bx bx-detail'></i> Description</div>
+		<div class="cs-desc-box">{{ course.description|nl2br }}</div>
+	</div>
+	{% endif %}
+
+	<!-- Exercises -->
+	<div class="cs-section" style="animation-delay:.25s">
+		<div class="cs-section-title"><i class='bx bx-edit-alt'></i> Linked Exercises <span style="color:var(--muted);font-weight:600;font-size:0.78rem;margin-left:4px">({{ exercises|length }})</span></div>
+
+		{% if exercises|length > 0 %}
+		<div class="cs-ex-grid">
+			{% for ex in exercises %}
+			<div class="cs-ex-card">
+				<div class="cs-ex-title">{{ ex.titre }}</div>
+				<div class="cs-ex-meta">
+					{% if ex.module %}
+						<span class="cs-ex-tag"><i class='bx bx-book'></i> {{ ex.module }}</span>
+					{% endif %}
+					{% if ex.niveau %}
+						<span class="cs-ex-lvl {{ ex.niveau|lower }}">{{ ex.niveau }}</span>
+					{% endif %}
+				</div>
+				<div class="cs-ex-links">
+					{% if ex.fichier_exercice %}
+						<a href="{{ ex.fichier_exercice }}" class="cs-ex-dl" target="_blank"><i class='bx bx-download'></i> Exercise</a>
+					{% endif %}
+					{% if ex.fichier_correction %}
+						<a href="{{ ex.fichier_correction }}" class="cs-ex-corr" target="_blank"><i class='bx bx-check-circle'></i> Correction</a>
+					{% endif %}
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+		{% else %}
+		<div class="cs-ex-empty">
+			<div class="cs-ex-empty-icon"><i class='bx bx-file-blank'></i></div>
+			<h4>No exercises linked</h4>
+			<p>This course doesn't have any exercises attached yet.</p>
+		</div>
+		{% endif %}
+	</div>
+
+</div>
+</div>
+{% endblock %}

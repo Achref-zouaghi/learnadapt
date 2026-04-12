@@ -1,0 +1,332 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+
+{% block title %}{{ attempt.quiz_title }} — LearnAdapt{% endblock %}
+
+{% block stylesheets %}
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<style>
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,.035);--border:rgba(255,255,255,.06);--card:rgba(255,255,255,.028);--ease:cubic-bezier(.22,1,.36,1)}
+body{background:var(--bg)!important;color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+footer{display:none!important}
+.qt-bg-orb{position:fixed;border-radius:50%;pointer-events:none;filter:blur(120px);opacity:.25;z-index:0}
+.qt-bg-orb.a{width:500px;height:500px;top:-80px;right:-60px;background:radial-gradient(circle,rgba(123,97,241,.3),transparent 70%)}
+.qt-bg-orb.b{width:400px;height:400px;bottom:-60px;left:-40px;background:radial-gradient(circle,rgba(56,189,209,.2),transparent 70%)}
+
+.qt-page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:110px 24px 60px}
+
+/* Timer Bar */
+.qt-timer-bar{position:fixed;top:86px;left:0;right:0;height:4px;z-index:999;background:rgba(255,255,255,.06)}
+.qt-timer-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width .5s linear;border-radius:0 2px 2px 0}
+.qt-timer-fill.warning{background:linear-gradient(90deg,var(--orange),var(--yellow))}
+.qt-timer-fill.danger{background:linear-gradient(90deg,var(--red),var(--orange));animation:timerPulse 1s ease infinite}
+@keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* Header */
+.qt-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:32px;flex-wrap:wrap;animation:fadeIn .5s var(--ease) both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.qt-header-left h1{font-size:1.6rem;font-weight:800;margin-bottom:4px}
+.qt-header-left p{color:var(--muted);font-size:.88rem}
+.qt-timer-box{display:flex;align-items:center;gap:10px;padding:12px 20px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--border);backdrop-filter:blur(12px)}
+.qt-timer-box i{font-size:1.4rem;color:var(--cyan)}
+.qt-timer-box .time{font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.qt-timer-box.warning{border-color:rgba(251,146,60,.3)}.qt-timer-box.warning i,.qt-timer-box.warning .time{color:var(--orange)}
+.qt-timer-box.danger{border-color:rgba(248,113,113,.3);animation:timerPulse 1s ease infinite}.qt-timer-box.danger i,.qt-timer-box.danger .time{color:var(--red)}
+
+/* Progress */
+.qt-progress{display:flex;align-items:center;gap:12px;margin-bottom:28px;animation:fadeIn .5s var(--ease) .1s both}
+.qt-progress-bar{flex:1;height:8px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+.qt-progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--purple),var(--cyan));transition:width .4s var(--ease)}
+.qt-progress-text{font-size:.82rem;color:var(--muted);font-weight:600;white-space:nowrap}
+
+/* Question Navigator */
+.qt-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:32px;animation:fadeIn .5s var(--ease) .15s both}
+.qt-nav-dot{width:36px;height:36px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all .2s var(--ease)}
+.qt-nav-dot:hover{border-color:rgba(123,97,241,.3);color:var(--text)}
+.qt-nav-dot.current{background:linear-gradient(135deg,var(--purple),var(--cyan));color:#fff;border-color:transparent;box-shadow:0 4px 16px rgba(123,97,241,.3)}
+.qt-nav-dot.answered{background:rgba(52,211,153,.12);color:var(--green);border-color:rgba(52,211,153,.2)}
+
+/* Question Card */
+.qt-question{background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.015));border:1px solid var(--border);border-radius:20px;padding:32px;margin-bottom:24px;animation:fadeIn .4s var(--ease) both;display:none}
+.qt-question.active{display:block}
+.qt-q-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.qt-q-num{width:40px;height:40px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:.88rem;font-weight:800;background:linear-gradient(135deg,rgba(123,97,241,.15),rgba(56,189,209,.1));color:var(--purple);border:1px solid rgba(123,97,241,.15);flex-shrink:0}
+.qt-q-info{flex:1}
+.qt-q-type{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--cyan);margin-bottom:2px}
+.qt-q-diff{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:6px}
+.qt-q-diff.easy{background:rgba(52,211,153,.1);color:var(--green)}
+.qt-q-diff.medium{background:rgba(251,146,60,.1);color:var(--orange)}
+.qt-q-diff.hard{background:rgba(248,113,113,.1);color:var(--red)}
+.qt-q-pts{font-size:.75rem;color:var(--muted);margin-left:auto;font-weight:600}
+
+.qt-q-prompt{font-size:1.15rem;font-weight:600;line-height:1.6;margin-bottom:24px;padding:16px 20px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--border)}
+
+/* MCQ Options */
+.qt-options{display:flex;flex-direction:column;gap:10px}
+.qt-option{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,.025);border:2px solid var(--border);cursor:pointer;transition:all .25s var(--ease)}
+.qt-option:hover{border-color:rgba(123,97,241,.25);background:rgba(123,97,241,.04)}
+.qt-option.selected{border-color:var(--purple);background:rgba(123,97,241,.08);box-shadow:0 0 20px rgba(123,97,241,.1)}
+.qt-option-letter{width:36px;height:36px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);flex-shrink:0;transition:all .2s var(--ease)}
+.qt-option.selected .qt-option-letter{background:linear-gradient(135deg,var(--purple),var(--cyan));color:#fff;border-color:transparent}
+.qt-option-text{font-size:.95rem;font-weight:500;flex:1}
+.qt-option input[type="radio"]{display:none}
+
+/* True/False */
+.qt-tf{display:flex;gap:12px}
+.qt-tf-btn{flex:1;padding:16px;border-radius:14px;text-align:center;font-size:1rem;font-weight:700;border:2px solid var(--border);background:rgba(255,255,255,.025);cursor:pointer;transition:all .25s var(--ease)}
+.qt-tf-btn:hover{border-color:rgba(123,97,241,.25)}
+.qt-tf-btn.selected{border-color:var(--purple);background:rgba(123,97,241,.08);box-shadow:0 0 20px rgba(123,97,241,.1)}
+.qt-tf-btn i{font-size:1.6rem;display:block;margin-bottom:6px}
+.qt-tf-btn.true-btn.selected{border-color:var(--green);background:rgba(52,211,153,.08)}.qt-tf-btn.true-btn.selected i{color:var(--green)}
+.qt-tf-btn.false-btn.selected{border-color:var(--red);background:rgba(248,113,113,.08)}.qt-tf-btn.false-btn.selected i{color:var(--red)}
+
+/* Short Text */
+.qt-text-input{width:100%;padding:14px 18px;border-radius:14px;background:rgba(255,255,255,.04);border:2px solid var(--border);color:var(--text);font-size:1rem;font-family:inherit;outline:none;transition:border-color .2s ease}
+.qt-text-input:focus{border-color:rgba(123,97,241,.4)}
+.qt-text-input::placeholder{color:rgba(255,255,255,.25)}
+
+/* Navigation Buttons */
+.qt-actions{display:flex;justify-content:space-between;gap:12px;margin-top:8px}
+.qt-act-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:12px;font-size:.88rem;font-weight:700;border:none;cursor:pointer;transition:all .25s var(--ease)}
+.qt-act-prev{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
+.qt-act-prev:hover{background:rgba(255,255,255,.1)}
+.qt-act-next{background:linear-gradient(135deg,var(--purple),var(--cyan));color:#fff;box-shadow:0 6px 20px rgba(123,97,241,.2)}
+.qt-act-next:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(123,97,241,.3)}
+.qt-act-submit{background:linear-gradient(135deg,var(--green),#10b981);color:#fff;box-shadow:0 6px 20px rgba(52,211,153,.2)}
+.qt-act-submit:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(52,211,153,.3)}
+
+/* Confirm Dialog */
+.qt-confirm-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:2000;display:none;align-items:center;justify-content:center}
+.qt-confirm-bg.show{display:flex}
+.qt-confirm{background:linear-gradient(145deg,rgba(17,21,33,.98),rgba(10,13,23,.98));border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:36px;max-width:420px;width:90%;text-align:center;box-shadow:0 30px 60px rgba(0,0,0,.5)}
+.qt-confirm h3{font-size:1.3rem;font-weight:800;margin-bottom:8px}
+.qt-confirm p{color:var(--muted);font-size:.92rem;margin-bottom:24px}
+.qt-confirm-btns{display:flex;gap:10px;justify-content:center}
+.qt-confirm-btns button{padding:12px 28px;border-radius:12px;font-weight:700;font-size:.88rem;cursor:pointer;border:none;transition:all .2s var(--ease)}
+
+@media(max-width:600px){
+	.qt-header{flex-direction:column;text-align:center}
+	.qt-question{padding:20px}
+	.qt-tf{flex-direction:column}
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="qt-bg-orb a"></div>
+<div class="qt-bg-orb b"></div>
+
+{% if remainingSeconds is not null %}
+<div class="qt-timer-bar">
+	<div class="qt-timer-fill" id="timerFill" style="width:100%"></div>
+</div>
+{% endif %}
+
+<div class="qt-page">
+	<div class="qt-header">
+		<div class="qt-header-left">
+			<h1>{{ attempt.quiz_title }}</h1>
+			<p>{{ attempt.quiz_description|default('Answer all questions carefully') }}</p>
+		</div>
+		{% if remainingSeconds is not null %}
+		<div class="qt-timer-box" id="timerBox">
+			<i class='bx bx-timer'></i>
+			<span class="time" id="timerDisplay">--:--</span>
+		</div>
+		{% endif %}
+	</div>
+
+	<div class="qt-progress">
+		<div class="qt-progress-bar"><div class="qt-progress-fill" id="progressFill" style="width:0%"></div></div>
+		<span class="qt-progress-text" id="progressText">0 / {{ questions|length }}</span>
+	</div>
+
+	<div class="qt-nav" id="questionNav">
+		{% for q in questions %}
+		<div class="qt-nav-dot {{ answeredMap[q.id] is defined ? 'answered' : '' }} {{ loop.index0 == 0 ? 'current' : '' }}"
+			 onclick="goToQuestion({{ loop.index0 }})" data-idx="{{ loop.index0 }}">
+			{{ loop.index }}
+		</div>
+		{% endfor %}
+	</div>
+
+	<form method="post" action="{{ path('app_quiz_submit', {id: attempt.id}) }}" id="quizForm">
+		{% for q in questions %}
+		<div class="qt-question {{ loop.index0 == 0 ? 'active' : '' }}" data-idx="{{ loop.index0 }}">
+			<div class="qt-q-header">
+				<div class="qt-q-num">{{ loop.index }}</div>
+				<div class="qt-q-info">
+					<div class="qt-q-type">
+						{% if q.question_type == 'MCQ' %}Multiple Choice
+						{% elseif q.question_type == 'TRUE_FALSE' %}True / False
+						{% else %}Short Answer{% endif %}
+					</div>
+					<span class="qt-q-diff {{ q.difficulty|lower }}">{{ q.difficulty }}</span>
+				</div>
+				<div class="qt-q-pts"><i class='bx bx-star' style="vertical-align:middle"></i> {{ q.points }} pts</div>
+			</div>
+
+			<div class="qt-q-prompt">{{ q.prompt }}</div>
+
+			{% if q.question_type == 'MCQ' %}
+			<div class="qt-options">
+				{% set opts = {'A': q.option_a, 'B': q.option_b, 'C': q.option_c, 'D': q.option_d} %}
+				{% for letter, text in opts %}
+				{% if text %}
+				<label class="qt-option {{ answeredMap[q.id] is defined and answeredMap[q.id].chosen_option == letter ? 'selected' : '' }}"
+					   onclick="selectOption(this,'q_{{ q.id }}','{{ letter }}')">
+					<span class="qt-option-letter">{{ letter }}</span>
+					<span class="qt-option-text">{{ text }}</span>
+					<input type="radio" name="q_{{ q.id }}" value="{{ letter }}"
+						{{ answeredMap[q.id] is defined and answeredMap[q.id].chosen_option == letter ? 'checked' : '' }}>
+				</label>
+				{% endif %}
+				{% endfor %}
+			</div>
+
+			{% elseif q.question_type == 'TRUE_FALSE' %}
+			<div class="qt-tf">
+				<div class="qt-tf-btn true-btn {{ answeredMap[q.id] is defined and answeredMap[q.id].chosen_bool == '1' ? 'selected' : '' }}"
+					 onclick="selectTF(this,'q_{{ q.id }}','1')">
+					<i class='bx bx-check-circle'></i> {{ 'quiz.true'|trans }}
+				</div>
+				<div class="qt-tf-btn false-btn {{ answeredMap[q.id] is defined and answeredMap[q.id].chosen_bool == '0' ? 'selected' : '' }}"
+					 onclick="selectTF(this,'q_{{ q.id }}','0')">
+					<i class='bx bx-x-circle'></i> {{ 'quiz.false'|trans }}
+				</div>
+				<input type="hidden" name="q_{{ q.id }}"
+					value="{{ answeredMap[q.id] is defined ? answeredMap[q.id].chosen_bool : '' }}">
+			</div>
+
+			{% elseif q.question_type == 'SHORT_TEXT' %}
+			<input type="text" class="qt-text-input" name="q_{{ q.id }}"
+				   placeholder="{{ 'quiz.type_answer'|trans }}"
+				   value="{{ answeredMap[q.id] is defined ? answeredMap[q.id].typed_answer : '' }}"
+				   oninput="markAnswered({{ loop.index0 }})">
+			{% endif %}
+
+			<div class="qt-actions">
+				{% if not loop.first %}
+				<button type="button" class="qt-act-btn qt-act-prev" onclick="goToQuestion({{ loop.index0 - 1 }})">
+					<i class='bx bx-chevron-left'></i> {{ 'quiz.prev'|trans }}
+				</button>
+				{% else %}
+				<div></div>
+				{% endif %}
+
+				{% if not loop.last %}
+				<button type="button" class="qt-act-btn qt-act-next" onclick="goToQuestion({{ loop.index0 + 1 }})">
+					{{ 'quiz.next'|trans }} <i class='bx bx-chevron-right'></i>
+				</button>
+				{% else %}
+				<button type="button" class="qt-act-btn qt-act-submit" onclick="confirmSubmit()">
+					<i class='bx bx-check-double'></i> {{ 'quiz.submit'|trans }}
+				</button>
+				{% endif %}
+			</div>
+		</div>
+		{% endfor %}
+	</form>
+</div>
+
+<!-- Confirm dialog -->
+<div class="qt-confirm-bg" id="confirmDialog">
+	<div class="qt-confirm">
+		<h3><i class='bx bx-check-shield' style="color:var(--green);font-size:1.6rem;vertical-align:middle;margin-right:6px"></i>{{ 'quiz.confirm_title'|trans }}</h3>
+		<p id="confirmMsg">{{ 'quiz.confirm_msg'|trans }}</p>
+		<div class="qt-confirm-btns">
+			<button onclick="closeConfirm()" style="background:rgba(255,255,255,.08);color:var(--text)">{{ 'quiz.cancel'|trans }}</button>
+			<button onclick="document.getElementById('quizForm').submit()" style="background:linear-gradient(135deg,var(--green),#10b981);color:#fff">{{ 'quiz.confirm_submit'|trans }}</button>
+		</div>
+	</div>
+</div>
+
+<script>
+const totalQ = {{ questions|length }};
+let currentQ = 0;
+
+function goToQuestion(idx){
+	if(idx<0||idx>=totalQ) return;
+	document.querySelectorAll('.qt-question').forEach(q=>q.classList.remove('active'));
+	document.querySelectorAll('.qt-nav-dot').forEach(d=>d.classList.remove('current'));
+	document.querySelectorAll('.qt-question')[idx].classList.add('active');
+	document.querySelectorAll('.qt-nav-dot')[idx].classList.add('current');
+	currentQ=idx;
+	updateProgress();
+}
+
+function selectOption(el,name,val){
+	el.closest('.qt-options').querySelectorAll('.qt-option').forEach(o=>o.classList.remove('selected'));
+	el.classList.add('selected');
+	el.querySelector('input').checked=true;
+	markAnswered(currentQ);
+}
+
+function selectTF(el,name,val){
+	el.parentElement.querySelectorAll('.qt-tf-btn').forEach(b=>b.classList.remove('selected'));
+	el.classList.add('selected');
+	el.parentElement.querySelector('input[type="hidden"]').value=val;
+	markAnswered(currentQ);
+}
+
+function markAnswered(idx){
+	document.querySelectorAll('.qt-nav-dot')[idx].classList.add('answered');
+	updateProgress();
+}
+
+function updateProgress(){
+	const answered=document.querySelectorAll('.qt-nav-dot.answered').length;
+	document.getElementById('progressFill').style.width=(answered/totalQ*100)+'%';
+	document.getElementById('progressText').textContent=answered+' / '+totalQ;
+}
+
+function confirmSubmit(){
+	const answered=document.querySelectorAll('.qt-nav-dot.answered').length;
+	const unanswered=totalQ-answered;
+	let msg='';
+	if(unanswered>0){
+		msg='You have '+unanswered+' unanswered question'+(unanswered>1?'s':'')+'. Submit anyway?';
+	} else {
+		msg='All questions answered! Ready to submit?';
+	}
+	document.getElementById('confirmMsg').textContent=msg;
+	document.getElementById('confirmDialog').classList.add('show');
+}
+function closeConfirm(){document.getElementById('confirmDialog').classList.remove('show')}
+
+// Timer
+{% if remainingSeconds is not null %}
+(function(){
+	let remaining={{ remainingSeconds }};
+	const totalTime={{ attempt.time_limit_minutes }}*60;
+	const timerDisplay=document.getElementById('timerDisplay');
+	const timerFill=document.getElementById('timerFill');
+	const timerBox=document.getElementById('timerBox');
+
+	function tick(){
+		if(remaining<=0){
+			document.getElementById('quizForm').submit();
+			return;
+		}
+		remaining--;
+		const m=Math.floor(remaining/60);
+		const s=remaining%60;
+		timerDisplay.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+		timerFill.style.width=(remaining/totalTime*100)+'%';
+
+		if(remaining<=60){
+			timerFill.className='qt-timer-fill danger';
+			timerBox.className='qt-timer-box danger';
+		}else if(remaining<=totalTime*0.25){
+			timerFill.className='qt-timer-fill warning';
+			timerBox.className='qt-timer-box warning';
+		}
+	}
+	tick();
+	setInterval(tick,1000);
+})();
+{% endif %}
+
+updateProgress();
+</script>
+{% endblock %}

@@ -77,6 +77,14 @@ class AuthController extends AbstractController
                 return $this->renderAuthPage(false, $loginData, $this->defaultRegisterData());
             }
 
+            // Skip verification for ADMIN accounts (direct login)
+            if (strtoupper((string) $user->getRole()) === 'ADMIN') {
+                $this->finishLogin($request->getSession(), $user);
+                $this->addFlash('success', sprintf('Welcome, %s.', $user->getFullName() ?? $user->getEmail()));
+
+                return $this->redirectToRoute('app_home');
+            }
+
             if (!$this->canStartVerification()) {
                 $this->addFlash('error', 'Configure MAILER_DSN to send real verification emails.');
 

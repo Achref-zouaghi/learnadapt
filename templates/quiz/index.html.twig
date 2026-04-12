@@ -1,0 +1,178 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+
+{% block title %}{{ 'quiz.title'|trans }} — LearnAdapt{% endblock %}
+
+{% block stylesheets %}
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<style>
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--border:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.028);--ease:cubic-bezier(.22,1,.36,1)}
+body{background:var(--bg)!important;color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+footer{display:none!important}
+.qz-bg-orb{position:fixed;border-radius:50%;pointer-events:none;filter:blur(120px);opacity:.3;z-index:0}
+.qz-bg-orb.a{width:600px;height:600px;top:-120px;left:-100px;background:radial-gradient(circle,rgba(123,97,241,.25),transparent 70%)}
+.qz-bg-orb.b{width:500px;height:500px;bottom:-80px;right:-60px;background:radial-gradient(circle,rgba(56,189,209,.2),transparent 70%)}
+
+.qz-page{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:120px 28px 60px}
+.qz-hero{text-align:center;margin-bottom:48px;animation:heroIn .7s var(--ease) both}
+@keyframes heroIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.qz-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-.03em;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.qz-hero p{color:var(--muted);font-size:1.05rem;max-width:500px;margin:0 auto}
+
+/* Stats Row */
+.qz-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:40px;animation:heroIn .7s var(--ease) .1s both}
+.qz-stat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 24px;text-align:center;backdrop-filter:blur(12px)}
+.qz-stat-num{font-size:2rem;font-weight:800;margin-bottom:2px}
+.qz-stat-label{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.qz-stat.purple .qz-stat-num{color:var(--purple)}
+.qz-stat.cyan .qz-stat-num{color:var(--cyan)}
+.qz-stat.green .qz-stat-num{color:var(--green)}
+.qz-stat.orange .qz-stat-num{color:var(--orange)}
+
+/* Quiz Cards */
+.qz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:24px}
+.qz-card{background:linear-gradient(145deg,rgba(255,255,255,.03),rgba(255,255,255,.015));border:1px solid var(--border);border-radius:20px;padding:0;overflow:hidden;transition:transform .3s var(--ease),box-shadow .3s ease,border-color .3s ease;animation:cardIn .5s var(--ease) both;position:relative}
+.qz-card:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(0,0,0,.3);border-color:rgba(123,97,241,.25)}
+@keyframes cardIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.qz-card-top{padding:28px 28px 0;position:relative}
+.qz-card-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:999px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
+.qz-card-badge.active{background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.2)}
+.qz-card-badge.timed{background:rgba(251,146,60,.12);color:var(--orange);border:1px solid rgba(251,146,60,.2)}
+.qz-card h3{font-size:1.25rem;font-weight:700;margin-bottom:8px;line-height:1.3}
+.qz-card p{color:var(--muted);font-size:.88rem;line-height:1.6;margin-bottom:16px}
+
+.qz-card-meta{display:flex;flex-wrap:wrap;gap:12px;padding:0 28px 20px}
+.qz-meta-item{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;color:var(--muted);background:rgba(255,255,255,.04);padding:5px 12px;border-radius:8px;border:1px solid var(--border)}
+.qz-meta-item i{font-size:1rem}
+.qz-meta-item .val{color:var(--text);font-weight:600}
+
+/* Previous Attempt Info */
+.qz-card-attempt{margin:0 28px;padding:12px 16px;border-radius:12px;background:rgba(123,97,241,.08);border:1px solid rgba(123,97,241,.15);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.qz-card-attempt i{font-size:1.3rem;color:var(--purple)}
+.qz-card-attempt .info{flex:1;font-size:.82rem;color:var(--muted)}
+.qz-card-attempt .score{font-size:1.1rem;font-weight:700;color:var(--green)}
+
+.qz-card-actions{padding:16px 28px 24px;display:flex;gap:10px}
+.qz-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 28px;border-radius:12px;font-size:.88rem;font-weight:700;border:none;cursor:pointer;text-decoration:none;transition:all .25s var(--ease);flex:1}
+.qz-btn-primary{background:linear-gradient(135deg,var(--purple),var(--cyan));color:#fff;box-shadow:0 8px 24px rgba(123,97,241,.25)}
+.qz-btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(123,97,241,.35)}
+.qz-btn-secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
+.qz-btn-secondary:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.15)}
+.qz-btn i{font-size:1.1rem}
+
+/* Empty */
+.qz-empty{text-align:center;padding:80px 20px;animation:heroIn .6s var(--ease) both}
+.qz-empty i{font-size:4rem;color:var(--muted);margin-bottom:16px;display:block}
+.qz-empty h3{font-size:1.3rem;font-weight:700;margin-bottom:8px}
+.qz-empty p{color:var(--muted);font-size:.95rem}
+
+@media(max-width:480px){
+	.qz-grid{grid-template-columns:1fr}
+	.qz-card-meta{flex-direction:column;gap:8px}
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="qz-bg-orb a"></div>
+<div class="qz-bg-orb b"></div>
+
+<div class="qz-page">
+	<div class="qz-hero">
+		<h1><i class='bx bx-brain' style="font-size:inherit;vertical-align:middle;margin-right:6px"></i>{{ 'quiz.title'|trans }}</h1>
+		<p>{{ 'quiz.subtitle'|trans }}</p>
+	</div>
+
+	{% set totalQ = quizzes|length %}
+	{% set completedQ = 0 %}
+	{% set bestAvg = 0 %}
+	{% for q in quizzes %}
+		{% if attemptMap[q.id] is defined and attemptMap[q.id].best_score %}
+			{% set completedQ = completedQ + 1 %}
+			{% set bestAvg = bestAvg + attemptMap[q.id].best_score %}
+		{% endif %}
+	{% endfor %}
+
+	<div class="qz-stats">
+		<div class="qz-stat purple">
+			<div class="qz-stat-num">{{ totalQ }}</div>
+			<div class="qz-stat-label">{{ 'quiz.available'|trans }}</div>
+		</div>
+		<div class="qz-stat cyan">
+			<div class="qz-stat-num">{{ completedQ }}</div>
+			<div class="qz-stat-label">{{ 'quiz.completed'|trans }}</div>
+		</div>
+		<div class="qz-stat green">
+			<div class="qz-stat-num">{{ completedQ > 0 ? (bestAvg / completedQ)|round ~ '%' : '—' }}</div>
+			<div class="qz-stat-label">{{ 'quiz.avg_score'|trans }}</div>
+		</div>
+	</div>
+
+	{% if quizzes|length > 0 %}
+	<div class="qz-grid">
+		{% for q in quizzes %}
+		<div class="qz-card" style="animation-delay:{{ loop.index0 * 0.08 }}s">
+			<div class="qz-card-top">
+				<div style="display:flex;gap:8px;flex-wrap:wrap">
+					<span class="qz-card-badge active"><i class='bx bx-check-circle'></i> Active</span>
+					{% if q.time_limit_minutes %}
+					<span class="qz-card-badge timed"><i class='bx bx-timer'></i> {{ q.time_limit_minutes }} min</span>
+					{% endif %}
+				</div>
+				<h3>{{ q.title }}</h3>
+				<p>{{ q.description|default('quiz.no_desc'|trans) }}</p>
+			</div>
+
+			<div class="qz-card-meta">
+				<span class="qz-meta-item"><i class='bx bx-help-circle'></i> <span class="val">{{ q.question_count }}</span> {{ 'quiz.questions'|trans }}</span>
+				<span class="qz-meta-item"><i class='bx bx-star'></i> <span class="val">{{ q.total_points|default(0) }}</span> pts</span>
+				{% if q.time_limit_minutes %}
+				<span class="qz-meta-item"><i class='bx bx-time-five'></i> <span class="val">{{ q.time_limit_minutes }}</span> min</span>
+				{% else %}
+				<span class="qz-meta-item"><i class='bx bx-infinite'></i> {{ 'quiz.no_limit'|trans }}</span>
+				{% endif %}
+			</div>
+
+			{% if attemptMap[q.id] is defined %}
+			<div class="qz-card-attempt">
+				<i class='bx bx-trophy'></i>
+				<div class="info">
+					{{ 'quiz.attempts'|trans }}: <strong>{{ attemptMap[q.id].attempt_count }}</strong><br>
+					{{ 'quiz.last_attempt'|trans }}: {{ attemptMap[q.id].last_attempt|date('d M Y') }}
+				</div>
+				<div class="score">{{ attemptMap[q.id].best_score|round }}%</div>
+			</div>
+			{% endif %}
+
+			<div class="qz-card-actions">
+				{% if q.question_count > 0 %}
+				<form method="post" action="{{ path('app_quiz_start', {id: q.id}) }}" style="flex:1;display:flex">
+					<button type="submit" class="qz-btn qz-btn-primary" style="flex:1">
+						<i class='bx bx-play-circle'></i>
+						{% if attemptMap[q.id] is defined %}{{ 'quiz.retake'|trans }}{% else %}{{ 'quiz.start'|trans }}{% endif %}
+					</button>
+				</form>
+				{% if attemptMap[q.id] is defined %}
+				<a href="#" class="qz-btn qz-btn-secondary" style="flex:0;padding:12px 16px" title="{{ 'quiz.view_results'|trans }}">
+					<i class='bx bx-bar-chart-alt-2'></i>
+				</a>
+				{% endif %}
+				{% else %}
+				<div class="qz-btn qz-btn-secondary" style="opacity:.5;cursor:default">
+					<i class='bx bx-lock-alt'></i> {{ 'quiz.no_questions'|trans }}
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+	{% else %}
+	<div class="qz-empty">
+		<i class='bx bx-brain'></i>
+		<h3>{{ 'quiz.empty_title'|trans }}</h3>
+		<p>{{ 'quiz.empty_desc'|trans }}</p>
+	</div>
+	{% endif %}
+</div>
+{% endblock %}

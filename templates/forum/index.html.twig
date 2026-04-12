@@ -81,6 +81,21 @@ footer{display:none!important}
 .fm-reply-count i{font-size:0.9rem}
 .fm-topic-time{font-size:0.66rem;color:rgba(148,163,184,0.5);font-weight:600}
 
+/* ── Topic Actions ── */
+.fm-topic-actions{display:flex;gap:5px;margin-top:6px}
+.fm-act-btn{padding:5px 10px;border-radius:8px;font-size:0.66rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--muted);transition:all .2s;font-family:inherit;display:inline-flex;align-items:center;gap:3px;text-decoration:none}
+.fm-act-btn:hover{border-color:rgba(123,97,241,0.3);color:var(--purple-soft);background:rgba(123,97,241,0.06)}
+.fm-act-btn.delete:hover{border-color:rgba(239,68,68,0.3);color:var(--red);background:rgba(239,68,68,0.06)}
+
+/* ── Role Badges ── */
+.fm-role{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:6px;font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em}
+.fm-role.role-student{background:rgba(56,189,209,0.1);color:var(--cyan);border:1px solid rgba(56,189,209,0.12)}
+.fm-role.role-expert{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.12)}
+.fm-role.role-teacher{background:rgba(123,97,241,0.1);color:var(--purple-soft);border:1px solid rgba(123,97,241,0.12)}
+.fm-role.role-admin{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.12)}
+.fm-role.role-default{background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)}
+.fm-role i{font-size:0.7rem}
+
 /* ── Closed badge ── */
 .fm-closed{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.08);color:var(--red);font-size:0.6rem;font-weight:800;text-transform:uppercase}
 
@@ -195,6 +210,9 @@ footer{display:none!important}
                                     <div class="fm-topic-title">{{ topic.title }}</div>
                                     <div class="fm-topic-meta">
                                         <span><i class='bx bx-user'></i> {{ topic.author_name }}</span>
+                                        {% set roleClass = topic.author_role|lower in ['student','expert','teacher','admin'] ? 'role-' ~ topic.author_role|lower : 'role-default' %}
+                                        {% set roleIcon = topic.author_role|lower == 'student' ? 'bxs-graduation-cap' : (topic.author_role|lower == 'expert' ? 'bxs-crown' : (topic.author_role|lower == 'teacher' ? 'bxs-chalkboard' : (topic.author_role|lower == 'admin' ? 'bxs-shield' : 'bx-user'))) %}
+                                        <span class="fm-role {{ roleClass }}"><i class='bx {{ roleIcon }}'></i> {{ topic.author_role|default('User') }}</span>
                                         <span class="fm-cat-tag cat-{{ topic.category }}">{{ topic.category|replace({'_': ' '}) }}</span>
                                         {% if topic.is_closed %}<span class="fm-closed"><i class='bx bx-lock-alt'></i> Closed</span>{% endif %}
                                         <span><i class='bx bx-time-five'></i> {{ topic.created_at|date('M d, Y') }}</span>
@@ -205,6 +223,14 @@ footer{display:none!important}
                                 <span class="fm-reply-count"><i class='bx bx-message-detail'></i> {{ topic.reply_count }}</span>
                                 {% if topic.last_reply_at %}
                                     <span class="fm-topic-time">Last reply {{ topic.last_reply_at|date('M d · H:i') }}</span>
+                                {% endif %}
+                                {% if topic.created_by_user_id == user.id %}
+                                    <div class="fm-topic-actions" onclick="event.preventDefault();event.stopPropagation();">
+                                        <button type="button" class="fm-act-btn" onclick="openEditTopic({{ topic.id }}, {{ topic.title|json_encode }}, '{{ topic.category }}')"><i class='bx bx-edit-alt'></i> Edit</button>
+                                        <form method="post" action="{{ path('app_forum_topic_delete', {id: topic.id}) }}" onsubmit="return confirm('Delete this topic and all its replies?');" style="display:inline">
+                                            <button type="submit" class="fm-act-btn delete"><i class='bx bx-trash'></i> Delete</button>
+                                        </form>
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>
@@ -244,12 +270,44 @@ footer{display:none!important}
     </div>
 </div>
 
+{# ── Edit Topic Modal ── #}
+<div class="fm-modal-bg" id="editTopicModal">
+    <div class="fm-modal">
+        <h2>Edit Topic</h2>
+        <p class="sub">Update your topic details</p>
+        <form method="post" id="editTopicForm">
+            <label>Title</label>
+            <input type="text" name="title" id="editTopicTitle" placeholder="Topic title" required maxlength="220">
+            <label>Category</label>
+            <select name="category" id="editTopicCategory">
+                {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat|replace({'_': ' '})|title }}</option>
+                {% endfor %}
+            </select>
+            <div class="fm-modal-foot">
+                <button type="button" class="fm-modal-cancel" onclick="document.getElementById('editTopicModal').classList.remove('open')">Cancel</button>
+                <button type="submit" class="fm-modal-submit">Update Topic</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 document.getElementById('newTopicModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+});
+document.getElementById('editTopicModal').addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('open');
 });
 document.querySelectorAll('.fm-flash').forEach(function(el) {
     setTimeout(function() { el.classList.add('fade-out'); setTimeout(function(){ el.remove(); }, 500); }, 5000);
 });
+
+function openEditTopic(id, title, category) {
+    document.getElementById('editTopicForm').action = '/forum/topic/' + id + '/edit';
+    document.getElementById('editTopicTitle').value = title;
+    document.getElementById('editTopicCategory').value = category;
+    document.getElementById('editTopicModal').classList.add('open');
+}
 </script>
 {% endblock %}

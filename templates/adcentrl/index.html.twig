@@ -1388,7 +1388,8 @@
 		.footer-wrap { max-width: 1200px; margin: 0 auto; padding: 80px 56px 40px; }
 		.footer-top { display: grid; grid-template-columns: 1.8fr repeat(4,1fr); gap: 48px; margin-bottom: 56px; }
 		.footer-brand { display: flex; flex-direction: column; gap: 12px; }
-		.footer-logo { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #a78bfa, #22d3ee); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+		.footer-logo { display: inline-flex; align-items: center; }
+		.footer-logo img { display: block; width: min(238px, 100%); height: auto; }
 		.footer-desc { font-size: 0.875rem; color: var(--muted); line-height: 1.68; max-width: 220px; }
 		.footer-col h4 { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 16px; }
 		.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
@@ -1540,8 +1541,14 @@
 		}
 		.preloader.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
 		.preloader-logo {
-			width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;
+			width: 272px; height: auto; display: flex; align-items: center; justify-content: center;
 			animation: preloaderPulse 1.4s ease-in-out infinite;
+		}
+		.preloader-logo img {
+			display: block;
+			width: 100%;
+			height: auto;
+			filter: drop-shadow(0 12px 26px rgba(4, 10, 22, 0.4));
 		}
 		@keyframes preloaderPulse {
 			0%,100% { transform: scale(1); opacity: 1; }
@@ -2296,9 +2303,7 @@
 	<!-- PRELOADER -->
 	<div class="preloader" id="preloader">
 		<div class="preloader-logo">
-			<span class="learnadapt-mark is-large" aria-hidden="true">
-				<span class="wire left"></span><span class="wire"></span><span class="wire is-glow"></span><span class="wire"></span><span class="wire right"></span>
-			</span>
+			<img src="/brand/learnadapt-premium-logo.svg" alt="LearnAdapt">
 		</div>
 		<div class="preloader-bar"><div class="preloader-bar-fill" id="preloaderFill"></div></div>
 	</div>
@@ -3007,7 +3012,7 @@
 		<div class="footer-wrap">
 			<div class="footer-top">
 				<div class="footer-brand">
-					<div class="footer-logo">LearnAdapt</div>
+					<div class="footer-logo"><img src="/brand/learnadapt-premium-logo.svg" alt="LearnAdapt"></div>
 					<p class="footer-desc">The AI-powered adaptive learning platform for ambitious professionals.</p>
 				</div>
 				<div class="footer-col">
@@ -4167,8 +4172,7 @@
 		})();
 
 	</script>
-</body>
-</html>
+	<script>
 
 		/* ── N1. MAGNETIC NAV LINKS (perf: rAF throttled) ── */
 		(() => {
