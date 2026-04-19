@@ -246,15 +246,15 @@
     {% set errorFlashes = app.flashes('error') %}
 
     <main class="panel">
-        <div class="kicker">Verification Code</div>
-        <h1 class="title">Confirm your {{ purpose == 'register' ? 'new account' : 'sign in' }}</h1>
-        <p class="subtitle">A 6-digit code was sent to your email. Enter it below to continue into LearnAdapt.</p>
+        <div class="kicker">{{ 'verify.kicker'|trans }}</div>
+        <h1 class="title">{{ purpose == 'register' ? 'verify.confirm_account'|trans : 'verify.confirm_signin'|trans }}</h1>
+        <p class="subtitle">{{ 'verify.subtitle'|trans }}</p>
         <div class="email-pill">{{ email }}</div>
 
         {% if devVerificationCode %}
             <div class="dev-card">
-                <strong>Development Mode</strong>
-                <div>Email is not configured, so use this active verification code:</div>
+                <strong>{{ 'verify.dev_mode'|trans }}</strong>
+                <div>{{ 'verify.dev_mode_text'|trans }}</div>
                 <div class="dev-code">{{ devVerificationCode }}</div>
             </div>
         {% endif %}
@@ -269,23 +269,23 @@
         </div>
 
         <form method="post" action="{{ path('app_auth_verify') }}">
-            <label for="code">Verification code</label>
+            <label for="code">{{ 'verify.label'|trans }}</label>
             <input id="code" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required>
 
             <div class="actions">
-                <button type="submit" class="button">Verify and continue</button>
+                <button type="submit" class="button">{{ 'verify.verify_button'|trans }}</button>
             </div>
         </form>
 
         <form method="post" action="{{ path('app_auth_verify_resend') }}">
             <div class="actions">
-                <button type="submit" class="button-secondary">Resend code</button>
+                <button type="submit" class="button-secondary">{{ 'verify.resend'|trans }}</button>
             </div>
         </form>
 
         <div class="links">
-            <a href="{{ path('app_login') }}">Back to authentication</a>
-            <a href="{{ path('app_home') }}">Home</a>
+            <a href="{{ path('app_login') }}">{{ 'verify.back_to_auth'|trans }}</a>
+            <a href="{{ path('app_home') }}">{{ 'auth.home'|trans }}</a>
         </div>
     </main>
 </body>

@@ -5,6 +5,11 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\RoundBlockSizeMode;
+use Endroid\QrCode\Writer\PngWriter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -100,6 +105,22 @@ class ProfileController extends AbstractController
             [$userId]
         );
 
+        // User's forum topics (like Facebook posts on profile)
+        $forumTopics = $conn->fetchAllAssociative(
+            'SELECT ft.id, ft.title, ft.category, ft.is_closed, ft.created_at,
+                    (SELECT COUNT(*) FROM forum_posts fp WHERE fp.topic_id = ft.id) as reply_count,
+                    (SELECT fp3.content FROM forum_posts fp3 WHERE fp3.topic_id = ft.id ORDER BY fp3.created_at ASC LIMIT 1) as first_post_content,
+                    (SELECT fp6.media_files FROM forum_posts fp6 WHERE fp6.topic_id = ft.id AND fp6.media_files IS NOT NULL ORDER BY fp6.created_at ASC LIMIT 1) as first_post_media_files,
+                    (SELECT fp4.media_type FROM forum_posts fp4 WHERE fp4.topic_id = ft.id AND fp4.media_path IS NOT NULL ORDER BY fp4.created_at ASC LIMIT 1) as first_post_media_type,
+                    (SELECT fp5.media_path FROM forum_posts fp5 WHERE fp5.topic_id = ft.id AND fp5.media_path IS NOT NULL ORDER BY fp5.created_at ASC LIMIT 1) as first_post_media_path,
+                    (SELECT COUNT(*) FROM forum_post_reactions fpr WHERE fpr.post_id IN (SELECT fpp.id FROM forum_posts fpp WHERE fpp.topic_id = ft.id) AND fpr.reaction_type = \'like\') as like_count
+             FROM forum_topics ft
+             WHERE ft.created_by_user_id = ?
+             ORDER BY ft.created_at DESC
+             LIMIT 20',
+            [$userId]
+        );
+
         // Unread notifications
         $unreadNotifications = $conn->fetchAllAssociative(
             'SELECT id, type, title, message, created_at, related_topic_id FROM notifications WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC LIMIT 10',
@@ -117,6 +138,7 @@ class ProfileController extends AbstractController
             'quizAttempts' => $quizAttempts,
             'recentActivity' => $recentActivity,
             'courses' => $courses,
+            'forumTopics' => $forumTopics,
             'unreadNotifications' => $unreadNotifications,
             'unreadCount' => $unreadCount,
             'profileShareUrl' => $this->generateUrl('app_profile', [], UrlGeneratorInterface::ABSOLUTE_URL),
@@ -135,46 +157,38 @@ class ProfileController extends AbstractController
         $size = max(160, min(800, $request->query->getInt('size', 220)));
         $profileUrl = $this->generateUrl('app_profile', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        foreach ($this->getQrProviderUrls($profileUrl, $size) as $remoteUrl) {
-            try {
-                $remoteResponse = $this->httpClient->request('GET', $remoteUrl, [
-                    'timeout' => 10,
-                ]);
+        try {
+            $result = Builder::create()
+                ->writer(new PngWriter())
+                ->data($profileUrl)
+                ->encoding(new Encoding('UTF-8'))
+                ->errorCorrectionLevel(ErrorCorrectionLevel::Medium)
+                ->size($size)
+                ->margin(10)
+                ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
+                ->build();
 
-                if ($remoteResponse->getStatusCode() !== Response::HTTP_OK) {
-                    continue;
-                }
+            $response = new Response($result->getString(), Response::HTTP_OK, [
+                'Content-Type' => 'image/png',
+                'Cache-Control' => 'private, max-age=3600',
+            ]);
 
-                $content = $remoteResponse->getContent(false);
-
-                if ($content === '') {
-                    continue;
-                }
-
-                $response = new Response($content, Response::HTTP_OK, [
-                    'Content-Type' => 'image/png',
-                    'Cache-Control' => 'private, max-age=3600',
-                ]);
-
-                if ($request->query->getBoolean('download')) {
-                    $response->headers->set('Content-Disposition', 'attachment; filename="learnadapt-profile-qr.png"');
-                }
-
-                return $response;
-            } catch (\Throwable) {
-                continue;
+            if ($request->query->getBoolean('download')) {
+                $response->headers->set('Content-Disposition', 'attachment; filename="learnadapt-profile-qr.png"');
             }
-        }
 
-        return new Response(
-            sprintf(
-                '<svg xmlns="http://www.w3.org/2000/svg" width="%1$d" height="%1$d" viewBox="0 0 %1$d %1$d"><rect width="%1$d" height="%1$d" rx="18" fill="#0f121c"/><rect x="14" y="14" width="%2$d" height="%2$d" rx="10" fill="#ffffff"/><text x="50%%" y="50%%" fill="#0f121c" font-family="Arial, sans-serif" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="middle">QR unavailable</text></svg>',
-                $size,
-                $size - 28,
-            ),
-            Response::HTTP_SERVICE_UNAVAILABLE,
-            ['Content-Type' => 'image/svg+xml']
-        );
+            return $response;
+        } catch (\Throwable) {
+            return new Response(
+                sprintf(
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="%1$d" height="%1$d" viewBox="0 0 %1$d %1$d"><rect width="%1$d" height="%1$d" rx="18" fill="#0f121c"/><rect x="14" y="14" width="%2$d" height="%2$d" rx="10" fill="#ffffff"/><text x="50%%" y="50%%" fill="#0f121c" font-family="Arial, sans-serif" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="middle">QR unavailable</text></svg>',
+                    $size,
+                    $size - 28,
+                ),
+                Response::HTTP_SERVICE_UNAVAILABLE,
+                ['Content-Type' => 'image/svg+xml']
+            );
+        }
     }
 
     #[Route('/profile/upload-avatar', name: 'app_profile_upload_avatar', methods: ['POST'])]
@@ -288,11 +302,4 @@ class ProfileController extends AbstractController
         return $this->userRepository->find((int) $auth['id']);
     }
 
-    private function getQrProviderUrls(string $profileUrl, int $size): array
-    {
-        return [
-            'https://quickchart.io/qr?text=' . rawurlencode($profileUrl) . '&size=' . $size . '&margin=1&ecLevel=M',
-            'https://api.qrserver.com/v1/create-qr-code/?size=' . $size . 'x' . $size . '&data=' . rawurlencode($profileUrl),
-        ];
-    }
 }

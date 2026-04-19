@@ -103,7 +103,7 @@ footer{display:none!important}
 <div class="cs-page">
 <div class="cs-wrap">
 
-	<a href="{{ path('app_courses') }}" class="cs-back"><i class='bx bx-arrow-back'></i> Back to Courses</a>
+	<a href="{{ path('app_courses') }}" class="cs-back"><i class='bx bx-arrow-back'></i> {{ 'course.back_to_courses'|trans }}</a>
 
 	<!-- Hero -->
 	<div class="cs-hero">
@@ -123,7 +123,7 @@ footer{display:none!important}
 					{% endif %}
 					<span><i class='bx bx-calendar'></i> {{ course.created_at|date('M d, Y') }}</span>
 					{% if course.updated_at != course.created_at %}
-						<span><i class='bx bx-revision'></i> Updated {{ course.updated_at|date('M d, Y') }}</span>
+						<span><i class='bx bx-revision'></i> {{ 'course.updated'|trans }} {{ course.updated_at|date('M d, Y') }}</span>
 					{% endif %}
 				</div>
 			</div>
@@ -136,14 +136,14 @@ footer{display:none!important}
 	<!-- Description -->
 	{% if course.description %}
 	<div class="cs-section">
-		<div class="cs-section-title"><i class='bx bx-detail'></i> Description</div>
+		<div class="cs-section-title"><i class='bx bx-detail'></i> {{ 'course.description'|trans }}</div>
 		<div class="cs-desc-box">{{ course.description|nl2br }}</div>
 	</div>
 	{% endif %}
 
 	<!-- Exercises -->
 	<div class="cs-section" style="animation-delay:.25s">
-		<div class="cs-section-title"><i class='bx bx-edit-alt'></i> Linked Exercises <span style="color:var(--muted);font-weight:600;font-size:0.78rem;margin-left:4px">({{ exercises|length }})</span></div>
+		<div class="cs-section-title"><i class='bx bx-edit-alt'></i> {{ 'course.linked_exercises'|trans }} <span style="color:var(--muted);font-weight:600;font-size:0.78rem;margin-left:4px">({{ exercises|length }})</span></div>
 
 		{% if exercises|length > 0 %}
 		<div class="cs-ex-grid">
@@ -160,10 +160,10 @@ footer{display:none!important}
 				</div>
 				<div class="cs-ex-links">
 					{% if ex.fichier_exercice %}
-						<a href="{{ ex.fichier_exercice }}" class="cs-ex-dl" target="_blank"><i class='bx bx-download'></i> Exercise</a>
+						<a href="{{ ex.fichier_exercice }}" class="cs-ex-dl" target="_blank"><i class='bx bx-download'></i> {{ 'course.exercise'|trans }}</a>
 					{% endif %}
 					{% if ex.fichier_correction %}
-						<a href="{{ ex.fichier_correction }}" class="cs-ex-corr" target="_blank"><i class='bx bx-check-circle'></i> Correction</a>
+						<a href="{{ ex.fichier_correction }}" class="cs-ex-corr" target="_blank"><i class='bx bx-check-circle'></i> {{ 'course.correction'|trans }}</a>
 					{% endif %}
 				</div>
 			</div>
@@ -172,8 +172,8 @@ footer{display:none!important}
 		{% else %}
 		<div class="cs-ex-empty">
 			<div class="cs-ex-empty-icon"><i class='bx bx-file-blank'></i></div>
-			<h4>No exercises linked</h4>
-			<p>This course doesn't have any exercises attached yet.</p>
+			<h4>{{ 'course.no_exercises'|trans }}</h4>
+			<p>{{ 'course.no_exercises_desc'|trans }}</p>
 		</div>
 		{% endif %}
 	</div>

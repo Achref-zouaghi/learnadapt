@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 {% set darkPage = true %}
 {% block title %}Forum — LearnAdapt{% endblock %}
 
@@ -7,307 +7,1102 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-:root{--bg:#04060e;--purple:#7b61f1;--purple-soft:#a78bfa;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.3)}
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--primary:#7b61f1;--primary-dark:#6552cc;--soft:rgba(255,255,255,0.04);--line:rgba(255,255,255,0.08);--danger:#f87171;--panel:rgba(255,255,255,0.03);--ease:cubic-bezier(0.22,1,0.36,1);--grad:linear-gradient(135deg,#7856ed 0%,#3cc5d9 100%)}
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
 footer{display:none!important}
 
-.fm{min-height:100vh;padding:100px 0 60px;background:transparent;position:relative;z-index:1}
-.fm-wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+/* Background decorative blobs */
+.forum-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.forum-blob{position:absolute;border-radius:50%;filter:blur(120px);will-change:transform}
+.forum-blob-1{width:600px;height:600px;background:radial-gradient(circle,rgba(124,58,237,0.14),transparent 70%);top:-120px;left:-100px;animation:forumBlobMove 12s ease-in-out infinite}
+.forum-blob-2{width:500px;height:500px;background:radial-gradient(circle,rgba(34,211,238,0.1),transparent 70%);top:200px;right:-80px;animation:forumBlobMove 15s ease-in-out infinite reverse}
+.forum-blob-3{width:400px;height:400px;background:radial-gradient(circle,rgba(167,139,250,0.08),transparent 70%);bottom:100px;left:30%;animation:forumBlobMove 10s ease-in-out infinite;animation-delay:-4s}
+@keyframes forumBlobMove{0%,100%{transform:translate(0,0)}33%{transform:translate(24px,-28px)}66%{transform:translate(-18px,12px)}}
 
-/* ── Entrance Animations ── */
-@keyframes fmSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fmCardFade{from{opacity:0;transform:translateY(8px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.forum-shell{max-width:1240px;margin:84px auto 32px;padding:0 18px;position:relative;z-index:1}
+.forum-grid{display:grid;grid-template-columns:280px minmax(0,1fr) 280px;gap:18px;align-items:start}
+.card{position:relative;background:linear-gradient(165deg,rgba(255,255,255,0.04),rgba(255,255,255,0.015));border:1px solid rgba(255,255,255,0.07);border-radius:18px;box-shadow:0 4px 24px rgba(0,0,0,0.3),0 0 0 1px rgba(255,255,255,0.02);backdrop-filter:blur(16px);overflow:hidden;transition:border-color 0.4s ease,box-shadow 0.4s ease,transform 0.4s var(--ease)}
 
-/* ── Header ── */
-.fm-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;animation:fmSlideUp .5s ease-out}
-.fm-head h1{font-size:1.85rem;font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--purple),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.fm-head p{color:var(--muted);font-size:0.84rem;margin-top:4px}
-.fm-new-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:linear-gradient(135deg,var(--purple),#9b7bf7);border:none;border-radius:12px;color:#fff;font-weight:700;font-size:0.84rem;cursor:pointer;transition:all .2s ease;box-shadow:0 4px 20px rgba(123,97,241,0.3);font-family:inherit}
-.fm-new-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(123,97,241,0.4)}
-.fm-new-btn i{font-size:1.1rem}
+/* Left Sidebar */
+.left-col{position:sticky;top:96px;align-self:start}
+.left-card{padding:0;overflow:hidden}
+.profile-banner{height:92px;background:linear-gradient(135deg,rgba(123,97,241,0.35),rgba(56,189,209,0.25),rgba(52,211,153,0.18));position:relative}
+.profile-banner::after{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1px);background-size:20px 20px;pointer-events:none;mask-image:radial-gradient(ellipse 100% 100% at 50% 50%,black 30%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 100% 100% at 50% 50%,black 30%,transparent 100%)}
+.profile-body{padding:0 18px 18px;text-align:center}
+.profile-avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid rgba(123,97,241,0.3);margin:-40px auto 0;display:block;background:rgba(255,255,255,0.06);box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+.profile-name{font-size:1.05rem;font-weight:800;margin-top:10px;color:var(--text);letter-spacing:-0.01em}
+.profile-handle{color:var(--muted);font-size:.82rem}
+.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.profile-stat{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px;text-align:center;transition:border-color 0.2s ease,background 0.2s ease}
+.profile-stat:hover{border-color:rgba(123,97,241,0.2);background:rgba(123,97,241,0.04)}
+.profile-stat b{display:block;font-size:.98rem;color:var(--text);font-weight:800}
+.profile-stat span{font-size:.72rem;color:var(--muted)}
+.profile-btn{display:block;width:100%;margin-top:14px;padding:10px;border:none;background:linear-gradient(135deg,var(--purple),#9b7bf7);color:#fff;border-radius:12px;font-weight:800;font-size:.88rem;cursor:pointer;text-align:center;text-decoration:none;box-shadow:0 4px 20px rgba(123,97,241,0.3);transition:all 0.3s var(--ease)}
+.profile-btn:hover{box-shadow:0 8px 32px rgba(123,97,241,0.45);transform:translateY(-2px)}
+.shortcuts{padding:16px}
+.shortcuts h4{font-size:.78rem;font-weight:700;margin:0 0 12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+.shortcut-item{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:.86rem;font-weight:600;transition:all .2s var(--ease)}
+.shortcut-item:hover{color:var(--text);background:rgba(255,255,255,0.03)}
+.shortcut-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff}
+.shortcut-icon.blue{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.15)}.shortcut-icon.green{background:rgba(52,211,153,0.15);color:#34d399;border:1px solid rgba(52,211,153,0.12)}.shortcut-icon.orange{background:rgba(251,146,60,0.15);color:#fb923c;border:1px solid rgba(251,146,60,0.12)}.shortcut-icon.purple{background:rgba(123,97,241,0.15);color:#a78bfa;border:1px solid rgba(123,97,241,0.12)}
 
-/* ── Stats Bar ── */
-.fm-stats{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;animation:fmSlideUp .5s ease-out .05s backwards}
-.fm-st{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 22px;min-width:120px;backdrop-filter:blur(12px);transition:all .2s ease}
-.fm-st:hover{background:var(--card-h);border-color:rgba(123,97,241,0.15);transform:translateY(-1px)}
-.fm-st-v{font-size:1.5rem;font-weight:900;letter-spacing:-0.02em}
-.fm-st-l{font-size:0.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px}
+/* Center */
+.center-col{display:grid;gap:14px}
+.composer{padding:18px 20px}
+.composer::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:0.6;border-radius:18px 18px 0 0}
+.composer-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.composer-head img{width:40px;height:40px;border-radius:50%;object-fit:cover;box-shadow:0 2px 12px rgba(0,0,0,0.3);border:2px solid rgba(123,97,241,0.15)}
+.composer-head input[type="text"]{flex:1;border:1px solid var(--border);border-radius:14px;padding:11px 16px;font:inherit;background:var(--soft);outline:none;font-size:.9rem;color:var(--text);transition:all 0.25s ease}
+.composer-head input[type="text"]::placeholder{color:var(--muted)}
+.composer-head input[type="text"]:focus{border-color:rgba(123,97,241,0.4);box-shadow:0 0 0 3px rgba(123,97,241,.12);background:rgba(255,255,255,0.05)}
+.composer-head .emoji-trigger{border:none;background:none;font-size:1.3rem;cursor:pointer;color:var(--muted);padding:4px;transition:color 0.2s ease,transform 0.2s var(--ease)}
+.composer-head .emoji-trigger:hover{color:var(--yellow);transform:scale(1.1)}
+.composer-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent);margin:12px 0}
+.composer-tools{display:flex;gap:8px;align-items:center}
+.composer-tools-left{display:flex;gap:8px;align-items:center}
+.composer-tools-right{margin-left:auto}
+.tool-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:12px;background:var(--soft);padding:9px 16px;font-size:.82rem;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s var(--ease)}
+.tool-chip:hover{background:var(--card-h);border-color:rgba(255,255,255,0.14);color:var(--text);transform:translateY(-1px)}
+.tool-chip input[type="file"]{display:none}
+.tool-chip i{font-size:1.1rem}
+.tool-chip.img i{color:var(--green)}
+.tool-chip.vid i{color:var(--red)}
+.post-chip{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--purple),#9b7bf7);color:#fff;padding:9px 20px;font-size:.84rem;font-weight:800;cursor:pointer;box-shadow:0 4px 18px rgba(123,97,241,0.35);transition:all .3s var(--ease);font-family:inherit}
+.post-chip:hover{box-shadow:0 8px 28px rgba(123,97,241,0.5);transform:translateY(-2px)}
+.post-chip i{font-size:1rem}
 
-/* ── Filter Bar ── */
-.fm-filters{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;animation:fmSlideUp .5s ease-out .1s backwards}
-.fm-filter-btn{padding:8px 16px;border-radius:10px;font-size:0.72rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted);transition:all .2s;font-family:inherit;text-transform:uppercase;letter-spacing:0.04em}
-.fm-filter-btn:hover{border-color:rgba(123,97,241,0.2);color:var(--purple)}
-.fm-filter-btn.active{background:linear-gradient(135deg,rgba(123,97,241,0.15),rgba(56,189,209,0.08));border-color:rgba(123,97,241,0.3);color:var(--purple-soft)}
-.fm-search{flex:1;min-width:200px;max-width:320px;margin-left:auto}
-.fm-search input{width:100%;padding:10px 14px 10px 38px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:0.84rem;font-family:inherit;transition:border-color .2s;outline:none}
-.fm-search input:focus{border-color:rgba(123,97,241,0.3)}
-.fm-search{position:relative}
-.fm-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1rem}
+/* File preview grid */
+.composer-previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.preview-item{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000;transition:border-color 0.2s ease}
+.preview-item:hover{border-color:rgba(123,97,241,0.3)}
+.preview-item img,.preview-item video{display:block;width:90px;height:90px;object-fit:cover}
+.preview-remove{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:.85rem;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1;z-index:2;transition:all 0.15s ease}
+.preview-remove:hover{background:rgba(248,113,113,0.8);transform:scale(1.1)}
+.preview-badge{position:absolute;bottom:4px;left:4px;font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:6px;color:#fff;text-transform:uppercase}
+.preview-badge.img-badge{background:rgba(52,211,153,0.7)}
+.preview-badge.vid-badge{background:rgba(248,113,113,0.7)}
+.emoji-box{display:none;gap:6px;flex-wrap:wrap;padding:10px;border:1px dashed rgba(255,255,255,0.08);border-radius:12px;margin-top:10px;background:rgba(255,255,255,0.02)}
+.emoji-box.open{display:flex}
+.emoji-btn{border:1px solid var(--border);background:var(--soft);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:1rem;line-height:1;transition:all 0.15s ease}
+.emoji-btn:hover{background:var(--card-h);transform:scale(1.08)}
 
-/* ── Topic Cards ── */
-.fm-topics{display:grid;gap:12px}
-.fm-topic{background:var(--glass);border:1px solid var(--border);border-radius:18px;padding:22px 26px;backdrop-filter:blur(14px);position:relative;overflow:hidden;transition:all .22s ease;animation:fmCardFade .4s ease-out backwards;cursor:pointer;text-decoration:none;display:block;color:inherit}
-.fm-topic::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;z-index:2}
-.fm-topic::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.02),transparent);transition:left .5s ease;pointer-events:none}
-.fm-topic:hover{border-color:rgba(123,97,241,0.18);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.15)}
-.fm-topic:hover::after{left:100%}
+/* Filter bar */
+.filter-bar{padding:0;display:flex;flex-direction:column;gap:0;overflow:visible}
+.filter-row{display:flex;align-items:center;gap:6px;padding:14px 18px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-pill{padding:8px 16px;border-radius:12px;font-size:.8rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--soft);color:var(--muted);transition:all .25s var(--ease);text-decoration:none;white-space:nowrap;flex-shrink:0}
+.filter-pill:hover{border-color:rgba(255,255,255,0.14);color:var(--text);background:rgba(255,255,255,0.05)}
+.filter-pill.active{background:linear-gradient(135deg,var(--purple),rgba(56,189,209,0.8));border-color:transparent;color:#fff;box-shadow:0 4px 18px rgba(123,97,241,0.35)}
+.filter-bottom{display:flex;align-items:center;gap:10px;padding:0 18px 14px;border-top:1px solid rgba(255,255,255,0.04)}
+.filter-search{flex:1;min-width:0;position:relative}
+.filter-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.95rem;transition:color 0.2s ease}
+.filter-search input{width:100%;padding:9px 14px 9px 34px;border:1px solid var(--border);border-radius:12px;font:inherit;font-size:.84rem;outline:none;background:var(--soft);color:var(--text);transition:all 0.25s ease}
+.filter-search input::placeholder{color:var(--muted)}
+.filter-search input:focus{border-color:rgba(123,97,241,0.4);box-shadow:0 0 0 3px rgba(123,97,241,.1)}
+.filter-search:focus-within i{color:var(--purple)}
+.sort-label{font-size:.78rem;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0;padding:8px 12px;border:1px solid var(--border);border-radius:12px;background:var(--soft);cursor:default;transition:border-color 0.2s ease}
+.sort-label:hover{border-color:rgba(255,255,255,0.12)}
 
-/* Category colors */
-.fm-topic.cat-GENERAL::before{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
-.fm-topic.cat-ADVICE::before{background:linear-gradient(90deg,var(--green),#6ee7b7)}
-.fm-topic.cat-DIFFICULTIES::before{background:linear-gradient(90deg,var(--orange),var(--yellow))}
-.fm-topic.cat-APP_HELP::before{background:linear-gradient(90deg,var(--purple),var(--purple-soft))}
-.fm-topic.cat-SUCCESS_STORY::before{background:linear-gradient(90deg,var(--cyan),#67e8f9)}
+/* Feed cards */
+.feed-card{padding:18px 20px;transition:all .35s var(--ease);position:relative}
+.feed-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--grad);opacity:0;transition:opacity 0.35s ease}
+.feed-card:hover{border-color:rgba(123,97,241,0.22);box-shadow:0 12px 40px rgba(0,0,0,0.45),0 0 0 1px rgba(123,97,241,0.08);transform:translateY(-2px)}
+.feed-card:hover::before{opacity:0.5}
+.feed-head{display:flex;gap:10px;align-items:center}
+.feed-head img{width:44px;height:44px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.06);flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,0.3)}
+.feed-author{font-size:.94rem;font-weight:800;color:var(--text);letter-spacing:-0.01em}
+.feed-time{font-size:.76rem;color:var(--muted)}
+.role-badge{font-size:.64rem;font-weight:800;padding:2px 8px;border-radius:999px;margin-left:6px;letter-spacing:0.02em}
+.role-badge.student{background:rgba(56,189,209,0.12);color:var(--cyan);border:1px solid rgba(56,189,209,0.25)}
+.role-badge.expert{background:rgba(251,191,36,0.12);color:var(--yellow);border:1px solid rgba(251,191,36,0.25)}
+.role-badge.teacher{background:rgba(123,97,241,0.12);color:#a78bfa;border:1px solid rgba(123,97,241,0.25)}
+.role-badge.admin{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.25)}
+.cat-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:800;margin-left:8px;letter-spacing:0.02em}
+.cat-tag.GENERAL{background:rgba(96,165,250,0.12);color:#60a5fa;border:1px solid rgba(96,165,250,0.25)}
+.cat-tag.ADVICE{background:rgba(52,211,153,0.12);color:var(--green);border:1px solid rgba(52,211,153,0.25)}
+.cat-tag.DIFFICULTIES{background:rgba(251,146,60,0.12);color:var(--orange);border:1px solid rgba(251,146,60,0.25)}
+.cat-tag.APP_HELP{background:rgba(123,97,241,0.12);color:#a78bfa;border:1px solid rgba(123,97,241,0.25)}
+.cat-tag.SUCCESS_STORY{background:rgba(56,189,209,0.12);color:var(--cyan);border:1px solid rgba(56,189,209,0.25)}
+.feed-dots{margin-left:auto;border:none;background:none;font-size:1.2rem;cursor:pointer;color:var(--muted);padding:4px;transition:color 0.2s ease}
+.feed-dots:hover{color:var(--text)}
+.feed-title{font-size:1.08rem;font-weight:800;margin:10px 0 4px;line-height:1.35;letter-spacing:-0.01em}
+.feed-title a{color:var(--text);text-decoration:none;transition:color .25s var(--ease)}
+.feed-title a:hover{color:var(--purple);background:linear-gradient(90deg,#b29cfb,#50cbdc);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.feed-stats{display:flex;gap:12px;align-items:center;font-size:.78rem;color:var(--muted);margin-top:4px}
+.feed-stats span{display:inline-flex;align-items:center;gap:3px}
+.feed-stats i{font-size:.92rem}
+.feed-actions{display:flex;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);color:var(--muted);font-size:.82rem}
+.feed-action{display:inline-flex;align-items:center;gap:5px;cursor:pointer;padding:8px 0;border-radius:10px;border:none;background:none;font:inherit;font-size:.82rem;font-weight:600;color:var(--muted);transition:all .25s var(--ease);text-decoration:none;flex:1;justify-content:center}
+.feed-action:hover{background:rgba(255,255,255,0.04);color:var(--text);transform:translateY(-1px)}
+.feed-action i{font-size:1.2rem}
+.feed-action.liked{color:var(--cyan);font-weight:800}
+.feed-action.liked i{color:var(--cyan)}
+.reaction-summary{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--muted);margin-top:8px}
+.reaction-icons{display:inline-flex;gap:0}
+.reaction-icons span{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;margin-left:-4px;border:2px solid var(--bg)}
+.reaction-icons span:first-child{margin-left:0}
+.reaction-icons .r-like{background:rgba(56,189,209,0.25);color:var(--cyan)}
+.reaction-icons .r-love{background:rgba(248,113,113,0.25);color:var(--red)}
+.reaction-icons .r-clap{background:rgba(52,211,153,0.25);color:var(--green)}
+.feed-closed{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25);color:var(--red);font-size:.68rem;font-weight:800;margin-left:8px}
+.owner-btn{padding:4px 10px;border:1px solid var(--border);border-radius:8px;background:var(--soft);font-size:.72rem;font-weight:700;cursor:pointer;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:3px;transition:all 0.2s ease}
+.owner-btn:hover{border-color:rgba(255,255,255,0.14);color:var(--text)}
+.owner-btn.danger{color:var(--red)}
+.owner-btn.danger:hover{border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.08)}
+.feed-empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.feed-empty i{font-size:3rem;color:rgba(255,255,255,0.08);display:block;margin-bottom:12px}
 
-.fm-topic-head{display:flex;align-items:flex-start;gap:14px}
-.fm-topic-avatar{width:44px;height:44px;border-radius:14px;object-fit:cover;border:2px solid rgba(123,97,241,0.15);flex-shrink:0;background:rgba(255,255,255,0.03)}
-.fm-topic-info{flex:1;min-width:0}
-.fm-topic-title{font-size:1rem;font-weight:800;color:#fff;letter-spacing:-0.01em;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fm-topic-meta{display:flex;align-items:center;gap:12px;font-size:0.72rem;color:var(--muted);flex-wrap:wrap}
-.fm-topic-meta span{display:inline-flex;align-items:center;gap:4px}
-.fm-topic-meta i{font-size:0.85rem}
-.fm-cat-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;border:1px solid}
+/* Right sidebar */
+.right-col .card{position:sticky;top:96px}
+.right-card{padding:18px}
+.right-card h3{margin:0 0 12px;font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+.activity{display:grid;gap:10px;margin-bottom:16px}
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:6px 8px;border-radius:10px;transition:background 0.15s ease}
+.activity-item:hover{background:rgba(255,255,255,0.02)}
+.activity-item i{font-size:1rem;color:var(--cyan);margin-top:2px;flex-shrink:0}
+.activity-item p{margin:0;font-size:.8rem;color:var(--muted);line-height:1.45}
+.activity-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:14px 0}
+.suggested-user{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;transition:background 0.15s ease}
+.suggested-user:hover{background:rgba(255,255,255,0.02)}
+.suggested-user img{width:38px;height:38px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.06);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+.suggested-info{flex:1;min-width:0}
+.suggested-name{font-size:.86rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.suggested-role{font-size:.72rem;color:var(--muted)}
 
-.fm-cat-tag.cat-GENERAL{background:rgba(59,130,246,0.1);color:#60a5fa;border-color:rgba(59,130,246,0.08)}
-.fm-cat-tag.cat-ADVICE{background:rgba(52,211,153,0.1);color:var(--green);border-color:rgba(52,211,153,0.08)}
-.fm-cat-tag.cat-DIFFICULTIES{background:rgba(251,146,60,0.1);color:var(--orange);border-color:rgba(251,146,60,0.08)}
-.fm-cat-tag.cat-APP_HELP{background:rgba(123,97,241,0.1);color:var(--purple-soft);border-color:rgba(123,97,241,0.08)}
-.fm-cat-tag.cat-SUCCESS_STORY{background:rgba(56,189,209,0.1);color:var(--cyan);border-color:rgba(56,189,209,0.08)}
+/* Modal */
+.modal-bg{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.65);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:16px}
+.modal-bg.open{display:flex}
+.modal{width:min(560px,96vw);background:linear-gradient(165deg,rgba(20,24,40,0.98),rgba(10,13,23,0.98));border-radius:20px;border:1px solid rgba(255,255,255,0.08);padding:24px;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,0.03)}
+.modal h2{font-size:1.12rem;font-weight:800;margin:0 0 4px;color:var(--text);letter-spacing:-0.01em}
+.modal .sub{color:var(--muted);font-size:.84rem;margin-bottom:16px}
+.modal label{display:block;font-size:.72rem;font-weight:700;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.06em}
+.modal input,.modal select,.modal textarea{width:100%;border:1px solid var(--border);border-radius:12px;padding:10px 13px;font:inherit;font-size:.88rem;outline:none;background:var(--soft);color:var(--text);transition:all 0.25s ease}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:rgba(123,97,241,0.4);box-shadow:0 0 0 3px rgba(123,97,241,.12);background:rgba(255,255,255,0.05)}
+.modal textarea{min-height:100px;resize:vertical}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
+.modal-cancel{padding:10px 20px;background:var(--soft);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-weight:600;font-size:.86rem;cursor:pointer;font-family:inherit;transition:all 0.2s ease}
+.modal-cancel:hover{border-color:rgba(248,113,113,0.3);color:var(--red);background:rgba(248,113,113,0.04)}
+.modal-submit{padding:10px 24px;background:linear-gradient(135deg,var(--purple),#9b7bf7);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:.86rem;cursor:pointer;font-family:inherit;box-shadow:0 4px 18px rgba(123,97,241,0.3);transition:all 0.3s var(--ease)}
+.modal-submit:hover{box-shadow:0 8px 28px rgba(123,97,241,0.45);transform:translateY(-1px)}
 
-.fm-topic-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;margin-left:16px}
-.fm-reply-count{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:10px;background:rgba(123,97,241,0.08);border:1px solid rgba(123,97,241,0.12);color:var(--purple-soft);font-size:0.72rem;font-weight:800}
-.fm-reply-count i{font-size:0.9rem}
-.fm-topic-time{font-size:0.66rem;color:rgba(148,163,184,0.5);font-weight:600}
+/* Flashes */
+.flash-wrap{position:fixed;top:88px;right:20px;z-index:90;display:grid;gap:8px}
+.flash{padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(20,24,40,0.95);font-size:.84rem;box-shadow:0 8px 20px rgba(0,0,0,.3);color:var(--text);display:flex;align-items:center;gap:6px;backdrop-filter:blur(12px)}
+.flash.error{border-color:rgba(248,113,113,0.3);color:var(--red);background:rgba(248,113,113,0.08)}
+.flash.success{border-color:rgba(52,211,153,0.3);color:var(--green);background:rgba(52,211,153,0.08)}
 
-/* ── Topic Actions ── */
-.fm-topic-actions{display:flex;gap:5px;margin-top:6px}
-.fm-act-btn{padding:5px 10px;border-radius:8px;font-size:0.66rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--muted);transition:all .2s;font-family:inherit;display:inline-flex;align-items:center;gap:3px;text-decoration:none}
-.fm-act-btn:hover{border-color:rgba(123,97,241,0.3);color:var(--purple-soft);background:rgba(123,97,241,0.06)}
-.fm-act-btn.delete:hover{border-color:rgba(239,68,68,0.3);color:var(--red);background:rgba(239,68,68,0.06)}
-
-/* ── Role Badges ── */
-.fm-role{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:6px;font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em}
-.fm-role.role-student{background:rgba(56,189,209,0.1);color:var(--cyan);border:1px solid rgba(56,189,209,0.12)}
-.fm-role.role-expert{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.12)}
-.fm-role.role-teacher{background:rgba(123,97,241,0.1);color:var(--purple-soft);border:1px solid rgba(123,97,241,0.12)}
-.fm-role.role-admin{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.12)}
-.fm-role.role-default{background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border)}
-.fm-role i{font-size:0.7rem}
-
-/* ── Closed badge ── */
-.fm-closed{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.08);color:var(--red);font-size:0.6rem;font-weight:800;text-transform:uppercase}
-
-/* ── Empty state ── */
-.fm-empty{text-align:center;padding:60px 20px;color:var(--muted)}
-.fm-empty i{font-size:3.5rem;color:rgba(255,255,255,0.08);display:block;margin-bottom:16px}
-.fm-empty p{font-size:0.88rem}
-
-/* ── Modal ── */
-.fm-modal-bg{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
-.fm-modal-bg.open{display:flex}
-.fm-modal{background:rgba(10,14,26,0.95);border:1px solid var(--border);border-radius:22px;padding:32px;width:100%;max-width:520px;backdrop-filter:blur(20px);box-shadow:0 40px 100px rgba(0,0,0,0.5),0 0 40px rgba(123,97,241,0.06)}
-.fm-modal h2{font-size:1.2rem;font-weight:900;color:#fff;margin-bottom:4px;background:linear-gradient(135deg,var(--purple),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:inline-block}
-.fm-modal p.sub{font-size:0.82rem;color:var(--muted);margin-bottom:20px}
-.fm-modal label{display:block;font-size:0.72rem;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.06em}
-.fm-modal input,.fm-modal select,.fm-modal textarea{width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:0.86rem;margin-bottom:14px;transition:border-color .2s;font-family:inherit;outline:none}
-.fm-modal input:focus,.fm-modal select:focus,.fm-modal textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(123,97,241,0.1)}
-.fm-modal select option{background:#1a1e2e;color:#f6f8fc}
-.fm-modal textarea{resize:vertical;min-height:100px}
-.fm-modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
-.fm-modal-cancel{padding:10px 22px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-weight:600;font-size:0.84rem;cursor:pointer;transition:all .15s;font-family:inherit}
-.fm-modal-cancel:hover{border-color:var(--red);color:var(--red)}
-.fm-modal-submit{padding:10px 28px;background:linear-gradient(135deg,var(--purple),#9b7bf7);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:0.84rem;cursor:pointer;transition:all .15s;box-shadow:0 4px 16px rgba(123,97,241,0.25);font-family:inherit}
-.fm-modal-submit:hover{opacity:.9;transform:translateY(-1px)}
-
-/* ── Toast ── */
-.fm-toast-container{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;display:flex;flex-direction:column;gap:10px;align-items:center}
-.fm-flash{padding:14px 24px;border-radius:14px;font-size:0.84rem;font-weight:600;backdrop-filter:blur(16px);box-shadow:0 8px 32px rgba(0,0,0,0.4);display:flex;align-items:center;animation:fmSlideUp .4s cubic-bezier(0.22,1,0.36,1)}
-.fm-flash.success{background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.3);color:#34d399}
-.fm-flash.error{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444}
-.fm-flash.fade-out{opacity:0;transform:translateX(40px);transition:opacity .5s,transform .5s}
-
-/* ── Glow line ── */
-.fm-glow-line{height:1px;border:none;margin:28px 0;background:linear-gradient(90deg,transparent,rgba(123,97,241,0.15),rgba(56,189,209,0.08),transparent)}
-
-@media(max-width:768px){
-    .fm-topic-head{flex-direction:column}
-    .fm-topic-right{flex-direction:row;margin-left:0;margin-top:8px}
-    .fm-filters{flex-direction:column;align-items:stretch}
-    .fm-search{max-width:100%;margin-left:0}
+@media (max-width:1080px){
+    .forum-grid{grid-template-columns:1fr}
+    .left-col,.right-col{display:none}
 }
+
+/* Comment modal items */
+.cmt-item{padding:12px 0;border-bottom:1px solid var(--border)}
+.cmt-item:last-child{border-bottom:none}
+.cmt-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cmt-head img{width:34px;height:34px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.06)}
+.cmt-author{font-size:.86rem;font-weight:700;color:var(--text)}
+.cmt-time{font-size:.72rem;color:var(--muted)}
+.cmt-role{font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:999px}
+.cmt-content{font-size:.88rem;color:rgba(241,245,249,0.8);line-height:1.55;margin-bottom:6px;word-break:break-word}
+.cmt-actions{display:flex;gap:14px;align-items:center}
+.cmt-action-btn{border:none;background:none;font:inherit;font-size:.78rem;font-weight:600;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:3px;padding:2px 0;transition:color .15s}
+.cmt-action-btn:hover{color:var(--text)}
+.cmt-action-btn.active-like{color:var(--cyan)}
+.cmt-action-btn.active-dislike{color:var(--red)}
+.cmt-action-btn i{font-size:1rem}
+.cmt-replies{margin-left:28px;padding-left:14px;border-left:2px solid var(--border)}
+.cmt-reply-indicator{font-size:.74rem;color:var(--cyan);margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.cmt-empty{text-align:center;padding:30px;color:var(--muted);font-size:.88rem}
+.cmt-empty i{font-size:2.5rem;color:rgba(255,255,255,0.08);display:block;margin-bottom:10px}
+#commentList::-webkit-scrollbar{width:4px}
+#commentList::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
+
+/* Lightbox */
+.lightbox{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
+.lightbox.open{display:flex}
+.lightbox img{max-width:94vw;max-height:90vh;object-fit:contain;border-radius:8px;cursor:default;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+.lightbox-close{position:absolute;top:18px;right:22px;border:none;background:rgba(255,255,255,0.1);color:#fff;width:40px;height:40px;border-radius:50%;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.lightbox-close:hover{background:rgba(255,255,255,0.2)}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);border:none;background:rgba(255,255,255,0.08);color:#fff;width:44px;height:44px;border-radius:50%;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.lightbox-nav:hover{background:rgba(255,255,255,0.18)}
+.lightbox-prev{left:18px}
+.lightbox-next{right:18px}
+.lightbox-counter{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.6);font-size:.82rem;font-weight:600}
+
+/* Send/Share modal */
+.share-modal{width:min(440px,96vw);max-height:80vh;display:flex;flex-direction:column}
+.share-search{width:100%;border:1px solid var(--border);border-radius:10px;padding:9px 12px 9px 34px;font:inherit;font-size:.86rem;outline:none;background:var(--soft);color:var(--text);margin-bottom:10px}
+.share-search:focus{border-color:rgba(123,97,241,0.4);box-shadow:0 0 0 3px rgba(123,97,241,.12)}
+.share-list{flex:1;overflow-y:auto;min-height:100px;max-height:48vh}
+.share-list::-webkit-scrollbar{width:4px}
+.share-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
+.share-friend{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:12px;cursor:pointer;transition:background .15s}
+.share-friend:hover{background:var(--soft)}
+.share-friend img{width:40px;height:40px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.06)}
+.share-friend-name{font-size:.88rem;font-weight:700;color:var(--text)}
+.share-friend-role{font-size:.72rem;color:var(--muted)}
+.share-friend .share-send-btn{margin-left:auto;border:none;background:linear-gradient(135deg,var(--purple),#9b7bf7);color:#fff;padding:7px 14px;border-radius:10px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.share-friend .share-send-btn:hover{box-shadow:0 4px 14px rgba(123,97,241,0.3)}
+.share-friend .share-send-btn.sent{background:var(--soft);color:var(--green);cursor:default}
+.share-empty{text-align:center;padding:24px;color:var(--muted);font-size:.86rem}
+
+/* Toast notifications */
+.toast-container{position:fixed;top:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{pointer-events:auto;min-width:320px;max-width:440px;padding:16px 20px;border-radius:16px;background:linear-gradient(165deg,rgba(20,24,40,0.97),rgba(10,13,23,0.97));border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 50px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04);backdrop-filter:blur(20px);color:#f1f5f9;font-size:.88rem;line-height:1.5;display:flex;align-items:flex-start;gap:12px;transform:translateX(120%);opacity:0;transition:all .4s cubic-bezier(.16,1,.3,1)}
+.toast.show{transform:translateX(0);opacity:1}
+.toast.hide{transform:translateX(120%);opacity:0}
+.toast-icon{flex-shrink:0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.toast-icon.error{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.2);color:#f87171}
+.toast-icon.success{background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.2);color:#34d399}
+.toast-icon.warn{background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.2);color:#fbbf24}
+.toast-body{flex:1}
+.toast-title{font-weight:700;font-size:.82rem;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
+.toast-title.error{color:#f87171}
+.toast-title.success{color:#34d399}
+.toast-title.warn{color:#fbbf24}
+.toast-msg{color:rgba(241,245,249,0.8);font-size:.84rem}
+.toast-close{flex-shrink:0;background:none;border:none;color:rgba(255,255,255,0.3);font-size:1.1rem;cursor:pointer;padding:2px;transition:color .15s}
+.toast-close:hover{color:#fff}
+.toast-progress{position:absolute;bottom:0;left:0;height:3px;border-radius:0 0 16px 16px;background:linear-gradient(90deg,var(--purple),var(--cyan));transition:width linear}
 </style>
 {% endblock %}
 
 {% block body %}
-<script>document.documentElement.setAttribute('data-theme','dark');</script>
-{% include 'partials/_background.html.twig' %}
-<div class="fm" style="position:relative;z-index:1">
+<div class="forum-bg">
+    <div class="forum-blob forum-blob-1"></div>
+    <div class="forum-blob forum-blob-2"></div>
+    <div class="forum-blob forum-blob-3"></div>
+</div>
 
-    <div class="fm-toast-container">
-        {% for message in app.flashes('success') %}
-            <div class="fm-flash success"><i class='bx bx-check-circle' style="margin-right:6px"></i>{{ message }}</div>
-        {% endfor %}
-        {% for message in app.flashes('error') %}
-            <div class="fm-flash error"><i class='bx bx-error-circle' style="margin-right:6px"></i>{{ message }}</div>
-        {% endfor %}
-    </div>
+<div class="flash-wrap">
+    {% for message in app.flashes('success') %}<div class="flash success"><i class='bx bx-check-circle'></i>{{ message }}</div>{% endfor %}
+    {% for message in app.flashes('error') %}<div class="flash error"><i class='bx bx-error-circle'></i>{{ message }}</div>{% endfor %}
+</div>
 
-    <div class="fm-wrap">
+<div class="forum-shell">
+    <div class="forum-grid">
 
-        {# ── Header ── #}
-        <div class="fm-head">
-            <div>
-                <h1><i class='bx bx-conversation' style="-webkit-text-fill-color:var(--purple);margin-right:8px"></i>Community Forum</h1>
-                <p>Share ideas, ask questions, and help fellow learners</p>
+        {# â•â•â• LEFT SIDEBAR: Profile â•â•â• #}
+        <aside class="left-col">
+            <div class="card left-card">
+                <div class="profile-banner"></div>
+                <div class="profile-body">
+                    <img class="profile-avatar" src="{{ user.avatarBase64 ?: 'https://ui-avatars.com/api/?name=' ~ user.fullName|url_encode ~ '&size=160&background=e2e8f0&color=0f172a&bold=true&format=svg' }}" alt="">
+                    <div class="profile-name">{{ user.fullName }}</div>
+                    <div class="profile-handle">@{{ user.fullName|lower|replace({' ':'_'}) }}</div>
+                    <div class="profile-stats">
+                        <div class="profile-stat"><b>{{ userStats.my_topics }}</b><span>{{ 'forum.topics'|trans }}</span></div>
+                        <div class="profile-stat"><b>{{ userStats.my_posts }}</b><span>Posts</span></div>
+                        <div class="profile-stat"><b>{{ stats.active_users }}</b><span>{{ 'forum.active_users'|trans }}</span></div>
+                    </div>
+                    <a href="{{ path('app_profile') }}" class="profile-btn">{{ 'forum.my_profile'|trans }}</a>
+                </div>
             </div>
-            <button class="fm-new-btn" onclick="document.getElementById('newTopicModal').classList.add('open')">
-                <i class='bx bx-plus'></i> New Topic
-            </button>
-        </div>
-
-        {# ── Stats ── #}
-        <div class="fm-stats">
-            <div class="fm-st">
-                <div class="fm-st-v" style="color:var(--purple-soft)">{{ stats.total_topics }}</div>
-                <div class="fm-st-l">Topics</div>
+            <div class="card shortcuts" style="margin-top:14px">
+                <h4>{{ 'forum.your_shortcuts'|trans }}</h4>
+                <a href="{{ path('app_courses') }}" class="shortcut-item"><span class="shortcut-icon blue"><i class='bx bxs-book'></i></span> {{ 'nav.courses'|trans }}</a>
+                <a href="{{ path('app_taskboard') }}" class="shortcut-item"><span class="shortcut-icon green"><i class='bx bxs-check-circle'></i></span> {{ 'nav.taskboard'|trans }}</a>
+                <a href="{{ path('app_exercises') }}" class="shortcut-item"><span class="shortcut-icon orange"><i class='bx bxs-pencil'></i></span> {{ 'nav.exercises'|trans }}</a>
+                <a href="{{ path('app_settings') }}" class="shortcut-item"><span class="shortcut-icon purple"><i class='bx bxs-cog'></i></span> {{ 'nav.settings'|trans }}</a>
             </div>
-            <div class="fm-st">
-                <div class="fm-st-v" style="color:var(--cyan)">{{ stats.total_posts }}</div>
-                <div class="fm-st-l">Replies</div>
+        </aside>
+
+        {# â•â•â• CENTER: Composer + Feed â•â•â• #}
+        <main class="center-col">
+            {# Composer #}
+            <div class="card composer">
+                <form method="post" action="{{ path('app_forum_create') }}" enctype="multipart/form-data" id="newTopicForm">
+                    <div class="composer-head">
+                        <img src="{{ user.avatarBase64 ?: 'https://ui-avatars.com/api/?name=' ~ user.fullName|url_encode ~ '&size=76&background=e2e8f0&color=0f172a&bold=true&format=svg' }}" alt="">
+                        <input type="text" name="title" id="topicTitleInput" placeholder="{{ 'forum.share_something'|trans }}">
+                        <button type="button" class="emoji-trigger" id="composerEmojiBtn"><i class='bx bx-smile'></i></button>
+                    </div>
+                    <div class="emoji-box" id="composerEmojiBox"></div>
+                    <textarea name="content" id="topicContent" placeholder="{{ 'forum.content_placeholder'|trans }}" style="width:100%;border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:10px 13px;min-height:70px;font:inherit;resize:vertical;outline:none;display:none;background:rgba(255,255,255,0.04);color:#f6f8fc"></textarea>
+                    <div class="composer-divider"></div>
+                    <div id="composerPreviews" class="composer-previews"></div>
+                    <div class="composer-tools">
+                        <div class="composer-tools-left">
+                            <label class="tool-chip img"><i class='bx bx-image'></i> {{ 'forum.image'|trans }} <input type="file" id="composerPhoto" accept="image/jpeg,image/png,image/gif,image/webp" multiple></label>
+                            <label class="tool-chip vid"><i class='bx bx-video'></i> {{ 'forum.video'|trans }} <input type="file" id="composerVideo" accept="video/mp4,video/webm,video/ogg" multiple></label>
+                        </div>
+                        <div class="composer-tools-right">
+                            <button type="submit" class="post-chip"><i class='bx bx-send'></i> {{ 'forum.post'|trans }}</button>
+                        </div>
+                    </div>
+                    <div id="composerFileHint" style="font-size:.76rem;color:var(--muted);margin-top:6px;display:none"></div>
+                </form>
             </div>
-            <div class="fm-st">
-                <div class="fm-st-v" style="color:var(--green)">{{ stats.active_users }}</div>
-                <div class="fm-st-l">Active Users</div>
+
+            {# Filter Bar #}
+            <div class="card filter-bar">
+                <div class="filter-row">
+                    <a href="{{ path('app_forum') }}" class="filter-pill {{ currentCategory == '' ? 'active' : '' }}">{{ 'forum.all'|trans }}</a>
+                    {% for cat in categories %}
+                        <a href="{{ path('app_forum', {category: cat}) }}" class="filter-pill {{ currentCategory == cat ? 'active' : '' }}">{{ cat|replace({'_': ' '})|title }}</a>
+                    {% endfor %}
+                </div>
+                <div class="filter-bottom">
+                    <form class="filter-search" method="get" action="{{ path('app_forum') }}">
+                        {% if currentCategory %}<input type="hidden" name="category" value="{{ currentCategory }}">{% endif %}
+                        <i class='bx bx-search'></i>
+                        <input type="text" name="q" value="{{ search }}" placeholder="{{ 'forum.search_placeholder'|trans }}">
+                    </form>
+                    <span class="sort-label"><i class='bx bx-sort-alt-2'></i> {{ 'forum.sort_recent'|trans }}</span>
+                </div>
             </div>
-        </div>
 
-        {# ── Filters ── #}
-        <div class="fm-filters">
-            <a href="{{ path('app_forum') }}" class="fm-filter-btn {{ currentCategory == '' ? 'active' : '' }}" style="text-decoration:none">All</a>
-            {% for cat in categories %}
-                <a href="{{ path('app_forum', {category: cat}) }}" class="fm-filter-btn {{ currentCategory == cat ? 'active' : '' }}" style="text-decoration:none">{{ cat|replace({'_': ' '}) }}</a>
-            {% endfor %}
-            <form class="fm-search" method="get" action="{{ path('app_forum') }}">
-                {% if currentCategory %}<input type="hidden" name="category" value="{{ currentCategory }}">{% endif %}
-                <i class='bx bx-search'></i>
-                <input type="text" name="q" value="{{ search }}" placeholder="Search topics...">
-            </form>
-        </div>
-
-        <hr class="fm-glow-line">
-
-        {# ── Topic List ── #}
-        <div class="fm-topics">
+            {# Topic Feed #}
             {% if topics|length > 0 %}
                 {% for topic in topics %}
-                    <a href="{{ path('app_forum_topic', {id: topic.id}) }}" class="fm-topic cat-{{ topic.category }}" style="animation-delay:{{ loop.index0 * 0.06 }}s">
-                        <div style="display:flex;align-items:flex-start;justify-content:space-between">
-                            <div class="fm-topic-head">
-                                <img src="{{ topic.author_avatar ?: 'https://ui-avatars.com/api/?name=' ~ topic.author_name|url_encode ~ '&size=88&background=7c5cfc&color=fff&bold=true&format=svg' }}" alt="" class="fm-topic-avatar">
-                                <div class="fm-topic-info">
-                                    <div class="fm-topic-title">{{ topic.title }}</div>
-                                    <div class="fm-topic-meta">
-                                        <span><i class='bx bx-user'></i> {{ topic.author_name }}</span>
-                                        {% set roleClass = topic.author_role|lower in ['student','expert','teacher','admin'] ? 'role-' ~ topic.author_role|lower : 'role-default' %}
-                                        {% set roleIcon = topic.author_role|lower == 'student' ? 'bxs-graduation-cap' : (topic.author_role|lower == 'expert' ? 'bxs-crown' : (topic.author_role|lower == 'teacher' ? 'bxs-chalkboard' : (topic.author_role|lower == 'admin' ? 'bxs-shield' : 'bx-user'))) %}
-                                        <span class="fm-role {{ roleClass }}"><i class='bx {{ roleIcon }}'></i> {{ topic.author_role|default('User') }}</span>
-                                        <span class="fm-cat-tag cat-{{ topic.category }}">{{ topic.category|replace({'_': ' '}) }}</span>
-                                        {% if topic.is_closed %}<span class="fm-closed"><i class='bx bx-lock-alt'></i> Closed</span>{% endif %}
-                                        <span><i class='bx bx-time-five'></i> {{ topic.created_at|date('M d, Y') }}</span>
-                                    </div>
+                    <article class="card feed-card">
+                        <div class="feed-head">
+                            <img src="{{ topic.author_avatar ?: 'https://ui-avatars.com/api/?name=' ~ topic.author_name|url_encode ~ '&size=88&background=e2e8f0&color=0f172a&bold=true&format=svg' }}" alt="">
+                            <div style="flex:1;min-width:0">
+                                <div>
+                                    <span class="feed-author">{{ topic.author_name }}</span>
+                                    {% set roleClass = topic.author_role|lower in ['student','expert','teacher','admin'] ? topic.author_role|lower : 'student' %}
+                                    <span class="role-badge {{ roleClass }}">{{ topic.author_role|default('User') }}</span>
+                                    <span class="cat-tag {{ topic.category }}">{{ topic.category|replace({'_': ' '})|title }}</span>
+                                    {% if topic.is_closed %}<span class="feed-closed"><i class='bx bx-lock-alt'></i> {{ 'forum.closed'|trans }}</span>{% endif %}
                                 </div>
+                                <div class="feed-time">{{ topic.created_at|date('M d, Y') }}</div>
                             </div>
-                            <div class="fm-topic-right">
-                                <span class="fm-reply-count"><i class='bx bx-message-detail'></i> {{ topic.reply_count }}</span>
-                                {% if topic.last_reply_at %}
-                                    <span class="fm-topic-time">Last reply {{ topic.last_reply_at|date('M d · H:i') }}</span>
-                                {% endif %}
-                                {% if topic.created_by_user_id == user.id %}
-                                    <div class="fm-topic-actions" onclick="event.preventDefault();event.stopPropagation();">
-                                        <button type="button" class="fm-act-btn" onclick="openEditTopic({{ topic.id }}, {{ topic.title|json_encode }}, '{{ topic.category }}')"><i class='bx bx-edit-alt'></i> Edit</button>
-                                        <form method="post" action="{{ path('app_forum_topic_delete', {id: topic.id}) }}" onsubmit="return confirm('Delete this topic and all its replies?');" style="display:inline">
-                                            <button type="submit" class="fm-act-btn delete"><i class='bx bx-trash'></i> Delete</button>
-                                        </form>
-                                    </div>
-                                {% endif %}
-                            </div>
+                            {% if topic.created_by_user_id == user.id %}
+                                <button type="button" class="feed-dots" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='block'?'none':'block'"><i class='bx bx-dots-vertical-rounded'></i></button>
+                                <div style="display:none;position:absolute;right:16px;top:48px;background:rgba(20,24,40,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.4);z-index:5;overflow:hidden;backdrop-filter:blur(12px)">
+                                    <button type="button" class="owner-btn" style="border:none;border-radius:0;width:100%;justify-content:flex-start;padding:10px 16px" onclick="openEditTopic({{ topic.id }}, {{ topic.title|json_encode }}, '{{ topic.category }}')"><i class='bx bx-edit-alt'></i> {{ 'forum.edit'|trans }}</button>
+                                    <form method="post" action="{{ path('app_forum_topic_delete', {id: topic.id}) }}" onsubmit="return confirm('Delete this topic and all its replies?');">
+                                        <button type="submit" class="owner-btn danger" style="border:none;border-radius:0;width:100%;justify-content:flex-start;padding:10px 16px"><i class='bx bx-trash'></i> {{ 'forum.delete'|trans }}</button>
+                                    </form>
+                                </div>
+                            {% endif %}
                         </div>
-                    </a>
+                        <h3 class="feed-title"><a href="{{ path('app_forum_topic', {id: topic.id}) }}">{{ topic.title }}</a></h3>
+                        {% if topic.first_post_content %}
+                            <p style="color:rgba(241,245,249,0.65);font-size:0.88rem;line-height:1.6;margin:4px 0 8px;word-break:break-word">{{ topic.first_post_content|length > 200 ? topic.first_post_content|slice(0,200) ~ '…' : topic.first_post_content }}</p>
+                        {% endif %}
+                        {% set _mediaItems = [] %}
+                        {% if topic.first_post_media_files is defined and topic.first_post_media_files %}
+                            {% set _mediaItems = topic.first_post_media_files|json_decode %}
+                        {% elseif topic.first_post_media_path %}
+                            {% set _mediaItems = [{type: topic.first_post_media_type, path: topic.first_post_media_path}] %}
+                        {% endif %}
+                        {% if _mediaItems|length > 0 %}
+                            <div class="feed-media-grid" style="margin:8px 0 12px;display:grid;gap:6px;{% if _mediaItems|length > 1 %}grid-template-columns:repeat(2,1fr){% endif %}">
+                                {% for m in _mediaItems %}
+                                    {% if m.type == 'image' %}
+                                        <img src="{{ m.path }}" alt="" class="lightbox-trigger" style="display:block;width:100%;border-radius:14px;max-height:{{ _mediaItems|length > 1 ? '220' : '360' }}px;object-fit:cover;cursor:zoom-in">
+                                    {% elseif m.type == 'video' %}
+                                        <video controls playsinline preload="auto" style="display:block;width:100%;border-radius:14px;max-height:{{ _mediaItems|length > 1 ? '220' : '360' }}px;background:#000"><source src="{{ m.path }}">Your browser does not support video.</video>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if topic.topic_like_count > 0 or topic.reply_count > 0 %}
+                        <div class="reaction-summary">
+                            {% if topic.topic_like_count > 0 %}
+                                <div class="reaction-icons"><span class="r-like">👍</span><span class="r-love">❤️</span><span class="r-clap">👏</span></div>
+                                <span>{{ topic.topic_like_count }}</span>
+                            {% endif %}
+                            {% if topic.reply_count > 0 %}
+                                <span style="margin-left:auto">{{ topic.reply_count }} {{ 'forum.replies'|trans }}</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        <div class="feed-actions">
+                            <button type="button" class="feed-action like-btn {{ topic.user_reaction == 'like' ? 'liked' : '' }}" data-post-id="{{ topic.first_post_id }}" data-topic-id="{{ topic.id }}">
+                                <i class='bx {{ topic.user_reaction == "like" ? "bxs-like" : "bx-like" }}'></i>
+                                <span class="like-count">{{ topic.topic_like_count > 0 ? topic.topic_like_count : '' }}</span>
+                                {{ 'forum.like'|trans({}, 'messages')|default('J\'aime') }}
+                            </button>
+                            <button type="button" class="feed-action comment-btn" data-topic-id="{{ topic.id }}" data-topic-title="{{ topic.title }}"><i class='bx bx-message-rounded'></i> {{ 'forum.comment'|trans }}</button>
+                            <a href="{{ path('app_forum_topic', {id: topic.id}) }}" class="feed-action"><i class='bx bx-repost'></i> {{ 'forum.repost'|trans({}, 'messages')|default('Republier') }}</a>
+                            <button type="button" class="feed-action share-btn" data-topic-id="{{ topic.id }}" data-topic-title="{{ topic.title }}"><i class='bx bx-send'></i> {{ 'forum.send'|trans({}, 'messages')|default('Envoyer') }}</button>
+                        </div>
+                    </article>
                 {% endfor %}
             {% else %}
-                <div class="fm-empty">
+                <div class="card feed-empty">
                     <i class='bx bx-message-square-dots'></i>
-                    <p>No topics yet. Be the first to start a discussion!</p>
+                    <p>{{ 'forum.no_topics'|trans }}</p>
                 </div>
             {% endif %}
-        </div>
-    </div>
-</div>
+        </main>
 
-{# ── New Topic Modal ── #}
-<div class="fm-modal-bg" id="newTopicModal">
-    <div class="fm-modal">
-        <h2>Create New Topic</h2>
-        <p class="sub">Start a discussion with the community</p>
-        <form method="post" action="{{ path('app_forum_create') }}">
-            <label>Title</label>
-            <input type="text" name="title" placeholder="What's on your mind?" required maxlength="220">
-            <label>Category</label>
-            <select name="category">
-                {% for cat in categories %}
-                    <option value="{{ cat }}">{{ cat|replace({'_': ' '})|title }}</option>
+        {# â•â•â• RIGHT SIDEBAR â•â•â• #}
+        <aside class="right-col">
+            <div class="card right-card">
+                <h3>{{ 'forum.activity'|trans }}</h3>
+                <div class="activity">
+                    <div class="activity-item"><i class='bx bx-trending-up'></i><p>{{ stats.total_topics }} {{ 'forum.topics'|trans }} &middot; {{ stats.total_posts }} posts</p></div>
+                    <div class="activity-item"><i class='bx bx-group'></i><p>{{ stats.active_users }} {{ 'forum.active_users'|trans|lower }}</p></div>
+                </div>
+                <div class="activity-divider"></div>
+                <h3>{{ 'forum.suggested_for_you'|trans }}</h3>
+                {% for member in recentUsers %}
+                    <div class="suggested-user">
+                        <img src="{{ member.avatar_base64 ?: 'https://ui-avatars.com/api/?name=' ~ member.full_name|url_encode ~ '&size=76&background=e2e8f0&color=0f172a&bold=true&format=svg' }}" alt="">
+                        <div class="suggested-info">
+                            <div class="suggested-name">{{ member.full_name }}</div>
+                            <div class="suggested-role">{{ member.role|default('Member') }}</div>
+                        </div>
+                    </div>
+                {% else %}
+                    <p style="font-size:.82rem;color:var(--muted)">{{ 'forum.no_members_yet'|trans }}</p>
                 {% endfor %}
-            </select>
-            <label>Content</label>
-            <textarea name="content" placeholder="Describe your topic in detail..." required></textarea>
-            <div class="fm-modal-foot">
-                <button type="button" class="fm-modal-cancel" onclick="document.getElementById('newTopicModal').classList.remove('open')">Cancel</button>
-                <button type="submit" class="fm-modal-submit">Create Topic</button>
             </div>
-        </form>
+        </aside>
+
     </div>
 </div>
 
-{# ── Edit Topic Modal ── #}
-<div class="fm-modal-bg" id="editTopicModal">
-    <div class="fm-modal">
-        <h2>Edit Topic</h2>
-        <p class="sub">Update your topic details</p>
+{# Edit Topic Modal #}
+<div class="modal-bg" id="editTopicModal">
+    <div class="modal">
+        <h2>{{ 'forum.edit_topic'|trans }}</h2>
+        <p class="sub">{{ 'forum.edit_topic_sub'|trans }}</p>
         <form method="post" id="editTopicForm">
-            <label>Title</label>
-            <input type="text" name="title" id="editTopicTitle" placeholder="Topic title" required maxlength="220">
-            <label>Category</label>
+            <label>{{ 'forum.title_label'|trans }}</label>
+            <input type="text" name="title" id="editTopicTitle" placeholder="{{ 'forum.topic_title_placeholder'|trans }}" required maxlength="220">
+            <label>{{ 'forum.category_label'|trans }}</label>
             <select name="category" id="editTopicCategory">
                 {% for cat in categories %}
                     <option value="{{ cat }}">{{ cat|replace({'_': ' '})|title }}</option>
                 {% endfor %}
             </select>
-            <div class="fm-modal-foot">
-                <button type="button" class="fm-modal-cancel" onclick="document.getElementById('editTopicModal').classList.remove('open')">Cancel</button>
-                <button type="submit" class="fm-modal-submit">Update Topic</button>
+            <div class="modal-foot">
+                <button type="button" class="modal-cancel" onclick="document.getElementById('editTopicModal').classList.remove('open')">{{ 'forum.cancel'|trans }}</button>
+                <button type="submit" class="modal-submit">{{ 'forum.update_topic_btn'|trans }}</button>
             </div>
         </form>
     </div>
 </div>
 
+{# Comment Modal #}
+<div class="modal-bg" id="commentModal">
+    <div class="modal" style="max-height:88vh;display:flex;flex-direction:column;width:min(620px,96vw)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <h2 style="flex:1;margin:0" id="commentModalTitle">Commentaires</h2>
+            <button type="button" style="border:none;background:none;font-size:1.5rem;cursor:pointer;color:var(--muted);padding:4px" onclick="document.getElementById('commentModal').classList.remove('open')"><i class='bx bx-x'></i></button>
+        </div>
+        <div id="commentList" style="flex:1;overflow-y:auto;min-height:120px;max-height:52vh;padding-right:6px">
+            <div style="text-align:center;padding:30px;color:var(--muted)"><i class='bx bx-loader-alt bx-spin' style="font-size:1.5rem"></i></div>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:10px">
+            <div id="replyIndicator" style="display:none;font-size:.78rem;color:var(--cyan);margin-bottom:6px;display:none;align-items:center;gap:6px">
+                <i class='bx bx-reply'></i> <span id="replyToName"></span>
+                <button type="button" onclick="cancelReply()" style="border:none;background:none;cursor:pointer;color:var(--muted);font-size:.9rem;padding:2px"><i class='bx bx-x'></i></button>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-end">
+                <textarea id="commentInput" rows="2" placeholder="Écrire un commentaire..." style="flex:1;border:1px solid var(--border);border-radius:12px;padding:10px 13px;font:inherit;font-size:.86rem;outline:none;background:var(--soft);color:var(--text);resize:none;min-height:44px;max-height:120px"></textarea>
+                <button type="button" id="commentSendBtn" style="border:none;background:linear-gradient(135deg,var(--purple),#9b7bf7);color:#fff;border-radius:12px;padding:10px 16px;cursor:pointer;font-size:1rem;flex-shrink:0;height:44px;display:flex;align-items:center;justify-content:center"><i class='bx bx-send'></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Lightbox #}
+<div class="lightbox" id="lightbox">
+    <button type="button" class="lightbox-close" onclick="closeLightbox()"><i class='bx bx-x'></i></button>
+    <button type="button" class="lightbox-nav lightbox-prev" onclick="lightboxNav(-1)"><i class='bx bx-chevron-left'></i></button>
+    <img id="lightboxImg" src="" alt="">
+    <button type="button" class="lightbox-nav lightbox-next" onclick="lightboxNav(1)"><i class='bx bx-chevron-right'></i></button>
+    <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
+
+{# Share/Send Modal #}
+<div class="modal-bg" id="shareModal">
+    <div class="modal share-modal">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <h2 style="flex:1;margin:0"><i class='bx bx-send' style="color:var(--purple)"></i> Envoyer à un ami</h2>
+            <button type="button" style="border:none;background:none;font-size:1.5rem;cursor:pointer;color:var(--muted);padding:4px" onclick="document.getElementById('shareModal').classList.remove('open')"><i class='bx bx-x'></i></button>
+        </div>
+        <div style="position:relative">
+            <i class='bx bx-search' style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1rem"></i>
+            <input type="text" class="share-search" id="shareSearchInput" placeholder="Rechercher un ami...">
+        </div>
+        <div class="share-list" id="shareList">
+            <div style="text-align:center;padding:30px;color:var(--muted)"><i class='bx bx-loader-alt bx-spin' style="font-size:1.5rem"></i></div>
+        </div>
+    </div>
+</div>
+
 <script>
-document.getElementById('newTopicModal').addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('open');
-});
-document.getElementById('editTopicModal').addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('open');
-});
-document.querySelectorAll('.fm-flash').forEach(function(el) {
-    setTimeout(function() { el.classList.add('fade-out'); setTimeout(function(){ el.remove(); }, 500); }, 5000);
+/* Toast system */
+(function(){
+    var container = document.createElement('div');
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+    window.showToast = function(msg, type) {
+        type = type || 'error';
+        var icons = {error:'<i class="bx bx-error-circle"></i>',success:'<i class="bx bx-check-circle"></i>',warn:'<i class="bx bx-shield-x"></i>'};
+        var titles = {error:'Error',success:'Success',warn:'Warning'};
+        var toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.style.position = 'relative';
+        toast.style.overflow = 'hidden';
+        toast.innerHTML = '<div class="toast-icon '+type+'">'+icons[type]+'</div>'+
+            '<div class="toast-body"><div class="toast-title '+type+'">'+titles[type]+'</div><div class="toast-msg">'+msg+'</div></div>'+
+            '<button class="toast-close"><i class="bx bx-x"></i></button>'+
+            '<div class="toast-progress" style="width:100%"></div>';
+        container.appendChild(toast);
+        var progress = toast.querySelector('.toast-progress');
+        var duration = 5000;
+        setTimeout(function(){ toast.classList.add('show'); }, 10);
+        progress.style.transitionDuration = duration + 'ms';
+        setTimeout(function(){ progress.style.width = '0%'; }, 50);
+        var autoClose = setTimeout(function(){ dismissToast(toast); }, duration);
+        toast.querySelector('.toast-close').addEventListener('click', function(){ clearTimeout(autoClose); dismissToast(toast); });
+        function dismissToast(t){ t.classList.remove('show'); t.classList.add('hide'); setTimeout(function(){ t.remove(); }, 400); }
+    };
+})();
+
+/* Show textarea on title focus */
+document.getElementById('topicTitleInput').addEventListener('focus', function() {
+    document.getElementById('topicContent').style.display = 'block';
 });
 
+/* Composer emoji */
+var composerEmojiBox = document.getElementById('composerEmojiBox');
+var emojiCodes = [0x1F600, 0x1F60D, 0x1F525, 0x1F44D, 0x1F44F, 0x1F3AF, 0x1F4A1, 0x1F680, 0x2764, 0x1F602, 0x1F91D, 0x1F389, 0x1F60E, 0x1F914, 0x1F4AA, 0x2705, 0x1F31F, 0x1F4DD];
+emojiCodes.forEach(function(code) {
+    var emoji = String.fromCodePoint(code);
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'emoji-btn'; btn.textContent = emoji;
+    btn.addEventListener('click', function() {
+        var ta = document.getElementById('topicContent');
+        ta.style.display = 'block';
+        var start = ta.selectionStart || 0, end = ta.selectionEnd || 0;
+        ta.value = ta.value.slice(0, start) + emoji + ta.value.slice(end);
+        ta.focus(); ta.setSelectionRange(start + emoji.length, start + emoji.length);
+    });
+    composerEmojiBox.appendChild(btn);
+});
+document.getElementById('composerEmojiBtn').addEventListener('click', function() {
+    composerEmojiBox.classList.toggle('open');
+});
+
+/* File accumulation with previews */
+var cPhoto = document.getElementById('composerPhoto');
+var cVideo = document.getElementById('composerVideo');
+var cHint = document.getElementById('composerFileHint');
+var cPreviews = document.getElementById('composerPreviews');
+var pendingFiles = []; // {file, isImage, blobUrl}
+
+function addFiles(fileList, isImage) {
+    for (var i = 0; i < fileList.length; i++) {
+        if (pendingFiles.length >= 10) break;
+        var f = fileList[i];
+        // Avoid duplicate by name+size
+        var dup = pendingFiles.some(function(p) { return p.file.name === f.name && p.file.size === f.size; });
+        if (dup) continue;
+        pendingFiles.push({file: f, isImage: isImage, blobUrl: URL.createObjectURL(f)});
+    }
+    renderPreviews();
+}
+
+function removeFile(idx) {
+    if (pendingFiles[idx]) URL.revokeObjectURL(pendingFiles[idx].blobUrl);
+    pendingFiles.splice(idx, 1);
+    renderPreviews();
+}
+
+function renderPreviews() {
+    cPreviews.innerHTML = '';
+    var photoCount = 0, videoCount = 0;
+    pendingFiles.forEach(function(item, idx) {
+        if (item.isImage) photoCount++; else videoCount++;
+        var div = document.createElement('div');
+        div.className = 'preview-item';
+        if (item.isImage) {
+            var img = document.createElement('img');
+            img.src = item.blobUrl;
+            img.alt = '';
+            div.appendChild(img);
+        } else {
+            var vid = document.createElement('video');
+            vid.src = item.blobUrl;
+            vid.muted = true;
+            vid.style.width = '90px'; vid.style.height = '90px'; vid.style.objectFit = 'cover'; vid.style.display = 'block';
+            div.appendChild(vid);
+        }
+        var badge = document.createElement('span');
+        badge.className = 'preview-badge ' + (item.isImage ? 'img-badge' : 'vid-badge');
+        badge.textContent = item.isImage ? 'IMG' : 'VID';
+        div.appendChild(badge);
+        var rm = document.createElement('button');
+        rm.type = 'button'; rm.className = 'preview-remove'; rm.innerHTML = '<i class="bx bx-x"></i>';
+        rm.addEventListener('click', (function(i) { return function() { removeFile(i); }; })(idx));
+        div.appendChild(rm);
+        cPreviews.appendChild(div);
+    });
+    // Update hint
+    var total = pendingFiles.length;
+    if (total > 10) { cHint.textContent = 'Max 10 files allowed.'; cHint.style.display = 'block'; cHint.style.color = '#dc2626'; return; }
+    var parts = [];
+    if (photoCount) parts.push(photoCount + ' photo' + (photoCount > 1 ? 's' : ''));
+    if (videoCount) parts.push(videoCount + ' vidéo' + (videoCount > 1 ? 's' : ''));
+    if (parts.length) { cHint.textContent = parts.join(' + ') + ' — ' + total + '/10'; cHint.style.display = 'block'; cHint.style.color = ''; }
+    else { cHint.style.display = 'none'; }
+    // Sync hidden file inputs for form submission
+    syncFormFiles();
+}
+
+function syncFormFiles() {
+    // Remove old hidden inputs
+    document.querySelectorAll('#newTopicForm input[name="photos[]"], #newTopicForm input[name="videos[]"]').forEach(function(el) { el.remove(); });
+    var photoDT = new DataTransfer();
+    var videoDT = new DataTransfer();
+    pendingFiles.forEach(function(item) {
+        if (item.isImage) photoDT.items.add(item.file);
+        else videoDT.items.add(item.file);
+    });
+    if (photoDT.files.length) {
+        var pi = document.createElement('input'); pi.type = 'file'; pi.name = 'photos[]'; pi.multiple = true; pi.style.display = 'none'; pi.files = photoDT.files;
+        document.getElementById('newTopicForm').appendChild(pi);
+    }
+    if (videoDT.files.length) {
+        var vi = document.createElement('input'); vi.type = 'file'; vi.name = 'videos[]'; vi.multiple = true; vi.style.display = 'none'; vi.files = videoDT.files;
+        document.getElementById('newTopicForm').appendChild(vi);
+    }
+}
+
+cPhoto.addEventListener('change', function() { addFiles(this.files, true); this.value = ''; });
+cVideo.addEventListener('change', function() { addFiles(this.files, false); this.value = ''; });
+
+/* Edit topic modal */
 function openEditTopic(id, title, category) {
     document.getElementById('editTopicForm').action = '/forum/topic/' + id + '/edit';
     document.getElementById('editTopicTitle').value = title;
     document.getElementById('editTopicCategory').value = category;
     document.getElementById('editTopicModal').classList.add('open');
+}
+document.getElementById('editTopicModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+});
+
+/* Close menus on outside click */
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.feed-dots') && !e.target.closest('.feed-dots + div')) {
+        document.querySelectorAll('.feed-dots + div').forEach(function(d) { d.style.display = 'none'; });
+    }
+});
+
+/* Flash auto-dismiss */
+document.querySelectorAll('.flash').forEach(function(el) {
+    setTimeout(function() { el.style.opacity = '0'; el.style.transform = 'translateX(20px)'; el.style.transition = 'all .4s'; setTimeout(function(){ el.remove(); }, 400); }, 4500);
+});
+
+/* ═══════════════════════════════════════════
+   LIKE BUTTON (on forum index cards)
+   ═══════════════════════════════════════════ */
+document.querySelectorAll('.like-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        var postId = this.dataset.postId;
+        if (!postId) return;
+        var button = this;
+        fetch('/forum/post/' + postId + '/react', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({type: 'like'})
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var icon = button.querySelector('i');
+            var countEl = button.querySelector('.like-count');
+            if (data.userReaction === 'like') {
+                button.classList.add('liked');
+                icon.className = 'bx bxs-like';
+            } else {
+                button.classList.remove('liked');
+                icon.className = 'bx bx-like';
+            }
+            countEl.textContent = data.likes > 0 ? data.likes : '';
+        });
+    });
+});
+
+/* ═══════════════════════════════════════════
+   COMMENT MODAL
+   ═══════════════════════════════════════════ */
+var currentTopicId = null;
+var replyToPostId = null;
+var commentModalEl = document.getElementById('commentModal');
+var commentListEl = document.getElementById('commentList');
+var commentInputEl = document.getElementById('commentInput');
+var commentSendBtn = document.getElementById('commentSendBtn');
+var replyIndicator = document.getElementById('replyIndicator');
+var replyToNameEl = document.getElementById('replyToName');
+
+// Open comment modal
+document.querySelectorAll('.comment-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        currentTopicId = this.dataset.topicId;
+        var title = this.dataset.topicTitle || 'Commentaires';
+        document.getElementById('commentModalTitle').textContent = title;
+        commentModalEl.classList.add('open');
+        cancelReply();
+        loadComments(currentTopicId);
+        commentInputEl.focus();
+    });
+});
+
+// Close on background click
+commentModalEl.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+});
+
+// Load comments
+function loadComments(topicId) {
+    commentListEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><i class="bx bx-loader-alt bx-spin" style="font-size:1.5rem"></i></div>';
+    fetch('/forum/topic/' + topicId + '/comments')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            renderComments(data.posts || [], data.currentUserId);
+        })
+        .catch(function() {
+            commentListEl.innerHTML = '<div class="cmt-empty"><i class="bx bx-error-circle"></i><p>Erreur de chargement</p></div>';
+        });
+}
+
+function renderComments(posts, currentUserId) {
+    if (posts.length === 0) {
+        commentListEl.innerHTML = '<div class="cmt-empty"><i class="bx bx-message-rounded-dots"></i><p>Aucun commentaire. Soyez le premier !</p></div>';
+        return;
+    }
+    // Build a map of posts and their replies
+    var topLevel = [];
+    var repliesMap = {};
+    posts.forEach(function(p) {
+        if (p.parent_post_id) {
+            if (!repliesMap[p.parent_post_id]) repliesMap[p.parent_post_id] = [];
+            repliesMap[p.parent_post_id].push(p);
+        } else {
+            topLevel.push(p);
+        }
+    });
+
+    var html = '';
+    topLevel.forEach(function(p) {
+        html += renderSingleComment(p, repliesMap, 0);
+    });
+    commentListEl.innerHTML = html;
+    bindCommentActions();
+}
+
+function renderSingleComment(post, repliesMap, depth) {
+    var roleClass = (post.author_role || '').toLowerCase();
+    if (['student','expert','teacher','admin'].indexOf(roleClass) === -1) roleClass = 'student';
+    var timeStr = formatTimeAgo(post.created_at);
+
+    var html = '<div class="cmt-item" data-post-id="' + post.id + '">';
+    html += '<div class="cmt-head">';
+    html += '<img src="' + escHtml(post.author_avatar) + '" alt="">';
+    html += '<div style="flex:1;min-width:0">';
+    html += '<span class="cmt-author">' + escHtml(post.author_name) + '</span> ';
+    html += '<span class="cmt-role role-badge ' + roleClass + '">' + escHtml(post.author_role || 'User') + '</span>';
+    html += '<div class="cmt-time">' + timeStr + '</div>';
+    html += '</div></div>';
+
+    if (post.parent_post_id) {
+        html += '<div class="cmt-reply-indicator"><i class="bx bx-reply"></i> réponse</div>';
+    }
+    html += '<div class="cmt-content">' + escHtml(post.content) + '</div>';
+
+    html += '<div class="cmt-actions">';
+    html += '<button type="button" class="cmt-action-btn cmt-like-btn ' + (post.user_reaction === 'like' ? 'active-like' : '') + '" data-post-id="' + post.id + '" data-type="like"><i class="bx ' + (post.user_reaction === 'like' ? 'bxs-like' : 'bx-like') + '"></i> <span>' + (post.like_count > 0 ? post.like_count : '') + '</span></button>';
+    html += '<button type="button" class="cmt-action-btn cmt-dislike-btn ' + (post.user_reaction === 'dislike' ? 'active-dislike' : '') + '" data-post-id="' + post.id + '" data-type="dislike"><i class="bx ' + (post.user_reaction === 'dislike' ? 'bxs-dislike' : 'bx-dislike') + '"></i> <span>' + (post.dislike_count > 0 ? post.dislike_count : '') + '</span></button>';
+    html += '<button type="button" class="cmt-action-btn cmt-reply-btn" data-post-id="' + post.id + '" data-author="' + escHtml(post.author_name) + '"><i class="bx bx-reply"></i> Répondre</button>';
+    html += '</div>';
+
+    // Render replies
+    var replies = repliesMap[post.id] || [];
+    if (replies.length > 0) {
+        html += '<div class="cmt-replies">';
+        replies.forEach(function(r) {
+            html += renderSingleComment(r, repliesMap, depth + 1);
+        });
+        html += '</div>';
+    }
+
+    html += '</div>';
+    return html;
+}
+
+function bindCommentActions() {
+    // Like/dislike buttons in comments
+    commentListEl.querySelectorAll('.cmt-like-btn, .cmt-dislike-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var postId = this.dataset.postId;
+            var type = this.dataset.type;
+            var button = this;
+            var item = button.closest('.cmt-item');
+            fetch('/forum/post/' + postId + '/react', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({type: type})
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var likeBtn = item.querySelector('.cmt-like-btn[data-post-id="' + postId + '"]');
+                var dislikeBtn = item.querySelector('.cmt-dislike-btn[data-post-id="' + postId + '"]');
+                if (likeBtn) {
+                    likeBtn.classList.toggle('active-like', data.userReaction === 'like');
+                    likeBtn.querySelector('i').className = 'bx ' + (data.userReaction === 'like' ? 'bxs-like' : 'bx-like');
+                    likeBtn.querySelector('span').textContent = data.likes > 0 ? data.likes : '';
+                }
+                if (dislikeBtn) {
+                    dislikeBtn.classList.toggle('active-dislike', data.userReaction === 'dislike');
+                    dislikeBtn.querySelector('i').className = 'bx ' + (data.userReaction === 'dislike' ? 'bxs-dislike' : 'bx-dislike');
+                    dislikeBtn.querySelector('span').textContent = data.dislikes > 0 ? data.dislikes : '';
+                }
+            });
+        });
+    });
+
+    // Reply buttons
+    commentListEl.querySelectorAll('.cmt-reply-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            replyToPostId = parseInt(this.dataset.postId);
+            replyToNameEl.textContent = 'Répondre à ' + this.dataset.author;
+            replyIndicator.style.display = 'flex';
+            commentInputEl.focus();
+        });
+    });
+}
+
+function cancelReply() {
+    replyToPostId = null;
+    replyIndicator.style.display = 'none';
+    replyToNameEl.textContent = '';
+}
+
+// Send comment
+commentSendBtn.addEventListener('click', sendComment);
+commentInputEl.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendComment();
+    }
+});
+
+function sendComment() {
+    var content = commentInputEl.value.trim();
+    if (!content || !currentTopicId) return;
+    commentSendBtn.disabled = true;
+    var payload = {content: content};
+    if (replyToPostId) payload.parent_post_id = replyToPostId;
+
+    fetch('/forum/topic/' + currentTopicId + '/comment', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            commentInputEl.value = '';
+            cancelReply();
+            loadComments(currentTopicId);
+            // Update comment count on the card
+            var cardBtn = document.querySelector('.comment-btn[data-topic-id="' + currentTopicId + '"]');
+            if (cardBtn) {
+                var feedCard = cardBtn.closest('.feed-card');
+                if (feedCard) {
+                    var replySpan = feedCard.querySelector('.reaction-summary span[style*="margin-left"]');
+                    if (replySpan) {
+                        var num = parseInt(replySpan.textContent) || 0;
+                        replySpan.textContent = (num + 1) + ' réponses';
+                    }
+                }
+            }
+        } else {
+            showToast(data.error || 'Erreur', 'warn');
+        }
+    })
+    .catch(function() { showToast('Erreur réseau'); })
+    .finally(function() { commentSendBtn.disabled = false; });
+}
+
+// Helpers
+function escHtml(str) {
+    if (!str) return '';
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+
+function formatTimeAgo(dateStr) {
+    if (!dateStr) return '';
+    var d = new Date(dateStr.replace(' ', 'T'));
+    var now = new Date();
+    var diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return 'à l\'instant';
+    if (diff < 3600) return Math.floor(diff / 60) + ' min';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' h';
+    if (diff < 2592000) return Math.floor(diff / 86400) + ' j';
+    return d.toLocaleDateString('fr-FR', {day: 'numeric', month: 'short', year: 'numeric'});
+}
+
+/* ═══════════════════════════════════════════
+   LIGHTBOX (full-page image viewer)
+   ═══════════════════════════════════════════ */
+var lightboxEl = document.getElementById('lightbox');
+var lightboxImgEl = document.getElementById('lightboxImg');
+var lightboxCounterEl = document.getElementById('lightboxCounter');
+var lightboxImages = [];
+var lightboxIndex = 0;
+
+document.addEventListener('click', function(e) {
+    var trigger = e.target.closest('.lightbox-trigger');
+    if (!trigger) return;
+    e.preventDefault();
+    // Collect all images in the same media grid
+    var grid = trigger.closest('.feed-media-grid') || trigger.closest('.feed-media');
+    if (grid) {
+        lightboxImages = Array.from(grid.querySelectorAll('.lightbox-trigger')).map(function(img) { return img.src; });
+        lightboxIndex = lightboxImages.indexOf(trigger.src);
+    } else {
+        lightboxImages = [trigger.src];
+        lightboxIndex = 0;
+    }
+    if (lightboxIndex < 0) lightboxIndex = 0;
+    showLightbox();
+});
+
+function showLightbox() {
+    lightboxImgEl.src = lightboxImages[lightboxIndex];
+    lightboxCounterEl.textContent = lightboxImages.length > 1 ? (lightboxIndex + 1) + ' / ' + lightboxImages.length : '';
+    document.querySelector('.lightbox-prev').style.display = lightboxImages.length > 1 ? '' : 'none';
+    document.querySelector('.lightbox-next').style.display = lightboxImages.length > 1 ? '' : 'none';
+    lightboxEl.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    lightboxEl.classList.remove('open');
+    document.body.style.overflow = '';
+    lightboxImgEl.src = '';
+}
+
+function lightboxNav(dir) {
+    lightboxIndex = (lightboxIndex + dir + lightboxImages.length) % lightboxImages.length;
+    lightboxImgEl.src = lightboxImages[lightboxIndex];
+    lightboxCounterEl.textContent = (lightboxIndex + 1) + ' / ' + lightboxImages.length;
+}
+
+lightboxEl.addEventListener('click', function(e) {
+    if (e.target === this) closeLightbox();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (!lightboxEl.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') lightboxNav(-1);
+    if (e.key === 'ArrowRight') lightboxNav(1);
+});
+
+/* ═══════════════════════════════════════════
+   SHARE / SEND TO FRIEND
+   ═══════════════════════════════════════════ */
+var shareModal = document.getElementById('shareModal');
+var shareList = document.getElementById('shareList');
+var shareSearchInput = document.getElementById('shareSearchInput');
+var shareTopicId = null;
+var shareTopicTitle = '';
+var shareFriendsCache = null;
+
+document.querySelectorAll('.share-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        shareTopicId = this.dataset.topicId;
+        shareTopicTitle = this.dataset.topicTitle || '';
+        shareSearchInput.value = '';
+        shareModal.classList.add('open');
+        loadFriends();
+    });
+});
+
+shareModal.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+});
+
+function loadFriends() {
+    if (shareFriendsCache) {
+        renderFriends(shareFriendsCache);
+        return;
+    }
+    shareList.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)"><i class="bx bx-loader-alt bx-spin" style="font-size:1.5rem"></i></div>';
+    fetch('/chat/contacts')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            shareFriendsCache = data.friends || [];
+            renderFriends(shareFriendsCache);
+        })
+        .catch(function() {
+            shareList.innerHTML = '<div class="share-empty">Erreur de chargement</div>';
+        });
+}
+
+function renderFriends(friends) {
+    var query = shareSearchInput.value.trim().toLowerCase();
+    var filtered = friends;
+    if (query) {
+        filtered = friends.filter(function(f) { return f.full_name.toLowerCase().indexOf(query) !== -1; });
+    }
+    if (filtered.length === 0) {
+        shareList.innerHTML = '<div class="share-empty"><i class="bx bx-user-x" style="font-size:2rem;color:rgba(255,255,255,0.08);display:block;margin-bottom:8px"></i>' + (query ? 'Aucun ami trouvé' : 'Pas encore d\'amis') + '</div>';
+        return;
+    }
+    var html = '';
+    filtered.forEach(function(f) {
+        var avatar = f.avatar_base64 || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(f.full_name) + '&size=76&background=e2e8f0&color=0f172a&bold=true&format=svg');
+        html += '<div class="share-friend" data-friend-id="' + f.id + '">';
+        html += '<img src="' + escHtml(avatar) + '" alt="">';
+        html += '<div style="flex:1;min-width:0"><div class="share-friend-name">' + escHtml(f.full_name) + '</div><div class="share-friend-role">' + escHtml(f.role || 'Membre') + '</div></div>';
+        html += '<button type="button" class="share-send-btn" data-friend-id="' + f.id + '"><i class="bx bx-send"></i> Envoyer</button>';
+        html += '</div>';
+    });
+    shareList.innerHTML = html;
+    bindShareSendButtons();
+}
+
+shareSearchInput.addEventListener('input', function() {
+    if (shareFriendsCache) renderFriends(shareFriendsCache);
+});
+
+function bindShareSendButtons() {
+    shareList.querySelectorAll('.share-send-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var friendId = this.dataset.friendId;
+            var button = this;
+            if (button.classList.contains('sent')) return;
+            button.disabled = true;
+            var url = window.location.origin + '/forum/topic/' + shareTopicId;
+            var message = '📌 Je te partage ce topic : "' + shareTopicTitle + '"\n' + url;
+            fetch('/chat/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({receiver_id: parseInt(friendId), content: message})
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) {
+                    showToast(data.error, 'warn');
+                    button.disabled = false;
+                } else {
+                    button.classList.add('sent');
+                    button.innerHTML = '<i class="bx bx-check"></i> Envoyé';
+                }
+            })
+            .catch(function() { showToast('Erreur réseau'); button.disabled = false; });
+        });
+    });
 }
 </script>
 {% endblock %}

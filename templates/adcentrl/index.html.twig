@@ -1,13 +1,9 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>LearnAdapt — Learn Smarter. Adapt Faster.</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-	<style>
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}LearnAdapt — Learn Smarter. Adapt Faster.{% endblock %}
+
+{% block stylesheets %}
+<style>
 		*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 		:root {
@@ -1380,6 +1376,150 @@
 		.showcase-card-body h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
 		.showcase-card-body p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
 
+		/* ── COMMUNITY COMMENTS ── */
+		.comments-section { max-width: 860px; margin: 0 auto; padding: 0 56px 120px; }
+		.comments-header { text-align: center; margin-bottom: 48px; }
+		.comments-header .section-tag { display: inline-block; padding: 6px 16px; border-radius: 999px; background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.22); font-size: 0.72rem; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 20px; }
+		.comments-header h2 { font-size: clamp(28px, 3.5vw, 42px); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 10px; }
+		.comments-header p { color: var(--muted); font-size: 1rem; }
+		.comment-composer {
+			border-radius: 18px; padding: 24px;
+			background: linear-gradient(165deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+			border: 1px solid rgba(255,255,255,0.08);
+			margin-bottom: 32px;
+		}
+		.comment-composer-top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+		.comment-composer-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); }
+		.comment-composer-name { font-size: 0.9rem; font-weight: 700; color: #e2e8f0; }
+		.comment-composer-hint { font-size: 0.75rem; color: var(--muted); }
+		.comment-stars-input { display: flex; gap: 4px; margin-bottom: 12px; }
+		.comment-stars-input button { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: rgba(255,255,255,0.2); transition: color 0.15s ease, transform 0.2s var(--ease); padding: 2px; }
+		.comment-stars-input button.active { color: #fbbf24; }
+		.comment-stars-input button:hover { transform: scale(1.2); }
+		.comment-textarea {
+			width: 100%; min-height: 88px; border-radius: 12px; padding: 12px 14px;
+			background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+			color: var(--text); font: inherit; font-size: 0.9rem; resize: vertical; outline: none;
+			transition: border-color 0.2s ease, box-shadow 0.2s ease;
+		}
+		.comment-textarea::placeholder { color: rgba(148,163,184,0.5); }
+		.comment-textarea:focus { border-color: rgba(123,97,241,0.4); box-shadow: 0 0 0 3px rgba(123,97,241,0.1); }
+		.comment-media-btns { display: flex; gap: 8px; margin-bottom: 12px; }
+		.comment-media-btn {
+			display: inline-flex; align-items: center; gap: 6px;
+			padding: 7px 14px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.08);
+			background: rgba(255,255,255,0.03); color: var(--muted); font-size: 0.78rem;
+			font-weight: 600; cursor: pointer; font-family: inherit;
+			transition: all 0.2s ease;
+		}
+		.comment-media-btn:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); color: var(--text); }
+		.comment-media-btn svg { width: 16px; height: 16px; }
+		.comment-media-preview {
+			position: relative; margin-bottom: 12px; border-radius: 12px; overflow: hidden;
+			border: 1px solid rgba(255,255,255,0.08); display: none; max-width: 320px;
+		}
+		.comment-media-preview img,
+		.comment-media-preview video { display: block; max-width: 100%; max-height: 240px; border-radius: 12px; object-fit: cover; }
+		.comment-media-remove {
+			position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%;
+			background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.15);
+			color: #fff; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+			transition: background 0.2s ease;
+		}
+		.comment-media-remove:hover { background: rgba(239,68,68,0.7); }
+		.comment-composer-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+		.comment-char-count { font-size: 0.72rem; color: var(--muted); }
+		.comment-submit-btn {
+			display: inline-flex; align-items: center; gap: 8px;
+			padding: 10px 22px; border-radius: 10px; border: none; cursor: pointer;
+			background: linear-gradient(135deg, var(--purple), #9b7bf7); color: #fff;
+			font-size: 0.82rem; font-weight: 700; font-family: inherit;
+			box-shadow: 0 4px 16px rgba(123,97,241,0.3);
+			transition: transform 0.2s var(--ease), box-shadow 0.2s ease;
+		}
+		.comment-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(123,97,241,0.4); }
+		.comment-submit-btn:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; }
+		.comments-list { display: flex; flex-direction: column; gap: 16px; }
+		.comment-card {
+			border-radius: 16px; padding: 20px;
+			background: linear-gradient(165deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+			border: 1px solid rgba(255,255,255,0.07);
+			transition: border-color 0.3s ease, box-shadow 0.3s ease;
+		}
+		.comment-card:hover { border-color: rgba(139,92,246,0.2); box-shadow: 0 12px 36px rgba(0,0,0,0.3); }
+		.comment-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+		.comment-card-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.08); }
+		.comment-card-name { font-size: 0.88rem; font-weight: 700; color: #e2e8f0; }
+		.comment-card-role { font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(56,189,209,0.12); color: #67e8f9; border: 1px solid rgba(56,189,209,0.22); margin-left: 6px; }
+		.comment-card-time { font-size: 0.72rem; color: var(--muted); margin-left: auto; }
+		.comment-card-stars { margin-bottom: 8px; font-size: 0.9rem; color: #fbbf24; letter-spacing: 2px; }
+		.comment-card-text { font-size: 0.9rem; color: rgba(241,245,249,0.8); line-height: 1.7; }
+		.comment-card-media { margin: 12px 0; border-radius: 14px; overflow: hidden; }
+		.comment-card-media img { display: block; width: 100%; border-radius: 14px; }
+		.comment-card-media video { display: block; width: 100%; border-radius: 14px; background: #000; }
+		.comment-media-lightbox {
+			position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.85);
+			display: flex; align-items: center; justify-content: center;
+			backdrop-filter: blur(8px); cursor: zoom-out; opacity: 0; visibility: hidden;
+			transition: opacity 0.3s ease, visibility 0.3s ease;
+		}
+		.comment-media-lightbox.active { opacity: 1; visibility: visible; }
+		.comment-media-lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+		.comment-card-delete {
+			background: none; border: none; color: rgba(248,113,113,0.6); font-size: 0.72rem;
+			cursor: pointer; padding: 4px 8px; border-radius: 6px;
+			transition: color 0.2s ease, background 0.2s ease;
+		}
+		.comment-card-delete:hover { color: #f87171; background: rgba(248,113,113,0.1); }
+		.comment-actions {
+			display: flex; align-items: center; margin-top: 12px; padding-top: 10px;
+			border-top: 1px solid rgba(255,255,255,0.06);
+		}
+		.comment-action {
+			display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+			padding: 8px 0; border-radius: 8px; border: none; background: none;
+			font: inherit; font-size: 0.82rem; font-weight: 600; color: var(--muted);
+			transition: all 0.15s; flex: 1; justify-content: center; text-decoration: none;
+		}
+		.comment-action:hover { background: rgba(255,255,255,0.04); color: #e2e8f0; }
+		.comment-action i, .comment-action svg { font-size: 1.2rem; width: 18px; height: 18px; }
+		.comment-action.liked { color: #38bdd1; font-weight: 800; }
+		.comment-action.liked i { color: #38bdd1; }
+		.comment-reaction-summary {
+			display: flex; align-items: center; gap: 6px;
+			font-size: 0.78rem; color: var(--muted); margin-top: 8px;
+		}
+		.comment-reaction-icons { display: inline-flex; gap: 0; }
+		.comment-reaction-icons span {
+			width: 20px; height: 20px; border-radius: 50%;
+			display: flex; align-items: center; justify-content: center;
+			font-size: 0.7rem; margin-left: -4px;
+			border: 2px solid rgba(4,6,14,1);
+		}
+		.comment-reaction-icons span:first-child { margin-left: 0; }
+		.comment-reaction-icons .r-like { background: rgba(56,189,209,0.25); color: #38bdd1; }
+		.comment-reaction-icons .r-love { background: rgba(248,113,113,0.25); color: #f87171; }
+		.comment-reaction-icons .r-clap { background: rgba(52,211,153,0.25); color: #34d399; }
+		.comments-empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 0.9rem; }
+		.comments-empty-icon { font-size: 2.4rem; margin-bottom: 12px; opacity: 0.4; }
+		.comment-login-prompt {
+			text-align: center; padding: 24px;
+			border-radius: 16px;
+			background: linear-gradient(165deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+			border: 1px solid rgba(255,255,255,0.06);
+			margin-bottom: 32px;
+		}
+		.comment-login-prompt p { color: var(--muted); font-size: 0.88rem; margin-bottom: 12px; }
+		.comment-login-btn {
+			display: inline-flex; align-items: center; gap: 8px;
+			padding: 10px 24px; border-radius: 10px; text-decoration: none;
+			background: linear-gradient(135deg, var(--purple), #9b7bf7); color: #fff;
+			font-size: 0.82rem; font-weight: 700;
+			box-shadow: 0 4px 16px rgba(123,97,241,0.3);
+			transition: transform 0.2s var(--ease), box-shadow 0.2s ease;
+		}
+		.comment-login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(123,97,241,0.4); }
+
 		/* ── FOOTER ── */
 		footer {
 			border-top: 1px solid rgba(255,255,255,0.1);
@@ -2297,9 +2437,29 @@
 			.film-grain { display: none; }
 			.preloader { display: none; }
 		}
+
+		/* Toast notifications */
+		.toast-container{position:fixed;top:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+		.toast{pointer-events:auto;min-width:320px;max-width:440px;padding:16px 20px;border-radius:16px;background:linear-gradient(165deg,rgba(20,24,40,0.97),rgba(10,13,23,0.97));border:1px solid rgba(255,255,255,0.08);box-shadow:0 20px 50px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04);backdrop-filter:blur(20px);color:#f1f5f9;font-size:.88rem;line-height:1.5;display:flex;align-items:flex-start;gap:12px;transform:translateX(120%);opacity:0;transition:all .4s cubic-bezier(.16,1,.3,1)}
+		.toast.show{transform:translateX(0);opacity:1}
+		.toast.hide{transform:translateX(120%);opacity:0}
+		.toast-icon{flex-shrink:0;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+		.toast-icon.error{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.2);color:#f87171}
+		.toast-icon.success{background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.2);color:#34d399}
+		.toast-icon.warn{background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.2);color:#fbbf24}
+		.toast-body{flex:1}
+		.toast-title{font-weight:700;font-size:.82rem;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
+		.toast-title.error{color:#f87171}
+		.toast-title.success{color:#34d399}
+		.toast-title.warn{color:#fbbf24}
+		.toast-msg{color:rgba(241,245,249,0.8);font-size:.84rem}
+		.toast-close{flex-shrink:0;background:none;border:none;color:rgba(255,255,255,0.3);font-size:1.1rem;cursor:pointer;padding:2px;transition:color .15s}
+		.toast-close:hover{color:#fff}
+		.toast-progress{position:absolute;bottom:0;left:0;height:3px;border-radius:0 0 16px 16px;background:linear-gradient(90deg,var(--purple),var(--cyan));transition:width linear}
 	</style>
-</head>
-<body>
+{% endblock %}
+
+{% block body %}
 	<!-- PRELOADER -->
 	<div class="preloader" id="preloader">
 		<div class="preloader-logo">
@@ -2357,8 +2517,6 @@
 		<span id="socialToastText"></span>
 		<button class="social-toast-close" id="socialToastClose" aria-label="Close">×</button>
 	</div>
-
-	{% include 'partials/_navbar.html.twig' with { darkPage: true } %}
 
 	<!-- Particles -->
 	<div id="particles" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden"></div>
@@ -2834,6 +2992,137 @@
 		</div>
 	</section>
 
+	<!-- COMMUNITY COMMENTS -->
+	<section class="section-wrap" id="community-comments">
+		<div class="comments-section">
+			<div class="comments-header" data-anim="fade-up">
+				<span class="section-tag">Community</span>
+				<h2>What our learners say</h2>
+				<p>Real reviews from real students — share your experience!</p>
+			</div>
+
+			{% if user %}
+			<div class="comment-composer" data-anim="fade-up">
+				<div class="comment-composer-top">
+					{% if user.avatarBase64 %}
+						<img class="comment-composer-avatar" src="{{ user.avatarBase64 }}" alt="">
+					{% else %}
+						<div class="comment-composer-avatar" style="background:linear-gradient(135deg,var(--purple),var(--cyan));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;color:#fff">{{ user.fullName|first|upper }}</div>
+					{% endif %}
+					<div>
+						<div class="comment-composer-name">{{ user.fullName }}</div>
+						<div class="comment-composer-hint">Share your experience with LearnAdapt</div>
+					</div>
+				</div>
+				<div class="comment-stars-input" id="commentStarsInput">
+					<button type="button" data-star="1" aria-label="1 star">★</button>
+					<button type="button" data-star="2" aria-label="2 stars">★</button>
+					<button type="button" data-star="3" aria-label="3 stars">★</button>
+					<button type="button" data-star="4" aria-label="4 stars">★</button>
+					<button type="button" data-star="5" aria-label="5 stars">★</button>
+				</div>
+				<div class="comment-media-btns">
+					<button type="button" class="comment-media-btn" id="commentPhotoBtn">
+						<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+						Photos
+					</button>
+					<button type="button" class="comment-media-btn" id="commentVideoBtn">
+						<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+						Videos
+					</button>
+					<input type="file" id="commentPhotoInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" multiple>
+					<input type="file" id="commentVideoInput" accept="video/mp4,video/webm,video/ogg" style="display:none" multiple>
+				</div>
+				<div class="comment-media-preview" id="commentMediaPreview" style="display:none;gap:6px;flex-wrap:wrap">
+					<button type="button" class="comment-media-remove" id="commentMediaRemove">×</button>
+				</div>
+				<textarea class="comment-textarea" id="commentTextarea" placeholder="Write your review..." maxlength="1000"></textarea>
+				<div class="comment-composer-actions">
+					<span class="comment-char-count"><span id="commentCharCount">0</span>/1000</span>
+					<button class="comment-submit-btn" id="commentSubmitBtn" disabled>
+						<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+						Post Review
+					</button>
+				</div>
+			</div>
+			{% else %}
+			<div class="comment-login-prompt" data-anim="fade-up">
+				<p>Sign in to share your experience with the community</p>
+				<a href="{{ path('app_login') }}" class="comment-login-btn">
+					<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+					Sign In
+				</a>
+			</div>
+			{% endif %}
+
+			<div class="comments-list" id="commentsList">
+				{% if comments is empty %}
+				<div class="comments-empty" id="commentsEmpty">
+					<div class="comments-empty-icon">💬</div>
+					<p>No reviews yet — be the first to share your thoughts!</p>
+				</div>
+				{% else %}
+					{% for c in comments %}
+					<div class="comment-card" data-comment-id="{{ c.id }}" data-anim="fade-up">
+						<div class="comment-card-head">
+							{% if c.author_avatar %}
+								<img class="comment-card-avatar" src="{{ c.author_avatar }}" alt="">
+							{% else %}
+								<div class="comment-card-avatar" style="background:linear-gradient(135deg,var(--purple),var(--cyan));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.82rem;color:#fff">{{ c.author_name|first|upper }}</div>
+							{% endif %}
+							<div>
+								<span class="comment-card-name">{{ c.author_name }}</span>
+								<span class="comment-card-role">{{ c.author_role }}</span>
+							</div>
+							<span class="comment-card-time">{{ c.created_at|date('M d, Y') }}</span>
+						</div>
+						<div class="comment-card-stars">{% for i in 1..5 %}{{ i <= c.rating ? '★' : '☆' }}{% endfor %}</div>
+						{% set _cMedia = [] %}
+						{% if c.media_files is defined and c.media_files %}
+							{% set _cMedia = c.media_files|json_decode %}
+						{% elseif c.media_path %}
+							{% set _cMedia = [{type: c.media_type, path: c.media_path}] %}
+						{% endif %}
+						{% if _cMedia|length > 0 %}
+						<div class="comment-card-media" style="{% if _cMedia|length > 1 %}display:grid;grid-template-columns:repeat(2,1fr);gap:6px{% endif %}">
+							{% for m in _cMedia %}
+								{% if m.type == 'image' %}
+									<img src="{{ m.path }}" alt="" style="border-radius:14px;max-height:{{ _cMedia|length > 1 ? '200' : '400' }}px;object-fit:cover;width:100%">
+								{% elseif m.type == 'video' %}
+									<video controls playsinline preload="auto" style="border-radius:14px;max-height:{{ _cMedia|length > 1 ? '200' : '400' }}px;width:100%;background:#000"><source src="{{ m.path }}">Your browser does not support video.</video>
+								{% endif %}
+							{% endfor %}
+						</div>
+						{% endif %}
+						{% if c.comment %}<div class="comment-card-text">{{ c.comment }}</div>{% endif %}
+						{% if (c.like_count|default(0)) > 0 %}
+						<div class="comment-reaction-summary">
+							<div class="comment-reaction-icons"><span class="r-like">👍</span><span class="r-love">❤️</span><span class="r-clap">👏</span></div>
+							<span class="reaction-count">{{ c.like_count }}</span>
+						</div>
+						{% endif %}
+						<div class="comment-actions">
+							<button type="button" class="comment-action {% if c.user_reaction is defined and c.user_reaction == 'like' %}liked{% endif %}" data-comment-id="{{ c.id }}" onclick="reactToComment(this)">
+								<i class='bx {% if c.user_reaction is defined and c.user_reaction == "like" %}bxs-like{% else %}bx-like{% endif %}'></i> J'aime
+							</button>
+							<button type="button" class="comment-action"><i class='bx bx-message-rounded'></i> Commenter</button>
+							<button type="button" class="comment-action"><i class='bx bx-repost'></i> Republier</button>
+							<button type="button" class="comment-action"><i class='bx bx-send'></i> Envoyer</button>
+						</div>
+						{% if user and user.id == c.user_id %}
+						<button class="comment-card-delete" data-delete-id="{{ c.id }}">Delete</button>
+						{% endif %}
+					</div>
+					{% endfor %}
+				{% endif %}
+			</div>
+		</div>
+
+		<div class="comment-media-lightbox" id="commentLightbox" onclick="this.classList.remove('active')">
+			<img src="" alt="" id="commentLightboxImg">
+		</div>
+	</section>
+
 	<!-- PRICING -->
 	<section class="section-wrap no-top" id="pricing">
 		<p class="section-tag center">Pricing</p>
@@ -3066,6 +3355,35 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 	<script>
+		/* ── Toast system ── */
+		(function(){
+			var container = document.createElement('div');
+			container.className = 'toast-container';
+			document.body.appendChild(container);
+			window.showToast = function(msg, type) {
+				type = type || 'error';
+				var icons = {error:'<i class="bx bx-error-circle"></i>',success:'<i class="bx bx-check-circle"></i>',warn:'<i class="bx bx-shield-x"></i>'};
+				var titles = {error:'Error',success:'Success',warn:'Warning'};
+				var toast = document.createElement('div');
+				toast.className = 'toast';
+				toast.style.position = 'relative';
+				toast.style.overflow = 'hidden';
+				toast.innerHTML = '<div class="toast-icon '+type+'">'+icons[type]+'</div>'+
+					'<div class="toast-body"><div class="toast-title '+type+'">'+titles[type]+'</div><div class="toast-msg">'+msg+'</div></div>'+
+					'<button class="toast-close"><i class="bx bx-x"></i></button>'+
+					'<div class="toast-progress" style="width:100%"></div>';
+				container.appendChild(toast);
+				var progress = toast.querySelector('.toast-progress');
+				var duration = 5000;
+				setTimeout(function(){ toast.classList.add('show'); }, 10);
+				progress.style.transitionDuration = duration + 'ms';
+				setTimeout(function(){ progress.style.width = '0%'; }, 50);
+				var autoClose = setTimeout(function(){ dismissToast(toast); }, duration);
+				toast.querySelector('.toast-close').addEventListener('click', function(){ clearTimeout(autoClose); dismissToast(toast); });
+				function dismissToast(t){ t.classList.remove('show'); t.classList.add('hide'); setTimeout(function(){ t.remove(); }, 400); }
+			};
+		})();
+
 		document.getElementById('footerYear').textContent = new Date().getFullYear();
 
 		const navbar = document.getElementById('navbar');
@@ -4203,17 +4521,7 @@
 
 		/* ── N5. HOVER LETTER SPREAD — handled by CSS ── */
 
-		/* ── N6. PROFILE AVATAR PILL DROPDOWN ── */
-		(() => {
-			const profile = document.getElementById('navProfile');
-			if (!profile) return;
-			profile.addEventListener('click', e => {
-				e.stopPropagation();
-				profile.classList.toggle('is-open');
-				profile.setAttribute('aria-expanded', profile.classList.contains('is-open'));
-			});
-			document.addEventListener('click', () => profile.classList.remove('is-open'));
-		})();
+		/* ── N6. PROFILE AVATAR PILL DROPDOWN — handled by _navbar.html.twig ── */
 
 		/* ── N7. CMD+K HINT — visual only, handled by HTML ── */
 
@@ -4223,17 +4531,7 @@
 
 		/* ── N10. GRADIENT TEXT HOVER — handled by CSS ── */
 
-		/* ── N11. MEGA MENU — hover handled by CSS, smooth scroll on click ── */
-		(() => {
-			document.querySelectorAll('.nav-mega-item').forEach(item => {
-				item.addEventListener('click', e => {
-					e.preventDefault();
-					const href = item.getAttribute('href');
-					const target = document.querySelector(href);
-					if (target) target.scrollIntoView({ behavior: 'smooth' });
-				});
-			});
-		})();
+		/* ── N11. MEGA MENU — handled by _navbar.html.twig ── */
 
 		/* ── N12. SEARCH LIVE SUGGESTIONS ── */
 		(() => {
@@ -4255,57 +4553,11 @@
 			}));
 		})();
 
-		/* ── N13. PROGRESS BAR GLOW PARTICLE ── */
-		(() => {
-			const particle = document.getElementById('progressParticle');
-			const nav = document.getElementById('navbar');
-			if (!particle || !nav) return;
-			window.addEventListener('scroll', () => {
-				const progress = Math.min(window.scrollY / (document.body.scrollHeight - window.innerHeight), 1);
-				const navW = nav.offsetWidth;
-				particle.style.left = (progress * navW) + 'px';
-			}, { passive: true });
-		})();
+		/* ── N13. PROGRESS BAR GLOW PARTICLE — handled by _navbar.html.twig ── */
 
-		/* ── N14. MOBILE HAMBURGER ── */
-		(() => {
-			const btn = document.getElementById('navHamburger');
-			const shell = document.querySelector('.nav-menu-shell');
-			if (!btn || !shell) return;
-			btn.addEventListener('click', () => {
-				btn.classList.toggle('is-open');
-				shell.classList.toggle('is-mobile-open');
-			});
-		})();
+		/* ── N14. MOBILE HAMBURGER — handled by _navbar.html.twig ── */
 
-		/* ── N15. BREADCRUMB MODE ── */
-		(() => {
-			const breadcrumb = document.getElementById('navBreadcrumb');
-			const currentEl = document.getElementById('breadcrumbCurrent');
-			if (!breadcrumb || !currentEl) return;
-			const sections = [
-				{ sel: '.hero', name: 'Hero' },
-				{ sel: '.dashboard-section', name: 'Dashboard' },
-				{ sel: '.steps-section', name: 'How it Works' },
-				{ sel: '.features-section', name: 'Features' },
-				{ sel: '.pricing-section', name: 'Pricing' },
-				{ sel: '#faq', name: 'FAQ' },
-				{ sel: '.cta-section', name: 'Get Started' },
-			];
-			window.addEventListener('scroll', () => {
-				const scrolled = window.scrollY > 300;
-				breadcrumb.classList.toggle('is-visible', scrolled);
-				if (scrolled) {
-					const y = window.scrollY + window.innerHeight / 3;
-					let current = 'Hero';
-					sections.forEach(s => {
-						const el = document.querySelector(s.sel);
-						if (el && el.offsetTop <= y) current = s.name;
-					});
-					currentEl.textContent = current;
-				}
-			}, { passive: true });
-		})();
+		/* ── N15. BREADCRUMB MODE — handled by _navbar.html.twig ── */
 
 		/* ── N16. NOTIFICATION SOUND ON BADGE UPDATE (extends existing sound system) ── */
 		(() => {
@@ -4385,7 +4637,255 @@
 			brand.addEventListener('mouseleave', () => clearTimeout(timeout));
 		})();
 
+		/* ── COMMUNITY COMMENTS ── */
+		function openCommentLightbox(src) {
+			const lb = document.getElementById('commentLightbox');
+			document.getElementById('commentLightboxImg').src = src;
+			lb.classList.add('active');
+		}
+
+		(function() {
+			const starsWrap = document.getElementById('commentStarsInput');
+			const textarea = document.getElementById('commentTextarea');
+			const submitBtn = document.getElementById('commentSubmitBtn');
+			const charCount = document.getElementById('commentCharCount');
+			const commentsList = document.getElementById('commentsList');
+			const photoBtn = document.getElementById('commentPhotoBtn');
+			const videoBtn = document.getElementById('commentVideoBtn');
+			const photoInput = document.getElementById('commentPhotoInput');
+			const videoInput = document.getElementById('commentVideoInput');
+			const mediaPreview = document.getElementById('commentMediaPreview');
+			const mediaRemove = document.getElementById('commentMediaRemove');
+			let selectedRating = 0;
+
+			if (!starsWrap) return; // not logged in
+
+			const starBtns = starsWrap.querySelectorAll('button');
+			function setStars(n) {
+				selectedRating = n;
+				starBtns.forEach(b => b.classList.toggle('active', +b.dataset.star <= n));
+				checkReady();
+			}
+			starBtns.forEach(b => {
+				b.addEventListener('click', () => setStars(+b.dataset.star));
+				b.addEventListener('mouseenter', () => {
+					starBtns.forEach(s => s.classList.toggle('active', +s.dataset.star <= +b.dataset.star));
+				});
+				b.addEventListener('mouseleave', () => {
+					starBtns.forEach(s => s.classList.toggle('active', +s.dataset.star <= selectedRating));
+				});
+			});
+
+			textarea.addEventListener('input', () => {
+				charCount.textContent = textarea.value.length;
+				checkReady();
+			});
+
+			function checkReady() {
+				submitBtn.disabled = !(selectedRating > 0 && (textarea.value.trim().length > 0 || selectedPhotos.length > 0 || selectedVideos.length > 0));
+			}
+
+			var selectedPhotos = [];
+			var selectedVideos = [];
+
+			// Media upload handlers
+			photoBtn.addEventListener('click', () => photoInput.click());
+			videoBtn.addEventListener('click', () => videoInput.click());
+
+			photoInput.addEventListener('change', () => {
+				for (const f of photoInput.files) {
+					if (f.size > 20 * 1024 * 1024) { showToast('File too large (max 20MB): ' + f.name); continue; }
+					if (selectedPhotos.length + selectedVideos.length >= 10) { showToast('Max 10 files allowed.'); break; }
+					selectedPhotos.push(f);
+				}
+				photoInput.value = '';
+				showAllPreviews();
+				checkReady();
+			});
+			videoInput.addEventListener('change', () => {
+				for (const f of videoInput.files) {
+					if (f.size > 20 * 1024 * 1024) { showToast('File too large (max 20MB): ' + f.name); continue; }
+					if (selectedPhotos.length + selectedVideos.length >= 10) { showToast('Max 10 files allowed.'); break; }
+					selectedVideos.push(f);
+				}
+				videoInput.value = '';
+				showAllPreviews();
+				checkReady();
+			});
+
+			function showAllPreviews() {
+				mediaPreview.querySelectorAll('img, video').forEach(el => { URL.revokeObjectURL(el.src); el.remove(); });
+				const allFiles = [...selectedPhotos.map(f => ({file: f, type: 'image'})), ...selectedVideos.map(f => ({file: f, type: 'video'}))];
+				if (allFiles.length === 0) { mediaPreview.style.display = 'none'; return; }
+				allFiles.forEach(item => {
+					const url = URL.createObjectURL(item.file);
+					if (item.type === 'image') {
+						const img = document.createElement('img');
+						img.src = url;
+						img.style.maxHeight = '120px';
+						img.style.borderRadius = '10px';
+						img.style.objectFit = 'cover';
+						mediaPreview.insertBefore(img, mediaRemove);
+					} else {
+						const vid = document.createElement('video');
+						vid.src = url;
+						vid.controls = true;
+						vid.style.maxHeight = '120px';
+						vid.style.borderRadius = '10px';
+						mediaPreview.insertBefore(vid, mediaRemove);
+					}
+				});
+				mediaPreview.style.display = 'flex';
+			}
+
+			function clearMedia() {
+				selectedPhotos = [];
+				selectedVideos = [];
+				photoInput.value = '';
+				videoInput.value = '';
+				mediaPreview.querySelectorAll('img, video').forEach(el => { URL.revokeObjectURL(el.src); el.remove(); });
+				mediaPreview.style.display = 'none';
+				checkReady();
+			}
+			mediaRemove.addEventListener('click', clearMedia);
+
+			submitBtn.addEventListener('click', async () => {
+				if (submitBtn.disabled) return;
+				submitBtn.disabled = true;
+				submitBtn.textContent = 'Posting…';
+				try {
+					const fd = new FormData();
+					fd.append('rating', selectedRating);
+					fd.append('comment', textarea.value.trim());
+					selectedPhotos.forEach(f => fd.append('photos[]', f));
+					selectedVideos.forEach(f => fd.append('videos[]', f));
+					const res = await fetch('/home/comment', { method: 'POST', body: fd });
+					const data = await res.json();
+					if (data.success) {
+						const empty = document.getElementById('commentsEmpty');
+						if (empty) empty.remove();
+						const stars = '★'.repeat(data.comment.rating) + '☆'.repeat(5 - data.comment.rating);
+						const initial = data.comment.author_name.charAt(0).toUpperCase();
+						const avatarHtml = data.comment.author_avatar
+							? `<img class="comment-card-avatar" src="${data.comment.author_avatar}" alt="">`
+							: `<div class="comment-card-avatar" style="background:linear-gradient(135deg,var(--purple),var(--cyan));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.82rem;color:#fff">${initial}</div>`;
+						let mediaHtml = '';
+						const mediaFiles = data.comment.media_files || [];
+						if (mediaFiles.length > 0) {
+							const gridStyle = mediaFiles.length > 1 ? 'display:grid;grid-template-columns:repeat(2,1fr);gap:6px' : '';
+							const maxH = mediaFiles.length > 1 ? '200' : '400';
+							mediaHtml = `<div class="comment-card-media" style="${gridStyle}">`;
+							mediaFiles.forEach(m => {
+								if (m.type === 'image') {
+									mediaHtml += `<img src="${m.path}" alt="" style="border-radius:14px;max-height:${maxH}px;object-fit:cover;width:100%">`;
+								} else if (m.type === 'video') {
+									mediaHtml += `<video controls playsinline preload="auto" style="border-radius:14px;max-height:${maxH}px;width:100%;background:#000"><source src="${m.path}">Your browser does not support video.</video>`;
+								}
+							});
+							mediaHtml += `</div>`;
+						} else if (data.comment.media_path) {
+							if (data.comment.media_type === 'image') {
+								mediaHtml = `<div class="comment-card-media"><img src="${data.comment.media_path}" alt=""></div>`;
+							} else if (data.comment.media_type === 'video') {
+								mediaHtml = `<div class="comment-card-media"><video controls playsinline preload="auto"><source src="${data.comment.media_path}">Your browser does not support video.</video></div>`;
+							}
+						}
+						const commentText = data.comment.comment
+							? `<div class="comment-card-text">${data.comment.comment.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`
+							: '';
+						const card = document.createElement('div');
+						card.className = 'comment-card';
+						card.dataset.commentId = data.comment.id;
+						card.innerHTML = `
+							<div class="comment-card-head">
+								${avatarHtml}
+								<div>
+									<span class="comment-card-name">${data.comment.author_name}</span>
+									<span class="comment-card-role">${data.comment.author_role}</span>
+								</div>
+								<span class="comment-card-time">${data.comment.created_at}</span>
+							</div>
+							<div class="comment-card-stars">${stars}</div>
+							${mediaHtml}
+							${commentText}
+							<div class="comment-actions">
+								<button type="button" class="comment-action" data-comment-id="${data.comment.id}" onclick="reactToComment(this)"><i class='bx bx-like'></i> J'aime</button>
+								<button type="button" class="comment-action"><i class='bx bx-message-rounded'></i> Commenter</button>
+								<button type="button" class="comment-action"><i class='bx bx-repost'></i> Republier</button>
+								<button type="button" class="comment-action"><i class='bx bx-send'></i> Envoyer</button>
+							</div>
+							<button class="comment-card-delete" data-delete-id="${data.comment.id}">Delete</button>
+						`;
+						commentsList.prepend(card);
+						textarea.value = '';
+						charCount.textContent = '0';
+						setStars(0);
+						clearMedia();
+					} else {
+						showToast(data.error || 'Failed to post comment', 'warn');
+					}
+				} catch (e) {
+					showToast('Network error. Please try again.');
+				}
+				submitBtn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Post Review';
+				checkReady();
+			});
+
+			document.addEventListener('click', async (e) => {
+				const btn = e.target.closest('.comment-card-delete');
+				if (!btn) return;
+				if (!confirm('Delete this review?')) return;
+				const id = btn.dataset.deleteId;
+				btn.disabled = true;
+				try {
+					const res = await fetch(`/home/comment/${id}`, { method: 'DELETE' });
+					const data = await res.json();
+					if (data.success) {
+						const card = btn.closest('.comment-card');
+						card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+						card.style.opacity = '0';
+						card.style.transform = 'translateY(-10px)';
+						setTimeout(() => card.remove(), 300);
+					} else {
+						showToast(data.error || 'Failed to delete');
+						btn.disabled = false;
+					}
+				} catch (e) {
+					showToast('Network error');
+					btn.disabled = false;
+				}
+			});
+		})();
+
+		function reactToComment(btn) {
+			const id = btn.dataset.commentId;
+			fetch('/home/comment/' + id + '/react', {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({type: 'like'})
+			})
+			.then(r => r.json())
+			.then(data => {
+				if (data.error) return;
+				btn.classList.toggle('liked', data.userReaction === 'like');
+				btn.querySelector('i').className = data.userReaction === 'like' ? 'bx bxs-like' : 'bx bx-like';
+
+				const card = btn.closest('.comment-card');
+				let summary = card.querySelector('.comment-reaction-summary');
+				if (data.likes > 0) {
+					if (!summary) {
+						summary = document.createElement('div');
+						summary.className = 'comment-reaction-summary';
+						const actions = card.querySelector('.comment-actions');
+						actions.parentNode.insertBefore(summary, actions);
+					}
+					summary.innerHTML = '<div class="comment-reaction-icons"><span class="r-like">👍</span><span class="r-love">❤️</span><span class="r-clap">👏</span></div><span class="reaction-count">' + data.likes + '</span>';
+				} else if (summary) {
+					summary.remove();
+				}
+			});
+		}
+
 	</script>
-</body>
-</html>
+{% endblock %}
 

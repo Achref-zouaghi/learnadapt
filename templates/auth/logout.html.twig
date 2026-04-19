@@ -1,0 +1,388 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'logout.title'|trans }} – Learn Adapt{% endblock %}
+
+{% block stylesheets %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+    --lo-bg: #030711;
+    --lo-purple: #7b61f1;
+    --lo-cyan: #38bdd1;
+    --lo-text: #f6f8fc;
+    --lo-muted: #8896ab;
+    --lo-glass: rgba(255,255,255,0.035);
+    --lo-border: rgba(255,255,255,0.06);
+    --lo-red: #ef4444;
+    --lo-green: #34d399;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body, body.dark-page {
+    font-family: 'Inter', sans-serif !important;
+    background: var(--lo-bg) !important;
+    color: var(--lo-text);
+    overflow: hidden;
+}
+footer, .nav, #navbar { display: none !important; }
+
+/* ── Scene ── */
+.lo-scene {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10;
+}
+
+/* ── Background canvas ── */
+.lo-bg-canvas {
+    position: fixed; inset: 0; z-index: 0;
+    overflow: hidden;
+}
+.lo-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0;
+    animation: orbFloat 8s ease-in-out infinite, orbFadeIn 1.5s ease forwards;
+}
+.lo-orb-1 { width: 500px; height: 500px; top: -15%; left: -10%; background: rgba(123,97,241,0.12); animation-delay: 0s, 0s; }
+.lo-orb-2 { width: 400px; height: 400px; bottom: -10%; right: -8%; background: rgba(56,189,209,0.10); animation-delay: 2s, 0.3s; }
+.lo-orb-3 { width: 300px; height: 300px; top: 50%; left: 60%; transform: translate(-50%,-50%); background: rgba(123,97,241,0.06); animation-delay: 4s, 0.6s; }
+
+@keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -20px) scale(1.05); }
+    66% { transform: translate(-20px, 15px) scale(0.95); }
+}
+@keyframes orbFadeIn {
+    to { opacity: 1; }
+}
+
+/* ── Grid overlay ── */
+.lo-grid {
+    position: fixed; inset: 0; z-index: 1;
+    background-image:
+        linear-gradient(rgba(123,97,241,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(123,97,241,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 20%, transparent 70%);
+}
+
+/* ── Card ── */
+.lo-card {
+    position: relative; z-index: 10;
+    max-width: 480px; width: 92vw;
+    padding: 48px 44px;
+    border-radius: 28px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(40px) saturate(1.2);
+    -webkit-backdrop-filter: blur(40px) saturate(1.2);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.02),
+        0 24px 80px rgba(0,0,0,0.5),
+        0 8px 32px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+    text-align: center;
+    animation: cardSlideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    opacity: 0;
+    transform: translateY(30px);
+}
+@keyframes cardSlideUp {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Icon ── */
+.lo-icon-wrap {
+    width: 88px; height: 88px;
+    margin: 0 auto 28px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(123,97,241,0.12), rgba(56,189,209,0.08));
+    border: 1px solid rgba(123,97,241,0.15);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    animation: iconPulse 3s ease-in-out infinite;
+}
+.lo-icon-wrap svg {
+    width: 40px; height: 40px;
+    color: var(--lo-purple);
+    filter: drop-shadow(0 0 12px rgba(123,97,241,0.3));
+}
+.lo-icon-ring {
+    position: absolute; inset: -6px;
+    border-radius: 28px;
+    border: 2px solid transparent;
+    border-top-color: rgba(123,97,241,0.3);
+    animation: ringRotate 4s linear infinite;
+}
+@keyframes iconPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(123,97,241,0.1); }
+    50% { box-shadow: 0 0 0 12px rgba(123,97,241,0); }
+}
+@keyframes ringRotate { to { transform: rotate(360deg); } }
+
+/* ── Text ── */
+.lo-title {
+    font-size: 1.6rem; font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff, #c4b5fd);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.lo-subtitle {
+    font-size: 0.92rem; color: var(--lo-muted);
+    line-height: 1.6; margin-bottom: 32px;
+}
+
+/* ── User pill ── */
+.lo-user {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 10px 20px 10px 10px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 32px;
+}
+.lo-user-avatar {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--lo-purple), var(--lo-cyan));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.88rem; color: #fff;
+    overflow: hidden;
+}
+.lo-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.lo-user-info { text-align: left; }
+.lo-user-name { font-weight: 600; font-size: 0.88rem; color: var(--lo-text); }
+.lo-user-email { font-size: 0.75rem; color: var(--lo-muted); margin-top: 1px; }
+
+/* ── Buttons ── */
+.lo-buttons {
+    display: flex; gap: 12px;
+    margin-bottom: 24px;
+}
+.lo-btn {
+    flex: 1; padding: 14px 24px;
+    border-radius: 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem; font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    border: none; outline: none;
+    position: relative; overflow: hidden;
+}
+.lo-btn-stay {
+    background: linear-gradient(135deg, rgba(123,97,241,0.15), rgba(56,189,209,0.1));
+    border: 1px solid rgba(123,97,241,0.25);
+    color: #c4b5fd;
+}
+.lo-btn-stay:hover {
+    background: linear-gradient(135deg, rgba(123,97,241,0.25), rgba(56,189,209,0.15));
+    border-color: rgba(123,97,241,0.4);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(123,97,241,0.15);
+}
+.lo-btn-leave {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.15);
+    color: #fca5a5;
+}
+.lo-btn-leave:hover {
+    background: rgba(239,68,68,0.15);
+    border-color: rgba(239,68,68,0.3);
+    color: #fecaca;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239,68,68,0.1);
+}
+
+/* ── Timer ── */
+.lo-timer {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 0.78rem; color: var(--lo-muted);
+}
+.lo-timer-bar {
+    width: 120px; height: 3px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.06);
+    overflow: hidden;
+}
+.lo-timer-fill {
+    height: 100%; width: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--lo-purple), var(--lo-cyan));
+    transform-origin: left;
+    animation: timerShrink 10s linear forwards;
+}
+@keyframes timerShrink {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+}
+
+/* ── Particles ── */
+.lo-particle {
+    position: fixed; z-index: 2;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: rgba(123,97,241,0.4);
+    animation: particleDrift 6s ease-in-out infinite;
+    opacity: 0;
+}
+@keyframes particleDrift {
+    0% { opacity: 0; transform: translateY(0) scale(0.5); }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-80px) scale(0); }
+}
+
+/* ── Fade out ── */
+.lo-fadeout .lo-card {
+    animation: cardFadeOut 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes cardFadeOut {
+    to { opacity: 0; transform: translateY(-20px) scale(0.97); }
+}
+
+/* ── Light theme ── */
+[data-theme="light"] .lo-bg-canvas { opacity: 0.3; }
+[data-theme="light"] body, [data-theme="light"] body.dark-page {
+    background: #f5f7fa !important;
+}
+[data-theme="light"] .lo-card {
+    background: rgba(255,255,255,0.85) !important;
+    border-color: rgba(0,0,0,0.08) !important;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.04) !important;
+}
+[data-theme="light"] .lo-title {
+    background: linear-gradient(135deg, #1a1a2e, #7b61f1);
+    -webkit-background-clip: text; background-clip: text;
+}
+[data-theme="light"] .lo-subtitle { color: #6b7280; }
+[data-theme="light"] .lo-user {
+    background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.06);
+}
+[data-theme="light"] .lo-user-name { color: #1a1a2e; }
+[data-theme="light"] .lo-user-email { color: #6b7280; }
+[data-theme="light"] .lo-btn-stay {
+    background: linear-gradient(135deg, rgba(123,97,241,0.1), rgba(56,189,209,0.06));
+    border-color: rgba(123,97,241,0.2); color: #7b61f1;
+}
+[data-theme="light"] .lo-btn-stay:hover {
+    background: linear-gradient(135deg, rgba(123,97,241,0.18), rgba(56,189,209,0.1));
+    color: #5b41d1;
+}
+[data-theme="light"] .lo-btn-leave {
+    background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.12); color: #dc2626;
+}
+[data-theme="light"] .lo-btn-leave:hover {
+    background: rgba(239,68,68,0.12); color: #b91c1c;
+}
+[data-theme="light"] .lo-timer { color: #9ca3af; }
+[data-theme="light"] .lo-timer-bar { background: rgba(0,0,0,0.06); }
+[data-theme="light"] .lo-grid {
+    background-image:
+        linear-gradient(rgba(123,97,241,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(123,97,241,0.04) 1px, transparent 1px);
+}
+[data-theme="light"] .lo-icon-wrap {
+    background: linear-gradient(135deg, rgba(123,97,241,0.08), rgba(56,189,209,0.05));
+    border-color: rgba(123,97,241,0.12);
+}
+[data-theme="light"] .lo-orb { opacity: 0.15 !important; }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Background -->
+<div class="lo-bg-canvas">
+    <div class="lo-orb lo-orb-1"></div>
+    <div class="lo-orb lo-orb-2"></div>
+    <div class="lo-orb lo-orb-3"></div>
+</div>
+<div class="lo-grid"></div>
+
+<!-- Floating particles -->
+{% for i in 1..12 %}
+<div class="lo-particle" style="left:{{ random(10,90) }}%; top:{{ random(20,80) }}%; animation-delay:{{ random(0,50)/10 }}s; animation-duration:{{ random(40,80)/10 }}s; width:{{ random(2,4) }}px; height:{{ random(2,4) }}px; background:rgba({{ random(0,1) ? '123,97,241' : '56,189,209' }},{{ random(2,5)/10 }});"></div>
+{% endfor %}
+
+<!-- Main card -->
+<div class="lo-scene" id="lo-scene">
+    <div class="lo-card">
+        <!-- Icon -->
+        <div class="lo-icon-wrap">
+            <div class="lo-icon-ring"></div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+        </div>
+
+        <!-- Text -->
+        <h1 class="lo-title">{{ 'logout.heading'|trans }}</h1>
+        <p class="lo-subtitle">{{ 'logout.message'|trans }}</p>
+
+        <!-- User pill -->
+        <div class="lo-user">
+            <div class="lo-user-avatar">
+                {% if user.avatarBase64 %}
+                    <img src="{{ user.avatarBase64 }}" alt="">
+                {% else %}
+                    {{ user.full_name|first|upper }}
+                {% endif %}
+            </div>
+            <div class="lo-user-info">
+                <div class="lo-user-name">{{ user.full_name }}</div>
+                <div class="lo-user-email">{{ user.email }}</div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="lo-buttons">
+            <a href="{{ path('app_home') }}" class="lo-btn lo-btn-stay" id="lo-stay">{{ 'logout.stay'|trans }}</a>
+            <form action="{{ path('app_logout_confirm') }}" method="post" style="flex:1;display:flex;" id="lo-form">
+                <button type="submit" class="lo-btn lo-btn-leave" style="width:100%;" id="lo-leave">{{ 'logout.leave'|trans }}</button>
+            </form>
+        </div>
+
+        <!-- Timer -->
+        <div class="lo-timer">
+            <span>{{ 'logout.redirect_in'|trans }}</span>
+            <div class="lo-timer-bar"><div class="lo-timer-fill" id="lo-fill"></div></div>
+            <span id="lo-countdown">10s</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function(){
+    var seconds = 10;
+    var el = document.getElementById('lo-countdown');
+    var scene = document.getElementById('lo-scene');
+
+    var timer = setInterval(function(){
+        seconds--;
+        if(el) el.textContent = seconds + 's';
+        if(seconds <= 0){
+            clearInterval(timer);
+            scene.classList.add('lo-fadeout');
+            setTimeout(function(){
+                document.getElementById('lo-form').submit();
+            }, 700);
+        }
+    }, 1000);
+
+    // Cancel timer if user clicks "Stay"
+    document.getElementById('lo-stay').addEventListener('click', function(){
+        clearInterval(timer);
+    });
+})();
+</script>
+{% endblock %}

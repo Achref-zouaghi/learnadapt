@@ -90,6 +90,12 @@ class ForumPost
     #[ORM\Column(type: 'datetime', nullable: false)]
     private ?\DateTimeInterface $created_at = null;
 
+    #[ORM\Column(type: 'string', length: 16, nullable: true)]
+    private ?string $media_type = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $media_path = null;
+
     public function getCreated_at(): ?\DateTimeInterface
     {
         return $this->created_at;
@@ -121,6 +127,30 @@ class ForumPost
     public function setCreatedAt(\DateTime $created_at): static
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getMediaType(): ?string
+    {
+        return $this->media_type;
+    }
+
+    public function setMediaType(?string $media_type): self
+    {
+        $this->media_type = $media_type;
+
+        return $this;
+    }
+
+    public function getMediaPath(): ?string
+    {
+        return $this->media_path;
+    }
+
+    public function setMediaPath(?string $media_path): self
+    {
+        $this->media_path = $media_path;
 
         return $this;
     }

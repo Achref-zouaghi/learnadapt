@@ -113,9 +113,16 @@ class ExerciseController extends AbstractController
         }
 
         $filePath = $exercise['pdf_path'];
+        // Support both absolute and relative paths
         if (!file_exists($filePath)) {
-            $this->addFlash('error', 'File not found on server.');
-            return $this->redirectToRoute('app_exercises');
+            $projectDir = $this->getParameter('kernel.project_dir');
+            $altPath = $projectDir . '/var/exercises/' . basename($filePath);
+            if (file_exists($altPath)) {
+                $filePath = $altPath;
+            } else {
+                $this->addFlash('error', 'File not found on server.');
+                return $this->redirectToRoute('app_exercises');
+            }
         }
 
         $fileName = $exercise['pdf_original_name'] ?: basename($filePath);

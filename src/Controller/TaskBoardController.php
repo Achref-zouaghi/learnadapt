@@ -262,9 +262,13 @@ class TaskBoardController extends AbstractController
 
         $newStatus = $request->request->get('status', 'TODO');
         $allowed = ['TODO', 'IN_PROGRESS', 'DONE', 'BLOCKED'];
+        $isAjax = $request->headers->get('X-Requested-With') === 'XMLHttpRequest';
 
         // Block overdue tasks from being marked DONE
         if ($newStatus === 'DONE' && $task['due_date'] && $task['due_date'] < date('Y-m-d') && strtoupper($task['status']) !== 'DONE') {
+            if ($isAjax) {
+                return new JsonResponse(['ok' => false, 'error' => 'overdue_locked'], 422);
+            }
             $this->addFlash('error', 'flash.task_overdue_locked');
             return $this->redirectToRoute('app_taskboard');
         }
@@ -274,6 +278,10 @@ class TaskBoardController extends AbstractController
                 'UPDATE tasks SET status = ?, updated_at = NOW() WHERE id = ?',
                 [$newStatus, $id]
             );
+        }
+
+        if ($isAjax) {
+            return new JsonResponse(['ok' => true, 'status' => $newStatus]);
         }
 
         $this->addFlash('success', 'flash.task_updated');

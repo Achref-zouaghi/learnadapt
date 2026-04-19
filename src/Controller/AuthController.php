@@ -131,12 +131,10 @@ class AuthController extends AbstractController
             $confirmPassword = (string) $request->request->get('confirm_password', '');
             $registerData['email'] = $this->normalizeEmail($registerData['email']);
 
-            $validationError = $this->validateRegistrationInput($registerData, $password, $confirmPassword);
+            $fieldErrors = $this->validateRegistrationInput($registerData, $password, $confirmPassword);
 
-            if ($validationError !== null) {
-                $this->addFlash('error', $validationError);
-
-                return $this->renderAuthPage(true, $this->defaultLoginData(), $registerData);
+            if (!empty($fieldErrors)) {
+                return $this->renderAuthPage(true, $this->defaultLoginData(), $registerData, $fieldErrors);
             }
 
             if ($this->userRepository->findOneBy(['email' => $registerData['email']]) instanceof User) {
@@ -570,7 +568,142 @@ class AuthController extends AbstractController
         return $this->redirectToRoute('app_auth_verify');
     }
 
-    #[Route('/logout', name: 'app_logout', methods: ['POST', 'GET'])]
+    #[Route('/forgot-password', name: 'app_forgot_password', methods: ['GET', 'POST'])]
+    public function forgotPassword(Request $request): Response
+    {
+        if ($this->getAuthenticatedUser($request) instanceof User) {
+            return $this->redirectToRoute('app_home');
+        }
+
+        if ($request->isMethod('POST')) {
+            $email = $this->normalizeEmail(trim((string) $request->request->get('email', '')));
+
+            if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->addFlash('error', 'Enter a valid email address.');
+
+                return $this->render('auth/forgot_password.html.twig');
+            }
+
+            $user = $this->userRepository->findOneBy(['email' => $email]);
+
+            // Always show success to prevent email enumeration
+            if (!$user instanceof User || !$user->isActive()) {
+                $this->addFlash('success', sprintf('If an account exists for %s, a reset link has been sent.', $email));
+
+                return $this->render('auth/forgot_password.html.twig');
+            }
+
+            if (!$this->canStartVerification()) {
+                $this->addFlash('error', 'Mail is not configured. Contact the administrator.');
+
+                return $this->render('auth/forgot_password.html.twig');
+            }
+
+            $token = bin2hex(random_bytes(32));
+            $user->setResetToken(hash('sha256', $token));
+            $user->setResetTokenExpiresAt(new \DateTime('+30 minutes'));
+            $this->entityManager->flush();
+
+            $resetUrl = $this->generateUrl('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
+
+            try {
+                $mail = (new Email())
+                    ->from($this->getMailerFromAddress())
+                    ->to($email)
+                    ->subject('Reset your LearnAdapt password')
+                    ->html(sprintf(
+                        '<div style="font-family:Arial,sans-serif;background:#06182f;color:#f3f8ff;padding:24px;border-radius:16px">'
+                        .'<h2 style="margin:0 0 12px">LearnAdapt Password Reset</h2>'
+                        .'<p style="margin:0 0 16px">Click the button below to reset your password. This link expires in 30 minutes.</p>'
+                        .'<a href="%s" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#7b61f1,#38bdd1);color:#fff;font-weight:700;border-radius:10px;text-decoration:none;font-size:15px">Reset Password</a>'
+                        .'<p style="margin:16px 0 0;color:#b8d7ef;font-size:13px">If you did not request this, ignore this email.</p>'
+                        .'</div>',
+                        htmlspecialchars($resetUrl, ENT_QUOTES)
+                    ));
+
+                $this->mailer->send($mail);
+            } catch (TransportExceptionInterface) {
+                $this->addFlash('error', 'The reset email could not be sent. Try again later.');
+
+                return $this->render('auth/forgot_password.html.twig');
+            }
+
+            $this->addFlash('success', sprintf('If an account exists for %s, a reset link has been sent.', $email));
+
+            return $this->render('auth/forgot_password.html.twig');
+        }
+
+        return $this->render('auth/forgot_password.html.twig');
+    }
+
+    #[Route('/reset-password/{token}', name: 'app_reset_password', methods: ['GET', 'POST'])]
+    public function resetPassword(string $token, Request $request): Response
+    {
+        if ($this->getAuthenticatedUser($request) instanceof User) {
+            return $this->redirectToRoute('app_home');
+        }
+
+        $tokenHash = hash('sha256', $token);
+        $user = $this->userRepository->findOneBy(['reset_token' => $tokenHash]);
+
+        if (!$user instanceof User || $user->getResetTokenExpiresAt() === null || $user->getResetTokenExpiresAt() < new \DateTime()) {
+            $this->addFlash('error', 'This password reset link is invalid or has expired.');
+
+            return $this->redirectToRoute('app_forgot_password');
+        }
+
+        if ($request->isMethod('POST')) {
+            $password = (string) $request->request->get('password', '');
+            $confirmPassword = (string) $request->request->get('confirm_password', '');
+
+            if (mb_strlen($password) < 8) {
+                $this->addFlash('error', 'Password must be at least 8 characters.');
+
+                return $this->render('auth/reset_password.html.twig', ['token' => $token]);
+            }
+
+            if (!preg_match('/[A-Za-z]/', $password) || !preg_match('/\d/', $password)) {
+                $this->addFlash('error', 'Password must contain letters and numbers.');
+
+                return $this->render('auth/reset_password.html.twig', ['token' => $token]);
+            }
+
+            if ($password !== $confirmPassword) {
+                $this->addFlash('error', 'Passwords do not match.');
+
+                return $this->render('auth/reset_password.html.twig', ['token' => $token]);
+            }
+
+            $user->setPasswordHash(password_hash($password, PASSWORD_DEFAULT));
+            $user->setResetToken(null);
+            $user->setResetTokenExpiresAt(null);
+            $user->setUpdatedAt(new \DateTime());
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Your password has been reset. You can now log in.');
+
+            return $this->redirectToRoute('app_login');
+        }
+
+        return $this->render('auth/reset_password.html.twig', ['token' => $token]);
+    }
+
+    #[Route('/logout', name: 'app_logout', methods: ['GET'])]
+    public function logoutConfirm(Request $request): Response
+    {
+        $auth = $request->getSession()->get(self::AUTH_SESSION_KEY);
+        if (!$auth) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $user = $this->userRepository->find((int) $auth['id']);
+
+        return $this->render('auth/logout.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    #[Route('/logout/confirm', name: 'app_logout_confirm', methods: ['POST'])]
     public function logout(Request $request): Response
     {
         $request->getSession()->remove(self::AUTH_SESSION_KEY);
@@ -583,13 +716,14 @@ class AuthController extends AbstractController
         return $this->redirectToRoute('app_login');
     }
 
-    private function renderAuthPage(bool $showRegister, array $loginData, array $registerData): Response
+    private function renderAuthPage(bool $showRegister, array $loginData, array $registerData, array $fieldErrors = []): Response
     {
         return $this->render('auth/login.html.twig', [
             'showRegister' => $showRegister,
             'loginData' => $loginData,
             'registerData' => $registerData,
             'roleOptions' => self::PUBLIC_ROLES,
+            'fieldErrors' => $fieldErrors,
         ]);
     }
 
@@ -617,41 +751,49 @@ class AuthController extends AbstractController
         ];
     }
 
-    private function validateRegistrationInput(array $registerData, string $password, string $confirmPassword): ?string
+    private function validateRegistrationInput(array $registerData, string $password, string $confirmPassword): array
     {
-        if ($registerData['full_name'] === '' || $registerData['email'] === '' || $registerData['role'] === '' || $registerData['phone'] === '' || $password === '' || $confirmPassword === '') {
-            return 'Fill in your name, email, role, phone number, and password.';
+        $errors = [];
+
+        if ($registerData['full_name'] === '') {
+            $errors['full_name'] = 'Full name is required.';
+        } elseif (mb_strlen($registerData['full_name']) < 2 || mb_strlen($registerData['full_name']) > 160) {
+            $errors['full_name'] = 'Your full name must be between 2 and 160 characters.';
+        } elseif (!preg_match('/^[\p{L}\s\-]+$/u', $registerData['full_name'])) {
+            $errors['full_name'] = 'Your full name must contain only letters, spaces, and hyphens.';
         }
 
-        if (!filter_var($registerData['email'], FILTER_VALIDATE_EMAIL)) {
-            return 'Enter a valid email address.';
+        if ($registerData['email'] === '') {
+            $errors['email'] = 'Email is required.';
+        } elseif (!filter_var($registerData['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Enter a valid email address.';
         }
 
-        if (mb_strlen($registerData['full_name']) < 2 || mb_strlen($registerData['full_name']) > 160) {
-            return 'Your full name must be between 2 and 160 characters.';
+        if ($registerData['role'] === '' || !in_array($registerData['role'], self::PUBLIC_ROLES, true)) {
+            $errors['role'] = 'Choose a valid role.';
         }
 
-        if (!in_array($registerData['role'], self::PUBLIC_ROLES, true)) {
-            return 'Choose a valid role.';
+        if ($registerData['phone'] === '') {
+            $errors['phone'] = 'Phone number is required.';
+        } elseif (!preg_match('/^\d{8}$/', $registerData['phone'])) {
+            $errors['phone'] = 'Your phone number must be exactly 8 digits.';
         }
 
-        if (!preg_match('/^\+?[0-9\s\-]{8,20}$/', $registerData['phone'])) {
-            return 'Enter a valid phone number.';
+        if ($password === '') {
+            $errors['password'] = 'Password is required.';
+        } elseif (mb_strlen($password) < 8) {
+            $errors['password'] = 'Your password must contain at least 8 characters.';
+        } elseif (!preg_match('/[A-Za-z]/', $password) || !preg_match('/\d/', $password)) {
+            $errors['password'] = 'Your password must contain letters and numbers.';
         }
 
-        if (mb_strlen($password) < 8) {
-            return 'Your password must contain at least 8 characters.';
+        if ($confirmPassword === '') {
+            $errors['confirm_password'] = 'Please confirm your password.';
+        } elseif ($password !== $confirmPassword) {
+            $errors['confirm_password'] = 'Password confirmation does not match.';
         }
 
-        if (!preg_match('/[A-Za-z]/', $password) || !preg_match('/\d/', $password)) {
-            return 'Your password must contain letters and numbers.';
-        }
-
-        if ($password !== $confirmPassword) {
-            return 'Password confirmation does not match.';
-        }
-
-        return null;
+        return $errors;
     }
 
     private function verifyUserPassword(User $user, string $plainPassword): bool

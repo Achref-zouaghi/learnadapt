@@ -199,16 +199,7 @@ class Exercise
         return $this;
     }
 
-    #[ORM\ManyToMany(targetEntity: Course::class, inversedBy: 'exercises')]
-    #[ORM\JoinTable(
-        name: 'course_exercises',
-        joinColumns: [
-            new ORM\JoinColumn(name: 'exercise_id', referencedColumnName: 'id')
-        ],
-        inverseJoinColumns: [
-            new ORM\JoinColumn(name: 'course_id', referencedColumnName: 'id')
-        ]
-    )]
+    #[ORM\ManyToMany(targetEntity: Course::class, mappedBy: 'exercises')]
     private Collection $courses;
 
     public function __construct()

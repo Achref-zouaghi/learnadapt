@@ -228,6 +228,12 @@ class User
     #[ORM\Column(type: 'string', length: 10, options: ['default' => 'dark'])]
     private string $theme = 'dark';
 
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    private ?string $reset_token = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $reset_token_expires_at = null;
+
     public function getTheme(): string
     {
         return $this->theme;
@@ -236,6 +242,28 @@ class User
     public function setTheme(string $theme): self
     {
         $this->theme = $theme;
+        return $this;
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->reset_token;
+    }
+
+    public function setResetToken(?string $reset_token): self
+    {
+        $this->reset_token = $reset_token;
+        return $this;
+    }
+
+    public function getResetTokenExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->reset_token_expires_at;
+    }
+
+    public function setResetTokenExpiresAt(?\DateTimeInterface $reset_token_expires_at): self
+    {
+        $this->reset_token_expires_at = $reset_token_expires_at;
         return $this;
     }
 
@@ -516,20 +544,6 @@ class User
     public function removeStudentLevel(StudentLevel $studentLevel): self
     {
         $this->getStudentLevels()->removeElement($studentLevel);
-        return $this;
-    }
-
-    #[ORM\OneToOne(targetEntity: StudentProfile::class, mappedBy: 'user')]
-    private ?StudentProfile $studentProfile = null;
-
-    public function getStudentProfile(): ?StudentProfile
-    {
-        return $this->studentProfile;
-    }
-
-    public function setStudentProfile(?StudentProfile $studentProfile): self
-    {
-        $this->studentProfile = $studentProfile;
         return $this;
     }
 

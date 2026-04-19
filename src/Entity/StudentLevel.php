@@ -59,14 +59,14 @@ class StudentLevel
     }
 
     #[ORM\Column(type: 'decimal', nullable: true)]
-    private ?float $last_score_percent = null;
+    private ?string $last_score_percent = null;
 
-    public function getLast_score_percent(): ?float
+    public function getLast_score_percent(): ?string
     {
         return $this->last_score_percent;
     }
 
-    public function setLast_score_percent(?float $last_score_percent): self
+    public function setLast_score_percent(?string $last_score_percent): self
     {
         $this->last_score_percent = $last_score_percent;
         return $this;

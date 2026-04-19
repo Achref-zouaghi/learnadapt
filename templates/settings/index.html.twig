@@ -221,7 +221,6 @@
 {% endblock %}
 
 {% block body %}
-<script>document.documentElement.setAttribute('data-theme','dark');</script>
 {% include 'partials/_background.html.twig' %}
 <div class="s-site" style="position:relative;z-index:1">
     <div class="s-container" style="padding-top: 96px; padding-bottom: 80px;">
@@ -556,7 +555,7 @@
 
                             {# Dark card #}
 
-                            <label class="s-tile" style="cursor: pointer; text-align: center; padding: 22px 18px; transition: border-color 0.2s ease; {{ user.theme == 'dark' ? 'border-color: rgba(123,97,241,0.5);' : '' }}" onclick="this.querySelector('input').checked=true;">
+                            <label class="s-tile theme-tile" data-theme-value="dark" style="cursor: pointer; text-align: center; padding: 22px 18px; transition: border-color 0.2s ease; {{ user.theme == 'dark' ? 'border-color: rgba(123,97,241,0.5);' : '' }}">
 
                                 <input type="radio" name="theme" value="dark" {{ user.theme == 'dark' ? 'checked' : '' }} style="display: none;">
 
@@ -588,7 +587,7 @@
 
                             {# Light card #}
 
-                            <label class="s-tile" style="cursor: pointer; text-align: center; padding: 22px 18px; transition: border-color 0.2s ease; {{ user.theme == 'light' ? 'border-color: rgba(123,97,241,0.5);' : '' }}" onclick="this.querySelector('input').checked=true;">
+                            <label class="s-tile theme-tile" data-theme-value="light" style="cursor: pointer; text-align: center; padding: 22px 18px; transition: border-color 0.2s ease; {{ user.theme == 'light' ? 'border-color: rgba(123,97,241,0.5);' : '' }}">
 
                                 <input type="radio" name="theme" value="light" {{ user.theme == 'light' ? 'checked' : '' }} style="display: none;">
 

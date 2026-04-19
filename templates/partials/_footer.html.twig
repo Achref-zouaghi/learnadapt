@@ -7,9 +7,9 @@
                     <img src="/brand/learnadapt-premium-logo.svg" alt="LearnAdapt" class="block h-12 w-auto" style="height:56px;width:auto;max-width:min(240px,60vw);">
                 </a>
                 <nav class="flex gap-6 text-sm">
-                    <a href="{{ path('app_home') }}" class="text-white/60 hover:text-white transition">Home</a>
-                    <a href="{{ path('app_profile') }}" class="text-white/60 hover:text-white transition">Profile</a>
-                    <a href="{{ path('app_settings') }}" class="text-white/60 hover:text-white transition">Settings</a>
+                    <a href="{{ path('app_home') }}" class="text-white/60 hover:text-white transition">{{ 'nav.home'|trans }}</a>
+                    <a href="{{ path('app_profile') }}" class="text-white/60 hover:text-white transition">{{ 'nav.profile'|trans }}</a>
+                    <a href="{{ path('app_settings') }}" class="text-white/60 hover:text-white transition">{{ 'nav.settings'|trans }}</a>
                 </nav>
             </div>
             <div class="flex items-center gap-3">
@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="border-t border-white/10 mt-6 pt-5 text-center">
-            <p class="text-sm text-white/30">Copyright &copy; {{ "now"|date("Y") }} Learn Adapt. All rights reserved.</p>
+            <p class="text-sm text-white/30">{{ 'footer.copyright'|trans({'%year%': "now"|date("Y")}) }}</p>
         </div>
     </div>
 </footer>

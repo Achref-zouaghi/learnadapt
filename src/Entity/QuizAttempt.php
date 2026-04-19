@@ -116,14 +116,14 @@ class QuizAttempt
     }
 
     #[ORM\Column(type: 'decimal', nullable: false)]
-    private ?float $score_percent = null;
+    private ?string $score_percent = null;
 
-    public function getScore_percent(): ?float
+    public function getScore_percent(): ?string
     {
         return $this->score_percent;
     }
 
-    public function setScore_percent(float $score_percent): self
+    public function setScore_percent(string $score_percent): self
     {
         $this->score_percent = $score_percent;
         return $this;

@@ -242,7 +242,6 @@ footer{display:none!important}
 {% endblock %}
 
 {% block body %}
-<script>document.documentElement.setAttribute('data-theme','dark');</script>
 {% include 'partials/_background.html.twig' %}
 
 <svg style="position:absolute;width:0;height:0">
@@ -271,13 +270,13 @@ footer{display:none!important}
         <div class="av-hero">
             <div class="av-hero-inner">
                 <div class="av-hero-left">
-                    <div class="av-hero-badge"><i class='bx bxs-crown'></i> Community Reviews</div>
-                    <h1><span>Feedback & Reviews</span></h1>
-                    <p>See what learners are saying. Share your experience and help us build something amazing.</p>
+                    <div class="av-hero-badge"><i class='bx bxs-crown'></i> {{ 'feedback.community_reviews'|trans }}</div>
+                    <h1><span>{{ 'feedback.title'|trans }}</span></h1>
+                    <p>{{ 'feedback.subtitle'|trans }}</p>
                 </div>
                 <div class="av-hero-right">
                     <button class="av-write-btn" onclick="document.getElementById('feedbackModal').classList.add('open')">
-                        <i class='bx bx-edit-alt'></i> Write a Review
+                        <i class='bx bx-edit-alt'></i> {{ 'feedback.write_review'|trans }}
                     </button>
                 </div>
             </div>
@@ -300,7 +299,7 @@ footer{display:none!important}
                     </svg>
                     <div class="av-score-value">
                         <div class="av-score-num">{{ avgRating }}</div>
-                        <div class="av-score-max">out of 5</div>
+                        <div class="av-score-max">{{ 'feedback.out_of_5'|trans }}</div>
                     </div>
                 </div>
                 <div class="av-score-stars">
@@ -312,7 +311,7 @@ footer{display:none!important}
             </div>
 
             <div class="av-dash-bars">
-                <div class="av-dash-bars-title">Rating Distribution</div>
+                <div class="av-dash-bars-title">{{ 'feedback.rating_distribution'|trans }}</div>
                 {% for star in 5..1 %}
                     {% set count = attribute(stats, star == 5 ? 'five_star' : (star == 4 ? 'four_star' : (star == 3 ? 'three_star' : (star == 2 ? 'two_star' : 'one_star'))))|default(0) %}
                     {% set pct = totalReviews > 0 ? ((count / totalReviews) * 100)|round : 0 %}
@@ -327,26 +326,26 @@ footer{display:none!important}
             </div>
 
             <div class="av-dash-quick">
-                <div class="av-dash-quick-title">Quick Stats</div>
+                <div class="av-dash-quick-title">{{ 'feedback.quick_stats'|trans }}</div>
                 <div class="av-quick-stat">
                     <div class="av-quick-icon total"><i class='bx bx-message-square-dots'></i></div>
                     <div class="av-quick-info">
                         <div class="av-quick-val">{{ totalReviews }}</div>
-                        <div class="av-quick-lbl">Total Reviews</div>
+                        <div class="av-quick-lbl">{{ 'feedback.total_reviews'|trans }}</div>
                     </div>
                 </div>
                 <div class="av-quick-stat">
                     <div class="av-quick-icon positive"><i class='bx bx-trending-up'></i></div>
                     <div class="av-quick-info">
                         <div class="av-quick-val">{{ positivePct }}%</div>
-                        <div class="av-quick-lbl">Positive (4-5 stars)</div>
+                        <div class="av-quick-lbl">{{ 'feedback.positive_stars'|trans }}</div>
                     </div>
                 </div>
                 <div class="av-quick-stat">
                     <div class="av-quick-icon recent"><i class='bx bx-user-check'></i></div>
                     <div class="av-quick-info">
                         <div class="av-quick-val">{{ myFeedbacks|length }}</div>
-                        <div class="av-quick-lbl">Your Reviews</div>
+                        <div class="av-quick-lbl">{{ 'feedback.your_reviews'|trans }}</div>
                     </div>
                 </div>
             </div>
@@ -356,19 +355,19 @@ footer{display:none!important}
 
         {# ── Filter Bar ── #}
         <div class="av-toolbar">
-            <button class="av-filter-btn active" onclick="filterFeedback('all',this)">All</button>
-            <button class="av-filter-btn" onclick="filterFeedback('5',this)">5 Stars</button>
-            <button class="av-filter-btn" onclick="filterFeedback('4',this)">4 Stars</button>
-            <button class="av-filter-btn" onclick="filterFeedback('3',this)">3 Stars</button>
-            <button class="av-filter-btn" onclick="filterFeedback('2',this)">2 Stars</button>
-            <button class="av-filter-btn" onclick="filterFeedback('1',this)">1 Star</button>
+            <button class="av-filter-btn active" onclick="filterFeedback('all',this)">{{ 'feedback.all'|trans }}</button>
+            <button class="av-filter-btn" onclick="filterFeedback('5',this)">{{ 'feedback.5_stars'|trans }}</button>
+            <button class="av-filter-btn" onclick="filterFeedback('4',this)">{{ 'feedback.4_stars'|trans }}</button>
+            <button class="av-filter-btn" onclick="filterFeedback('3',this)">{{ 'feedback.3_stars'|trans }}</button>
+            <button class="av-filter-btn" onclick="filterFeedback('2',this)">{{ 'feedback.2_stars'|trans }}</button>
+            <button class="av-filter-btn" onclick="filterFeedback('1',this)">{{ 'feedback.1_star'|trans }}</button>
             <div class="av-toolbar-right">
                 <span class="av-review-count">{{ feedbacks|length }} review{{ feedbacks|length != 1 ? 's' : '' }}</span>
             </div>
         </div>
 
         {# ── Reviews Section ── #}
-        <div class="av-section-title"><i class='bx bxs-star'></i> All Reviews</div>
+        <div class="av-section-title"><i class='bx bxs-star'></i> {{ 'feedback.all_reviews'|trans }}</div>
 
         {% if feedbacks|length > 0 %}
             <div class="av-grid">
@@ -407,7 +406,7 @@ footer{display:none!important}
                             {% if fb.comment %}
                                 <div class="av-card-comment">{{ fb.comment }}</div>
                             {% else %}
-                                <div class="av-card-no-comment">No written feedback</div>
+                                <div class="av-card-no-comment">{{ 'feedback.no_written_feedback'|trans }}</div>
                             {% endif %}
                         </div>
                         <div class="av-card-footer" data-feedback-id="{{ fb.id }}">
@@ -441,8 +440,8 @@ footer{display:none!important}
         {% else %}
             <div class="av-empty">
                 <div class="av-empty-icon"><i class='bx bxs-star'></i></div>
-                <h3>No reviews yet</h3>
-                <p>Be the first to share your experience and help fellow learners!</p>
+                <h3>{{ 'feedback.no_reviews_yet'|trans }}</h3>
+                <p>{{ 'feedback.be_first'|trans }}</p>
             </div>
         {% endif %}
 
@@ -452,21 +451,21 @@ footer{display:none!important}
 {# ── Submit Review Modal ── #}
 <div class="av-modal-bg" id="feedbackModal">
     <div class="av-modal">
-        <h2>Write a Review</h2>
-        <p class="sub">Rate your experience with LearnAdapt</p>
+        <h2>{{ 'feedback.write_review'|trans }}</h2>
+        <p class="sub">{{ 'feedback.rate_experience'|trans }}</p>
         <form method="post" action="{{ path('app_feedback_submit') }}">
-            <span class="av-modal-label">Your Rating</span>
+            <span class="av-modal-label">{{ 'feedback.your_rating'|trans }}</span>
             <div class="av-star-input">
                 {% for i in 5..1 %}
                     <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}" {{ i == 5 ? 'required' : '' }}>
                     <label for="star{{ i }}"><i class='bx bxs-star'></i></label>
                 {% endfor %}
             </div>
-            <span class="av-modal-label">Your Feedback</span>
-            <textarea name="comment" placeholder="What did you love? What can be improved?"></textarea>
+            <span class="av-modal-label">{{ 'feedback.your_feedback'|trans }}</span>
+            <textarea name="comment" placeholder="{{ 'feedback.feedback_placeholder'|trans }}"></textarea>
             <div class="av-modal-foot">
-                <button type="button" class="av-modal-cancel" onclick="document.getElementById('feedbackModal').classList.remove('open')">Cancel</button>
-                <button type="submit" class="av-modal-submit">Submit Review</button>
+                <button type="button" class="av-modal-cancel" onclick="document.getElementById('feedbackModal').classList.remove('open')">{{ 'feedback.cancel'|trans }}</button>
+                <button type="submit" class="av-modal-submit">{{ 'feedback.submit_review'|trans }}</button>
             </div>
         </form>
     </div>
@@ -475,21 +474,21 @@ footer{display:none!important}
 {# ── Edit Feedback Modal ── #}
 <div class="av-modal-bg" id="editFeedbackModal">
     <div class="av-modal">
-        <h2>Edit Review</h2>
-        <p class="sub">Update your feedback</p>
+        <h2>{{ 'feedback.edit_review'|trans }}</h2>
+        <p class="sub">{{ 'feedback.update_feedback'|trans }}</p>
         <form method="post" id="editFeedbackForm">
-            <span class="av-modal-label">Your Rating</span>
+            <span class="av-modal-label">{{ 'feedback.your_rating'|trans }}</span>
             <div class="av-star-input">
                 {% for i in 5..1 %}
                     <input type="radio" name="rating" id="edit_star{{ i }}" value="{{ i }}" {{ i == 5 ? 'required' : '' }}>
                     <label for="edit_star{{ i }}"><i class='bx bxs-star'></i></label>
                 {% endfor %}
             </div>
-            <span class="av-modal-label">Your Feedback</span>
-            <textarea name="comment" id="editFeedbackComment" placeholder="Update your thoughts..."></textarea>
+            <span class="av-modal-label">{{ 'feedback.your_feedback'|trans }}</span>
+            <textarea name="comment" id="editFeedbackComment" placeholder="{{ 'feedback.update_placeholder'|trans }}"></textarea>
             <div class="av-modal-foot">
-                <button type="button" class="av-modal-cancel" onclick="document.getElementById('editFeedbackModal').classList.remove('open')">Cancel</button>
-                <button type="submit" class="av-modal-submit">Update Review</button>
+                <button type="button" class="av-modal-cancel" onclick="document.getElementById('editFeedbackModal').classList.remove('open')">{{ 'feedback.cancel'|trans }}</button>
+                <button type="submit" class="av-modal-submit">{{ 'feedback.update_review'|trans }}</button>
             </div>
         </form>
     </div>

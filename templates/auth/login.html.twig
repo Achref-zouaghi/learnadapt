@@ -338,6 +338,19 @@
             background: rgba(178, 67, 106, 0.12);
         }
 
+        .field-error {
+            color: #ff8fa3;
+            font-size: 0.72rem;
+            margin-top: 4px;
+            padding-left: 4px;
+        }
+
+        .field.has-error input,
+        .field.has-error select {
+            border-color: rgba(255, 100, 130, 0.5) !important;
+            box-shadow: 0 0 0 2px rgba(255, 100, 130, 0.12) !important;
+        }
+
         .social-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -809,7 +822,7 @@
     </div>
 
     <a href="{{ path('app_home') }}" class="home-link">
-        <i class="bx bx-arrow-back"></i> Home
+        <i class="bx bx-arrow-back"></i> {{ 'auth.home'|trans }}
     </a>
 
     <main class="auth-shell {{ showRegister|default(false) ? 'active' : '' }}" id="authShell">
@@ -820,9 +833,9 @@
         <section class="form-pane sign-in">
             <div class="form-card">
                 <div class="card-main">
-                    <div class="panel-kicker"><i class="bx bx-log-in-circle"></i> Sign In</div>
-                    <h1 class="form-title">Welcome back</h1>
-                    <p class="form-subtitle">Continue learning.</p>
+                    <div class="panel-kicker"><i class="bx bx-log-in-circle"></i> {{ 'auth.sign_in'|trans }}</div>
+                    <h1 class="form-title">{{ 'auth.welcome_back'|trans }}</h1>
+                    <p class="form-subtitle">{{ 'auth.continue_learning'|trans }}</p>
 
                     <div class="flash-list">
                         {% for message in successFlashes %}
@@ -836,41 +849,41 @@
                     <div class="social-actions">
                         <a href="{{ path('app_auth_social', {provider: 'google'}) }}" class="social-button">
                             <i class="bx bxl-google"></i>
-                            <span>Google</span>
+                            <span>{{ 'auth.google'|trans }}</span>
                         </a>
                         <a href="{{ path('app_auth_social', {provider: 'github'}) }}" class="social-button">
                             <i class="bx bxl-github"></i>
-                            <span>GitHub</span>
+                            <span>{{ 'auth.github'|trans }}</span>
                         </a>
                     </div>
 
-                    <div class="separator">or</div>
+                    <div class="separator">{{ 'auth.or'|trans }}</div>
 
                     <form method="post" action="{{ path('app_login') }}" class="auth-form">
                         <div class="field">
-                            <input type="email" name="email" value="{{ loginData.email|default('') }}" placeholder="Email" required autocomplete="email">
+                            <input type="email" name="email" value="{{ loginData.email|default('') }}" placeholder="{{ 'auth.email'|trans }}" required autocomplete="email">
                             <i class="bx bxs-envelope"></i>
                         </div>
 
                         <div class="field">
-                            <input type="password" name="password" placeholder="Password" required autocomplete="current-password">
+                            <input type="password" name="password" placeholder="{{ 'auth.password'|trans }}" required autocomplete="current-password">
                             <i class="bx bxs-lock-alt"></i>
                         </div>
 
                         <div class="options-row">
-                            <label><input type="checkbox" name="remember"> Remember me</label>
-                            <a href="#">Forgot?</a>
+                            <label><input type="checkbox" name="remember"> {{ 'auth.remember_me'|trans }}</label>
+                            <a href="{{ path('app_forgot_password') }}">{{ 'auth.forgot'|trans }}</a>
                         </div>
 
-                        <button type="submit" class="primary-button">Login</button>
+                        <button type="submit" class="primary-button">{{ 'auth.login_button'|trans }}</button>
                     </form>
 
                     <div class="clean-switch">
-                        New here? <a href="#" class="inline-switch signup-trigger">Create account</a>
+                        {{ 'auth.new_here'|trans }} <a href="#" class="inline-switch signup-trigger">{{ 'auth.create_account'|trans }}</a>
                     </div>
 
                     <div class="mobile-toggle">
-                        Need an account? <a href="#" class="inline-switch signup-trigger">Sign up</a>
+                        {{ 'auth.need_account'|trans }} <a href="#" class="inline-switch signup-trigger">{{ 'auth.sign_up'|trans }}</a>
                     </div>
                 </div>
             </div>
@@ -879,9 +892,9 @@
         <section class="form-pane sign-up">
             <div class="form-card">
                 <div class="card-main">
-                    <div class="panel-kicker"><i class="bx bx-user-plus"></i> Register</div>
-                    <h1 class="form-title">Create account</h1>
-                    <p class="form-subtitle">Start clean.</p>
+                    <div class="panel-kicker"><i class="bx bx-user-plus"></i> {{ 'auth.register'|trans }}</div>
+                    <h1 class="form-title">{{ 'auth.create_account'|trans }}</h1>
+                    <p class="form-subtitle">{{ 'auth.start_clean'|trans }}</p>
 
                     <div class="flash-list">
                         {% for message in successFlashes %}
@@ -906,49 +919,56 @@
                     <div class="separator">or</div>
 
                     <form method="post" action="{{ path('app_register') }}" class="auth-form">
-                        <div class="field">
-                            <input type="text" name="full_name" value="{{ registerData.full_name|default('') }}" placeholder="Full name" required minlength="2" maxlength="160" autocomplete="name">
+                        {% set errors = fieldErrors|default({}) %}
+                        <div class="field{{ errors.full_name is defined ? ' has-error' : '' }}">
+                            <input type="text" name="full_name" value="{{ registerData.full_name|default('') }}" placeholder="{{ 'auth.full_name'|trans }}" required minlength="2" maxlength="160" autocomplete="name" pattern="^[A-Za-zÀ-ÿ\s\-]+$">
                             <i class="bx bxs-user"></i>
+                            {% if errors.full_name is defined %}<div class="field-error">{{ errors.full_name }}</div>{% endif %}
                         </div>
 
-                        <div class="field">
-                            <input type="email" name="email" value="{{ registerData.email|default('') }}" placeholder="Email" required maxlength="180" autocomplete="email">
+                        <div class="field{{ errors.email is defined ? ' has-error' : '' }}">
+                            <input type="email" name="email" value="{{ registerData.email|default('') }}" placeholder="{{ 'auth.email'|trans }}" required maxlength="180" autocomplete="email">
                             <i class="bx bxs-envelope"></i>
+                            {% if errors.email is defined %}<div class="field-error">{{ errors.email }}</div>{% endif %}
                         </div>
 
-                        <div class="field">
+                        <div class="field{{ errors.role is defined ? ' has-error' : '' }}">
                             <select name="role" required>
                                 {% for roleOption in roleOptions %}
                                     <option value="{{ roleOption }}" {{ registerData.role|default('STUDENT') == roleOption ? 'selected' : '' }}>{{ roleOption|title }}</option>
                                 {% endfor %}
                             </select>
                             <i class="bx bx-chevron-down"></i>
+                            {% if errors.role is defined %}<div class="field-error">{{ errors.role }}</div>{% endif %}
                         </div>
 
-                        <div class="field">
-                            <input type="tel" name="phone" value="{{ registerData.phone|default('') }}" placeholder="Phone number" required pattern="^\+?[0-9\s\-]{8,20}$" autocomplete="tel">
+                        <div class="field{{ errors.phone is defined ? ' has-error' : '' }}">
+                            <input type="tel" name="phone" value="{{ registerData.phone|default('') }}" placeholder="{{ 'auth.phone_number'|trans }}" required pattern="^\d{8}$" maxlength="8" autocomplete="tel">
                             <i class="bx bxs-phone"></i>
+                            {% if errors.phone is defined %}<div class="field-error">{{ errors.phone }}</div>{% endif %}
                         </div>
 
-                        <div class="field">
-                            <input type="password" name="password" placeholder="Password" required minlength="8" autocomplete="new-password">
+                        <div class="field{{ errors.password is defined ? ' has-error' : '' }}">
+                            <input type="password" name="password" placeholder="{{ 'auth.password'|trans }}" required minlength="8" autocomplete="new-password">
                             <i class="bx bxs-lock-alt"></i>
+                            {% if errors.password is defined %}<div class="field-error">{{ errors.password }}</div>{% endif %}
                         </div>
 
-                        <div class="field">
-                            <input type="password" name="confirm_password" placeholder="Confirm password" required autocomplete="new-password">
+                        <div class="field{{ errors.confirm_password is defined ? ' has-error' : '' }}">
+                            <input type="password" name="confirm_password" placeholder="{{ 'auth.confirm_password'|trans }}" required autocomplete="new-password">
                             <i class="bx bxs-lock"></i>
+                            {% if errors.confirm_password is defined %}<div class="field-error">{{ errors.confirm_password }}</div>{% endif %}
                         </div>
 
-                        <button type="submit" class="primary-button">Register</button>
+                        <button type="submit" class="primary-button">{{ 'auth.register_button'|trans }}</button>
                     </form>
 
                     <div class="clean-switch">
-                        Already registered? <a href="#" class="inline-switch login-trigger">Login</a>
+                        {{ 'auth.already_registered'|trans }} <a href="#" class="inline-switch login-trigger">{{ 'auth.login_button'|trans }}</a>
                     </div>
 
                     <div class="mobile-toggle">
-                        Already registered? <a href="#" class="inline-switch login-trigger">Sign in</a>
+                        {{ 'auth.already_registered'|trans }} <a href="#" class="inline-switch login-trigger">{{ 'auth.sign_in'|trans }}</a>
                     </div>
                 </div>
             </div>
@@ -957,27 +977,27 @@
         <div class="overlay-wrap">
             <div class="overlay">
                 <section class="overlay-panel overlay-left">
-                    <div class="panel-kicker"><i class="bx bx-shield-quarter"></i> Blue Mode</div>
-                    <h2 class="overlay-title">Keep your flow.</h2>
-                    <p class="overlay-text">One clean workspace for focus, practice, and progress.</p>
+                    <div class="panel-kicker"><i class="bx bx-shield-quarter"></i> {{ 'auth.blue_mode'|trans }}</div>
+                    <h2 class="overlay-title">{{ 'auth.keep_flow'|trans }}</h2>
+                    <p class="overlay-text">{{ 'auth.one_clean_workspace'|trans }}</p>
                     <div class="overlay-icons">
                         <span class="icon-badge"><i class="bx bx-bulb"></i></span>
                         <span class="icon-badge"><i class="bx bx-time-five"></i></span>
                         <span class="icon-badge"><i class="bx bx-line-chart"></i></span>
                     </div>
-                    <button type="button" class="overlay-button login-trigger">Login</button>
+                    <button type="button" class="overlay-button login-trigger">{{ 'auth.login_button'|trans }}</button>
                 </section>
 
                 <section class="overlay-panel overlay-right">
                     <div class="panel-kicker"><i class="bx bx-sparkles"></i> LearnAdapt</div>
-                    <h2 class="overlay-title">Join smarter.</h2>
-                    <p class="overlay-text">Blue, clean, and built for focused study.</p>
+                    <h2 class="overlay-title">{{ 'auth.join_smarter'|trans }}</h2>
+                    <p class="overlay-text">{{ 'auth.blue_clean_study'|trans }}</p>
                     <div class="overlay-icons">
                         <span class="icon-badge"><i class="bx bx-brain"></i></span>
                         <span class="icon-badge"><i class="bx bx-book-open"></i></span>
                         <span class="icon-badge"><i class="bx bx-rocket"></i></span>
                     </div>
-                    <button type="button" class="overlay-button signup-trigger">Create account</button>
+                    <button type="button" class="overlay-button signup-trigger">{{ 'auth.create_account'|trans }}</button>
                 </section>
             </div>
         </div>

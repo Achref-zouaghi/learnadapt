@@ -119,6 +119,17 @@ footer{display:none!important}
 .kb-card-lock i{font-size:0.9rem;animation:lockPulse 2s ease-in-out infinite}
 @keyframes lockPulse{0%,100%{opacity:1}50%{opacity:0.5}}
 
+/* ══ DRAG & DROP ══ */
+.kb-card[draggable="true"]{cursor:grab}
+.kb-card[draggable="true"]:active{cursor:grabbing}
+.kb-card.dragging{opacity:0.35;transform:scale(0.96) rotate(1deg);box-shadow:none;transition:opacity .15s,transform .15s}
+.kb-col-body.drag-over{background:rgba(123,97,241,0.04);border:2px dashed rgba(123,97,241,0.25);border-radius:14px;transition:all .2s}
+.col-todo .kb-col-body.drag-over{background:rgba(59,130,246,0.04);border-color:rgba(59,130,246,0.25)}
+.col-inp .kb-col-body.drag-over{background:rgba(245,158,11,0.04);border-color:rgba(245,158,11,0.25)}
+.col-done .kb-col-body.drag-over{background:rgba(16,185,129,0.04);border-color:rgba(16,185,129,0.25)}
+.col-blk .kb-col-body.drag-over{background:rgba(239,68,68,0.04);border-color:rgba(239,68,68,0.25)}
+.kb-drop-placeholder{height:4px;border-radius:8px;background:linear-gradient(90deg,var(--purple),var(--cyan));margin:4px 0;opacity:0.6;transition:height .15s}
+
 /* Quick add in column */
 .kb-qadd{width:calc(100% - 28px);padding:12px;margin:8px 14px 14px;background:transparent;border:1.5px dashed rgba(123,97,241,0.12);border-radius:14px;color:var(--muted);font-size:0.76rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;text-align:center}
 .kb-qadd:hover{border-color:rgba(123,97,241,0.3);color:var(--purple);background:rgba(123,97,241,0.03);transform:translateY(-1px)}
@@ -350,7 +361,6 @@ footer{display:none!important}
 {% endblock %}
 
 {% block body %}
-<script>document.documentElement.setAttribute('data-theme','dark');</script>
 {% include 'partials/_background.html.twig' %}
 <div class="kb" style="position:relative;z-index:1">
 <div class="kb-wrap">
@@ -640,7 +650,7 @@ footer{display:none!important}
             <h3><i class='bx {{ meta.icon }}'></i> {{ meta.label }}</h3>
             <span class="cnt">{{ columns[status]|length }}</span>
         </div>
-        <div class="kb-col-body">
+        <div class="kb-col-body" data-status="{{ status }}">
             {% if columns[status]|length == 0 %}
             <div style="text-align:center;padding:32px 12px;opacity:0.4">
                 <div style="font-size:2rem;margin-bottom:8px">{{ meta.emoji }}</div>
@@ -648,7 +658,7 @@ footer{display:none!important}
             </div>
             {% endif %}
             {% for task in columns[status] %}
-            <div class="kb-card{{ task.is_overdue ? ' overdue-card' : '' }}" style="animation-delay:{{ loop.index * 0.06 }}s">
+            <div class="kb-card{{ task.is_overdue ? ' overdue-card' : '' }}" draggable="true" data-task-id="{{ task.id }}" data-overdue="{{ task.is_overdue ? '1' : '0' }}" style="animation-delay:{{ loop.index * 0.06 }}s">
                 <div class="kb-card-title">{{ task.title }}</div>
                 {% if task.description %}
                     <div class="kb-card-desc">{{ task.description }}</div>
@@ -1064,6 +1074,113 @@ function setPreset(w,b,c,btn) {
             document.title = origTitle;
         }
     }, 1000);
+})();
+
+// ── Drag & Drop ──
+(function() {
+    var dragCard = null;
+    var placeholder = document.createElement('div');
+    placeholder.className = 'kb-drop-placeholder';
+
+    document.querySelectorAll('.kb-card[draggable]').forEach(function(card) {
+        card.addEventListener('dragstart', function(e) {
+            dragCard = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.dataset.taskId);
+        });
+        card.addEventListener('dragend', function() {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.kb-col-body.drag-over').forEach(function(z) { z.classList.remove('drag-over'); });
+            if (placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+            dragCard = null;
+        });
+    });
+
+    document.querySelectorAll('.kb-col-body').forEach(function(zone) {
+        zone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+
+            // Position placeholder near mouse
+            var afterEl = getDragAfterElement(this, e.clientY);
+            if (afterEl) {
+                this.insertBefore(placeholder, afterEl);
+            } else {
+                this.appendChild(placeholder);
+            }
+        });
+        zone.addEventListener('dragleave', function(e) {
+            if (!this.contains(e.relatedTarget)) {
+                this.classList.remove('drag-over');
+                if (placeholder.parentNode === this) this.removeChild(placeholder);
+            }
+        });
+        zone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            if (placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+            if (!dragCard) return;
+
+            var taskId = dragCard.dataset.taskId;
+            var newStatus = this.dataset.status;
+            var isOverdue = dragCard.dataset.overdue === '1';
+
+            // Block overdue → DONE in UI
+            if (isOverdue && newStatus === 'DONE') {
+                dragCard.style.animation = 'overdueShake 0.4s';
+                setTimeout(function() { dragCard.style.animation = ''; }, 400);
+                return;
+            }
+
+            // Move the card in DOM immediately
+            this.appendChild(dragCard);
+
+            // Update column counts
+            updateColumnCounts();
+
+            // AJAX call to persist
+            var fd = new FormData();
+            fd.append('status', newStatus);
+            fetch('/taskboard/update-status/' + taskId, {
+                method: 'POST',
+                body: fd,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(function(r) { return r.json(); }).then(function(data) {
+                if (!data.ok) {
+                    // Revert on error — reload page
+                    window.location.reload();
+                }
+            }).catch(function() {
+                window.location.reload();
+            });
+        });
+    });
+
+    function getDragAfterElement(container, y) {
+        var els = Array.from(container.querySelectorAll('.kb-card:not(.dragging)'));
+        var closest = null, closestOffset = Number.NEGATIVE_INFINITY;
+        els.forEach(function(el) {
+            var box = el.getBoundingClientRect();
+            var offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closestOffset) {
+                closestOffset = offset;
+                closest = el;
+            }
+        });
+        return closest;
+    }
+
+    function updateColumnCounts() {
+        document.querySelectorAll('.kb-col').forEach(function(col) {
+            var body = col.querySelector('.kb-col-body');
+            var cnt = col.querySelector('.cnt');
+            if (body && cnt) {
+                cnt.textContent = body.querySelectorAll('.kb-card').length;
+            }
+        });
+    }
 })();
 
 // Auto-dismiss flashes
