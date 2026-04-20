@@ -8,7 +8,6 @@ use App\Entity\Notification;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\ProfanityService;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -26,9 +25,13 @@ class ForumController extends AbstractController
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly Connection $connection,
         private readonly ProfanityService $profanityService,
     ) {
+    }
+
+    private function conn(): \Doctrine\DBAL\Connection
+    {
+        return $this->entityManager->getConnection();
     }
 
     private function getAuthenticatedUser(Request $request): ?User
@@ -46,19 +49,19 @@ class ForumController extends AbstractController
             return;
         }
 
-        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager = $this->conn()->createSchemaManager();
         $columns = $schemaManager->listTableColumns('forum_posts');
 
         if (!isset($columns['media_type'])) {
-            $this->connection->executeStatement("ALTER TABLE forum_posts ADD media_type VARCHAR(16) DEFAULT NULL");
+            $this->conn()->executeStatement("ALTER TABLE forum_posts ADD media_type VARCHAR(16) DEFAULT NULL");
         }
 
         if (!isset($columns['media_path'])) {
-            $this->connection->executeStatement("ALTER TABLE forum_posts ADD media_path VARCHAR(255) DEFAULT NULL");
+            $this->conn()->executeStatement("ALTER TABLE forum_posts ADD media_path VARCHAR(255) DEFAULT NULL");
         }
 
         if (!isset($columns['media_files'])) {
-            $this->connection->executeStatement("ALTER TABLE forum_posts ADD media_files TEXT DEFAULT NULL");
+            $this->conn()->executeStatement("ALTER TABLE forum_posts ADD media_files TEXT DEFAULT NULL");
         }
 
         $this->forumMediaColumnsChecked = true;
@@ -70,11 +73,11 @@ class ForumController extends AbstractController
             return;
         }
 
-        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager = $this->conn()->createSchemaManager();
         $tables = array_map(fn($t) => $t->getName(), $schemaManager->listTables());
 
         if (!in_array('forum_post_reactions', $tables, true)) {
-            $this->connection->executeStatement(
+            $this->conn()->executeStatement(
                 'CREATE TABLE forum_post_reactions (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     post_id INT NOT NULL,
@@ -220,9 +223,9 @@ class ForumController extends AbstractController
         }
         $sql .= ' ORDER BY ft.updated_at DESC';
 
-        $topics = $this->connection->fetchAllAssociative($sql, $params);
+        $topics = $this->conn()->fetchAllAssociative($sql, $params);
 
-        $stats = $this->connection->fetchAssociative(
+        $stats = $this->conn()->fetchAssociative(
             'SELECT
                 (SELECT COUNT(*) FROM forum_topics) as total_topics,
                 (SELECT COUNT(*) FROM forum_posts) as total_posts,
@@ -230,7 +233,7 @@ class ForumController extends AbstractController
         );
 
         // Recent active users for the right sidebar
-        $recentUsers = $this->connection->fetchAllAssociative(
+        $recentUsers = $this->conn()->fetchAllAssociative(
             'SELECT DISTINCT u.id, u.full_name, u.avatar_base64, u.role
              FROM forum_posts fp JOIN users u ON fp.author_user_id = u.id
              WHERE u.id != ?
@@ -240,7 +243,7 @@ class ForumController extends AbstractController
         );
 
         // User's own forum stats
-        $userStats = $this->connection->fetchAssociative(
+        $userStats = $this->conn()->fetchAssociative(
             'SELECT
                 (SELECT COUNT(*) FROM forum_topics WHERE created_by_user_id = ?) as my_topics,
                 (SELECT COUNT(*) FROM forum_posts WHERE author_user_id = ?) as my_posts',
@@ -270,7 +273,7 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $topic = $this->connection->fetchAssociative(
+        $topic = $this->conn()->fetchAssociative(
             'SELECT ft.*, u.full_name as author_name, u.avatar_base64 as author_avatar, u.role as author_role
              FROM forum_topics ft JOIN users u ON ft.created_by_user_id = u.id
              WHERE ft.id = ?',
@@ -281,7 +284,7 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('app_forum');
         }
 
-        $posts = $this->connection->fetchAllAssociative(
+        $posts = $this->conn()->fetchAllAssociative(
             'SELECT fp.*, u.full_name as author_name, u.avatar_base64 as author_avatar, u.role as author_role,
                     (SELECT COUNT(*) FROM forum_post_reactions r WHERE r.post_id = fp.id AND r.reaction_type = \'like\') as like_count,
                     (SELECT COUNT(*) FROM forum_post_reactions r WHERE r.post_id = fp.id AND r.reaction_type = \'dislike\') as dislike_count,
@@ -373,7 +376,7 @@ class ForumController extends AbstractController
         $this->entityManager->flush();
 
         if (!empty($media['mediaFiles'])) {
-            $this->connection->executeStatement(
+            $this->conn()->executeStatement(
                 'UPDATE forum_posts SET media_files = ? WHERE id = ?',
                 [json_encode($media['mediaFiles']), $post->getId()]
             );
@@ -442,7 +445,7 @@ class ForumController extends AbstractController
         $this->entityManager->flush();
 
         if (!empty($media['mediaFiles'])) {
-            $this->connection->executeStatement(
+            $this->conn()->executeStatement(
                 'UPDATE forum_posts SET media_files = ? WHERE id = ?',
                 [json_encode($media['mediaFiles']), $post->getId()]
             );
@@ -453,7 +456,7 @@ class ForumController extends AbstractController
         if ($topicOwnerId && $topicOwnerId !== $user->getId()) {
             $firstType = $firstMedia ? $firstMedia['type'] : null;
             $snippetText = $content !== '' ? mb_substr($content, 0, 80) : ($firstType === 'video' ? '[video]' : '[photo]');
-            $this->connection->executeStatement(
+            $this->conn()->executeStatement(
                 'INSERT INTO notifications (user_id, type, title, message, is_read, created_at)
                  VALUES (?, ?, ?, ?, 0, NOW())',
                 [
@@ -511,7 +514,7 @@ class ForumController extends AbstractController
 
         // Update the first post content if provided
         if ($content !== '') {
-            $firstPost = $this->connection->fetchAssociative(
+            $firstPost = $this->conn()->fetchAssociative(
                 'SELECT id FROM forum_posts WHERE topic_id = ? ORDER BY created_at ASC LIMIT 1',
                 [$id]
             );
@@ -544,7 +547,7 @@ class ForumController extends AbstractController
         }
 
         // Delete all posts first
-        $this->connection->executeStatement('DELETE FROM forum_posts WHERE topic_id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM forum_posts WHERE topic_id = ?', [$id]);
         $this->entityManager->remove($topicEntity);
         $this->entityManager->flush();
 
@@ -632,7 +635,7 @@ class ForumController extends AbstractController
             return $this->json(['error' => 'Post not found'], 404);
         }
 
-        $existing = $this->connection->fetchAssociative(
+        $existing = $this->conn()->fetchAssociative(
             'SELECT id, reaction_type FROM forum_post_reactions WHERE post_id = ? AND user_id = ?',
             [$id, $user->getId()]
         );
@@ -640,26 +643,26 @@ class ForumController extends AbstractController
         if ($existing) {
             if ($existing['reaction_type'] === $reactionType) {
                 // Toggle off: remove the reaction
-                $this->connection->executeStatement('DELETE FROM forum_post_reactions WHERE id = ?', [$existing['id']]);
+                $this->conn()->executeStatement('DELETE FROM forum_post_reactions WHERE id = ?', [$existing['id']]);
             } else {
                 // Switch reaction type
-                $this->connection->executeStatement(
+                $this->conn()->executeStatement(
                     'UPDATE forum_post_reactions SET reaction_type = ?, created_at = NOW() WHERE id = ?',
                     [$reactionType, $existing['id']]
                 );
             }
         } else {
             // Insert new reaction
-            $this->connection->executeStatement(
+            $this->conn()->executeStatement(
                 'INSERT INTO forum_post_reactions (post_id, user_id, reaction_type, created_at) VALUES (?, ?, ?, NOW())',
                 [$id, $user->getId(), $reactionType]
             );
         }
 
         // Return updated counts
-        $likes = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM forum_post_reactions WHERE post_id = ? AND reaction_type = \'like\'', [$id]);
-        $dislikes = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM forum_post_reactions WHERE post_id = ? AND reaction_type = \'dislike\'', [$id]);
-        $userReaction = $this->connection->fetchOne('SELECT reaction_type FROM forum_post_reactions WHERE post_id = ? AND user_id = ?', [$id, $user->getId()]);
+        $likes = (int) $this->conn()->fetchOne('SELECT COUNT(*) FROM forum_post_reactions WHERE post_id = ? AND reaction_type = \'like\'', [$id]);
+        $dislikes = (int) $this->conn()->fetchOne('SELECT COUNT(*) FROM forum_post_reactions WHERE post_id = ? AND reaction_type = \'dislike\'', [$id]);
+        $userReaction = $this->conn()->fetchOne('SELECT reaction_type FROM forum_post_reactions WHERE post_id = ? AND user_id = ?', [$id, $user->getId()]);
 
         return $this->json([
             'likes' => $likes,
@@ -670,11 +673,11 @@ class ForumController extends AbstractController
 
     private function ensureForumCommentsColumns(): void
     {
-        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager = $this->conn()->createSchemaManager();
         $columns = $schemaManager->listTableColumns('forum_posts');
 
         if (!isset($columns['parent_post_id'])) {
-            $this->connection->executeStatement("ALTER TABLE forum_posts ADD parent_post_id INT DEFAULT NULL");
+            $this->conn()->executeStatement("ALTER TABLE forum_posts ADD parent_post_id INT DEFAULT NULL");
         }
     }
 
@@ -689,12 +692,12 @@ class ForumController extends AbstractController
             return $this->json(['error' => 'Not authenticated'], 401);
         }
 
-        $topic = $this->connection->fetchAssociative('SELECT id, title FROM forum_topics WHERE id = ?', [$id]);
+        $topic = $this->conn()->fetchAssociative('SELECT id, title FROM forum_topics WHERE id = ?', [$id]);
         if (!$topic) {
             return $this->json(['error' => 'Topic not found'], 404);
         }
 
-        $posts = $this->connection->fetchAllAssociative(
+        $posts = $this->conn()->fetchAllAssociative(
             'SELECT fp.id, fp.content, fp.created_at, fp.parent_post_id,
                     u.id as user_id, u.full_name as author_name, u.avatar_base64 as author_avatar, u.role as author_role,
                     (SELECT COUNT(*) FROM forum_post_reactions r WHERE r.post_id = fp.id AND r.reaction_type = \'like\') as like_count,
@@ -768,11 +771,11 @@ class ForumController extends AbstractController
         $isExpert = in_array($user->getRole(), ['EXPERT', 'ADMIN'], true);
         $now = new \DateTime();
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'INSERT INTO forum_posts (topic_id, author_user_id, content, is_expert_reply, created_at, parent_post_id) VALUES (?, ?, ?, ?, ?, ?)',
             [$id, $user->getId(), $content, $isExpert ? 1 : 0, $now->format('Y-m-d H:i:s'), $parentPostId]
         );
-        $newPostId = (int)$this->connection->lastInsertId();
+        $newPostId = (int)$this->conn()->lastInsertId();
 
         $topicEntity->setUpdated_at($now);
         $this->entityManager->flush();
@@ -781,7 +784,7 @@ class ForumController extends AbstractController
         $topicOwnerId = $topicEntity->getUser()?->getId();
         if ($topicOwnerId && $topicOwnerId !== $user->getId()) {
             $snippet = mb_substr($content, 0, 80);
-            $this->connection->executeStatement(
+            $this->conn()->executeStatement(
                 'INSERT INTO notifications (user_id, type, title, message, is_read, created_at) VALUES (?, ?, ?, ?, 0, NOW())',
                 [
                     $topicOwnerId,

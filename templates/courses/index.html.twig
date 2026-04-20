@@ -152,6 +152,11 @@ footer{display:none!important}
 .cr-info-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:0.78rem;font-weight:600;text-decoration:none;transition:all .25s var(--ease);cursor:pointer;font-family:inherit}
 .cr-info-btn:hover{background:var(--glass-b);color:var(--text);border-color:rgba(255,255,255,0.12)}
 .cr-info-btn i{font-size:0.95rem}
+.cr-dl-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,var(--cyan),#2dd4bf);border:none;border-radius:12px;color:#fff;font-weight:700;font-size:0.78rem;cursor:pointer;text-decoration:none;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.cr-dl-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.18),transparent);opacity:0;transition:opacity .25s}
+.cr-dl-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,189,209,0.35)}
+.cr-dl-btn:hover::before{opacity:1}
+.cr-dl-btn i{font-size:1rem}
 
 /* ═══ EMPTY STATE ═══ */
 .cr-empty{text-align:center;padding:100px 20px;color:var(--muted);animation:fadeUp .6s var(--ease)}
@@ -168,6 +173,13 @@ footer{display:none!important}
 .cr-particle:nth-child(3){width:4px;height:4px;background:var(--green);top:80%;left:70%;animation-duration:25s;animation-delay:-8s}
 .cr-particle:nth-child(4){width:2px;height:2px;background:var(--purple);top:30%;left:75%;animation-duration:20s;animation-delay:-12s}
 @keyframes particleDrift{0%{transform:translate(0,0) scale(0);opacity:0}10%{opacity:.5}50%{opacity:.3}90%{opacity:.5}100%{transform:translate(-120px,-200px) scale(1.2);opacity:0}}
+
+/* Bookmark button */
+.cr-bm-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:4px 6px;color:var(--muted);cursor:pointer;font-size:1rem;transition:all .25s var(--ease);display:flex;align-items:center}
+.cr-bm-btn:hover{color:var(--orange);border-color:rgba(251,146,60,0.3)}
+.cr-bm-btn.is-active{color:var(--orange);border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.08)}
+.cr-bm-btn.is-active i{animation:bmPop .3s var(--ease)}
+@keyframes bmPop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 
 /* ═══ RESPONSIVE ═══ */
 @media(max-width:768px){
@@ -278,6 +290,17 @@ footer{display:none!important}
 		<button class="cr-search-btn" type="submit">Search</button>
 	</form>
 
+	<!-- Streak Banner -->
+	{% if streak and streak.current_streak > 0 %}
+	<div style="display:flex;align-items:center;gap:12px;padding:14px 22px;background:linear-gradient(135deg,rgba(251,146,60,0.08),rgba(251,191,36,0.05));border:1px solid rgba(251,146,60,0.12);border-radius:16px;margin-bottom:20px;animation:fadeUp .5s var(--ease) .28s backwards">
+		<div style="width:42px;height:42px;border-radius:12px;background:rgba(251,146,60,0.15);display:flex;align-items:center;justify-content:center;font-size:1.3rem">🔥</div>
+		<div>
+			<div style="font-size:0.95rem;font-weight:800;color:var(--orange)">{{ streak.current_streak }}-day streak!</div>
+			<div style="font-size:0.72rem;color:var(--muted)">Best: {{ streak.longest_streak }} days &middot; Keep learning daily to grow your streak</div>
+		</div>
+	</div>
+	{% endif %}
+
 	<!-- Results count -->
 	<div class="cr-results">
 		<i class='bx bx-list-ul'></i>
@@ -295,16 +318,47 @@ footer{display:none!important}
 			<div class="cr-card-body">
 				<div class="cr-card-top">
 					<div class="cr-card-title">{{ course.title }}</div>
-					<span class="cr-badge {{ course.level|lower }}">
-						{% if course.level == 'EASY' %}<i class='bx bx-leaf'></i>{% elseif course.level == 'MEDIUM' %}<i class='bx bx-trending-up'></i>{% else %}<i class='bx bx-trophy'></i>{% endif %}
-						{{ course.level }}
-					</span>
+					<div style="display:flex;align-items:center;gap:8px">
+						<button class="cr-bm-btn {{ course.id in bookmarkedIds ? 'is-active' : '' }}" onclick="toggleBookmark({{ course.id }},this)" title="Bookmark">
+							<i class='bx {{ course.id in bookmarkedIds ? "bxs-bookmark" : "bx-bookmark" }}'></i>
+						</button>
+						<span class="cr-badge {{ course.level|lower }}">
+							{% if course.level == 'EASY' %}<i class='bx bx-leaf'></i>{% elseif course.level == 'MEDIUM' %}<i class='bx bx-trending-up'></i>{% else %}<i class='bx bx-trophy'></i>{% endif %}
+							{{ course.level }}
+						</span>
+					</div>
 				</div>
 				{% if course.description %}
 					<div class="cr-card-desc">{{ course.description }}</div>
 				{% endif %}
 				{% if course.module_name %}
 					<div class="cr-card-module"><i class='bx bx-category'></i> {{ course.module_name }}</div>
+				{% endif %}
+				<!-- Rating -->
+				{% if ratingMap[course.id] is defined and ratingMap[course.id].cnt > 0 %}
+				<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+					{% set avgR = ratingMap[course.id].avg_rating|round(1) %}
+					{% for i in 1..5 %}
+						<i class='bx {{ i <= avgR ? "bxs-star" : (i - 0.5 <= avgR ? "bxs-star-half" : "bx-star") }}' style="color:var(--yellow);font-size:0.85rem"></i>
+					{% endfor %}
+					<span style="font-size:0.7rem;color:var(--muted);margin-left:4px">{{ avgR }} ({{ ratingMap[course.id].cnt }})</span>
+				</div>
+				{% endif %}
+				<!-- Progress bar -->
+				{% if progressMap[course.id] is defined %}
+				{% set pct = progressMap[course.id].progress_percent %}
+				<div style="margin-bottom:8px">
+					<div style="display:flex;justify-content:space-between;font-size:0.68rem;margin-bottom:4px">
+						<span style="color:var(--muted)">Progress</span>
+						<span style="color:var(--orange);font-weight:700">{{ pct }}%</span>
+					</div>
+					<div style="height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden">
+						<div style="height:100%;width:{{ pct }}%;background:linear-gradient(90deg,var(--orange),var(--yellow));border-radius:4px;transition:width .5s var(--ease)"></div>
+					</div>
+					{% if progressMap[course.id].xp_earned > 0 %}
+					<div style="font-size:0.65rem;color:var(--cyan);margin-top:3px;font-weight:700">⚡ {{ progressMap[course.id].xp_earned }} XP</div>
+					{% endif %}
+				</div>
 				{% endif %}
 				<div class="cr-card-meta">
 					{% if course.teacher_name %}
@@ -314,8 +368,10 @@ footer{display:none!important}
 				</div>
 			</div>
 			<div class="cr-card-foot">
+				{% if course.pdf_path %}
+					<a href="{{ path('app_course_pdf', {id: course.id}) }}" class="cr-dl-btn" target="_blank"><i class='bx bx-download'></i> Download PDF</a>
+				{% endif %}
 				<a href="{{ path('app_course_show', {id: course.id}) }}" class="cr-view-btn"><i class='bx bx-book-reader'></i> View Course</a>
-				<a href="{{ path('app_course_show', {id: course.id}) }}" class="cr-info-btn"><i class='bx bx-info-circle'></i> Details</a>
 			</div>
 		</div>
 		{% endfor %}
@@ -330,4 +386,18 @@ footer{display:none!important}
 
 </div>
 </div>
+
+<script>
+function toggleBookmark(id, btn) {
+	fetch('/courses/'+id+'/bookmark', {method:'POST'}).then(r=>r.json()).then(d=>{
+		if(d.bookmarked){
+			btn.classList.add('is-active');
+			btn.querySelector('i').className='bx bxs-bookmark';
+		} else {
+			btn.classList.remove('is-active');
+			btn.querySelector('i').className='bx bx-bookmark';
+		}
+	});
+}
+</script>
 {% endblock %}

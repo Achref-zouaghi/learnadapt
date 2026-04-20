@@ -15,7 +15,7 @@ class Task
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'bigint')]
     private ?int $id = null;
 
     public function getId(): ?int
@@ -29,7 +29,20 @@ class Task
         return $this;
     }
 
- 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'student_user_id', referencedColumnName: 'id')]
+    private ?User $studentUser = null;
+
+    public function getStudentUser(): ?User
+    {
+        return $this->studentUser;
+    }
+
+    public function setStudentUser(?User $studentUser): self
+    {
+        $this->studentUser = $studentUser;
+        return $this;
+    }
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'tasks')]
     #[ORM\JoinColumn(name: 'created_by_teacher_id', referencedColumnName: 'id')]

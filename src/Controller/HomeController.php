@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\ProfanityService;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -23,9 +22,13 @@ class HomeController extends AbstractController
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly Connection $connection,
         private readonly ProfanityService $profanityService,
     ) {
+    }
+
+    private function conn(): \Doctrine\DBAL\Connection
+    {
+        return $this->entityManager->getConnection();
     }
 
     private function getAuthenticatedUser(Request $request): ?User
@@ -43,17 +46,17 @@ class HomeController extends AbstractController
             return;
         }
 
-        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager = $this->conn()->createSchemaManager();
         $columns = $schemaManager->listTableColumns('app_feedback');
 
         if (!isset($columns['media_type'])) {
-            $this->connection->executeStatement("ALTER TABLE app_feedback ADD media_type VARCHAR(16) DEFAULT NULL");
+            $this->conn()->executeStatement("ALTER TABLE app_feedback ADD media_type VARCHAR(16) DEFAULT NULL");
         }
         if (!isset($columns['media_path'])) {
-            $this->connection->executeStatement("ALTER TABLE app_feedback ADD media_path VARCHAR(255) DEFAULT NULL");
+            $this->conn()->executeStatement("ALTER TABLE app_feedback ADD media_path VARCHAR(255) DEFAULT NULL");
         }
         if (!isset($columns['media_files'])) {
-            $this->connection->executeStatement("ALTER TABLE app_feedback ADD media_files TEXT DEFAULT NULL");
+            $this->conn()->executeStatement("ALTER TABLE app_feedback ADD media_files TEXT DEFAULT NULL");
         }
 
         $this->mediaColumnsChecked = true;
@@ -65,11 +68,11 @@ class HomeController extends AbstractController
             return;
         }
 
-        $schemaManager = $this->connection->createSchemaManager();
+        $schemaManager = $this->conn()->createSchemaManager();
         $tables = array_map(fn($t) => $t->getName(), $schemaManager->listTables());
 
         if (!in_array('comment_reactions', $tables, true)) {
-            $this->connection->executeStatement(
+            $this->conn()->executeStatement(
                 'CREATE TABLE comment_reactions (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     comment_id INT NOT NULL,
@@ -173,7 +176,7 @@ class HomeController extends AbstractController
 
         $userId = $user ? $user->getId() : 0;
 
-        $comments = $this->connection->fetchAllAssociative(
+        $comments = $this->conn()->fetchAllAssociative(
             'SELECT af.id, af.user_id, af.rating, af.comment, af.created_at,
                     af.media_type, af.media_path, af.media_files,
                     u.full_name as author_name, u.avatar_base64 as author_avatar, u.role as author_role,
@@ -235,7 +238,7 @@ class HomeController extends AbstractController
 
         $firstMedia = $media['mediaFiles'][0] ?? null;
 
-        $this->connection->insert('app_feedback', [
+        $this->conn()->insert('app_feedback', [
             'user_id' => $user->getId(),
             'rating' => $rating,
             'comment' => $comment !== '' ? $comment : null,
@@ -245,7 +248,7 @@ class HomeController extends AbstractController
             'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ]);
 
-        $id = (int) $this->connection->lastInsertId();
+        $id = (int) $this->conn()->lastInsertId();
 
         return new JsonResponse([
             'success' => true,
@@ -270,7 +273,7 @@ class HomeController extends AbstractController
             return new JsonResponse(['error' => 'Not authenticated'], 401);
         }
 
-        $row = $this->connection->fetchAssociative(
+        $row = $this->conn()->fetchAssociative(
             'SELECT user_id, media_path, media_files FROM app_feedback WHERE id = ?',
             [$id]
         );
@@ -296,7 +299,7 @@ class HomeController extends AbstractController
             }
         }
 
-        $this->connection->delete('app_feedback', ['id' => $id]);
+        $this->conn()->delete('app_feedback', ['id' => $id]);
 
         return new JsonResponse(['success' => true]);
     }
@@ -317,30 +320,30 @@ class HomeController extends AbstractController
             return new JsonResponse(['error' => 'Invalid reaction type'], 400);
         }
 
-        $exists = $this->connection->fetchOne('SELECT id FROM app_feedback WHERE id = ?', [$id]);
+        $exists = $this->conn()->fetchOne('SELECT id FROM app_feedback WHERE id = ?', [$id]);
         if (!$exists) {
             return new JsonResponse(['error' => 'Comment not found'], 404);
         }
 
-        $existing = $this->connection->fetchAssociative(
+        $existing = $this->conn()->fetchAssociative(
             'SELECT id, reaction_type FROM comment_reactions WHERE comment_id = ? AND user_id = ?',
             [$id, $user->getId()]
         );
 
         if ($existing) {
-            $this->connection->executeStatement('DELETE FROM comment_reactions WHERE id = ?', [$existing['id']]);
+            $this->conn()->executeStatement('DELETE FROM comment_reactions WHERE id = ?', [$existing['id']]);
         } else {
-            $this->connection->executeStatement(
+            $this->conn()->executeStatement(
                 'INSERT INTO comment_reactions (comment_id, user_id, reaction_type, created_at) VALUES (?, ?, ?, NOW())',
                 [$id, $user->getId(), $reactionType]
             );
         }
 
-        $likes = (int) $this->connection->fetchOne(
+        $likes = (int) $this->conn()->fetchOne(
             'SELECT COUNT(*) FROM comment_reactions WHERE comment_id = ? AND reaction_type = \'like\'',
             [$id]
         );
-        $userReaction = $this->connection->fetchOne(
+        $userReaction = $this->conn()->fetchOne(
             'SELECT reaction_type FROM comment_reactions WHERE comment_id = ? AND user_id = ?',
             [$id, $user->getId()]
         );

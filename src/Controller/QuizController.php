@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\UserRepository;
-use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,8 +16,13 @@ class QuizController extends AbstractController
 
     public function __construct(
         private readonly UserRepository $userRepository,
-        private readonly Connection $connection,
+        private readonly EntityManagerInterface $em,
     ) {
+    }
+
+    private function conn(): \Doctrine\DBAL\Connection
+    {
+        return $this->em->getConnection();
     }
 
     private function getAuthUser(Request $request): ?array
@@ -37,7 +42,7 @@ class QuizController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $quizzes = $this->connection->fetchAllAssociative(
+        $quizzes = $this->conn()->fetchAllAssociative(
             'SELECT q.*,
                     (SELECT COUNT(*) FROM quiz_questions qq WHERE qq.quiz_id = q.id) as question_count,
                     (SELECT SUM(qq2.points) FROM quiz_questions qq2 WHERE qq2.quiz_id = q.id) as total_points
@@ -47,7 +52,7 @@ class QuizController extends AbstractController
         );
 
         // Get user's attempts for each quiz
-        $attempts = $this->connection->fetchAllAssociative(
+        $attempts = $this->conn()->fetchAllAssociative(
             'SELECT qa.quiz_id,
                     COUNT(*) as attempt_count,
                     MAX(qa.score_percent) as best_score,
@@ -77,7 +82,7 @@ class QuizController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $quiz = $this->connection->fetchAssociative(
+        $quiz = $this->conn()->fetchAssociative(
             'SELECT * FROM diagnostic_quizzes WHERE id = ? AND is_active = 1',
             [$id]
         );
@@ -87,7 +92,7 @@ class QuizController extends AbstractController
         }
 
         // Check if there's an unfinished attempt
-        $existing = $this->connection->fetchAssociative(
+        $existing = $this->conn()->fetchAssociative(
             'SELECT id FROM quiz_attempts WHERE quiz_id = ? AND student_user_id = ? AND finished_at IS NULL',
             [$id, (int) $auth['id']]
         );
@@ -97,18 +102,18 @@ class QuizController extends AbstractController
         }
 
         // Count questions and total points
-        $stats = $this->connection->fetchAssociative(
+        $stats = $this->conn()->fetchAssociative(
             'SELECT COUNT(*) as cnt, COALESCE(SUM(points), 0) as total FROM quiz_questions WHERE quiz_id = ?',
             [$id]
         );
 
         // Create new attempt
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'INSERT INTO quiz_attempts (quiz_id, student_user_id, started_at, total_points) VALUES (?, ?, NOW(), ?)',
             [$id, (int) $auth['id'], (int) $stats['total']]
         );
 
-        $attemptId = (int) $this->connection->lastInsertId();
+        $attemptId = (int) $this->conn()->lastInsertId();
 
         return $this->redirectToRoute('app_quiz_take', ['id' => $attemptId]);
     }
@@ -121,7 +126,7 @@ class QuizController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $attempt = $this->connection->fetchAssociative(
+        $attempt = $this->conn()->fetchAssociative(
             'SELECT a.*, q.title as quiz_title, q.description as quiz_description, q.time_limit_minutes
              FROM quiz_attempts a
              JOIN diagnostic_quizzes q ON q.id = a.quiz_id
@@ -159,7 +164,7 @@ class QuizController extends AbstractController
         }
 
         // Get questions
-        $questions = $this->connection->fetchAllAssociative(
+        $questions = $this->conn()->fetchAllAssociative(
             'SELECT id, question_type, prompt, option_a, option_b, option_c, option_d, points, difficulty
              FROM quiz_questions
              WHERE quiz_id = ?
@@ -168,7 +173,7 @@ class QuizController extends AbstractController
         );
 
         // Get already answered questions
-        $answered = $this->connection->fetchAllAssociative(
+        $answered = $this->conn()->fetchAllAssociative(
             'SELECT question_id, chosen_option, chosen_bool, typed_answer FROM quiz_answers WHERE attempt_id = ?',
             [$id]
         );
@@ -188,7 +193,7 @@ class QuizController extends AbstractController
     private function autoSubmit(int $attemptId, array $auth): Response
     {
         // Get attempt
-        $attempt = $this->connection->fetchAssociative(
+        $attempt = $this->conn()->fetchAssociative(
             'SELECT * FROM quiz_attempts WHERE id = ? AND student_user_id = ?',
             [$attemptId, (int) $auth['id']]
         );
@@ -198,7 +203,7 @@ class QuizController extends AbstractController
         }
 
         // Calculate score from existing answers
-        $score = $this->connection->fetchAssociative(
+        $score = $this->conn()->fetchAssociative(
             'SELECT COALESCE(SUM(earned_points), 0) as earned FROM quiz_answers WHERE attempt_id = ?',
             [$attemptId]
         );
@@ -214,7 +219,7 @@ class QuizController extends AbstractController
             $level = 'INTERMEDIATE';
         }
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'UPDATE quiz_attempts SET finished_at = NOW(), earned_points = ?, score_percent = ?, level_result = ? WHERE id = ?',
             [$earned, $percent, $level, $attemptId]
         );
@@ -230,7 +235,7 @@ class QuizController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $attempt = $this->connection->fetchAssociative(
+        $attempt = $this->conn()->fetchAssociative(
             'SELECT a.*, q.time_limit_minutes FROM quiz_attempts a
              JOIN diagnostic_quizzes q ON q.id = a.quiz_id
              WHERE a.id = ? AND a.student_user_id = ? AND a.finished_at IS NULL',
@@ -242,7 +247,7 @@ class QuizController extends AbstractController
         }
 
         // Get all questions for this quiz
-        $questions = $this->connection->fetchAllAssociative(
+        $questions = $this->conn()->fetchAllAssociative(
             'SELECT * FROM quiz_questions WHERE quiz_id = ?',
             [(int) $attempt['quiz_id']]
         );
@@ -254,7 +259,7 @@ class QuizController extends AbstractController
             $answerKey = 'q_' . $qId;
 
             // Check if already answered
-            $existing = $this->connection->fetchAssociative(
+            $existing = $this->conn()->fetchAssociative(
                 'SELECT id FROM quiz_answers WHERE attempt_id = ? AND question_id = ?',
                 [$id, $qId]
             );
@@ -298,12 +303,12 @@ class QuizController extends AbstractController
             }
 
             if ($existing) {
-                $this->connection->executeStatement(
+                $this->conn()->executeStatement(
                     'UPDATE quiz_answers SET chosen_option = ?, chosen_bool = ?, typed_answer = ?, is_correct = ?, earned_points = ? WHERE id = ?',
                     [$chosenOption, $chosenBool, $typedAnswer, $isCorrect ? 1 : 0, $earnedPoints, $existing['id']]
                 );
             } else {
-                $this->connection->executeStatement(
+                $this->conn()->executeStatement(
                     'INSERT INTO quiz_answers (attempt_id, question_id, chosen_option, chosen_bool, typed_answer, is_correct, earned_points) VALUES (?, ?, ?, ?, ?, ?, ?)',
                     [$id, $qId, $chosenOption, $chosenBool, $typedAnswer, $isCorrect ? 1 : 0, $earnedPoints]
                 );
@@ -322,7 +327,7 @@ class QuizController extends AbstractController
             $level = 'INTERMEDIATE';
         }
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'UPDATE quiz_attempts SET finished_at = NOW(), earned_points = ?, score_percent = ?, level_result = ? WHERE id = ?',
             [$totalEarned, $percent, $level, $id]
         );
@@ -338,7 +343,7 @@ class QuizController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $attempt = $this->connection->fetchAssociative(
+        $attempt = $this->conn()->fetchAssociative(
             'SELECT a.*, q.title as quiz_title, q.description as quiz_description, q.time_limit_minutes
              FROM quiz_attempts a
              JOIN diagnostic_quizzes q ON q.id = a.quiz_id
@@ -351,7 +356,7 @@ class QuizController extends AbstractController
         }
 
         // Get all questions with user answers
-        $questions = $this->connection->fetchAllAssociative(
+        $questions = $this->conn()->fetchAllAssociative(
             'SELECT qq.*, qa.chosen_option, qa.chosen_bool, qa.typed_answer, qa.is_correct, qa.earned_points as user_earned
              FROM quiz_questions qq
              LEFT JOIN quiz_answers qa ON qa.question_id = qq.id AND qa.attempt_id = ?

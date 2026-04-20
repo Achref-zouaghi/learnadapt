@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,8 +16,13 @@ class ChatController extends AbstractController
 
     public function __construct(
         private readonly UserRepository $userRepository,
-        private readonly Connection $connection,
+        private readonly EntityManagerInterface $em,
     ) {
+    }
+
+    private function conn(): \Doctrine\DBAL\Connection
+    {
+        return $this->em->getConnection();
     }
 
     private function getAuthenticatedUser(Request $request): ?User
@@ -43,8 +48,8 @@ class ChatController extends AbstractController
         $myId = $user->getId();
 
         // Teachers & experts
-        $advisors = $this->connection->fetchAllAssociative(
-            "SELECT u.id, u.full_name, LOWER(u.role) AS role, u.avatar_base64, u.last_activity
+        $advisors = $this->conn()->fetchAllAssociative(
+            "SELECT u.id, u.full_name, LOWER(u.role) AS role, u.avatar_base64
              FROM users u
              WHERE LOWER(u.role) IN ('teacher', 'expert')
                AND u.id != ?
@@ -54,8 +59,8 @@ class ChatController extends AbstractController
         );
 
         // Admins
-        $admins = $this->connection->fetchAllAssociative(
-            "SELECT u.id, u.full_name, LOWER(u.role) AS role, u.avatar_base64, u.last_activity
+        $admins = $this->conn()->fetchAllAssociative(
+            "SELECT u.id, u.full_name, LOWER(u.role) AS role, u.avatar_base64
              FROM users u
              WHERE LOWER(u.role) = 'admin'
                AND u.id != ?
@@ -65,8 +70,8 @@ class ChatController extends AbstractController
         );
 
         // All students
-        $students = $this->connection->fetchAllAssociative(
-            "SELECT u.id, u.full_name, LOWER(u.role) AS role, u.avatar_base64, u.last_activity
+        $students = $this->conn()->fetchAllAssociative(
+            "SELECT u.id, u.full_name, LOWER(u.role) AS role, u.avatar_base64
              FROM users u
              WHERE LOWER(u.role) = 'student'
                AND u.id != ?
@@ -76,8 +81,8 @@ class ChatController extends AbstractController
         );
 
         // Accepted friends
-        $friends = $this->connection->fetchAllAssociative(
-            "SELECT u.id, u.full_name, LOWER(u.role) AS role, u.avatar_base64, u.last_activity
+        $friends = $this->conn()->fetchAllAssociative(
+            "SELECT u.id, u.full_name, LOWER(u.role) AS role, u.avatar_base64
              FROM users u
              INNER JOIN friend_requests fr
                ON (fr.sender_id = u.id AND fr.receiver_id = ?)
@@ -90,7 +95,7 @@ class ChatController extends AbstractController
         );
 
         // Total unread
-        $totalUnread = (int) $this->connection->fetchOne(
+        $totalUnread = (int) $this->conn()->fetchOne(
             "SELECT COUNT(*) FROM messages_prives WHERE receiver_id = ? AND is_read = 0",
             [$myId]
         );
@@ -118,13 +123,13 @@ class ChatController extends AbstractController
         $myId = $user->getId();
 
         // Mark messages from this contact as read
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             "UPDATE messages_prives SET is_read = 1
              WHERE sender_id = ? AND receiver_id = ? AND is_read = 0",
             [$contactId, $myId]
         );
 
-        $messages = $this->connection->fetchAllAssociative(
+        $messages = $this->conn()->fetchAllAssociative(
             "SELECT id, sender_id, receiver_id, content, is_read, created_at
              FROM messages_prives
              WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
@@ -134,7 +139,7 @@ class ChatController extends AbstractController
         );
 
         // Contact info
-        $contact = $this->connection->fetchAssociative(
+        $contact = $this->conn()->fetchAssociative(
             "SELECT id, full_name, role, avatar_base64 FROM users WHERE id = ?",
             [$contactId]
         );
@@ -170,14 +175,14 @@ class ChatController extends AbstractController
         }
 
         // Verify receiver exists
-        $receiver = $this->connection->fetchAssociative("SELECT id, role FROM users WHERE id = ?", [$receiverId]);
+        $receiver = $this->conn()->fetchAssociative("SELECT id, role FROM users WHERE id = ?", [$receiverId]);
         if (!$receiver) {
             return new JsonResponse(['error' => 'User not found'], 404);
         }
 
         $now = (new \DateTime())->format('Y-m-d H:i:s');
 
-        $this->connection->insert('messages_prives', [
+        $this->conn()->insert('messages_prives', [
             'sender_id' => $user->getId(),
             'receiver_id' => $receiverId,
             'content' => $content,
@@ -185,11 +190,11 @@ class ChatController extends AbstractController
             'created_at' => $now,
         ]);
 
-        $id = (int) $this->connection->lastInsertId();
+        $id = (int) $this->conn()->lastInsertId();
 
         // Create a notification for the receiver
         $snippet = mb_substr($content, 0, 80);
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'INSERT INTO notifications (user_id, type, title, message, is_read, related_topic_id, created_at)
              VALUES (?, ?, ?, ?, 0, ?, NOW())',
             [
@@ -225,7 +230,7 @@ class ChatController extends AbstractController
             return new JsonResponse(['count' => 0]);
         }
 
-        $count = (int) $this->connection->fetchOne(
+        $count = (int) $this->conn()->fetchOne(
             "SELECT COUNT(*) FROM messages_prives WHERE receiver_id = ? AND is_read = 0",
             [$user->getId()]
         );

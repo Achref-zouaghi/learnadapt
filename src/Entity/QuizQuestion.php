@@ -13,9 +13,14 @@ use App\Repository\QuizQuestionRepository;
 #[ORM\Table(name: 'quiz_questions')]
 class QuizQuestion
 {
+    public function __construct()
+    {
+        $this->quizAnswers = new ArrayCollection();
+    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'bigint')]
     private ?int $id = null;
 
     public function getId(): ?int
@@ -212,18 +217,12 @@ class QuizQuestion
         return $this;
     }
 
-    #[ORM\OneToOne(targetEntity: QuizAnswer::class, mappedBy: 'quizQuestion')]
-    private ?QuizAnswer $quizAnswer = null;
+    #[ORM\OneToMany(targetEntity: QuizAnswer::class, mappedBy: 'quizQuestion')]
+    private Collection $quizAnswers;
 
-    public function getQuizAnswer(): ?QuizAnswer
+    public function getQuizAnswers(): Collection
     {
-        return $this->quizAnswer;
-    }
-
-    public function setQuizAnswer(?QuizAnswer $quizAnswer): self
-    {
-        $this->quizAnswer = $quizAnswer;
-        return $this;
+        return $this->quizAnswers;
     }
 
     public function getQuestionType(): ?string

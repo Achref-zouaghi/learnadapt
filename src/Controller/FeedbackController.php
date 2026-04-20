@@ -6,7 +6,6 @@ use App\Entity\AppFeedback;
 use App\Entity\Notification;
 use App\Entity\User;
 use App\Repository\UserRepository;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,8 +20,12 @@ class FeedbackController extends AbstractController
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly Connection $connection,
     ) {
+    }
+
+    private function conn(): \Doctrine\DBAL\Connection
+    {
+        return $this->entityManager->getConnection();
     }
 
     private function getAuthenticatedUser(Request $request): ?User
@@ -42,7 +45,7 @@ class FeedbackController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $feedbacks = $this->connection->fetchAllAssociative(
+        $feedbacks = $this->conn()->fetchAllAssociative(
             'SELECT af.*, u.full_name as author_name, u.avatar_base64 as author_avatar, u.role as author_role,
                     (SELECT COUNT(*) FROM feedback_reactions fr WHERE fr.feedback_id = af.id AND fr.type = ?) as like_count,
                     (SELECT COUNT(*) FROM feedback_reactions fr WHERE fr.feedback_id = af.id AND fr.type = ?) as dislike_count,
@@ -53,7 +56,7 @@ class FeedbackController extends AbstractController
             ['like', 'dislike', $user->getId()]
         );
 
-        $stats = $this->connection->fetchAssociative(
+        $stats = $this->conn()->fetchAssociative(
             'SELECT
                 COUNT(*) as total,
                 ROUND(AVG(rating), 1) as avg_rating,
@@ -65,7 +68,7 @@ class FeedbackController extends AbstractController
              FROM app_feedback'
         );
 
-        $myFeedbacks = $this->connection->fetchAllAssociative(
+        $myFeedbacks = $this->conn()->fetchAllAssociative(
             'SELECT * FROM app_feedback WHERE user_id = ? ORDER BY created_at DESC',
             [$user->getId()]
         );
@@ -103,7 +106,7 @@ class FeedbackController extends AbstractController
         $this->entityManager->persist($feedback);
 
         // Create notification
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'INSERT INTO notifications (user_id, type, title, message, is_read, created_at)
              VALUES (?, ?, ?, ?, 0, NOW())',
             [
@@ -187,7 +190,7 @@ class FeedbackController extends AbstractController
             return $this->redirectToRoute('app_feedback');
         }
 
-        $feedback = $this->connection->fetchAssociative(
+        $feedback = $this->conn()->fetchAssociative(
             'SELECT af.*, u.full_name as author_name FROM app_feedback af JOIN users u ON af.user_id = u.id WHERE af.id = ?',
             [$id]
         );
@@ -197,7 +200,7 @@ class FeedbackController extends AbstractController
         }
 
         // Check existing reaction
-        $existing = $this->connection->fetchAssociative(
+        $existing = $this->conn()->fetchAssociative(
             'SELECT * FROM feedback_reactions WHERE feedback_id = ? AND user_id = ?',
             [$id, $user->getId()]
         );
@@ -205,20 +208,20 @@ class FeedbackController extends AbstractController
         if ($existing) {
             if ($existing['type'] === $type) {
                 // Toggle off — remove reaction
-                $this->connection->executeStatement(
+                $this->conn()->executeStatement(
                     'DELETE FROM feedback_reactions WHERE id = ?',
                     [$existing['id']]
                 );
             } else {
                 // Switch reaction type
-                $this->connection->executeStatement(
+                $this->conn()->executeStatement(
                     'UPDATE feedback_reactions SET type = ?, created_at = NOW() WHERE id = ?',
                     [$type, $existing['id']]
                 );
                 // Notify feedback author
                 if ((int) $feedback['user_id'] !== $user->getId()) {
                     $emoji = $type === 'like' ? '👍' : '👎';
-                    $this->connection->executeStatement(
+                    $this->conn()->executeStatement(
                         'INSERT INTO notifications (user_id, type, title, message, is_read, created_at)
                          VALUES (?, ?, ?, ?, 0, NOW())',
                         [
@@ -232,14 +235,14 @@ class FeedbackController extends AbstractController
             }
         } else {
             // New reaction
-            $this->connection->executeStatement(
+            $this->conn()->executeStatement(
                 'INSERT INTO feedback_reactions (feedback_id, user_id, type, created_at) VALUES (?, ?, ?, NOW())',
                 [$id, $user->getId(), $type]
             );
             // Notify feedback author (don't notify yourself)
             if ((int) $feedback['user_id'] !== $user->getId()) {
                 $emoji = $type === 'like' ? '👍' : '👎';
-                $this->connection->executeStatement(
+                $this->conn()->executeStatement(
                     'INSERT INTO notifications (user_id, type, title, message, is_read, created_at)
                      VALUES (?, ?, ?, ?, 0, NOW())',
                     [
@@ -254,15 +257,15 @@ class FeedbackController extends AbstractController
 
         // Return JSON for AJAX requests
         if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
-            $likeCount = (int) $this->connection->fetchOne(
+            $likeCount = (int) $this->conn()->fetchOne(
                 'SELECT COUNT(*) FROM feedback_reactions WHERE feedback_id = ? AND type = ?',
                 [$id, 'like']
             );
-            $dislikeCount = (int) $this->connection->fetchOne(
+            $dislikeCount = (int) $this->conn()->fetchOne(
                 'SELECT COUNT(*) FROM feedback_reactions WHERE feedback_id = ? AND type = ?',
                 [$id, 'dislike']
             );
-            $myReaction = $this->connection->fetchOne(
+            $myReaction = $this->conn()->fetchOne(
                 'SELECT type FROM feedback_reactions WHERE feedback_id = ? AND user_id = ?',
                 [$id, $user->getId()]
             );

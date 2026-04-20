@@ -58,7 +58,7 @@ class StudentLevel
         return $this;
     }
 
-    #[ORM\Column(type: 'decimal', nullable: true)]
+    #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: true)]
     private ?string $last_score_percent = null;
 
     public function getLast_score_percent(): ?string

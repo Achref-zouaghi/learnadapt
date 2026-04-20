@@ -2597,15 +2597,17 @@
 				<svg viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
 			</div>
 			<h4>How can I help you?</h4>
-			<p>Ask me about courses, pricing, learning paths, or anything about LearnAdapt.</p>
+			<p>I can show your progress, recommend courses, quiz you, explain concepts, create study plans, and more — all offline!</p>
 		</div>
 		<div class="ai-suggestions" id="aiSuggestions">
-			<button class="ai-suggest-btn" data-q="Give me study tips to stay focused"><span class="ai-suggest-icon">📖</span> Study tips</button>
-			<button class="ai-suggest-btn" data-q="Help me create a study plan for this week"><span class="ai-suggest-icon">📅</span> Study plan</button>
-			<button class="ai-suggest-btn" data-q="Explain a difficult concept to me simply"><span class="ai-suggest-icon">💡</span> Explain a concept</button>
-			<button class="ai-suggest-btn" data-q="How can I improve my grades?"><span class="ai-suggest-icon">📈</span> Improve grades</button>
-			<button class="ai-suggest-btn" data-q="Quiz me on what I learned today"><span class="ai-suggest-icon">🧠</span> Quiz me</button>
-			<button class="ai-suggest-btn" data-q="How does the adaptive learning work?"><span class="ai-suggest-icon">⚙️</span> How it works</button>
+			<button class="ai-suggest-btn" data-q="Show me my progress and stats"><span class="ai-suggest-icon">📊</span> My progress</button>
+			<button class="ai-suggest-btn" data-q="Show me my current courses"><span class="ai-suggest-icon">📚</span> My courses</button>
+			<button class="ai-suggest-btn" data-q="Recommend courses for me"><span class="ai-suggest-icon">🎯</span> Recommend</button>
+			<button class="ai-suggest-btn" data-q="Give me study tips to stay focused"><span class="ai-suggest-icon">🧠</span> Study tips</button>
+			<button class="ai-suggest-btn" data-q="Help me create a study plan"><span class="ai-suggest-icon">📅</span> Study plan</button>
+			<button class="ai-suggest-btn" data-q="Quiz me to test my knowledge"><span class="ai-suggest-icon">❓</span> Quiz me</button>
+			<button class="ai-suggest-btn" data-q="Show me the leaderboard"><span class="ai-suggest-icon">🏆</span> Leaderboard</button>
+			<button class="ai-suggest-btn" data-q="Motivate me to keep learning"><span class="ai-suggest-icon">💪</span> Motivate me</button>
 		</div>
 	</div>
 
@@ -2676,10 +2678,16 @@
 
 	function formatMsg(text) {
 		return text
+			.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+			.replace(/`([^`]+)`/g, '<code style="background:rgba(139,92,246,0.15);padding:2px 6px;border-radius:4px;font-size:0.8em">$1</code>')
 			.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
 			.replace(/\*(.+?)\*/g, '<em>$1</em>')
 			.replace(/^• /gm, '&bull; ')
 			.replace(/^- /gm, '&bull; ')
+			.replace(/^(\d+)\. /gm, '<strong>$1.</strong> ')
+			.replace(/^> (.+)/gm, '<div style="border-left:3px solid rgba(139,92,246,0.4);padding-left:10px;margin:4px 0;color:rgba(255,255,255,0.7)">$1</div>')
+			.replace(/█/g, '<span style="color:#8b5cf6">█</span>')
+			.replace(/░/g, '<span style="color:rgba(255,255,255,0.15)">░</span>')
 			.replace(/\n/g, '<br>');
 	}
 
@@ -2815,7 +2823,7 @@
 			msgCount = 0;
 			body.innerHTML = '';
 			/* Re-add welcome card */
-			body.innerHTML = '<div class="ai-welcome"><div class="ai-welcome-icon"><svg viewBox="0 0 24 24"><path fill="#fff" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div><h4>How can I help you?</h4><p>Ask me about courses, pricing, learning paths, or anything about LearnAdapt.</p></div><div class="ai-suggestions" id="aiSuggestions"><button class="ai-suggest-btn" data-q="What courses do you offer?"><span class="ai-suggest-icon">📚</span> Courses</button><button class="ai-suggest-btn" data-q="How does adaptive learning work?"><span class="ai-suggest-icon">🧠</span> Adaptive Learning</button><button class="ai-suggest-btn" data-q="What are the pricing plans?"><span class="ai-suggest-icon">💎</span> Pricing</button><button class="ai-suggest-btn" data-q="How do certificates work?"><span class="ai-suggest-icon">🏆</span> Certificates</button></div>';
+			body.innerHTML = '<div class="ai-welcome"><div class="ai-welcome-icon"><svg viewBox="0 0 24 24"><path fill="#fff" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div><h4>How can I help you?</h4><p>I can show your progress, recommend courses, quiz you, explain concepts, create study plans, and more — all offline!</p></div><div class="ai-suggestions" id="aiSuggestions"><button class="ai-suggest-btn" data-q="Show me my progress and stats"><span class="ai-suggest-icon">📊</span> My progress</button><button class="ai-suggest-btn" data-q="Show me my current courses"><span class="ai-suggest-icon">📚</span> My courses</button><button class="ai-suggest-btn" data-q="Recommend courses for me"><span class="ai-suggest-icon">🎯</span> Recommend</button><button class="ai-suggest-btn" data-q="Give me study tips to stay focused"><span class="ai-suggest-icon">🧠</span> Study tips</button><button class="ai-suggest-btn" data-q="Help me create a study plan"><span class="ai-suggest-icon">📅</span> Study plan</button><button class="ai-suggest-btn" data-q="Quiz me to test my knowledge"><span class="ai-suggest-icon">❓</span> Quiz me</button><button class="ai-suggest-btn" data-q="Show me the leaderboard"><span class="ai-suggest-icon">🏆</span> Leaderboard</button><button class="ai-suggest-btn" data-q="Motivate me to keep learning"><span class="ai-suggest-icon">💪</span> Motivate me</button></div>';
 			suggestions = document.getElementById('aiSuggestions');
 			suggestions.addEventListener('click', function(e) {
 				var btn = e.target.closest('.ai-suggest-btn');

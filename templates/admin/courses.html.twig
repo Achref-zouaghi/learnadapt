@@ -334,6 +334,7 @@ footer{display:none!important}
 						<th>Level</th>
 						<th>Module</th>
 						<th>Teacher</th>
+						<th>PDF</th>
 						<th>Description</th>
 						<th>Created</th>
 						<th>Actions</th>
@@ -352,11 +353,18 @@ footer{display:none!important}
 							{% endif %}
 						</td>
 						<td style="font-size:0.8rem;color:var(--muted)">{{ course.teacher_name|default('—') }}</td>
+						<td>
+							{% if course.pdf_path %}
+								<a href="/admin/courses/{{ course.id }}/pdf" target="_blank" class="cr-chip" style="padding:4px 10px;font-size:0.72rem;text-decoration:none;display:inline-flex;gap:4px;color:var(--cyan)"><i class='bx bxs-file-pdf'></i> PDF</a>
+							{% else %}
+								<span style="color:var(--muted);font-size:0.75rem">—</span>
+							{% endif %}
+						</td>
 						<td style="font-size:0.78rem;color:var(--muted);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ course.description|default('—') }}</td>
 						<td style="font-size:0.78rem;color:var(--muted)">{{ course.created_at|date('M d, Y') }}</td>
 						<td>
 							<div class="cr-act">
-								<button class="cr-btn edit" onclick="openEditCourse({{ course.id }},'{{ course.title|e('js') }}','{{ course.description|default('')|e('js') }}','{{ course.level }}',{{ course.module_id|default('null') }},{{ course.teacher_user_id|default('null') }})" title="Edit"><i class='bx bx-edit-alt'></i></button>
+								<button class="cr-btn edit" onclick="openEditCourse({{ course.id }},'{{ course.title|e('js') }}','{{ course.description|default('')|e('js') }}','{{ course.level }}',{{ course.module_id|default('null') }},{{ course.teacher_user_id|default('null') }},'{{ course.pdf_path|default('')|e('js') }}','{{ course.video_url|default('')|e('js') }}')" title="Edit"><i class='bx bx-edit-alt'></i></button>
 								<button class="cr-btn danger" onclick="deleteCourse({{ course.id }},'{{ course.title|e('js') }}')" title="Delete"><i class='bx bx-trash'></i></button>
 							</div>
 						</td>
@@ -415,6 +423,19 @@ footer{display:none!important}
 				{% endfor %}
 			</select>
 		</div>
+		<div class="adm-modal-field">
+			<label>Video URL <span style="font-weight:400;color:var(--muted);font-size:0.72rem">(YouTube/Vimeo)</span></label>
+			<input type="url" id="editCrVideo" placeholder="https://youtube.com/watch?v=...">
+		</div>
+		<div class="adm-modal-field">
+			<label>PDF File</label>
+			<div id="editCrPdfInfo" style="display:none;margin-bottom:8px;padding:8px 12px;background:rgba(56,189,209,0.08);border:1px solid rgba(56,189,209,0.2);border-radius:8px;font-size:0.78rem;color:var(--cyan);display:flex;align-items:center;gap:8px">
+				<i class='bx bxs-file-pdf' style="font-size:1.1rem"></i>
+				<span id="editCrPdfName"></span>
+				<button type="button" onclick="removeEditPdf()" style="margin-left:auto;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:var(--red);padding:2px 8px;border-radius:6px;cursor:pointer;font-size:0.72rem"><i class='bx bx-trash'></i></button>
+			</div>
+			<input type="file" id="editCrPdf" accept="application/pdf" style="font-size:0.82rem;color:var(--muted)">
+		</div>
 		<div class="adm-modal-actions">
 			<button class="adm-modal-btn cancel" onclick="closeEditCourse()">Cancel</button>
 			<button class="adm-modal-btn save" onclick="saveEditCourse()">Save Changes</button>
@@ -460,6 +481,14 @@ footer{display:none!important}
 				{% endfor %}
 			</select>
 		</div>
+		<div class="adm-modal-field">
+			<label>Video URL <span style="font-weight:400;color:var(--muted);font-size:0.72rem">(YouTube/Vimeo)</span></label>
+			<input type="url" id="addCrVideo" placeholder="https://youtube.com/watch?v=...">
+		</div>
+		<div class="adm-modal-field">
+			<label>PDF File</label>
+			<input type="file" id="addCrPdf" accept="application/pdf" style="font-size:0.82rem;color:var(--muted)">
+		</div>
 		<div class="adm-modal-actions">
 			<button class="adm-modal-btn cancel" onclick="closeAddCourse()">Cancel</button>
 			<button class="adm-modal-btn save" onclick="saveAddCourse()">Create Course</button>
@@ -470,6 +499,8 @@ footer{display:none!important}
 <script>
 function showToast(m,e=false){const t=document.getElementById('admToast');t.textContent=m;t.className='adm-toast'+(e?' error':'')+' show';setTimeout(()=>t.classList.remove('show'),3000)}
 
+let editCrCurrentId=null;
+
 function deleteCourse(id,title){
 	if(!confirm('Delete course "'+title+'"?'))return;
 	fetch('/admin/courses/'+id+'/delete',{method:'POST'}).then(r=>r.json()).then(d=>{
@@ -478,20 +509,45 @@ function deleteCourse(id,title){
 	}).catch(()=>showToast('Network error',true));
 }
 
-function openEditCourse(id,title,desc,level,moduleId,teacherId){
+function openEditCourse(id,title,desc,level,moduleId,teacherId,pdfPath,videoUrl){
+	editCrCurrentId=id;
 	document.getElementById('editCrId').value=id;
 	document.getElementById('editCrTitle').value=title;
 	document.getElementById('editCrDesc').value=desc;
 	document.getElementById('editCrLevel').value=level;
 	document.getElementById('editCrModule').value=moduleId||'';
 	document.getElementById('editCrTeacher').value=teacherId||'';
+	document.getElementById('editCrVideo').value=videoUrl||'';
+	document.getElementById('editCrPdf').value='';
+	const pdfInfo=document.getElementById('editCrPdfInfo');
+	if(pdfPath){
+		pdfInfo.style.display='flex';
+		document.getElementById('editCrPdfName').textContent=pdfPath.split('/').pop();
+	}else{
+		pdfInfo.style.display='none';
+	}
 	document.getElementById('editCrModal').classList.add('show');
 }
 function closeEditCourse(){document.getElementById('editCrModal').classList.remove('show')}
+function removeEditPdf(){
+	if(!confirm('Remove the PDF from this course?'))return;
+	fetch('/admin/courses/'+editCrCurrentId+'/delete-pdf',{method:'POST'}).then(r=>r.json()).then(d=>{
+		if(d.success){document.getElementById('editCrPdfInfo').style.display='none';showToast('PDF removed')}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
 function saveEditCourse(){
 	const id=document.getElementById('editCrId').value;
-	const data={title:document.getElementById('editCrTitle').value,description:document.getElementById('editCrDesc').value,level:document.getElementById('editCrLevel').value,module_id:document.getElementById('editCrModule').value||null,teacher_id:document.getElementById('editCrTeacher').value||null};
-	fetch('/admin/courses/'+id+'/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+	const fd=new FormData();
+	fd.append('title',document.getElementById('editCrTitle').value);
+	fd.append('description',document.getElementById('editCrDesc').value);
+	fd.append('level',document.getElementById('editCrLevel').value);
+	fd.append('module_id',document.getElementById('editCrModule').value);
+	fd.append('teacher_id',document.getElementById('editCrTeacher').value);
+	fd.append('video_url',document.getElementById('editCrVideo').value);
+	const pdfFile=document.getElementById('editCrPdf').files[0];
+	if(pdfFile)fd.append('pdf',pdfFile);
+	fetch('/admin/courses/'+id+'/update',{method:'POST',body:fd})
 	.then(r=>r.json()).then(d=>{
 		if(d.success){closeEditCourse();showToast('Course updated');setTimeout(()=>location.reload(),600)}
 		else showToast(d.error||'Error',true);
@@ -503,8 +559,16 @@ function closeAddCourse(){document.getElementById('addCrModal').classList.remove
 function saveAddCourse(){
 	const title=document.getElementById('addCrTitle').value;
 	if(!title.trim()){showToast('Title is required',true);return}
-	const data={title:title,description:document.getElementById('addCrDesc').value,level:document.getElementById('addCrLevel').value,module_id:document.getElementById('addCrModule').value||null,teacher_id:document.getElementById('addCrTeacher').value||null};
-	fetch('/admin/courses/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+	const fd=new FormData();
+	fd.append('title',title);
+	fd.append('description',document.getElementById('addCrDesc').value);
+	fd.append('level',document.getElementById('addCrLevel').value);
+	fd.append('module_id',document.getElementById('addCrModule').value);
+	fd.append('teacher_id',document.getElementById('addCrTeacher').value);
+	fd.append('video_url',document.getElementById('addCrVideo').value);
+	const pdfFile=document.getElementById('addCrPdf').files[0];
+	if(pdfFile)fd.append('pdf',pdfFile);
+	fetch('/admin/courses/create',{method:'POST',body:fd})
 	.then(r=>r.json()).then(d=>{
 		if(d.success){closeAddCourse();showToast('Course created');setTimeout(()=>location.reload(),600)}
 		else showToast(d.error||'Error',true);

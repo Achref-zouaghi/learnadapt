@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,8 +18,12 @@ class FriendController extends AbstractController
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly Connection $connection,
     ) {
+    }
+
+    private function conn(): \Doctrine\DBAL\Connection
+    {
+        return $this->entityManager->getConnection();
     }
 
     private function getAuthenticatedUser(Request $request): ?User
@@ -43,7 +46,7 @@ class FriendController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 401);
         }
 
-        $rows = $this->connection->fetchAllAssociative(
+        $rows = $this->conn()->fetchAllAssociative(
             'SELECT fr.id, fr.sender_id, fr.created_at, u.full_name, u.role, u.avatar_base64
              FROM friend_requests fr
              JOIN users u ON u.id = fr.sender_id
@@ -66,7 +69,7 @@ class FriendController extends AbstractController
             return new JsonResponse(['count' => 0]);
         }
 
-        $count = (int) $this->connection->fetchOne(
+        $count = (int) $this->conn()->fetchOne(
             'SELECT COUNT(*) FROM friend_requests WHERE receiver_id = ? AND status = ?',
             [$user->getId(), 'pending']
         );
@@ -90,7 +93,7 @@ class FriendController extends AbstractController
         }
 
         // Check if a request already exists in either direction
-        $existing = $this->connection->fetchOne(
+        $existing = $this->conn()->fetchOne(
             'SELECT COUNT(*) FROM friend_requests
              WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)',
             [$user->getId(), $receiverId, $receiverId, $user->getId()]
@@ -100,7 +103,7 @@ class FriendController extends AbstractController
             return new JsonResponse(['error' => 'Request already exists', 'status' => 'exists']);
         }
 
-        $this->connection->insert('friend_requests', [
+        $this->conn()->insert('friend_requests', [
             'sender_id' => $user->getId(),
             'receiver_id' => $receiverId,
             'status' => 'pending',
@@ -108,7 +111,7 @@ class FriendController extends AbstractController
         ]);
 
         // Create notification for receiver
-        $this->connection->insert('notifications', [
+        $this->conn()->insert('notifications', [
             'user_id' => $receiverId,
             'type' => 'FRIEND_REQUEST',
             'title' => 'Friend Request',
@@ -131,7 +134,7 @@ class FriendController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 401);
         }
 
-        $fr = $this->connection->fetchAssociative(
+        $fr = $this->conn()->fetchAssociative(
             'SELECT * FROM friend_requests WHERE id = ? AND receiver_id = ? AND status = ?',
             [$requestId, $user->getId(), 'pending']
         );
@@ -140,13 +143,13 @@ class FriendController extends AbstractController
             return new JsonResponse(['error' => 'Request not found'], 404);
         }
 
-        $this->connection->update('friend_requests', [
+        $this->conn()->update('friend_requests', [
             'status' => 'accepted',
             'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ], ['id' => $requestId]);
 
         // Notify sender
-        $this->connection->insert('notifications', [
+        $this->conn()->insert('notifications', [
             'user_id' => $fr['sender_id'],
             'type' => 'FRIEND_ACCEPTED',
             'title' => 'Friend Request Accepted',
@@ -169,7 +172,7 @@ class FriendController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 401);
         }
 
-        $fr = $this->connection->fetchAssociative(
+        $fr = $this->conn()->fetchAssociative(
             'SELECT * FROM friend_requests WHERE id = ? AND receiver_id = ? AND status = ?',
             [$requestId, $user->getId(), 'pending']
         );
@@ -178,7 +181,7 @@ class FriendController extends AbstractController
             return new JsonResponse(['error' => 'Request not found'], 404);
         }
 
-        $this->connection->update('friend_requests', [
+        $this->conn()->update('friend_requests', [
             'status' => 'declined',
             'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
         ], ['id' => $requestId]);
@@ -204,7 +207,7 @@ class FriendController extends AbstractController
 
         $searchTerm = '%' . $q . '%';
 
-        $rows = $this->connection->fetchAllAssociative(
+        $rows = $this->conn()->fetchAllAssociative(
             'SELECT u.id, u.full_name, u.role, u.avatar_base64,
                     (SELECT fr.status FROM friend_requests fr
                      WHERE (fr.sender_id = ? AND fr.receiver_id = u.id)
@@ -231,7 +234,7 @@ class FriendController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 401);
         }
 
-        $rows = $this->connection->fetchAllAssociative(
+        $rows = $this->conn()->fetchAllAssociative(
             'SELECT u.id, u.full_name, u.role, u.avatar_base64
              FROM friend_requests fr
              JOIN users u ON (u.id = CASE WHEN fr.sender_id = ? THEN fr.receiver_id ELSE fr.sender_id END)

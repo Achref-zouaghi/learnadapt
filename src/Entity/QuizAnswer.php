@@ -14,7 +14,7 @@ class QuizAnswer
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'bigint')]
     private ?int $id = null;
 
     public function getId(): ?int
@@ -28,8 +28,8 @@ class QuizAnswer
         return $this;
     }
 
-    #[ORM\OneToOne(targetEntity: QuizAttempt::class, inversedBy: 'quizAnswer')]
-    #[ORM\JoinColumn(name: 'attempt_id', referencedColumnName: 'id', unique: true)]
+    #[ORM\ManyToOne(targetEntity: QuizAttempt::class, inversedBy: 'quizAnswers')]
+    #[ORM\JoinColumn(name: 'attempt_id', referencedColumnName: 'id')]
     private ?QuizAttempt $quizAttempt = null;
 
     public function getQuizAttempt(): ?QuizAttempt
@@ -43,8 +43,8 @@ class QuizAnswer
         return $this;
     }
 
-    #[ORM\OneToOne(targetEntity: QuizQuestion::class, inversedBy: 'quizAnswer')]
-    #[ORM\JoinColumn(name: 'question_id', referencedColumnName: 'id', unique: true)]
+    #[ORM\ManyToOne(targetEntity: QuizQuestion::class, inversedBy: 'quizAnswers')]
+    #[ORM\JoinColumn(name: 'question_id', referencedColumnName: 'id')]
     private ?QuizQuestion $quizQuestion = null;
 
     public function getQuizQuestion(): ?QuizQuestion

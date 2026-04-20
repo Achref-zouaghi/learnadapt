@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,8 +17,13 @@ class ExerciseController extends AbstractController
 
     public function __construct(
         private readonly UserRepository $userRepository,
-        private readonly Connection $connection,
+        private readonly EntityManagerInterface $em,
     ) {
+    }
+
+    private function conn(): \Doctrine\DBAL\Connection
+    {
+        return $this->em->getConnection();
     }
 
     private function getAuthenticatedUser(Request $request): ?User
@@ -65,9 +70,9 @@ class ExerciseController extends AbstractController
 
         $sql .= ' ORDER BY e.created_at DESC';
 
-        $exercises = $this->connection->fetchAllAssociative($sql, $params);
+        $exercises = $this->conn()->fetchAllAssociative($sql, $params);
 
-        $counts = $this->connection->fetchAssociative(
+        $counts = $this->conn()->fetchAssociative(
             'SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN level = \'EASY\' THEN 1 ELSE 0 END) as easy,
@@ -76,7 +81,7 @@ class ExerciseController extends AbstractController
              FROM exercises'
         );
 
-        $modules = $this->connection->fetchAllAssociative(
+        $modules = $this->conn()->fetchAllAssociative(
             'SELECT m.id, m.name, COUNT(e.id) as exercise_count
              FROM modules m
              INNER JOIN exercises e ON e.module_id = m.id
@@ -102,7 +107,7 @@ class ExerciseController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $exercise = $this->connection->fetchAssociative(
+        $exercise = $this->conn()->fetchAssociative(
             'SELECT pdf_path, pdf_original_name FROM exercises WHERE id = ?',
             [$id]
         );

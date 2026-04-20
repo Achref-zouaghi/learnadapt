@@ -1,6 +1,6 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 {% set darkPage = true %}
-{% block title %}{{ course.title }} — LearnAdapt{% endblock %}
+{% block title %}{{ course.title }} â€” LearnAdapt{% endblock %}
 
 {% block stylesheets %}
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
@@ -8,13 +8,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.3);--ease:cubic-bezier(0.4,0,0.2,1)}
-@property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
 footer{display:none!important}
 
-/* ═══ AMBIENT BACKGROUND ═══ */
+/* â•â•â• AMBIENT BACKGROUND â•â•â• */
 .cs-page{min-height:100vh;padding:100px 0 80px;display:flex;justify-content:center;background:transparent;position:relative;z-index:1;overflow:hidden}
 .cs-bg-orb{position:fixed;border-radius:50%;filter:blur(120px);opacity:0.12;pointer-events:none;z-index:0}
 .cs-bg-orb--1{width:600px;height:600px;background:radial-gradient(circle,var(--orange),transparent 70%);top:-10%;left:-5%;animation:orbFloat1 18s ease-in-out infinite}
@@ -24,12 +23,12 @@ footer{display:none!important}
 
 .cs-wrap{width:100%;max-width:1100px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
 
-/* ═══ BACK LINK ═══ */
+/* â•â•â• BACK LINK â•â•â• */
 .cs-back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:0.82rem;font-weight:600;text-decoration:none;margin-bottom:28px;transition:all .25s var(--ease);padding:8px 16px;border-radius:12px;background:var(--glass);border:1px solid var(--border)}
 .cs-back:hover{color:var(--orange);border-color:rgba(251,146,60,0.2);background:rgba(251,146,60,0.05);transform:translateX(-4px)}
 .cs-back i{font-size:1.1rem}
 
-/* ═══ HERO HEADER ═══ */
+/* â•â•â• HERO HEADER â•â•â• */
 .cs-hero{margin-bottom:36px;position:relative;padding:40px 44px 36px;background:linear-gradient(135deg,rgba(251,146,60,0.06),rgba(251,191,36,0.04));border:1px solid rgba(251,146,60,0.08);border-radius:24px;backdrop-filter:blur(20px);overflow:hidden;animation:heroIn .7s var(--ease) backwards}
 .cs-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,146,60,0.3),rgba(251,191,36,0.2),transparent)}
 .cs-hero::after{content:'';position:absolute;bottom:-60px;right:-30px;width:200px;height:200px;background:radial-gradient(circle,rgba(251,146,60,0.08),transparent 70%);border-radius:50%;pointer-events:none}
@@ -37,29 +36,129 @@ footer{display:none!important}
 .cs-hero-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px}
 .cs-hero-left{flex:1;min-width:0}
 .cs-hero h1{font-size:2rem;font-weight:900;letter-spacing:-0.04em;line-height:1.15;background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
-.cs-hero-icon{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,rgba(251,146,60,0.15),rgba(251,191,36,0.1));border:1px solid rgba(251,146,60,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cs-hero-actions{display:flex;flex-direction:column;gap:10px;align-items:flex-end;flex-shrink:0}
+.cs-hero-icon{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,rgba(251,146,60,0.15),rgba(251,191,36,0.1));border:1px solid rgba(251,146,60,0.12);display:flex;align-items:center;justify-content:center}
 .cs-hero-icon i{font-size:2rem;background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
-/* ═══ BADGE ═══ */
-.cs-badge{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:10px;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;margin-bottom:16px}
+/* â•â•â• BADGE â•â•â• */
+.cs-badge{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:10px;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap}
 .cs-badge i{font-size:0.8rem}
 .cs-badge.easy{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.12)}
 .cs-badge.medium{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.12)}
 .cs-badge.hard{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.12)}
 
-/* ═══ META ROW ═══ */
+/* â•â•â• META ROW â•â•â• */
 .cs-meta{display:flex;flex-wrap:wrap;gap:18px;font-size:0.8rem;color:var(--muted)}
 .cs-meta span{display:flex;align-items:center;gap:6px}
 .cs-meta i{font-size:1rem;opacity:0.5}
 
-/* ═══ DESCRIPTION SECTION ═══ */
+/* â•â•â• ACTION PILLS â•â•â• */
+.cs-pill{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;font-size:0.84rem;font-weight:700;text-decoration:none;cursor:pointer;border:1px solid;transition:all .25s var(--ease)}
+.cs-pill-pdf{background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.2);color:var(--orange)}
+.cs-pill-pdf:hover{background:rgba(251,146,60,0.18);transform:translateY(-2px)}
+.cs-pill-bm{background:var(--glass);border-color:var(--border);color:var(--muted)}
+.cs-pill-bm:hover,.cs-pill-bm.active{background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.2);color:var(--yellow)}
+.cs-pill-share{background:var(--glass);border-color:var(--border);color:var(--muted)}
+.cs-pill-share:hover{background:rgba(56,189,209,0.1);border-color:rgba(56,189,209,0.2);color:var(--cyan)}
+
+/* â•â•â• TAGS â•â•â• */
+.cs-tags{display:flex;flex-wrap:wrap;gap:6px}
+.cs-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;background:rgba(123,97,241,0.08);border:1px solid rgba(123,97,241,0.1);border-radius:8px;font-size:0.7rem;font-weight:600;color:var(--purple)}
+
+/* â•â•â• TWO COL LAYOUT â•â•â• */
+.cs-two-col{display:grid;grid-template-columns:1fr 340px;gap:28px;margin-bottom:32px}
+@media(max-width:900px){.cs-two-col{grid-template-columns:1fr}}
+
+/* â•â•â• SECTIONS â•â•â• */
 .cs-section{margin-bottom:32px;animation:fadeUp .6s var(--ease) .15s backwards}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .cs-section-title{font-size:1rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:16px;display:flex;align-items:center;gap:10px;color:var(--text)}
 .cs-section-title i{font-size:1.15rem;color:var(--orange)}
 .cs-desc-box{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px 30px;backdrop-filter:blur(14px);font-size:0.88rem;line-height:1.8;color:var(--muted)}
 
-/* ═══ EXERCISES GRID ═══ */
+/* â•â•â• PROGRESS TRACKER â•â•â• */
+.cs-progress-bar{position:relative;height:8px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.cs-progress-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--orange),var(--yellow));transition:width .6s var(--ease)}
+.cs-progress-info{display:flex;justify-content:space-between;align-items:center;font-size:0.75rem}
+
+/* â•â•â• VIDEO EMBED â•â•â• */
+.cs-video{position:relative;padding-bottom:56.25%;height:0;border-radius:18px;overflow:hidden;margin-bottom:32px;border:1px solid var(--border);background:#000}
+.cs-video iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+
+/* â•â•â• SIDEBAR CARD â•â•â• */
+.cs-sidebar-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;backdrop-filter:blur(14px);margin-bottom:20px}
+.cs-sidebar-card h3{font-size:0.88rem;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.cs-sidebar-card h3 i{color:var(--orange);font-size:1rem}
+
+/* â•â•â• RATING STARS â•â•â• */
+.cs-stars{display:flex;gap:4px;align-items:center}
+.cs-stars i{font-size:1.2rem;color:var(--yellow);cursor:pointer;transition:transform .15s}
+.cs-stars i:hover{transform:scale(1.2)}
+.cs-stars-display i{cursor:default}
+.cs-stars-display i:hover{transform:none}
+.cs-star-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:0.72rem;color:var(--muted)}
+.cs-star-bar-fill{flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden}
+.cs-star-bar-fill div{height:100%;background:var(--yellow);border-radius:4px}
+
+/* â•â•â• NOTES â•â•â• */
+.cs-note{background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;position:relative}
+.cs-note-content{font-size:0.82rem;line-height:1.6;color:var(--muted);white-space:pre-wrap}
+.cs-note-date{font-size:0.65rem;color:var(--muted);opacity:0.6;margin-top:6px}
+.cs-note-del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--red);cursor:pointer;font-size:0.88rem;opacity:0.5;transition:opacity .2s}
+.cs-note-del:hover{opacity:1}
+textarea.cs-note-input{width:100%;min-height:80px;background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:14px 16px;color:var(--text);font-size:0.82rem;font-family:inherit;resize:vertical;outline:none;transition:border-color .2s}
+textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
+
+/* â•â•â• COMMENTS â•â•â• */
+.cs-comment{display:flex;gap:12px;padding:16px 0;border-bottom:1px solid var(--border)}
+.cs-comment:last-child{border-bottom:none}
+.cs-comment-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,rgba(123,97,241,0.15),rgba(56,189,209,0.1));display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--purple);flex-shrink:0}
+.cs-comment-body{flex:1;min-width:0}
+.cs-comment-head{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:0.78rem}
+.cs-comment-name{font-weight:700;color:var(--text)}
+.cs-comment-time{color:var(--muted);font-size:0.68rem}
+.cs-comment-text{font-size:0.82rem;line-height:1.6;color:var(--muted)}
+.cs-comment-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:0.72rem;margin-left:auto;opacity:0.5}
+.cs-comment-del:hover{opacity:1}
+
+/* â•â•â• REVIEW â•â•â• */
+.cs-review{background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:12px}
+.cs-review-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.cs-review-name{font-weight:700;font-size:0.82rem}
+.cs-review-stars{display:flex;gap:2px}
+.cs-review-stars i{font-size:0.85rem;color:var(--yellow)}
+.cs-review-text{font-size:0.8rem;line-height:1.6;color:var(--muted)}
+.cs-review-date{font-size:0.65rem;color:var(--muted);opacity:0.6;margin-top:6px}
+
+/* â•â•â• FILES LIST â•â•â• */
+.cs-file{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--glass);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;transition:all .2s var(--ease)}
+.cs-file:hover{border-color:rgba(251,146,60,0.2);background:rgba(251,146,60,0.03)}
+.cs-file-icon{font-size:1.3rem;color:var(--orange)}
+.cs-file-info{flex:1;min-width:0}
+.cs-file-name{font-size:0.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-file-size{font-size:0.68rem;color:var(--muted)}
+.cs-file-dl{display:flex;align-items:center;gap:4px;padding:6px 14px;background:linear-gradient(135deg,var(--orange),var(--yellow));color:#fff;border-radius:10px;font-size:0.72rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:all .2s}
+.cs-file-dl:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(251,146,60,0.3)}
+
+/* â•â•â• PREREQ / RELATED CARDS â•â•â• */
+.cs-mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.cs-mini-card{background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:16px 18px;text-decoration:none;color:var(--text);transition:all .25s var(--ease)}
+.cs-mini-card:hover{border-color:rgba(251,146,60,0.15);background:var(--card-h);transform:translateY(-2px)}
+.cs-mini-card-title{font-size:0.82rem;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-mini-card-lvl{font-size:0.68rem;font-weight:700;text-transform:uppercase}
+
+/* â•â•â• LEADERBOARD â•â•â• */
+.cs-lb-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;margin-bottom:6px;font-size:0.8rem;transition:background .2s}
+.cs-lb-row:hover{background:var(--glass)}
+.cs-lb-rank{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:900;flex-shrink:0}
+.cs-lb-rank.gold{background:rgba(251,191,36,0.15);color:var(--yellow)}
+.cs-lb-rank.silver{background:rgba(192,192,192,0.12);color:#c0c0c0}
+.cs-lb-rank.bronze{background:rgba(205,127,50,0.12);color:#cd7f32}
+.cs-lb-rank.normal{background:var(--glass);color:var(--muted)}
+.cs-lb-name{flex:1;font-weight:600}
+.cs-lb-xp{font-weight:800;color:var(--cyan);font-size:0.75rem}
+
+/* â•â•â• EXERCISES GRID â•â•â• */
 .cs-ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
 .cs-ex-card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;backdrop-filter:blur(14px);transition:all .3s var(--ease);overflow:hidden}
 .cs-ex-card:hover{background:var(--card-h);border-color:rgba(123,97,241,0.15);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.2)}
@@ -78,20 +177,31 @@ footer{display:none!important}
 .cs-ex-dl:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(251,146,60,0.3)}
 .cs-ex-corr{background:var(--glass);border:1px solid var(--border);color:var(--muted)}
 .cs-ex-corr:hover{color:var(--text);border-color:rgba(255,255,255,0.12)}
-
-/* ═══ EMPTY EXERCISES ═══ */
 .cs-ex-empty{text-align:center;padding:60px 20px;color:var(--muted)}
 .cs-ex-empty-icon{width:64px;height:64px;border-radius:18px;background:rgba(123,97,241,0.08);border:1px solid rgba(123,97,241,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
 .cs-ex-empty-icon i{font-size:1.6rem;color:var(--purple);opacity:0.5}
 .cs-ex-empty h4{font-size:0.95rem;font-weight:700;margin-bottom:6px;color:var(--text)}
 .cs-ex-empty p{font-size:0.8rem;max-width:300px;margin:0 auto;line-height:1.5}
 
-/* ═══ RESPONSIVE ═══ */
+/* â•â•â• BUTTON â•â•â• */
+.cs-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:11px;font-size:0.78rem;font-weight:700;border:none;cursor:pointer;transition:all .25s var(--ease)}
+.cs-btn-primary{background:linear-gradient(135deg,var(--orange),var(--yellow));color:#fff}
+.cs-btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(251,146,60,0.3)}
+.cs-btn-ghost{background:var(--glass);border:1px solid var(--border);color:var(--muted)}
+.cs-btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.12)}
+.cs-btn-sm{padding:6px 14px;font-size:0.72rem;border-radius:8px}
+
+/* Copy toast */
+.cs-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(52,211,153,0.9);backdrop-filter:blur(10px);color:#fff;padding:10px 24px;border-radius:12px;font-size:0.82rem;font-weight:700;z-index:999;opacity:0;transition:all .4s var(--ease);pointer-events:none}
+.cs-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* â•â•â• RESPONSIVE â•â•â• */
 @media(max-width:768px){
 	.cs-hero{padding:28px 22px}
 	.cs-hero h1{font-size:1.5rem}
 	.cs-wrap{padding:0 16px}
 	.cs-desc-box{padding:20px}
+	.cs-hero-actions{flex-direction:row;align-items:center}
 }
 </style>
 {% endblock %}
@@ -110,10 +220,36 @@ footer{display:none!important}
 		<div class="cs-hero-row">
 			<div class="cs-hero-left">
 				<h1>{{ course.title }}</h1>
-				<span class="cs-badge {{ course.level|lower }}">
-					{% if course.level == 'EASY' %}<i class='bx bx-leaf'></i>{% elseif course.level == 'MEDIUM' %}<i class='bx bx-trending-up'></i>{% else %}<i class='bx bx-trophy'></i>{% endif %}
-					{{ course.level }}
-				</span>
+				<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+					<span class="cs-badge {{ course.level|lower }}">
+						{% if course.level == 'EASY' %}<i class='bx bx-leaf'></i>{% elseif course.level == 'MEDIUM' %}<i class='bx bx-trending-up'></i>{% else %}<i class='bx bx-trophy'></i>{% endif %}
+						{{ course.level }}
+					</span>
+					{% if readingTime %}
+					<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:10px;font-size:0.7rem;font-weight:700;background:rgba(56,189,209,0.08);color:var(--cyan);border:1px solid rgba(56,189,209,0.1)">
+						<i class='bx bx-time-five'></i> ~{{ readingTime }} min read
+					</span>
+					{% endif %}
+					{% if tags|length > 0 %}
+					<div class="cs-tags">
+						{% for tag in tags %}
+						<span class="cs-tag"><i class='bx bx-hash'></i> {{ tag.name }}</span>
+						{% endfor %}
+					</div>
+					{% endif %}
+				</div>
+				<!-- Rating summary in hero -->
+				{% if ratingStats.total_ratings > 0 %}
+				<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+					<div class="cs-stars cs-stars-display">
+						{% for i in 1..5 %}
+						<i class='bx {{ i <= ratingStats.avg_rating|round ? "bxs-star" : "bx-star" }}' style="font-size:1rem"></i>
+						{% endfor %}
+					</div>
+					<span style="font-size:0.82rem;font-weight:800;color:var(--yellow)">{{ ratingStats.avg_rating|round(1) }}</span>
+					<span style="font-size:0.72rem;color:var(--muted)">({{ ratingStats.total_ratings }} review{{ ratingStats.total_ratings != 1 ? 's' : '' }})</span>
+				</div>
+				{% endif %}
 				<div class="cs-meta">
 					{% if course.teacher_name %}
 						<span><i class='bx bx-user'></i> {{ course.teacher_name }}</span>
@@ -126,58 +262,500 @@ footer{display:none!important}
 						<span><i class='bx bx-revision'></i> {{ 'course.updated'|trans }} {{ course.updated_at|date('M d, Y') }}</span>
 					{% endif %}
 				</div>
+				<!-- Action pills -->
+				<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:18px">
+					{% if course.pdf_path %}
+					<a href="{{ path('app_course_pdf', {id: course.id}) }}" target="_blank" class="cs-pill cs-pill-pdf">
+						<i class='bx bxs-file-pdf' style="font-size:1.2rem"></i> Download PDF
+					</a>
+					{% endif %}
+					<button onclick="toggleBookmark()" class="cs-pill cs-pill-bm {{ isBookmarked ? 'active' : '' }}" id="bmBtn">
+						<i class='bx {{ isBookmarked ? "bxs-bookmark" : "bx-bookmark" }}' id="bmIcon"></i>
+						<span id="bmText">{{ isBookmarked ? 'Bookmarked' : 'Bookmark' }}</span>
+					</button>
+					<button onclick="shareCourse()" class="cs-pill cs-pill-share">
+						<i class='bx bx-share-alt'></i> Share
+					</button>
+				</div>
 			</div>
-			<div class="cs-hero-icon">
-				<i class='bx bxs-book-alt'></i>
+			<div class="cs-hero-actions">
+				<div class="cs-hero-icon">
+					<i class='bx bxs-book-alt'></i>
+				</div>
+				<!-- Streak badge -->
+				{% if streak and streak.current_streak > 0 %}
+				<div style="text-align:center;padding:10px 16px;background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.1);border-radius:14px">
+					<div style="font-size:1.5rem">ðŸ”¥</div>
+					<div style="font-size:0.88rem;font-weight:900;color:var(--orange)">{{ streak.current_streak }}</div>
+					<div style="font-size:0.6rem;color:var(--muted);font-weight:600">day streak</div>
+				</div>
+				{% endif %}
 			</div>
 		</div>
 	</div>
 
-	<!-- Description -->
-	{% if course.description %}
-	<div class="cs-section">
-		<div class="cs-section-title"><i class='bx bx-detail'></i> {{ 'course.description'|trans }}</div>
-		<div class="cs-desc-box">{{ course.description|nl2br }}</div>
+	<!-- Progress tracker bar (full-width) -->
+	{% if progress %}
+	<div style="margin-bottom:32px;padding:22px 28px;background:var(--card);border:1px solid var(--border);border-radius:18px;animation:fadeUp .5s var(--ease) .1s backwards">
+		<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+			<div style="display:flex;align-items:center;gap:10px">
+				<i class='bx bx-target-lock' style="font-size:1.1rem;color:var(--orange)"></i>
+				<span style="font-size:0.88rem;font-weight:800">Your Progress</span>
+			</div>
+			<div style="display:flex;align-items:center;gap:14px">
+				{% if progress.xp_earned > 0 %}
+				<span style="font-size:0.75rem;font-weight:800;color:var(--cyan)">âš¡ {{ progress.xp_earned }} XP</span>
+				{% endif %}
+				<span style="font-size:0.88rem;font-weight:900;color:var(--orange)">{{ progress.progress_percent }}%</span>
+			</div>
+		</div>
+		<div class="cs-progress-bar">
+			<div class="cs-progress-fill" style="width:{{ progress.progress_percent }}%"></div>
+		</div>
+		<div class="cs-progress-info">
+			<span style="color:var(--muted)">{{ progress.completed_at ? 'Completed on ' ~ progress.completed_at|date('M d, Y') : 'In progress' }}</span>
+			{% if progress.progress_percent < 100 %}
+			<button class="cs-btn cs-btn-primary cs-btn-sm" onclick="updateProgress()" id="progressBtn">
+				<i class='bx bx-check'></i> Mark Complete
+			</button>
+			{% else %}
+			<span style="display:inline-flex;align-items:center;gap:5px;font-weight:700;color:var(--green)"><i class='bx bxs-check-circle'></i> Completed</span>
+			{% endif %}
+		</div>
+	</div>
+	{% else %}
+	<div style="margin-bottom:32px;padding:22px 28px;background:var(--card);border:1px solid var(--border);border-radius:18px;animation:fadeUp .5s var(--ease) .1s backwards">
+		<div style="display:flex;justify-content:space-between;align-items:center">
+			<div style="display:flex;align-items:center;gap:10px">
+				<i class='bx bx-target-lock' style="font-size:1.1rem;color:var(--orange)"></i>
+				<span style="font-size:0.88rem;font-weight:800">Your Progress</span>
+			</div>
+			<button class="cs-btn cs-btn-primary cs-btn-sm" onclick="updateProgress()" id="progressBtn">
+				<i class='bx bx-check'></i> Mark Complete
+			</button>
+		</div>
+		<div class="cs-progress-bar" style="margin-top:12px">
+			<div class="cs-progress-fill" style="width:0%"></div>
+		</div>
+		<div style="font-size:0.72rem;color:var(--muted);margin-top:6px">Start learning to track your progress</div>
 	</div>
 	{% endif %}
 
-	<!-- Exercises -->
-	<div class="cs-section" style="animation-delay:.25s">
-		<div class="cs-section-title"><i class='bx bx-edit-alt'></i> {{ 'course.linked_exercises'|trans }} <span style="color:var(--muted);font-weight:600;font-size:0.78rem;margin-left:4px">({{ exercises|length }})</span></div>
+	<!-- Video embed -->
+	{% if course.video_url is defined and course.video_url %}
+	<div class="cs-section" style="animation-delay:.12s">
+		<div class="cs-section-title"><i class='bx bx-play-circle'></i> Course Video</div>
+		<div class="cs-video">
+			{% set videoId = '' %}
+			{% if 'youtube.com' in course.video_url or 'youtu.be' in course.video_url %}
+				{% if 'youtu.be/' in course.video_url %}
+					{% set videoId = course.video_url|split('youtu.be/')|last|split('?')|first %}
+				{% elseif 'v=' in course.video_url %}
+					{% set videoId = course.video_url|split('v=')|last|split('&')|first %}
+				{% endif %}
+				<iframe src="https://www.youtube.com/embed/{{ videoId }}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+			{% elseif 'vimeo.com' in course.video_url %}
+				{% set videoId = course.video_url|split('vimeo.com/')|last|split('?')|first %}
+				<iframe src="https://player.vimeo.com/video/{{ videoId }}" allowfullscreen></iframe>
+			{% else %}
+				<iframe src="{{ course.video_url }}" allowfullscreen></iframe>
+			{% endif %}
+		</div>
+	</div>
+	{% endif %}
 
-		{% if exercises|length > 0 %}
-		<div class="cs-ex-grid">
-			{% for ex in exercises %}
-			<div class="cs-ex-card">
-				<div class="cs-ex-title">{{ ex.titre }}</div>
-				<div class="cs-ex-meta">
-					{% if ex.module %}
-						<span class="cs-ex-tag"><i class='bx bx-book'></i> {{ ex.module }}</span>
-					{% endif %}
-					{% if ex.niveau %}
-						<span class="cs-ex-lvl {{ ex.niveau|lower }}">{{ ex.niveau }}</span>
-					{% endif %}
+	<!-- Two column layout: main + sidebar -->
+	<div class="cs-two-col">
+		<div class="cs-main-col">
+
+			<!-- Description -->
+			{% if course.description %}
+			<div class="cs-section">
+				<div class="cs-section-title"><i class='bx bx-detail'></i> {{ 'course.description'|trans }}</div>
+				<div class="cs-desc-box">{{ course.description|nl2br }}</div>
+			</div>
+			{% endif %}
+
+			<!-- Prerequisites -->
+			{% if prerequisites|length > 0 %}
+			<div class="cs-section" style="animation-delay:.2s">
+				<div class="cs-section-title"><i class='bx bx-lock-open-alt'></i> Prerequisites</div>
+				<div class="cs-mini-grid">
+					{% for pr in prerequisites %}
+					<a href="{{ path('app_course_show', {id: pr.id}) }}" class="cs-mini-card">
+						<div class="cs-mini-card-title">{{ pr.title }}</div>
+						<div class="cs-mini-card-lvl" style="color:{{ pr.level == 'EASY' ? 'var(--green)' : (pr.level == 'MEDIUM' ? 'var(--yellow)' : 'var(--red)') }}">{{ pr.level }}</div>
+					</a>
+					{% endfor %}
 				</div>
-				<div class="cs-ex-links">
-					{% if ex.fichier_exercice %}
-						<a href="{{ ex.fichier_exercice }}" class="cs-ex-dl" target="_blank"><i class='bx bx-download'></i> {{ 'course.exercise'|trans }}</a>
+			</div>
+			{% endif %}
+
+			<!-- Course Files / Resources -->
+			{% if files|length > 0 %}
+			<div class="cs-section" style="animation-delay:.22s">
+				<div class="cs-section-title"><i class='bx bx-folder-open'></i> Course Files <span style="color:var(--muted);font-weight:600;font-size:0.78rem;margin-left:4px">({{ files|length }})</span></div>
+				{% for f in files %}
+				<div class="cs-file">
+					<i class='bx bxs-file-pdf cs-file-icon'></i>
+					<div class="cs-file-info">
+						<div class="cs-file-name">{{ f.title }}</div>
+						{% if f.file_size %}
+						<div class="cs-file-size">{{ (f.file_size / 1024)|round(0) }} KB</div>
+						{% endif %}
+					</div>
+					<a href="{{ path('app_course_download_file', {id: course.id, fileId: f.id}) }}" class="cs-file-dl"><i class='bx bx-download'></i> Download</a>
+				</div>
+				{% endfor %}
+			</div>
+			{% endif %}
+
+			<!-- Exercises -->
+			<div class="cs-section" style="animation-delay:.25s">
+				<div class="cs-section-title"><i class='bx bx-edit-alt'></i> {{ 'course.linked_exercises'|trans }} <span style="color:var(--muted);font-weight:600;font-size:0.78rem;margin-left:4px">({{ exercises|length }})</span></div>
+				{% if exercises|length > 0 %}
+				<div class="cs-ex-grid">
+					{% for ex in exercises %}
+					<div class="cs-ex-card">
+						<div class="cs-ex-title">{{ ex.titre }}</div>
+						<div class="cs-ex-meta">
+							{% if ex.module %}
+								<span class="cs-ex-tag"><i class='bx bx-book'></i> {{ ex.module }}</span>
+							{% endif %}
+							{% if ex.niveau %}
+								<span class="cs-ex-lvl {{ ex.niveau|lower }}">{{ ex.niveau }}</span>
+							{% endif %}
+						</div>
+						<div class="cs-ex-links">
+							{% if ex.fichier_exercice %}
+								<a href="{{ ex.fichier_exercice }}" class="cs-ex-dl" target="_blank"><i class='bx bx-download'></i> {{ 'course.exercise'|trans }}</a>
+							{% endif %}
+							{% if ex.fichier_correction %}
+								<a href="{{ ex.fichier_correction }}" class="cs-ex-corr" target="_blank"><i class='bx bx-check-circle'></i> {{ 'course.correction'|trans }}</a>
+							{% endif %}
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+				{% else %}
+				<div class="cs-ex-empty">
+					<div class="cs-ex-empty-icon"><i class='bx bx-file-blank'></i></div>
+					<h4>{{ 'course.no_exercises'|trans }}</h4>
+					<p>{{ 'course.no_exercises_desc'|trans }}</p>
+				</div>
+				{% endif %}
+			</div>
+
+			<!-- Ratings & Reviews -->
+			<div class="cs-section" style="animation-delay:.3s">
+				<div class="cs-section-title"><i class='bx bx-star'></i> Ratings & Reviews</div>
+				<div class="cs-desc-box">
+					<!-- Rating stats breakdown -->
+					{% if ratingStats.total_ratings > 0 %}
+					<div style="display:flex;gap:30px;margin-bottom:24px;flex-wrap:wrap">
+						<div style="text-align:center;min-width:80px">
+							<div style="font-size:2.5rem;font-weight:900;color:var(--yellow);line-height:1">{{ ratingStats.avg_rating|round(1) }}</div>
+							<div class="cs-stars cs-stars-display" style="justify-content:center;margin:6px 0">
+								{% for i in 1..5 %}
+								<i class='bx {{ i <= ratingStats.avg_rating|round ? "bxs-star" : "bx-star" }}' style="font-size:0.85rem"></i>
+								{% endfor %}
+							</div>
+							<div style="font-size:0.72rem;color:var(--muted)">{{ ratingStats.total_ratings }} review{{ ratingStats.total_ratings != 1 ? 's' : '' }}</div>
+						</div>
+						<div style="flex:1;min-width:150px">
+							{% for stars in 5..1 %}
+							<div class="cs-star-bar">
+								<span style="width:16px">{{ stars }}</span>
+								<i class='bx bxs-star' style="font-size:0.7rem;color:var(--yellow)"></i>
+								<div class="cs-star-bar-fill">
+									<div style="width:{{ ratingStats['star' ~ stars] is defined ? (ratingStats['star' ~ stars] / ratingStats.total_ratings * 100) : 0 }}%"></div>
+								</div>
+								<span style="width:24px;text-align:right">{{ ratingStats['star' ~ stars] is defined ? ratingStats['star' ~ stars] : 0 }}</span>
+							</div>
+							{% endfor %}
+						</div>
+					</div>
 					{% endif %}
-					{% if ex.fichier_correction %}
-						<a href="{{ ex.fichier_correction }}" class="cs-ex-corr" target="_blank"><i class='bx bx-check-circle'></i> {{ 'course.correction'|trans }}</a>
+
+					<!-- Your rating -->
+					<div style="padding:18px 22px;background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.08);border-radius:14px;margin-bottom:20px">
+						<div style="font-size:0.82rem;font-weight:700;margin-bottom:10px">{{ userRating ? 'Update your rating' : 'Rate this course' }}</div>
+						<div class="cs-stars" id="rateStars" style="margin-bottom:10px">
+							{% for i in 1..5 %}
+							<i class='bx {{ userRating and i <= userRating.rating ? "bxs-star" : "bx-star" }}' data-val="{{ i }}" onclick="setRating({{ i }})"></i>
+							{% endfor %}
+						</div>
+						<textarea id="rateReview" class="cs-note-input" placeholder="Write an optional review..." style="min-height:60px;margin-bottom:10px">{{ userRating ? userRating.review : '' }}</textarea>
+						<button class="cs-btn cs-btn-primary cs-btn-sm" onclick="submitRating()"><i class='bx bx-send'></i> Submit Rating</button>
+					</div>
+
+					<!-- Reviews list -->
+					{% if reviews|length > 0 %}
+					<div style="font-size:0.82rem;font-weight:700;margin-bottom:12px">Recent Reviews</div>
+					{% for rev in reviews %}
+					<div class="cs-review">
+						<div class="cs-review-head">
+							<div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,rgba(251,146,60,0.15),rgba(251,191,36,0.1));display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;color:var(--orange)">{{ rev.full_name|first|upper }}</div>
+							<span class="cs-review-name">{{ rev.full_name }}</span>
+							<div class="cs-review-stars">
+								{% for i in 1..5 %}
+								<i class='bx {{ i <= rev.rating ? "bxs-star" : "bx-star" }}'></i>
+								{% endfor %}
+							</div>
+						</div>
+						{% if rev.review %}
+						<div class="cs-review-text">{{ rev.review }}</div>
+						{% endif %}
+						<div class="cs-review-date">{{ rev.created_at|date('M d, Y') }}</div>
+					</div>
+					{% endfor %}
 					{% endif %}
 				</div>
 			</div>
-			{% endfor %}
+
+			<!-- Comments / Q&A -->
+			<div class="cs-section" style="animation-delay:.35s">
+				<div class="cs-section-title"><i class='bx bx-conversation'></i> Discussion <span style="color:var(--muted);font-weight:600;font-size:0.78rem;margin-left:4px">({{ comments|length }})</span></div>
+				<div class="cs-desc-box">
+					<!-- Add comment -->
+					<div style="display:flex;gap:12px;margin-bottom:20px">
+						<div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,rgba(123,97,241,0.15),rgba(56,189,209,0.1));display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--purple);flex-shrink:0">
+							<i class='bx bx-user'></i>
+						</div>
+						<div style="flex:1">
+							<textarea id="commentInput" class="cs-note-input" placeholder="Ask a question or leave a comment..." style="min-height:60px;margin-bottom:8px"></textarea>
+							<button class="cs-btn cs-btn-primary cs-btn-sm" onclick="addComment()"><i class='bx bx-send'></i> Post</button>
+						</div>
+					</div>
+					<!-- Comments list -->
+					<div id="commentsList">
+					{% for c in comments %}
+					<div class="cs-comment" id="comment-{{ c.id }}">
+						<div class="cs-comment-avatar">{{ c.full_name|first|upper }}</div>
+						<div class="cs-comment-body">
+							<div class="cs-comment-head">
+								<span class="cs-comment-name">{{ c.full_name }}</span>
+								<span class="cs-comment-time">{{ c.created_at|date('M d, Y H:i') }}</span>
+								{% if c.user_id == app.user.id %}
+								<button class="cs-comment-del" onclick="deleteComment({{ c.id }})"><i class='bx bx-trash'></i></button>
+								{% endif %}
+							</div>
+							<div class="cs-comment-text">{{ c.content }}</div>
+						</div>
+					</div>
+					{% endfor %}
+					</div>
+					{% if comments|length == 0 %}
+					<div style="text-align:center;padding:24px;color:var(--muted);font-size:0.82rem" id="noComments">
+						<i class='bx bx-chat' style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:0.3"></i>
+						No discussion yet. Be the first to comment!
+					</div>
+					{% endif %}
+				</div>
+			</div>
+
 		</div>
-		{% else %}
-		<div class="cs-ex-empty">
-			<div class="cs-ex-empty-icon"><i class='bx bx-file-blank'></i></div>
-			<h4>{{ 'course.no_exercises'|trans }}</h4>
-			<p>{{ 'course.no_exercises_desc'|trans }}</p>
+
+		<!-- Sidebar -->
+		<div class="cs-sidebar">
+
+			<!-- XP & Streak -->
+			{% if (progress and progress.xp_earned > 0) or (streak and streak.current_streak > 0) %}
+			<div class="cs-sidebar-card">
+				<h3><i class='bx bx-trophy'></i> Your Stats</h3>
+				{% if progress and progress.xp_earned > 0 %}
+				<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+					<div style="width:40px;height:40px;border-radius:12px;background:rgba(56,189,209,0.1);display:flex;align-items:center;justify-content:center;font-size:1rem">âš¡</div>
+					<div>
+						<div style="font-size:1.1rem;font-weight:900;color:var(--cyan)">{{ progress.xp_earned }}</div>
+						<div style="font-size:0.65rem;color:var(--muted);font-weight:600">XP EARNED</div>
+					</div>
+				</div>
+				{% endif %}
+				{% if streak and streak.current_streak > 0 %}
+				<div style="display:flex;align-items:center;gap:10px">
+					<div style="width:40px;height:40px;border-radius:12px;background:rgba(251,146,60,0.1);display:flex;align-items:center;justify-content:center;font-size:1rem">ðŸ”¥</div>
+					<div>
+						<div style="font-size:1.1rem;font-weight:900;color:var(--orange)">{{ streak.current_streak }} days</div>
+						<div style="font-size:0.65rem;color:var(--muted);font-weight:600">CURRENT STREAK (Best: {{ streak.longest_streak }})</div>
+					</div>
+				</div>
+				{% endif %}
+			</div>
+			{% endif %}
+
+			<!-- Personal Notes -->
+			<div class="cs-sidebar-card">
+				<h3><i class='bx bx-notepad'></i> My Notes</h3>
+				<textarea id="noteInput" class="cs-note-input" placeholder="Write a note about this course..." style="margin-bottom:10px"></textarea>
+				<button class="cs-btn cs-btn-primary cs-btn-sm" onclick="saveNote()" style="margin-bottom:14px"><i class='bx bx-save'></i> Save Note</button>
+				<div id="notesList">
+				{% for n in notes %}
+				<div class="cs-note" id="note-{{ n.id }}">
+					<button class="cs-note-del" onclick="deleteNote({{ n.id }})"><i class='bx bx-x'></i></button>
+					<div class="cs-note-content">{{ n.content }}</div>
+					<div class="cs-note-date">{{ n.created_at|date('M d, Y H:i') }}</div>
+				</div>
+				{% endfor %}
+				</div>
+			</div>
+
+			<!-- Leaderboard -->
+			{% if leaderboard|length > 0 %}
+			<div class="cs-sidebar-card">
+				<h3><i class='bx bx-bar-chart-alt-2'></i> Leaderboard</h3>
+				{% for lb in leaderboard %}
+				<div class="cs-lb-row">
+					<div class="cs-lb-rank {{ loop.index == 1 ? 'gold' : (loop.index == 2 ? 'silver' : (loop.index == 3 ? 'bronze' : 'normal')) }}">{{ loop.index }}</div>
+					<div class="cs-lb-name">{{ lb.full_name }}</div>
+					<div class="cs-lb-xp">{{ lb.xp_earned }} XP</div>
+				</div>
+				{% endfor %}
+			</div>
+			{% endif %}
+
+			<!-- Related Courses -->
+			{% if related|length > 0 %}
+			<div class="cs-sidebar-card">
+				<h3><i class='bx bx-link-alt'></i> Related Courses</h3>
+				{% for rc in related %}
+				<a href="{{ path('app_course_show', {id: rc.id}) }}" class="cs-mini-card" style="display:block;margin-bottom:8px">
+					<div class="cs-mini-card-title">{{ rc.title }}</div>
+					<div class="cs-mini-card-lvl" style="color:{{ rc.level == 'EASY' ? 'var(--green)' : (rc.level == 'MEDIUM' ? 'var(--yellow)' : 'var(--red)') }}">{{ rc.level }}</div>
+				</a>
+				{% endfor %}
+			</div>
+			{% endif %}
+
 		</div>
-		{% endif %}
 	</div>
 
 </div>
 </div>
+
+<!-- Toast notification -->
+<div class="cs-toast" id="toast"></div>
+
+<script>
+const courseId = {{ course.id }};
+let selectedRating = {{ userRating ? userRating.rating : 0 }};
+
+function showToast(msg) {
+	const t = document.getElementById('toast');
+	t.textContent = msg;
+	t.classList.add('show');
+	setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function toggleBookmark() {
+	fetch('/courses/'+courseId+'/bookmark', {method:'POST'}).then(r=>r.json()).then(d=>{
+		const btn=document.getElementById('bmBtn');
+		const ico=document.getElementById('bmIcon');
+		const txt=document.getElementById('bmText');
+		if(d.bookmarked){
+			btn.classList.add('active');
+			ico.className='bx bxs-bookmark';
+			txt.textContent='Bookmarked';
+			showToast('Course bookmarked!');
+		} else {
+			btn.classList.remove('active');
+			ico.className='bx bx-bookmark';
+			txt.textContent='Bookmark';
+			showToast('Bookmark removed');
+		}
+	});
+}
+
+function shareCourse() {
+	navigator.clipboard.writeText(window.location.href).then(()=>showToast('Link copied to clipboard!'));
+}
+
+function setRating(val) {
+	selectedRating = val;
+	document.querySelectorAll('#rateStars i').forEach((s,i)=>{
+		s.className = i < val ? 'bx bxs-star' : 'bx bx-star';
+	});
+}
+
+function submitRating() {
+	if(!selectedRating) return showToast('Please select a rating');
+	const review = document.getElementById('rateReview').value;
+	fetch('/courses/'+courseId+'/rate', {
+		method:'POST',
+		headers:{'Content-Type':'application/json'},
+		body:JSON.stringify({rating:selectedRating,review:review})
+	}).then(r=>r.json()).then(d=>{
+		showToast('Rating submitted!');
+		setTimeout(()=>location.reload(), 800);
+	});
+}
+
+function saveNote() {
+	const content = document.getElementById('noteInput').value.trim();
+	if(!content) return;
+	fetch('/courses/'+courseId+'/notes', {
+		method:'POST',
+		headers:{'Content-Type':'application/json'},
+		body:JSON.stringify({content:content})
+	}).then(r=>r.json()).then(d=>{
+		document.getElementById('noteInput').value='';
+		const div = document.createElement('div');
+		div.className='cs-note';
+		div.id='note-'+d.id;
+		div.innerHTML='<button class="cs-note-del" onclick="deleteNote('+d.id+')"><i class="bx bx-x"></i></button><div class="cs-note-content">'+escapeHtml(content)+'</div><div class="cs-note-date">Just now</div>';
+		document.getElementById('notesList').prepend(div);
+		showToast('Note saved!');
+	});
+}
+
+function deleteNote(id) {
+	fetch('/courses/'+courseId+'/notes/'+id, {method:'DELETE'}).then(r=>r.json()).then(()=>{
+		document.getElementById('note-'+id)?.remove();
+		showToast('Note deleted');
+	});
+}
+
+function addComment() {
+	const content = document.getElementById('commentInput').value.trim();
+	if(!content) return;
+	fetch('/courses/'+courseId+'/comments', {
+		method:'POST',
+		headers:{'Content-Type':'application/json'},
+		body:JSON.stringify({content:content})
+	}).then(r=>r.json()).then(d=>{
+		document.getElementById('commentInput').value='';
+		document.getElementById('noComments')?.remove();
+		const div = document.createElement('div');
+		div.className='cs-comment';
+		div.id='comment-'+d.id;
+		div.innerHTML='<div class="cs-comment-avatar"><i class="bx bx-user"></i></div><div class="cs-comment-body"><div class="cs-comment-head"><span class="cs-comment-name">You</span><span class="cs-comment-time">Just now</span><button class="cs-comment-del" onclick="deleteComment('+d.id+')"><i class="bx bx-trash"></i></button></div><div class="cs-comment-text">'+escapeHtml(content)+'</div></div>';
+		document.getElementById('commentsList').prepend(div);
+		showToast('Comment posted!');
+	});
+}
+
+function deleteComment(id) {
+	fetch('/courses/'+courseId+'/comments/'+id, {method:'DELETE'}).then(r=>r.json()).then(()=>{
+		document.getElementById('comment-'+id)?.remove();
+		showToast('Comment deleted');
+	});
+}
+
+function updateProgress() {
+	fetch('/courses/'+courseId+'/progress', {
+		method:'POST',
+		headers:{'Content-Type':'application/json'},
+		body:JSON.stringify({percent:100})
+	}).then(r=>r.json()).then(d=>{
+		showToast('Course marked as complete! +' + (d.xp_earned||0) + ' XP');
+		setTimeout(()=>location.reload(), 1000);
+	});
+}
+
+function escapeHtml(text) {
+	const d = document.createElement('div');
+	d.textContent = text;
+	return d.innerHTML;
+}
+</script>
 {% endblock %}

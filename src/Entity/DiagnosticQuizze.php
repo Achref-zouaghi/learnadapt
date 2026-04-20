@@ -15,7 +15,7 @@ class DiagnosticQuizze
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'bigint')]
     private ?int $id = null;
 
     public function getId(): ?int
@@ -88,6 +88,31 @@ class DiagnosticQuizze
 
     #[ORM\Column(type: 'datetime', nullable: false)]
     private ?\DateTimeInterface $created_at = null;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $time_limit_minutes = null;
+
+    public function getTime_limit_minutes(): ?int
+    {
+        return $this->time_limit_minutes;
+    }
+
+    public function setTime_limit_minutes(?int $time_limit_minutes): self
+    {
+        $this->time_limit_minutes = $time_limit_minutes;
+        return $this;
+    }
+
+    public function getTimeLimitMinutes(): ?int
+    {
+        return $this->time_limit_minutes;
+    }
+
+    public function setTimeLimitMinutes(?int $time_limit_minutes): self
+    {
+        $this->time_limit_minutes = $time_limit_minutes;
+        return $this;
+    }
 
     public function getCreated_at(): ?\DateTimeInterface
     {

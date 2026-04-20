@@ -13,9 +13,14 @@ use App\Repository\QuizAttemptRepository;
 #[ORM\Table(name: 'quiz_attempts')]
 class QuizAttempt
 {
+    public function __construct()
+    {
+        $this->quizAnswers = new ArrayCollection();
+    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'bigint')]
     private ?int $id = null;
 
     public function getId(): ?int
@@ -115,7 +120,7 @@ class QuizAttempt
         return $this;
     }
 
-    #[ORM\Column(type: 'decimal', nullable: false)]
+    #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: false)]
     private ?string $score_percent = null;
 
     public function getScore_percent(): ?string
@@ -143,18 +148,12 @@ class QuizAttempt
         return $this;
     }
 
-    #[ORM\OneToOne(targetEntity: QuizAnswer::class, mappedBy: 'quizAttempt')]
-    private ?QuizAnswer $quizAnswer = null;
+    #[ORM\OneToMany(targetEntity: QuizAnswer::class, mappedBy: 'quizAttempt')]
+    private Collection $quizAnswers;
 
-    public function getQuizAnswer(): ?QuizAnswer
+    public function getQuizAnswers(): Collection
     {
-        return $this->quizAnswer;
-    }
-
-    public function setQuizAnswer(?QuizAnswer $quizAnswer): self
-    {
-        $this->quizAnswer = $quizAnswer;
-        return $this;
+        return $this->quizAnswers;
     }
 
     public function getStartedAt(): ?\DateTime

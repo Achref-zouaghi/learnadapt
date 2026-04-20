@@ -15,7 +15,7 @@ class Course
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'bigint')]
     private ?int $id = null;
 
     public function getId(): ?int
@@ -173,6 +173,8 @@ class Course
     {
         $this->tasks = new ArrayCollection();
         $this->exercises = new ArrayCollection();
+        $this->tags = new ArrayCollection();
+        $this->prerequisites = new ArrayCollection();
     }
 
     /**
@@ -224,4 +226,94 @@ class Course
         return $this;
     }
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $pdf_path = null;
+
+    #[ORM\Column(type: 'string', length: 500, nullable: true)]
+    private ?string $video_url = null;
+
+    #[ORM\ManyToMany(targetEntity: CourseTag::class)]
+    #[ORM\JoinTable(
+        name: 'course_tag_map',
+        joinColumns: [new ORM\JoinColumn(name: 'course_id', referencedColumnName: 'id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'tag_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    )]
+    private Collection $tags;
+
+    #[ORM\ManyToMany(targetEntity: Course::class)]
+    #[ORM\JoinTable(
+        name: 'course_prerequisites',
+        joinColumns: [new ORM\JoinColumn(name: 'course_id', referencedColumnName: 'id', onDelete: 'CASCADE')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'prerequisite_course_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    )]
+    private Collection $prerequisites;
+
+    public function getPdfPath(): ?string
+    {
+        return $this->pdf_path;
+    }
+
+    public function setPdfPath(?string $pdf_path): static
+    {
+        $this->pdf_path = $pdf_path;
+
+        return $this;
+    }
+
+    public function getVideoUrl(): ?string
+    {
+        return $this->video_url;
+    }
+
+    public function setVideoUrl(?string $video_url): static
+    {
+        $this->video_url = $video_url;
+        return $this;
+    }
+
+    /** @return Collection<int, CourseTag> */
+    public function getTags(): Collection
+    {
+        if (!$this->tags instanceof Collection) {
+            $this->tags = new ArrayCollection();
+        }
+        return $this->tags;
+    }
+
+    public function addTag(CourseTag $tag): self
+    {
+        if (!$this->getTags()->contains($tag)) {
+            $this->getTags()->add($tag);
+        }
+        return $this;
+    }
+
+    public function removeTag(CourseTag $tag): self
+    {
+        $this->getTags()->removeElement($tag);
+        return $this;
+    }
+
+    /** @return Collection<int, Course> */
+    public function getPrerequisites(): Collection
+    {
+        if (!$this->prerequisites instanceof Collection) {
+            $this->prerequisites = new ArrayCollection();
+        }
+        return $this->prerequisites;
+    }
+
+    public function addPrerequisite(Course $course): self
+    {
+        if (!$this->getPrerequisites()->contains($course)) {
+            $this->getPrerequisites()->add($course);
+        }
+        return $this;
+    }
+
+    public function removePrerequisite(Course $course): self
+    {
+        $this->getPrerequisites()->removeElement($course);
+        return $this;
+    }
 }

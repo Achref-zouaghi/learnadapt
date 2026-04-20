@@ -4,10 +4,10 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,8 +20,12 @@ class AdminController extends AbstractController
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly Connection $connection,
     ) {
+    }
+
+    private function conn(): \Doctrine\DBAL\Connection
+    {
+        return $this->entityManager->getConnection();
     }
 
     private function getAuthenticatedAdmin(Request $request): ?User
@@ -48,7 +52,7 @@ class AdminController extends AbstractController
         }
 
         // User stats
-        $userStats = $this->connection->fetchAssociative(
+        $userStats = $this->conn()->fetchAssociative(
             'SELECT
                 COUNT(*) as total_users,
                 SUM(CASE WHEN role = \'STUDENT\' THEN 1 ELSE 0 END) as students,
@@ -64,7 +68,7 @@ class AdminController extends AbstractController
         );
 
         // Forum stats
-        $forumStats = $this->connection->fetchAssociative(
+        $forumStats = $this->conn()->fetchAssociative(
             'SELECT
                 (SELECT COUNT(*) FROM forum_topics) as total_topics,
                 (SELECT COUNT(*) FROM forum_posts) as total_posts,
@@ -73,7 +77,7 @@ class AdminController extends AbstractController
         );
 
         // Feedback stats
-        $feedbackStats = $this->connection->fetchAssociative(
+        $feedbackStats = $this->conn()->fetchAssociative(
             'SELECT
                 COUNT(*) as total_feedback,
                 ROUND(AVG(rating), 1) as avg_rating,
@@ -89,7 +93,7 @@ class AdminController extends AbstractController
         );
 
         // Exercise stats
-        $exerciseStats = $this->connection->fetchAssociative(
+        $exerciseStats = $this->conn()->fetchAssociative(
             'SELECT
                 COUNT(*) as total_exercises,
                 SUM(CASE WHEN level = \'EASY\' THEN 1 ELSE 0 END) as easy,
@@ -101,13 +105,13 @@ class AdminController extends AbstractController
         );
 
         // Recent users
-        $recentUsers = $this->connection->fetchAllAssociative(
+        $recentUsers = $this->conn()->fetchAllAssociative(
             'SELECT id, full_name, email, role, is_active, created_at
              FROM users ORDER BY created_at DESC LIMIT 8'
         );
 
         // Recent forum topics
-        $recentTopics = $this->connection->fetchAllAssociative(
+        $recentTopics = $this->conn()->fetchAllAssociative(
             'SELECT ft.id, ft.title, ft.category, ft.is_closed, ft.created_at,
                     u.full_name as author_name,
                     (SELECT COUNT(*) FROM forum_posts fp WHERE fp.topic_id = ft.id) as reply_count
@@ -117,7 +121,7 @@ class AdminController extends AbstractController
         );
 
         // Recent feedback
-        $recentFeedback = $this->connection->fetchAllAssociative(
+        $recentFeedback = $this->conn()->fetchAllAssociative(
             'SELECT af.id, af.rating, af.comment, af.created_at,
                     u.full_name as author_name
              FROM app_feedback af
@@ -126,7 +130,7 @@ class AdminController extends AbstractController
         );
 
         // User registrations per day (last 14 days)
-        $registrationTrend = $this->connection->fetchAllAssociative(
+        $registrationTrend = $this->conn()->fetchAllAssociative(
             'SELECT DATE(created_at) as day, COUNT(*) as count
              FROM users
              WHERE created_at >= DATE_SUB(NOW(), INTERVAL 14 DAY)
@@ -182,9 +186,9 @@ class AdminController extends AbstractController
         }
 
         $sql .= ' ORDER BY u.created_at DESC';
-        $users = $this->connection->fetchAllAssociative($sql, $params);
+        $users = $this->conn()->fetchAllAssociative($sql, $params);
 
-        $roleCounts = $this->connection->fetchAssociative(
+        $roleCounts = $this->conn()->fetchAssociative(
             'SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN role = \'STUDENT\' THEN 1 ELSE 0 END) as students,
@@ -268,12 +272,12 @@ class AdminController extends AbstractController
         }
 
         // Delete related data first
-        $this->connection->executeStatement('DELETE FROM notifications WHERE user_id = ?', [$id]);
-        $this->connection->executeStatement('DELETE FROM forum_posts WHERE author_user_id = ?', [$id]);
-        $this->connection->executeStatement('DELETE FROM forum_topics WHERE created_by_user_id = ?', [$id]);
-        $this->connection->executeStatement('DELETE FROM app_feedback WHERE user_id = ?', [$id]);
-        $this->connection->executeStatement('DELETE FROM messages_prives WHERE sender_id = ? OR receiver_id = ?', [$id, $id]);
-        $this->connection->executeStatement('DELETE FROM friend_requests WHERE sender_id = ? OR receiver_id = ?', [$id, $id]);
+        $this->conn()->executeStatement('DELETE FROM notifications WHERE user_id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM forum_posts WHERE author_user_id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM forum_topics WHERE created_by_user_id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM app_feedback WHERE user_id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM messages_prives WHERE sender_id = ? OR receiver_id = ?', [$id, $id]);
+        $this->conn()->executeStatement('DELETE FROM friend_requests WHERE sender_id = ? OR receiver_id = ?', [$id, $id]);
 
         $this->entityManager->remove($targetUser);
         $this->entityManager->flush();
@@ -294,7 +298,7 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Invalid data'], 400);
         }
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'UPDATE users SET full_name = ?, email = ?, phone = ?, role = ? WHERE id = ?',
             [
                 trim($data['full_name'] ?? ''),
@@ -340,13 +344,13 @@ class AdminController extends AbstractController
         }
 
         $sql .= ' ORDER BY ft.created_at DESC';
-        $topics = $this->connection->fetchAllAssociative($sql, $params);
+        $topics = $this->conn()->fetchAllAssociative($sql, $params);
 
-        $categoryCounts = $this->connection->fetchAllAssociative(
+        $categoryCounts = $this->conn()->fetchAllAssociative(
             'SELECT category, COUNT(*) as count FROM forum_topics GROUP BY category'
         );
 
-        $stats = $this->connection->fetchAssociative(
+        $stats = $this->conn()->fetchAssociative(
             'SELECT
                 (SELECT COUNT(*) FROM forum_topics) as total_topics,
                 (SELECT COUNT(*) FROM forum_posts) as total_posts,
@@ -372,13 +376,13 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
-        $topic = $this->connection->fetchAssociative('SELECT * FROM forum_topics WHERE id = ?', [$id]);
+        $topic = $this->conn()->fetchAssociative('SELECT * FROM forum_topics WHERE id = ?', [$id]);
         if (!$topic) {
             return new JsonResponse(['error' => 'Topic not found'], 404);
         }
 
         $newClosed = $topic['is_closed'] ? 0 : 1;
-        $this->connection->executeStatement('UPDATE forum_topics SET is_closed = ? WHERE id = ?', [$newClosed, $id]);
+        $this->conn()->executeStatement('UPDATE forum_topics SET is_closed = ? WHERE id = ?', [$newClosed, $id]);
 
         return new JsonResponse(['success' => true, 'is_closed' => (bool) $newClosed]);
     }
@@ -391,8 +395,8 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
-        $this->connection->executeStatement('DELETE FROM forum_posts WHERE topic_id = ?', [$id]);
-        $this->connection->executeStatement('DELETE FROM forum_topics WHERE id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM forum_posts WHERE topic_id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM forum_topics WHERE id = ?', [$id]);
 
         return new JsonResponse(['success' => true]);
     }
@@ -410,7 +414,7 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Invalid data'], 400);
         }
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'UPDATE forum_topics SET title = ?, category = ? WHERE id = ?',
             [trim($data['title'] ?? ''), trim($data['category'] ?? ''), $id]
         );
@@ -443,9 +447,9 @@ class AdminController extends AbstractController
         }
 
         $sql .= ' ORDER BY af.created_at DESC';
-        $feedbacks = $this->connection->fetchAllAssociative($sql, $params);
+        $feedbacks = $this->conn()->fetchAllAssociative($sql, $params);
 
-        $stats = $this->connection->fetchAssociative(
+        $stats = $this->conn()->fetchAssociative(
             'SELECT
                 COUNT(*) as total,
                 ROUND(AVG(rating), 1) as avg_rating,
@@ -473,8 +477,8 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
-        $this->connection->executeStatement('DELETE FROM feedback_reactions WHERE feedback_id = ?', [$id]);
-        $this->connection->executeStatement('DELETE FROM app_feedback WHERE id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM feedback_reactions WHERE feedback_id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM app_feedback WHERE id = ?', [$id]);
 
         return new JsonResponse(['success' => true]);
     }
@@ -515,14 +519,14 @@ class AdminController extends AbstractController
         }
 
         $sql .= ' ORDER BY e.created_at DESC';
-        $exercises = $this->connection->fetchAllAssociative($sql, $params);
+        $exercises = $this->conn()->fetchAllAssociative($sql, $params);
 
-        $modules = $this->connection->fetchAllAssociative(
+        $modules = $this->conn()->fetchAllAssociative(
             'SELECT m.*, (SELECT COUNT(*) FROM exercises ex WHERE ex.module_id = m.id) as exercise_count
              FROM modules m ORDER BY m.name ASC'
         );
 
-        $stats = $this->connection->fetchAssociative(
+        $stats = $this->conn()->fetchAssociative(
             'SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN level = \'EASY\' THEN 1 ELSE 0 END) as easy,
@@ -551,7 +555,7 @@ class AdminController extends AbstractController
         }
 
         // Get pdf path to delete file
-        $exercise = $this->connection->fetchAssociative('SELECT pdf_path FROM exercises WHERE id = ?', [$id]);
+        $exercise = $this->conn()->fetchAssociative('SELECT pdf_path FROM exercises WHERE id = ?', [$id]);
         if ($exercise && $exercise['pdf_path']) {
             $filePath = $this->getParameter('kernel.project_dir') . '/' . $exercise['pdf_path'];
             if (file_exists($filePath)) {
@@ -559,7 +563,7 @@ class AdminController extends AbstractController
             }
         }
 
-        $this->connection->executeStatement('DELETE FROM exercises WHERE id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM exercises WHERE id = ?', [$id]);
 
         return new JsonResponse(['success' => true]);
     }
@@ -582,7 +586,7 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Invalid level'], 400);
         }
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'UPDATE exercises SET title = ?, description = ?, level = ?, module_id = ? WHERE id = ?',
             [
                 trim($data['title'] ?? ''),
@@ -618,7 +622,7 @@ class AdminController extends AbstractController
         }
 
         // Remove old PDF if exists
-        $existing = $this->connection->fetchAssociative('SELECT pdf_path FROM exercises WHERE id = ?', [$id]);
+        $existing = $this->conn()->fetchAssociative('SELECT pdf_path FROM exercises WHERE id = ?', [$id]);
         if ($existing && $existing['pdf_path']) {
             $oldPath = $this->getParameter('kernel.project_dir') . '/' . $existing['pdf_path'];
             if (file_exists($oldPath)) {
@@ -637,7 +641,7 @@ class AdminController extends AbstractController
 
         $pdfPath = 'var/uploads/exercises/' . $safeName;
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'UPDATE exercises SET pdf_path = ?, pdf_original_name = ?, pdf_size_bytes = ? WHERE id = ?',
             [$pdfPath, $originalName, filesize($uploadDir . '/' . $safeName), $id]
         );
@@ -689,7 +693,7 @@ class AdminController extends AbstractController
             $pdfSize = filesize($uploadDir . '/' . $safeName);
         }
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'INSERT INTO exercises (title, description, level, module_id, teacher_user_id, pdf_path, pdf_original_name, pdf_size_bytes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
             [
                 $title,
@@ -716,7 +720,7 @@ class AdminController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $quizzes = $this->connection->fetchAllAssociative(
+        $quizzes = $this->conn()->fetchAllAssociative(
             'SELECT q.*,
                     (SELECT COUNT(*) FROM quiz_questions qq WHERE qq.quiz_id = q.id) as question_count,
                     (SELECT COUNT(*) FROM quiz_attempts qa WHERE qa.quiz_id = q.id) as attempt_count,
@@ -747,12 +751,12 @@ class AdminController extends AbstractController
 
         $timeLimit = !empty($data['time_limit_minutes']) ? (int) $data['time_limit_minutes'] : null;
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'INSERT INTO diagnostic_quizzes (title, description, is_active, time_limit_minutes, created_by, created_at) VALUES (?, ?, 1, ?, ?, NOW())',
             [$title, trim($data['description'] ?? ''), $timeLimit, $admin->getId()]
         );
 
-        return new JsonResponse(['success' => true, 'id' => (int) $this->connection->lastInsertId()]);
+        return new JsonResponse(['success' => true, 'id' => (int) $this->conn()->lastInsertId()]);
     }
 
     #[Route('/admin/quizzes/{id}/update', name: 'app_admin_quiz_update', methods: ['POST'])]
@@ -771,7 +775,7 @@ class AdminController extends AbstractController
 
         $timeLimit = !empty($data['time_limit_minutes']) ? (int) $data['time_limit_minutes'] : null;
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'UPDATE diagnostic_quizzes SET title = ?, description = ?, time_limit_minutes = ?, is_active = ? WHERE id = ?',
             [$title, trim($data['description'] ?? ''), $timeLimit, (int) ($data['is_active'] ?? 1), $id]
         );
@@ -787,7 +791,7 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'UPDATE diagnostic_quizzes SET is_active = NOT is_active WHERE id = ?',
             [$id]
         );
@@ -804,13 +808,13 @@ class AdminController extends AbstractController
         }
 
         // Delete answers, attempts, questions, then quiz
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'DELETE qa FROM quiz_answers qa JOIN quiz_attempts qat ON qat.id = qa.attempt_id WHERE qat.quiz_id = ?',
             [$id]
         );
-        $this->connection->executeStatement('DELETE FROM quiz_attempts WHERE quiz_id = ?', [$id]);
-        $this->connection->executeStatement('DELETE FROM quiz_questions WHERE quiz_id = ?', [$id]);
-        $this->connection->executeStatement('DELETE FROM diagnostic_quizzes WHERE id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM quiz_attempts WHERE quiz_id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM quiz_questions WHERE quiz_id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM diagnostic_quizzes WHERE id = ?', [$id]);
 
         return new JsonResponse(['success' => true]);
     }
@@ -825,7 +829,7 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
-        $questions = $this->connection->fetchAllAssociative(
+        $questions = $this->conn()->fetchAllAssociative(
             'SELECT * FROM quiz_questions WHERE quiz_id = ? ORDER BY id ASC',
             [$id]
         );
@@ -858,7 +862,7 @@ class AdminController extends AbstractController
             $difficulty = 'EASY';
         }
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'INSERT INTO quiz_questions (quiz_id, question_type, prompt, option_a, option_b, option_c, option_d, correct_option, correct_bool, correct_text, points, difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 $id,
@@ -876,7 +880,7 @@ class AdminController extends AbstractController
             ]
         );
 
-        return new JsonResponse(['success' => true, 'id' => (int) $this->connection->lastInsertId()]);
+        return new JsonResponse(['success' => true, 'id' => (int) $this->conn()->lastInsertId()]);
     }
 
     #[Route('/admin/quizzes/questions/{qid}/delete', name: 'app_admin_quiz_question_delete', methods: ['POST'])]
@@ -887,8 +891,8 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
-        $this->connection->executeStatement('DELETE FROM quiz_answers WHERE question_id = ?', [$qid]);
-        $this->connection->executeStatement('DELETE FROM quiz_questions WHERE id = ?', [$qid]);
+        $this->conn()->executeStatement('DELETE FROM quiz_answers WHERE question_id = ?', [$qid]);
+        $this->conn()->executeStatement('DELETE FROM quiz_questions WHERE id = ?', [$qid]);
 
         return new JsonResponse(['success' => true]);
     }
@@ -924,18 +928,18 @@ class AdminController extends AbstractController
         }
 
         $sql .= ' ORDER BY c.created_at DESC';
-        $courses = $this->connection->fetchAllAssociative($sql, $params);
+        $courses = $this->conn()->fetchAllAssociative($sql, $params);
 
-        $modules = $this->connection->fetchAllAssociative(
+        $modules = $this->conn()->fetchAllAssociative(
             'SELECT m.*, (SELECT COUNT(*) FROM courses co WHERE co.module_id = m.id) as course_count
              FROM modules m ORDER BY m.name ASC'
         );
 
-        $teachers = $this->connection->fetchAllAssociative(
+        $teachers = $this->conn()->fetchAllAssociative(
             "SELECT id, full_name FROM users WHERE role IN ('TEACHER','ADMIN') ORDER BY full_name ASC"
         );
 
-        $stats = $this->connection->fetchAssociative(
+        $stats = $this->conn()->fetchAssociative(
             'SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN level = \'EASY\' THEN 1 ELSE 0 END) as easy,
@@ -963,32 +967,88 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
-        $data = json_decode($request->getContent(), true);
-        $title = trim($data['title'] ?? '');
+        $title = trim($request->request->get('title', ''));
         if ($title === '') {
             return new JsonResponse(['error' => 'Title is required'], 400);
         }
 
-        $level = $data['level'] ?? 'EASY';
+        $level = $request->request->get('level', 'EASY');
         if (!in_array($level, ['EASY', 'MEDIUM', 'HARD'], true)) {
             $level = 'EASY';
         }
 
-        $moduleId = !empty($data['module_id']) ? (int) $data['module_id'] : null;
-        $teacherId = !empty($data['teacher_id']) ? (int) $data['teacher_id'] : null;
+        $moduleId = $request->request->get('module_id') ?: null;
+        $teacherId = $request->request->get('teacher_id') ?: null;
+        $description = $request->request->get('description');
+        $videoUrl = trim($request->request->get('video_url', '')) ?: null;
 
-        $this->connection->executeStatement(
-            'INSERT INTO courses (title, description, level, module_id, teacher_user_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())',
+        $pdfPath = null;
+        $file = $request->files->get('pdf');
+        if ($file) {
+            if ($file->getMimeType() !== 'application/pdf') {
+                return new JsonResponse(['error' => 'Only PDF files are allowed'], 400);
+            }
+            if ($file->getSize() > 20 * 1024 * 1024) {
+                return new JsonResponse(['error' => 'File too large (max 20MB)'], 400);
+            }
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/var/uploads/courses';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            $safeName = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
+            $file->move($uploadDir, $safeName);
+            $pdfPath = 'var/uploads/courses/' . $safeName;
+        }
+
+        $this->conn()->executeStatement(
+            'INSERT INTO courses (title, description, level, module_id, teacher_user_id, pdf_path, video_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
             [
                 $title,
-                $data['description'] ?? null,
+                $description,
                 $level,
-                $moduleId,
-                $teacherId,
+                $moduleId ? (int)$moduleId : null,
+                $teacherId ? (int)$teacherId : null,
+                $pdfPath,
+                $videoUrl,
             ]
         );
 
-        return new JsonResponse(['success' => true, 'id' => (int) $this->connection->lastInsertId()]);
+        $courseId = (int) $this->conn()->lastInsertId();
+
+        // Handle additional PDF files
+        $extraFiles = $request->files->get('extra_pdfs');
+        if ($extraFiles) {
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/var/uploads/courses';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+            $order = 0;
+            foreach ($extraFiles as $ef) {
+                if ($ef && $ef->getMimeType() === 'application/pdf' && $ef->getSize() <= 20 * 1024 * 1024) {
+                    $origName = $ef->getClientOriginalName();
+                    $safeName = time() . '_' . $order . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $origName);
+                    $ef->move($uploadDir, $safeName);
+                    $this->conn()->executeStatement(
+                        'INSERT INTO course_files (course_id, title, file_path, original_name, file_size, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
+                        [$courseId, pathinfo($origName, PATHINFO_FILENAME), 'var/uploads/courses/' . $safeName, $origName, filesize($uploadDir . '/' . $safeName), $order]
+                    );
+                    $order++;
+                }
+            }
+        }
+
+        // Handle tags
+        $tagsStr = trim($request->request->get('tags', ''));
+        if ($tagsStr !== '') {
+            $tagNames = array_filter(array_map('trim', explode(',', $tagsStr)));
+            foreach ($tagNames as $tagName) {
+                $this->conn()->executeStatement('INSERT IGNORE INTO course_tags (name) VALUES (?)', [$tagName]);
+                $tagId = $this->conn()->fetchOne('SELECT id FROM course_tags WHERE name = ?', [$tagName]);
+                if ($tagId) {
+                    $this->conn()->executeStatement('INSERT IGNORE INTO course_tag_map (course_id, tag_id) VALUES (?, ?)', [$courseId, $tagId]);
+                }
+            }
+        }
+
+        return new JsonResponse(['success' => true, 'id' => $courseId]);
     }
 
     #[Route('/admin/courses/{id}/update', name: 'app_admin_course_update', methods: ['POST'])]
@@ -999,33 +1059,100 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
-        $data = json_decode($request->getContent(), true);
-        $title = trim($data['title'] ?? '');
+        $title = trim($request->request->get('title', ''));
         if ($title === '') {
             return new JsonResponse(['error' => 'Title is required'], 400);
         }
 
-        $level = $data['level'] ?? 'EASY';
+        $level = $request->request->get('level', 'EASY');
         if (!in_array($level, ['EASY', 'MEDIUM', 'HARD'], true)) {
             $level = 'EASY';
         }
 
-        $moduleId = !empty($data['module_id']) ? (int) $data['module_id'] : null;
-        $teacherId = !empty($data['teacher_id']) ? (int) $data['teacher_id'] : null;
+        $moduleId = $request->request->get('module_id') ?: null;
+        $teacherId = $request->request->get('teacher_id') ?: null;
+        $description = $request->request->get('description');
+        $videoUrl = trim($request->request->get('video_url', '')) ?: null;
 
-        $this->connection->executeStatement(
-            'UPDATE courses SET title = ?, description = ?, level = ?, module_id = ?, teacher_user_id = ?, updated_at = NOW() WHERE id = ?',
-            [
-                $title,
-                $data['description'] ?? null,
-                $level,
-                $moduleId,
-                $teacherId,
-                $id,
-            ]
-        );
+        $file = $request->files->get('pdf');
+        if ($file) {
+            if ($file->getMimeType() !== 'application/pdf') {
+                return new JsonResponse(['error' => 'Only PDF files are allowed'], 400);
+            }
+            if ($file->getSize() > 20 * 1024 * 1024) {
+                return new JsonResponse(['error' => 'File too large (max 20MB)'], 400);
+            }
+
+            // Remove old PDF
+            $existing = $this->conn()->fetchAssociative('SELECT pdf_path FROM courses WHERE id = ?', [$id]);
+            if ($existing && $existing['pdf_path']) {
+                $oldPath = $this->getParameter('kernel.project_dir') . '/' . $existing['pdf_path'];
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/var/uploads/courses';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            $safeName = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
+            $file->move($uploadDir, $safeName);
+            $pdfPath = 'var/uploads/courses/' . $safeName;
+
+            $this->conn()->executeStatement(
+                'UPDATE courses SET title = ?, description = ?, level = ?, module_id = ?, teacher_user_id = ?, pdf_path = ?, video_url = ?, updated_at = NOW() WHERE id = ?',
+                [$title, $description, $level, $moduleId ? (int)$moduleId : null, $teacherId ? (int)$teacherId : null, $pdfPath, $videoUrl, $id]
+            );
+        } else {
+            $this->conn()->executeStatement(
+                'UPDATE courses SET title = ?, description = ?, level = ?, module_id = ?, teacher_user_id = ?, video_url = ?, updated_at = NOW() WHERE id = ?',
+                [$title, $description, $level, $moduleId ? (int)$moduleId : null, $teacherId ? (int)$teacherId : null, $videoUrl, $id]
+            );
+        }
 
         return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/admin/courses/{id}/delete-pdf', name: 'app_admin_course_delete_pdf', methods: ['POST'])]
+    public function deleteCoursePdf(int $id, Request $request): JsonResponse
+    {
+        $admin = $this->getAuthenticatedAdmin($request);
+        if (!$admin) {
+            return new JsonResponse(['error' => 'Unauthorized'], 403);
+        }
+
+        $existing = $this->conn()->fetchAssociative('SELECT pdf_path FROM courses WHERE id = ?', [$id]);
+        if ($existing && $existing['pdf_path']) {
+            $oldPath = $this->getParameter('kernel.project_dir') . '/' . $existing['pdf_path'];
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+            $this->conn()->executeStatement('UPDATE courses SET pdf_path = NULL WHERE id = ?', [$id]);
+        }
+
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/admin/courses/{id}/pdf', name: 'app_admin_course_pdf', methods: ['GET'])]
+    public function serveCoursePdf(int $id, Request $request): Response
+    {
+        $admin = $this->getAuthenticatedAdmin($request);
+        if (!$admin) {
+            return new Response('Unauthorized', 403);
+        }
+
+        $course = $this->conn()->fetchAssociative('SELECT pdf_path FROM courses WHERE id = ?', [$id]);
+        if (!$course || !$course['pdf_path']) {
+            return new Response('No PDF found', 404);
+        }
+
+        $filePath = $this->getParameter('kernel.project_dir') . '/' . $course['pdf_path'];
+        if (!file_exists($filePath)) {
+            return new Response('File not found', 404);
+        }
+
+        return new BinaryFileResponse($filePath);
     }
 
     #[Route('/admin/courses/{id}/delete', name: 'app_admin_course_delete', methods: ['POST'])]
@@ -1036,12 +1163,21 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
+        // Remove old PDF file if exists
+        $existing = $this->conn()->fetchAssociative('SELECT pdf_path FROM courses WHERE id = ?', [$id]);
+        if ($existing && $existing['pdf_path']) {
+            $oldPath = $this->getParameter('kernel.project_dir') . '/' . $existing['pdf_path'];
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+        }
+
         // Remove course_exercises join entries first
-        $this->connection->executeStatement('DELETE FROM course_exercises WHERE course_id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM course_exercises WHERE course_id = ?', [$id]);
         // Unlink tasks
-        $this->connection->executeStatement('UPDATE tasks SET linked_course_id = NULL WHERE linked_course_id = ?', [$id]);
+        $this->conn()->executeStatement('UPDATE tasks SET linked_course_id = NULL WHERE linked_course_id = ?', [$id]);
         // Delete the course
-        $this->connection->executeStatement('DELETE FROM courses WHERE id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM courses WHERE id = ?', [$id]);
 
         return new JsonResponse(['success' => true]);
     }

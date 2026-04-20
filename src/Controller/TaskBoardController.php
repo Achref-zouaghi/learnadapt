@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,8 +18,12 @@ class TaskBoardController extends AbstractController
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly Connection $connection,
     ) {
+    }
+
+    private function conn(): \Doctrine\DBAL\Connection
+    {
+        return $this->entityManager->getConnection();
     }
 
     private function getAuthenticatedUser(Request $request): ?User
@@ -47,7 +50,7 @@ class TaskBoardController extends AbstractController
         }
 
         $uid = $user->getId();
-        $tasks = $this->connection->fetchAllAssociative(
+        $tasks = $this->conn()->fetchAllAssociative(
             'SELECT t.*, c.title as course_title
              FROM tasks t LEFT JOIN courses c ON t.linked_course_id = c.id
              WHERE t.student_user_id = ? OR t.created_by_teacher_id = ?
@@ -74,7 +77,7 @@ class TaskBoardController extends AbstractController
         // Auto-generate notifications for overdue & due-today tasks
         $this->generateTaskNotifications($tasks, $uid, $today);
 
-        $pomodoroStats = $this->connection->fetchAssociative(
+        $pomodoroStats = $this->conn()->fetchAssociative(
             'SELECT COUNT(*) as total_sessions, COALESCE(SUM(work_minutes * cycles), 0) as total_minutes,
                     COUNT(CASE WHEN completed = 1 THEN 1 END) as completed_sessions
              FROM pomodoro_sessions ps JOIN tasks t ON ps.task_id = t.id
@@ -83,7 +86,7 @@ class TaskBoardController extends AbstractController
         );
 
         // Last 7 days pomodoro activity (for chart)
-        $pomoDays = $this->connection->fetchAllAssociative(
+        $pomoDays = $this->conn()->fetchAllAssociative(
             "SELECT DATE(ps.started_at) as day, SUM(ps.work_minutes * ps.cycles) as minutes, COUNT(*) as sessions
              FROM pomodoro_sessions ps JOIN tasks t ON ps.task_id = t.id
              WHERE (t.student_user_id = ? OR t.created_by_teacher_id = ?)
@@ -107,7 +110,7 @@ class TaskBoardController extends AbstractController
         $weekData = array_values($weekData);
 
         // Top 5 tasks by focus time
-        $topTasks = $this->connection->fetchAllAssociative(
+        $topTasks = $this->conn()->fetchAllAssociative(
             "SELECT t.title, SUM(ps.work_minutes * ps.cycles) as total_min, COUNT(ps.id) as sess_count
              FROM pomodoro_sessions ps JOIN tasks t ON ps.task_id = t.id
              WHERE (t.student_user_id = ? OR t.created_by_teacher_id = ?) AND ps.task_id IS NOT NULL
@@ -119,7 +122,7 @@ class TaskBoardController extends AbstractController
         $completionRate = $totalTasks > 0 ? round((count($columns['DONE']) / $totalTasks) * 100) : 0;
 
         // Tasks created this week
-        $tasksThisWeek = $this->connection->fetchOne(
+        $tasksThisWeek = $this->conn()->fetchOne(
             "SELECT COUNT(*) FROM tasks WHERE (student_user_id = ? OR created_by_teacher_id = ?)
              AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)",
             [$uid, $uid]
@@ -130,7 +133,7 @@ class TaskBoardController extends AbstractController
         $avgDailyFocus = round($totalWeekMinutes / 7);
 
         // Streak: consecutive days with pomodoro sessions
-        $streakDays = $this->connection->fetchAllAssociative(
+        $streakDays = $this->conn()->fetchAllAssociative(
             "SELECT DISTINCT DATE(ps.started_at) as day
              FROM pomodoro_sessions ps JOIN tasks t ON ps.task_id = t.id
              WHERE (t.student_user_id = ? OR t.created_by_teacher_id = ?)
@@ -192,7 +195,7 @@ class TaskBoardController extends AbstractController
         if (!in_array($status, $allowedStatuses, true)) { $status = 'TODO'; }
         if (!in_array($priority, $allowedPriorities, true)) { $priority = 'MEDIUM'; }
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'INSERT INTO tasks (student_user_id, title, description, status, priority, due_date, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())',
             [$user->getId(), $title, $description ?: null, $status, $priority, $dueDateStr ?: null]
@@ -210,7 +213,7 @@ class TaskBoardController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $task = $this->connection->fetchAssociative('SELECT * FROM tasks WHERE id = ?', [$id]);
+        $task = $this->conn()->fetchAssociative('SELECT * FROM tasks WHERE id = ?', [$id]);
         if (!$task || !$this->isOwner($task, $user->getId())) {
             $this->addFlash('error', 'flash.task_not_found');
             return $this->redirectToRoute('app_taskboard');
@@ -237,7 +240,7 @@ class TaskBoardController extends AbstractController
         if (!in_array($status, $allowedStatuses, true)) { $status = $task['status']; }
         if (!in_array($priority, $allowedPriorities, true)) { $priority = $task['priority']; }
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'UPDATE tasks SET title = ?, description = ?, status = ?, priority = ?, due_date = ?, updated_at = NOW() WHERE id = ?',
             [$title, $description ?: null, $status, $priority, $dueDateStr ?: null, $id]
         );
@@ -254,7 +257,7 @@ class TaskBoardController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $task = $this->connection->fetchAssociative('SELECT * FROM tasks WHERE id = ?', [$id]);
+        $task = $this->conn()->fetchAssociative('SELECT * FROM tasks WHERE id = ?', [$id]);
         if (!$task || !$this->isOwner($task, $user->getId())) {
             $this->addFlash('error', 'flash.task_not_found');
             return $this->redirectToRoute('app_taskboard');
@@ -274,7 +277,7 @@ class TaskBoardController extends AbstractController
         }
 
         if (in_array($newStatus, $allowed, true)) {
-            $this->connection->executeStatement(
+            $this->conn()->executeStatement(
                 'UPDATE tasks SET status = ?, updated_at = NOW() WHERE id = ?',
                 [$newStatus, $id]
             );
@@ -297,7 +300,7 @@ class TaskBoardController extends AbstractController
         }
 
         $uid = $user->getId();
-        $tasks = $this->connection->fetchAllAssociative(
+        $tasks = $this->conn()->fetchAllAssociative(
             'SELECT t.*, c.title as course_title
              FROM tasks t LEFT JOIN courses c ON t.linked_course_id = c.id
              WHERE t.student_user_id = ? OR t.created_by_teacher_id = ?
@@ -305,7 +308,7 @@ class TaskBoardController extends AbstractController
             [$uid, $uid]
         );
 
-        $pomodoroStats = $this->connection->fetchAssociative(
+        $pomodoroStats = $this->conn()->fetchAssociative(
             'SELECT COUNT(*) as total_sessions, COALESCE(SUM(work_minutes * cycles), 0) as total_minutes
              FROM pomodoro_sessions ps JOIN tasks t ON ps.task_id = t.id
              WHERE t.student_user_id = ? OR t.created_by_teacher_id = ?',
@@ -328,14 +331,14 @@ class TaskBoardController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $task = $this->connection->fetchAssociative('SELECT * FROM tasks WHERE id = ?', [$id]);
+        $task = $this->conn()->fetchAssociative('SELECT * FROM tasks WHERE id = ?', [$id]);
         if (!$task || !$this->isOwner($task, $user->getId())) {
             $this->addFlash('error', 'flash.task_not_found');
             return $this->redirectToRoute('app_taskboard');
         }
 
-        $this->connection->executeStatement('DELETE FROM pomodoro_sessions WHERE task_id = ?', [$id]);
-        $this->connection->executeStatement('DELETE FROM tasks WHERE id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM pomodoro_sessions WHERE task_id = ?', [$id]);
+        $this->conn()->executeStatement('DELETE FROM tasks WHERE id = ?', [$id]);
 
         $this->addFlash('success', 'flash.task_deleted');
         return $this->redirectToRoute('app_taskboard');
@@ -353,7 +356,7 @@ class TaskBoardController extends AbstractController
             return new JsonResponse(['error' => 'task required'], 400);
         }
 
-        $task = $this->connection->fetchAssociative('SELECT * FROM tasks WHERE id = ?', [$taskId]);
+        $task = $this->conn()->fetchAssociative('SELECT * FROM tasks WHERE id = ?', [$taskId]);
         if (!$task || !$this->isOwner($task, $user->getId())) {
             return new JsonResponse(['error' => 'not found'], 404);
         }
@@ -361,12 +364,12 @@ class TaskBoardController extends AbstractController
         $workMinutes = max(1, min(60, (int) $request->request->get('work_minutes', 25)));
         $breakMinutes = max(1, min(30, (int) $request->request->get('break_minutes', 5)));
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'INSERT INTO pomodoro_sessions (task_id, work_minutes, break_minutes, cycles, started_at, completed)
              VALUES (?, ?, ?, 1, NOW(), 0)',
             [$taskId, $workMinutes, $breakMinutes]
         );
-        $sessionId = (int) $this->connection->lastInsertId();
+        $sessionId = (int) $this->conn()->lastInsertId();
 
         return new JsonResponse(['id' => $sessionId, 'work_minutes' => $workMinutes, 'break_minutes' => $breakMinutes]);
     }
@@ -379,7 +382,7 @@ class TaskBoardController extends AbstractController
             return new JsonResponse(['error' => 'unauthorized'], 401);
         }
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'UPDATE pomodoro_sessions SET ended_at = NOW(), completed = 1 WHERE id = ?',
             [$id]
         );
@@ -400,24 +403,24 @@ class TaskBoardController extends AbstractController
 
             if ($dueDate < $today) {
                 // Overdue — only ONE unread notification per task
-                $exists = $this->connection->fetchOne(
+                $exists = $this->conn()->fetchOne(
                     "SELECT COUNT(*) FROM notifications WHERE user_id = ? AND type = 'TASK_OVERDUE' AND related_topic_id = ? AND is_read = 0",
                     [$userId, $taskId]
                 );
                 if (!$exists) {
-                    $this->connection->executeStatement(
+                    $this->conn()->executeStatement(
                         "INSERT INTO notifications (user_id, type, title, message, is_read, related_topic_id, created_at) VALUES (?, 'TASK_OVERDUE', ?, ?, 0, ?, NOW())",
                         [$userId, '⚠️ Tâche en retard !', '"' . $title . '" a dépassé sa date limite.', $taskId]
                     );
                 }
             } elseif ($dueDate === $today) {
                 // Due today — only ONE unread notification per task
-                $exists = $this->connection->fetchOne(
+                $exists = $this->conn()->fetchOne(
                     "SELECT COUNT(*) FROM notifications WHERE user_id = ? AND type = 'TASK_DUE_TODAY' AND related_topic_id = ? AND is_read = 0",
                     [$userId, $taskId]
                 );
                 if (!$exists) {
-                    $this->connection->executeStatement(
+                    $this->conn()->executeStatement(
                         "INSERT INTO notifications (user_id, type, title, message, is_read, related_topic_id, created_at) VALUES (?, 'TASK_DUE_TODAY', ?, ?, 0, ?, NOW())",
                         [$userId, '⏰ Tâche à faire aujourd\'hui !', '"' . $title . '" est prévue pour aujourd\'hui.', $taskId]
                     );
@@ -435,7 +438,7 @@ class TaskBoardController extends AbstractController
         }
 
         // Mark as read (only if it belongs to this user)
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?',
             [$id, $user->getId()]
         );
@@ -451,7 +454,7 @@ class TaskBoardController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $this->connection->executeStatement(
+        $this->conn()->executeStatement(
             'UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0',
             [$user->getId()]
         );
