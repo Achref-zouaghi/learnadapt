@@ -93,11 +93,98 @@
     .pr-avatar-btn {
         position: absolute; inset: 3px; border-radius: 22px;
         display: flex; align-items: center; justify-content: center;
-        background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+        background: rgba(0,0,0,0.35); backdrop-filter: blur(4px);
         opacity: 0; cursor: pointer; transition: opacity 0.25s;
         border: none; color: #fff; font-size: 1.5rem;
+        pointer-events: none;
     }
     .pr-avatar-wrap:hover .pr-avatar-btn { opacity: 1; }
+
+    /* ── Photo Gallery Modal ─────────────────────────────── */
+    .pg-modal-bg {
+        display: none; position: fixed; inset: 0; z-index: 300;
+        background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+        align-items: center; justify-content: center;
+    }
+    .pg-modal-bg.open { display: flex; }
+    .pg-modal {
+        width: min(620px, calc(100vw - 32px));
+        max-height: 90vh; overflow-y: auto;
+        border-radius: 24px;
+        border: 1px solid rgba(255,255,255,0.09);
+        background: rgba(8,12,24,0.97);
+        backdrop-filter: blur(24px);
+        padding: 28px;
+        box-shadow: 0 48px 120px rgba(0,0,0,0.65);
+        position: relative;
+    }
+    .pg-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+    .pg-modal-head h3 { font-size: 1.15rem; font-weight: 900; color: #fff; }
+    .pg-close {
+        width: 32px; height: 32px; border-radius: 9px;
+        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.6); cursor: pointer; font-size: 1.1rem;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s;
+    }
+    .pg-close:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); color: #f87171; }
+    .pg-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+    .pg-photo-wrap {
+        position: relative; border-radius: 14px; overflow: hidden;
+        aspect-ratio: 1 / 1; cursor: pointer;
+        border: 2px solid rgba(255,255,255,0.07);
+        transition: border-color 0.25s, transform 0.2s;
+    }
+    .pg-photo-wrap:hover { transform: scale(1.02); }
+    .pg-photo-wrap.active { border-color: rgba(123,97,241,0.7); box-shadow: 0 0 0 2px rgba(123,97,241,0.3); }
+    .pg-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .pg-active-badge {
+        position: absolute; top: 7px; left: 7px;
+        background: linear-gradient(135deg, #7856ed, #3cc5d9);
+        border-radius: 999px; padding: 3px 8px 3px 6px;
+        font-size: 0.6rem; font-weight: 800; color: #fff;
+        display: flex; align-items: center; gap: 3px;
+    }
+    .pg-photo-actions {
+        position: absolute; inset: 0;
+        background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 7px; opacity: 0; transition: opacity 0.22s;
+    }
+    .pg-photo-wrap:hover .pg-photo-actions { opacity: 1; }
+    .pg-act-btn {
+        padding: 7px 14px; border-radius: 10px;
+        font-size: 0.72rem; font-weight: 700;
+        border: none; cursor: pointer; font-family: inherit;
+        display: inline-flex; align-items: center; gap: 5px;
+        transition: all 0.2s; width: 130px; justify-content: center;
+    }
+    .pg-act-btn.set { background: linear-gradient(135deg,#7856ed,#3cc5d9); color: #fff; }
+    .pg-act-btn.set:hover { opacity: 0.88; }
+    .pg-act-btn.del { background: rgba(239,68,68,0.18); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .pg-act-btn.del:hover { background: rgba(239,68,68,0.3); }
+    .pg-add-tile {
+        aspect-ratio: 1 / 1; border-radius: 14px;
+        border: 2px dashed rgba(255,255,255,0.12);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 6px; cursor: pointer; transition: all 0.25s;
+        color: rgba(255,255,255,0.35);
+    }
+    .pg-add-tile:hover {
+        border-color: rgba(123,97,241,0.5);
+        background: rgba(123,97,241,0.05);
+        color: rgba(123,97,241,0.8);
+    }
+    .pg-add-tile i { font-size: 1.8rem; }
+    .pg-add-tile span { font-size: 0.72rem; font-weight: 700; }
+    .pg-empty-state { text-align: center; padding: 32px 0; color: rgba(255,255,255,0.3); font-size: 0.85rem; }
+    .pg-empty-state i { font-size: 3rem; display: block; margin-bottom: 10px; }
+    .pg-count-note { font-size: 0.72rem; color: rgba(255,255,255,0.3); margin-top: 14px; text-align: center; }
 
     .pr-head-info { flex: 1; min-width: 220px; padding-bottom: 6px; }
     .pr-name {
@@ -546,6 +633,9 @@
     <form id="bannerForm" action="{{ path('app_profile_upload_banner') }}" method="post" enctype="multipart/form-data" style="display:none;">
         <input type="file" id="bannerInput" name="banner" accept="image/jpeg,image/png,image/gif,image/webp">
     </form>
+    <form id="addPhotoForm" action="{{ path('app_profile_photo_add') }}" method="post" enctype="multipart/form-data" style="display:none;">
+        <input type="file" id="addPhotoInput" name="photo" accept="image/jpeg,image/png,image/gif,image/webp">
+    </form>
 
     {# â”€â”€ Banner â”€â”€ #}
     <div class="pr-banner">
@@ -571,11 +661,11 @@
     {# â”€â”€ Top Header â”€â”€ #}
     <div class="pr-top-wrap">
         <div class="pr-head">
-            <div class="pr-avatar-wrap">
-                <img src="{{ user.avatar_base64 ?: 'https://ui-avatars.com/api/?name=' ~ user.full_name|url_encode ~ '&size=260&background=7c5cfc&color=fff&bold=true&format=svg' }}" alt="{{ user.full_name }}" class="pr-avatar">
-                <button type="button" class="pr-avatar-btn" onclick="document.getElementById('avatarInput').click()">
-                    <i class='bx bx-camera'></i>
-                </button>
+            <div class="pr-avatar-wrap" onclick="document.getElementById('photosModal').classList.add('open')" style="cursor:pointer;" title="Manage profile photos">
+                <img src="{{ user.avatar_base64 ?: 'https://ui-avatars.com/api/?name=' ~ user.full_name|url_encode ~ '&size=260&background=7c5cfc&color=fff&bold=true&format=svg' }}" alt="{{ user.full_name }}" class="pr-avatar" id="mainAvatarImg">
+                <div class="pr-avatar-btn">
+                    <i class='bx bx-images'></i>
+                </div>
             </div>
             <div class="pr-head-info">
                 <h1 class="pr-name">{{ user.full_name }} <span class="pr-role-badge"><i class='bx bx-shield-quarter'></i> {{ user.role|lower|title }}</span></h1>
@@ -648,6 +738,19 @@
                     </div>
                     {% endif %}
                 </div>
+            </div>
+
+            {# Passkey / Face ID #}
+            <div class="pr-scard" style="animation-delay: .04s;">
+                <div class="pr-scard-label"><i class='bx bx-face' style="color:#79f0ff;margin-right:6px;"></i>Face ID / Passkey</div>
+                <p style="font-size:0.8rem;color:var(--muted);margin-bottom:14px;line-height:1.5;">Register your face or fingerprint to sign in without a password.</p>
+                <div id="passkeyStatus" style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;">Checking…</div>
+                <button type="button" class="pr-cta-btn" id="registerPasskeyBtn" onclick="registerPasskey()" style="display:none;">
+                    <i class='bx bx-fingerprint'></i> Register Passkey
+                </button>
+                <button type="button" class="pr-cta-btn" id="deletePasskeyBtn" onclick="deletePasskey()" style="display:none;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#f87171;box-shadow:none;">
+                    <i class='bx bx-trash'></i> Remove Passkey
+                </button>
             </div>
 
             {# Level #}
@@ -736,9 +839,10 @@
                 <div class="pr-qr-compact">
                     <canvas id="qrCanvas" width="180" height="180"></canvas>
                     <img id="qrImageSource" class="pr-qr-source" src="{{ path('app_profile_qr', { size: 520 }) }}" alt="">
+                    <p style="font-size:0.7rem; color: var(--muted); margin: 6px 0 0; opacity: 0.8;"><i class='bx bx-envelope' style='margin-right:4px;'></i>Scan to send me an email</p>
                     <div class="pr-qr-actions-sm">
-                        <button class="pr-qr-btn-sm primary" onclick="downloadQR()"><i class='bx bx-download'></i> PNG</button>
-                        <button class="pr-qr-btn-sm ghost" onclick="copyProfileLink()"><i class='bx bx-link'></i> Copy</button>
+                        <button class="pr-qr-btn-sm primary" onclick="downloadQR()"><i class='bx bx-download'></i> Download</button>
+                        <button class="pr-qr-btn-sm ghost" onclick="copyEmailLink()"><i class='bx bxs-envelope'></i> Copy Email</button>
                     </div>
                 </div>
             </div>
@@ -768,7 +872,7 @@
                                     <img class="pr-post-av" src="{{ user.avatarBase64 ?: 'https://ui-avatars.com/api/?name=' ~ user.fullName|url_encode ~ '&size=88&background=e2e8f0&color=0f172a&bold=true&format=svg' }}" alt="">
                                     <div>
                                         <div class="pr-post-author">{{ user.fullName }}</div>
-                                        <div class="pr-post-time">{{ topic.created_at|date('M d, Y Â· H:i') }}</div>
+                                        <div class="pr-post-time" title="{{ topic.created_at|date('M d, Y') }}">{{ topic.created_at|ago }}</div>
                                     </div>
                                     <span class="pr-post-cat {{ topic.category }}">{{ topic.category|replace({'_': ' '}) }}</span>
                                 </div>
@@ -839,7 +943,7 @@
                                 {% endif %}
                                 <div class="pr-course-footer">
                                     <span><i class='bx bx-file'></i> {{ course.exercise_count }} {{ 'profile.exercises'|trans }}</span>
-                                    <span>{{ course.created_at|date('M Y') }}</span>
+                                    <span title="{{ course.created_at|date('M Y') }}">{{ course.created_at|ago }}</span>
                                 </div>
                             </div>
                         {% endfor %}
@@ -940,7 +1044,7 @@
                                         {% endif %}
                                     </div>
                                     <div class="pr-tl-title">{{ item.title|default('Untitled') }}</div>
-                                    <div class="pr-tl-time">{{ item.created_at|date('M d Â· H:i') }}</div>
+                                    <div class="pr-tl-time" title="{{ item.created_at|date('M d, Y · H:i') }}">{{ item.created_at|ago }}</div>
                                 </div>
                             </div>
                         {% endfor %}
@@ -965,7 +1069,7 @@
                                 <div>
                                     <div class="pr-notif-title">{{ notif.title }}</div>
                                     <div class="pr-notif-msg">{{ notif.message|length > 60 ? notif.message|slice(0, 60) ~ 'â€¦' : notif.message }}</div>
-                                    <div class="pr-notif-time">{{ notif.created_at|date('M d Â· H:i') }}</div>
+                                    <div class="pr-notif-time" title="{{ notif.created_at|date('M d, Y · H:i') }}">{{ notif.created_at|ago }}</div>
                                 </div>
                             </div>
                         {% endfor %}
@@ -985,6 +1089,54 @@
     <div class="pr-qr-toast" id="qrToast">
         <i class='bx bx-check-circle'></i>
         <span id="qrToastMsg">Link copied!</span>
+    </div>
+    {# Photos Gallery Modal #}
+    <div class="pg-modal-bg" id="photosModal">
+        <div class="pg-modal">
+            <div class="pg-modal-head">
+                <h3><i class='bx bx-images' style="color:var(--purple);margin-right:8px;"></i>Profile Photos</h3>
+                <button class="pg-close" onclick="document.getElementById('photosModal').classList.remove('open')"><i class='bx bx-x'></i></button>
+            </div>
+
+            {% if profilePhotos|length > 0 %}
+                <div class="pg-grid">
+                    {% for photo in profilePhotos %}
+                        <div class="pg-photo-wrap {% if photo.is_active %}active{% endif %}">
+                            <img src="{{ photo.photo_data }}" alt="Profile photo {{ loop.index }}">
+                            {% if photo.is_active %}
+                                <div class="pg-active-badge"><i class='bx bx-check'></i> Active</div>
+                            {% endif %}
+                            <div class="pg-photo-actions">
+                                {% if not photo.is_active %}
+                                    <form method="post" action="{{ path('app_profile_photo_set_active', {id: photo.id}) }}">
+                                        <button type="submit" class="pg-act-btn set"><i class='bx bx-user-check'></i> Set as active</button>
+                                    </form>
+                                {% else %}
+                                    <div style="font-size:0.72rem;color:rgba(255,255,255,0.75);font-weight:700;"><i class='bx bx-check-circle'></i> Current photo</div>
+                                {% endif %}
+                                <form method="post" action="{{ path('app_profile_photo_delete', {id: photo.id}) }}" onsubmit="return confirm('Delete this photo?')">
+                                    <button type="submit" class="pg-act-btn del"><i class='bx bx-trash'></i> Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="pg-add-tile" onclick="document.getElementById('addPhotoInput').click()">
+                        <i class='bx bx-plus-circle'></i>
+                        <span>Add photo</span>
+                    </div>
+                </div>
+                <p class="pg-count-note">{{ profilePhotos|length }} photo{{ profilePhotos|length != 1 ? 's' : '' }} &middot; Hover to set active or delete</p>
+            {% else %}
+                <div class="pg-empty-state">
+                    <i class='bx bx-image-add'></i>
+                    <div>No profile photos yet.</div>
+                    <button type="button" class="pr-cta-btn" style="margin-top:16px;" onclick="document.getElementById('addPhotoInput').click()">
+                        <i class='bx bx-upload'></i> Upload your first photo
+                    </button>
+                </div>
+            {% endif %}
+        </div>
     </div>
 
     {# â”€â”€ Bio Edit Modal â”€â”€ #}
@@ -1010,6 +1162,106 @@ document.getElementById('avatarInput').addEventListener('change', function() {
 document.getElementById('bannerInput').addEventListener('change', function() {
     if (this.files.length > 0) document.getElementById('bannerForm').submit();
 });
+document.getElementById('addPhotoInput').addEventListener('change', function() {
+    if (this.files.length > 0) document.getElementById('addPhotoForm').submit();
+});
+
+// ── Passkey / Face ID ──
+(async function initPasskey() {
+    if (!window.PublicKeyCredential) return;
+
+    const statusEl  = document.getElementById('passkeyStatus');
+    const regBtn    = document.getElementById('registerPasskeyBtn');
+    const delBtn    = document.getElementById('deletePasskeyBtn');
+
+    try {
+        const res  = await fetch('/auth/webauthn/status');
+        const data = await res.json();
+        if (data.registered) {
+            statusEl.textContent  = '✓ A passkey is registered on this device.';
+            statusEl.style.color  = '#79f0ff';
+            delBtn.style.display  = 'inline-flex';
+        } else {
+            statusEl.textContent  = 'No passkey registered yet.';
+            regBtn.style.display  = 'inline-flex';
+        }
+    } catch (e) {
+        statusEl.textContent = 'Could not check passkey status.';
+    }
+})();
+
+async function registerPasskey() {
+    const btn = document.getElementById('registerPasskeyBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bx bx-loader-alt" style="animation:spin 0.8s linear infinite;"></i> Waiting…';
+
+    try {
+        const optRes  = await fetch('/auth/webauthn/register-options');
+        const optData = await optRes.json();
+        if (!optRes.ok) throw new Error(optData.error || 'Failed to get options');
+
+        const publicKey = prepareCreateOptions(optData.publicKey);
+        const cred      = await navigator.credentials.create({ publicKey });
+
+        const verifyRes = await fetch('/auth/webauthn/register', {
+            method:  'POST',
+            headers: {'Content-Type': 'application/json'},
+            body:    JSON.stringify({
+                clientDataJSON:    bufToB64(cred.response.clientDataJSON),
+                attestationObject: bufToB64(cred.response.attestationObject),
+            })
+        });
+        const verifyData = await verifyRes.json();
+        if (!verifyRes.ok) throw new Error(verifyData.error || 'Registration failed');
+
+        document.getElementById('passkeyStatus').textContent = '✓ Passkey registered!';
+        document.getElementById('passkeyStatus').style.color = '#79f0ff';
+        btn.style.display = 'none';
+        document.getElementById('deletePasskeyBtn').style.display = 'inline-flex';
+    } catch (e) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bx bx-fingerprint"></i> Register Passkey';
+        alert(e.name === 'NotAllowedError' ? 'Biometric prompt was cancelled.' : 'Error: ' + e.message);
+    }
+}
+
+async function deletePasskey() {
+    if (!confirm('Remove your registered passkey?')) return;
+    const res = await fetch('/auth/webauthn/delete', { method: 'POST' });
+    if (res.ok) {
+        document.getElementById('passkeyStatus').textContent = 'No passkey registered yet.';
+        document.getElementById('passkeyStatus').style.color = '';
+        document.getElementById('deletePasskeyBtn').style.display = 'none';
+        document.getElementById('registerPasskeyBtn').style.display = 'inline-flex';
+    }
+}
+
+function prepareCreateOptions(opts) {
+    opts.challenge = b64ToBuf(opts.challenge);
+    opts.user.id  = b64ToBuf(opts.user.id);
+    if (opts.excludeCredentials) {
+        opts.excludeCredentials = opts.excludeCredentials.map(c => ({ ...c, id: b64ToBuf(c.id) }));
+    }
+    return opts;
+}
+function b64ToBuf(b64) {
+    b64 = b64.replace(/-/g,'+').replace(/_/g,'/');
+    while (b64.length % 4) b64 += '=';
+    const bin = atob(b64);
+    const buf = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    return buf.buffer;
+}
+function bufToB64(buf) {
+    return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+const _ps = document.createElement('style');
+_ps.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+document.head.appendChild(_ps);
+// Close photo modal on backdrop click
+document.getElementById('photosModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+});
 document.getElementById('bioModal').addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('open');
 });
@@ -1023,6 +1275,7 @@ document.querySelectorAll('.pr-flash').forEach(function(el) {
 // â”€â”€ QR Code â”€â”€
 (function() {
     var profileUrl = '{{ profileShareUrl|e('js') }}';
+    var userEmail  = '{{ profileEmail|e('js') }}';
     var qrCanvas = document.getElementById('qrCanvas');
     var qrImageSource = document.getElementById('qrImageSource');
     var qrDownloadSourceUrl = '{{ path('app_profile_qr', { size: 800 }) }}';
@@ -1082,37 +1335,27 @@ document.querySelectorAll('.pr-flash').forEach(function(el) {
     }
 
     window.downloadQR = function() {
-        loadQrImage(qrDownloadSourceUrl).then(function(img) {
-            var c = document.createElement('canvas');
-            c.width = 800; c.height = 800;
-            var ctx = c.getContext('2d');
-            roundedRectPath(ctx, 0, 0, 800, 800, 40);
-            ctx.fillStyle = '#fff';
-            ctx.fill();
-            ctx.drawImage(img, 40, 40, 720, 720);
-            var link = document.createElement('a');
-            link.download = 'learnadapt-profile-qr.png';
-            link.href = c.toDataURL('image/png');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showQRToast('QR downloaded!');
-        }).catch(function() {
-            showQRToast('Unable to generate QR right now.');
-        });
+        var link = document.createElement('a');
+        link.download = 'learnadapt-profile-qr.svg';
+        link.href = qrDownloadSourceUrl + (qrDownloadSourceUrl.indexOf('?') === -1 ? '?' : '&') + 'download=1';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showQRToast('QR downloaded!');
     };
 
-    window.copyProfileLink = function() {
-        navigator.clipboard.writeText(profileUrl).then(function() {
-            showQRToast('Profile link copied!');
+    window.copyEmailLink = function() {
+        var emailAddress = userEmail;
+        navigator.clipboard.writeText(emailAddress).then(function() {
+            showQRToast('Email address copied!');
         }).catch(function() {
             var ta = document.createElement('textarea');
-            ta.value = profileUrl;
+            ta.value = emailAddress;
             document.body.appendChild(ta);
             ta.select();
             document.execCommand('copy');
             document.body.removeChild(ta);
-            showQRToast('Profile link copied!');
+            showQRToast('Email address copied!');
         });
     };
 

@@ -855,6 +855,10 @@
                             <i class="bx bxl-github"></i>
                             <span>{{ 'auth.github'|trans }}</span>
                         </a>
+                        <button type="button" class="social-button face-id-btn" id="faceIdBtn" onclick="startFaceIdLogin()" style="grid-column: 1 / -1; border-color: rgba(121,240,255,0.2);">
+                            <i class="bx bx-face" style="color:#79f0ff;"></i>
+                            <span>Sign in with Face ID / Passkey</span>
+                        </button>
                     </div>
 
                     <div class="separator">{{ 'auth.or'|trans }}</div>
@@ -1053,6 +1057,131 @@
                 particleField.appendChild(particle);
             }
         }
+    </script>
+
+    <script>
+    /* ── Face ID / WebAuthn Login ── */
+    async function startFaceIdLogin() {
+        if (!window.PublicKeyCredential) {
+            alert('Your browser does not support Face ID / passkeys.');
+            return;
+        }
+        if (location.hostname === '127.0.0.1') {
+            showFaceIdMsg('Open the app via localhost:8000 (not 127.0.0.1) to use Face ID / Passkey.', 'error');
+            return;
+        }
+
+        // Get email from the login form
+        const emailInput = document.querySelector('input[name="email"]');
+        const email = emailInput ? emailInput.value.trim() : '';
+        if (!email) {
+            emailInput && emailInput.focus();
+            showFaceIdMsg('Enter your email address first.', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('faceIdBtn');
+        const origContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bx bx-loader-alt" style="animation:spin 0.8s linear infinite;color:#79f0ff;"></i><span>Waiting for biometric…</span>';
+
+        try {
+            // Step 1: Get challenge from server
+            const optRes = await fetch('/auth/webauthn/login-options', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email })
+            });
+            const optData = await optRes.json();
+
+            if (!optRes.ok) {
+                showFaceIdMsg(optData.error || 'No passkey registered. Register one in your Profile.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = origContent;
+                return;
+            }
+
+            // Step 2: Trigger browser Face ID / biometric prompt
+            const publicKey = prepareGetOptions(optData.publicKey);
+            const credential = await navigator.credentials.get({ publicKey });
+
+            // Step 3: Send assertion to server
+            const verifyRes = await fetch('/auth/webauthn/login-verify', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    rawId:             bufToB64(credential.rawId),
+                    clientDataJSON:    bufToB64(credential.response.clientDataJSON),
+                    authenticatorData: bufToB64(credential.response.authenticatorData),
+                    signature:         bufToB64(credential.response.signature),
+                    userHandle:        credential.response.userHandle ? bufToB64(credential.response.userHandle) : null,
+                })
+            });
+            const verifyData = await verifyRes.json();
+
+            if (verifyRes.ok && verifyData.status === 'ok') {
+                showFaceIdMsg('Identity confirmed! Signing you in…', 'success');
+                setTimeout(() => window.location.href = verifyData.redirect || '/', 800);
+            } else {
+                showFaceIdMsg(verifyData.error || 'Verification failed.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = origContent;
+            }
+        } catch (err) {
+            if (err.name === 'NotAllowedError') {
+                showFaceIdMsg('Biometric prompt was cancelled.', 'error');
+            } else {
+                showFaceIdMsg('Error: ' + err.message, 'error');
+            }
+            btn.disabled = false;
+            btn.innerHTML = origContent;
+        }
+    }
+
+    function prepareGetOptions(opts) {
+        opts.challenge = b64ToBuf(opts.challenge);
+        if (opts.allowCredentials) {
+            opts.allowCredentials = opts.allowCredentials.map(c => ({
+                ...c,
+                id: b64ToBuf(c.id)
+            }));
+        }
+        return opts;
+    }
+
+    function b64ToBuf(b64) {
+        b64 = b64.replace(/-/g,'+').replace(/_/g,'/');
+        while (b64.length % 4) b64 += '=';
+        const bin = atob(b64);
+        const buf = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+        return buf.buffer;
+    }
+
+    function bufToB64(buf) {
+        return btoa(String.fromCharCode(...new Uint8Array(buf)));
+    }
+
+    function showFaceIdMsg(msg, type) {
+        let el = document.getElementById('faceIdMsg');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'faceIdMsg';
+            el.style.cssText = 'margin-top:10px;padding:10px 14px;border-radius:12px;font-size:0.82rem;text-align:center;border:1px solid;transition:all 0.3s;';
+            document.getElementById('faceIdBtn').after(el);
+        }
+        if (type === 'success') {
+            el.style.color='#aef7ff'; el.style.borderColor='rgba(121,240,255,0.3)'; el.style.background='rgba(71,200,255,0.1)';
+        } else {
+            el.style.color='#ffd7e1'; el.style.borderColor='rgba(242,122,160,0.24)'; el.style.background='rgba(178,67,106,0.1)';
+        }
+        el.textContent = msg;
+    }
+
+    // Spin keyframe for loader icon
+    const styleEl = document.createElement('style');
+    styleEl.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+    document.head.appendChild(styleEl);
     </script>
 </body>
 </html>

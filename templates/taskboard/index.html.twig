@@ -289,6 +289,155 @@ footer{display:none!important}
 @keyframes exportShine{0%{transform:translateX(-100%) rotate(45deg)}30%,100%{transform:translateX(100%) rotate(45deg)}}
 .kb-head-btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
+/* ══ AI PLANNER BUTTON ══ */
+.kb-ai-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;background:linear-gradient(135deg,#7b61f1,#38bdd1);border:none;border-radius:12px;color:#fff;font-weight:800;font-size:0.84rem;cursor:pointer;transition:all .2s ease;box-shadow:0 4px 20px rgba(123,97,241,0.35);font-family:inherit;position:relative;overflow:hidden;letter-spacing:0.02em}
+.kb-ai-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(123,97,241,0.45)}
+.kb-ai-btn::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,0.12),transparent);transform:rotate(45deg);animation:exportShine 2.5s ease-in-out infinite}
+.kb-ai-btn-icon{width:26px;height:26px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;animation:aiIconSpin 4s linear infinite}
+@keyframes aiIconSpin{0%,100%{transform:rotate(0deg)}25%{transform:rotate(10deg)}75%{transform:rotate(-10deg)}}
+
+/* ══ AI PLANNER MODAL ══ */
+.ai-modal-bg{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.ai-modal-bg.open{display:flex}
+.ai-modal{background:#0d1520;border:1px solid rgba(123,97,241,0.25);border-radius:24px;padding:0;width:100%;max-width:720px;box-shadow:0 32px 100px rgba(0,0,0,0.6),0 0 0 1px rgba(123,97,241,0.1);overflow:hidden;margin:auto;position:relative}
+[data-theme="light"] .ai-modal{background:#fff;border-color:rgba(123,97,241,0.2)}
+.ai-modal-header{padding:28px 32px 20px;background:linear-gradient(135deg,rgba(123,97,241,0.12),rgba(56,189,209,0.06));border-bottom:1px solid rgba(255,255,255,0.05);position:relative;overflow:hidden}
+.ai-modal-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7b61f1,#38bdd1,#34d399,#7b61f1);background-size:300% 100%;animation:analyticsShine 3s linear infinite}
+.ai-modal-header h2{font-size:1.35rem;font-weight:900;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.ai-modal-header h2 .ai-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:linear-gradient(135deg,#7b61f1,#38bdd1);border-radius:20px;font-size:0.6rem;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#fff}
+.ai-modal-header p{font-size:0.82rem;color:var(--muted);margin:0}
+.ai-modal-close{position:absolute;top:20px;right:20px;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--muted);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.ai-modal-close:hover{background:rgba(239,68,68,0.1);color:var(--red);border-color:rgba(239,68,68,0.2)}
+.ai-modal-body{padding:28px 32px}
+
+/* Input group */
+.ai-form-group{margin-bottom:18px}
+.ai-form-group label{display:flex;align-items:center;gap:6px;font-size:0.72rem;font-weight:800;color:var(--text);margin-bottom:7px;text-transform:uppercase;letter-spacing:0.06em;opacity:0.8}
+.ai-form-group label i{font-size:0.9rem;color:var(--purple)}
+.ai-form-group textarea,.ai-form-group input,.ai-form-group select{width:100%;padding:12px 16px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);border-radius:12px;color:var(--text);font-size:0.88rem;font-family:inherit;transition:all .2s;resize:vertical}
+[data-theme="light"] .ai-form-group textarea,[data-theme="light"] .ai-form-group input,[data-theme="light"] .ai-form-group select{background:#f8f9fb;border-color:rgba(0,0,0,0.1);color:var(--text)}
+.ai-form-group textarea:focus,.ai-form-group input:focus,.ai-form-group select:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 4px rgba(123,97,241,0.1)}
+.ai-form-group select option{background:#0d1520;color:#f6f8fc}
+[data-theme="light"] .ai-form-group select option{background:#fff;color:#1a1a2e}
+.ai-form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:600px){.ai-form-grid{grid-template-columns:1fr}}
+
+/* Generate button */
+.ai-gen-btn{width:100%;padding:16px;background:linear-gradient(135deg,#7b61f1,#38bdd1);border:none;border-radius:14px;color:#fff;font-size:1rem;font-weight:900;cursor:pointer;font-family:inherit;letter-spacing:0.03em;transition:all .2s;box-shadow:0 6px 28px rgba(123,97,241,0.35);display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;position:relative;overflow:hidden}
+.ai-gen-btn:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(123,97,241,0.45)}
+.ai-gen-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.ai-gen-btn::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,0.1),transparent);transform:rotate(45deg);animation:btnShine 2s ease-in-out infinite}
+
+/* Loading state */
+.ai-loading{display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:16px}
+.ai-loading.show{display:flex}
+.ai-loading-ring{width:60px;height:60px;position:relative}
+.ai-loading-ring::before,.ai-loading-ring::after{content:'';position:absolute;inset:0;border-radius:50%;border:3px solid transparent}
+.ai-loading-ring::before{border-top-color:var(--purple);animation:ringRotate .8s linear infinite}
+.ai-loading-ring::after{border-bottom-color:var(--cyan);animation:ringRotate .6s linear infinite reverse;inset:6px}
+@keyframes ringRotate{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.ai-loading-dots{display:flex;gap:6px}
+.ai-loading-dot{width:8px;height:8px;border-radius:50%;animation:dotBounce .6s ease-in-out infinite}
+.ai-loading-dot:nth-child(1){background:var(--purple);animation-delay:0s}
+.ai-loading-dot:nth-child(2){background:var(--cyan);animation-delay:.1s}
+.ai-loading-dot:nth-child(3){background:var(--green);animation-delay:.2s}
+@keyframes dotBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.ai-loading-text{font-size:0.9rem;font-weight:700;color:var(--muted);animation:aiLoadText 2s ease-in-out infinite}
+@keyframes aiLoadText{0%,100%{opacity:0.5}50%{opacity:1}}
+
+/* Plan result */
+.ai-result{display:none}
+.ai-result.show{display:block}
+.ai-result-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.ai-result-header h3{font-size:0.92rem;font-weight:800;display:flex;align-items:center;gap:8px;color:var(--green)}
+.ai-result-header .ai-result-meta{font-size:0.74rem;color:var(--muted)}
+.ai-plan-table{width:100%;border-collapse:collapse;margin-bottom:20px}
+.ai-plan-table th{padding:9px 14px;font-size:0.62rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)}
+.ai-plan-table td{padding:11px 14px;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle}
+.ai-plan-table tr:last-child td{border-bottom:none}
+.ai-plan-table tr{transition:background .15s}
+.ai-plan-table tr:hover td{background:rgba(123,97,241,0.04)}
+.ai-step-num{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,rgba(123,97,241,0.2),rgba(56,189,209,0.1));display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:0.78rem;color:var(--purple)}
+.ai-type-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;font-size:0.64rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em}
+.ai-type-read{background:rgba(56,189,209,0.12);color:var(--cyan)}
+.ai-type-summarize,.ai-type-summary{background:rgba(123,97,241,0.12);color:var(--purple)}
+.ai-type-quiz{background:rgba(251,191,36,0.12);color:#fbbf24}
+.ai-type-exercise{background:rgba(251,146,60,0.12);color:#fb923c}
+.ai-type-review{background:rgba(52,211,153,0.12);color:var(--green)}
+.ai-type-practice{background:rgba(239,68,68,0.12);color:var(--red)}
+.ai-type-study{background:rgba(255,255,255,0.06);color:var(--muted)}
+.ai-prio-badge{display:inline-flex;padding:2px 8px;border-radius:6px;font-size:0.6rem;font-weight:800;text-transform:uppercase}
+.ai-prio-HIGH{background:rgba(239,68,68,0.1);color:var(--red)}
+.ai-prio-MEDIUM{background:rgba(251,146,60,0.1);color:#fb923c}
+.ai-prio-LOW{background:rgba(52,211,153,0.1);color:var(--green)}
+.ai-duration{font-size:0.8rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:4px;white-space:nowrap}
+.ai-duration i{color:var(--red);font-size:0.8rem}
+
+/* Import button */
+.ai-import-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--green),#059669);border:none;border-radius:14px;color:#fff;font-size:0.94rem;font-weight:900;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;box-shadow:0 6px 24px rgba(52,211,153,0.25);letter-spacing:0.02em;position:relative;overflow:hidden}
+.ai-import-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(52,211,153,0.35)}
+.ai-import-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.ai-import-btn::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,0.1),transparent);transform:rotate(45deg);animation:btnShine 2.5s ease-in-out infinite}
+.ai-total-time{text-align:center;font-size:0.78rem;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px}
+.ai-total-time strong{color:var(--purple)}
+
+/* ══ FOCUS MODE OVERLAY ══ */
+.focus-mode-overlay{display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.92);backdrop-filter:blur(20px);align-items:center;justify-content:center;flex-direction:column;gap:20px}
+.focus-mode-overlay.show{display:flex}
+.focus-mode-overlay .fmo-icon{font-size:4rem;animation:pomoBadgePulse 1.5s ease-in-out infinite}
+.focus-mode-overlay .fmo-title{font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--red),var(--orange));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.focus-mode-overlay .fmo-sub{font-size:1rem;color:var(--muted);max-width:400px;text-align:center}
+.focus-mode-overlay .fmo-btn{padding:14px 36px;background:linear-gradient(135deg,var(--purple),var(--cyan));border:none;border-radius:14px;color:#fff;font-weight:800;font-size:1rem;cursor:pointer;font-family:inherit;margin-top:10px;transition:all .2s}
+.focus-mode-overlay .fmo-btn:hover{transform:scale(1.04)}
+.focus-mode-toggle{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(123,97,241,0.08);border:1.5px solid rgba(123,97,241,0.15);border-radius:12px;color:var(--purple);font-size:0.78rem;font-weight:800;cursor:pointer;transition:all .2s;font-family:inherit;letter-spacing:0.04em}
+.focus-mode-toggle:hover,.focus-mode-toggle.active{background:rgba(123,97,241,0.15);border-color:rgba(123,97,241,0.35);box-shadow:0 0 12px rgba(123,97,241,0.15)}
+.focus-mode-toggle.active{color:#7b61f1}
+
+/* ══ SMART POMO TOAST ══ */
+.smart-pomo-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9998;background:linear-gradient(135deg,#0d1520,#1a1e2e);border:1px solid rgba(123,97,241,0.25);border-radius:16px;padding:14px 22px;min-width:320px;max-width:480px;box-shadow:0 12px 40px rgba(0,0,0,0.5);display:none;align-items:center;gap:12px;opacity:0;transition:all .4s cubic-bezier(0.34,1.56,0.64,1)}
+.smart-pomo-toast.show{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
+.smart-pomo-toast .spt-icon{font-size:1.8rem;flex-shrink:0}
+.smart-pomo-toast .spt-body{flex:1}
+.smart-pomo-toast .spt-title{font-size:0.82rem;font-weight:800;color:var(--text);margin-bottom:2px}
+.smart-pomo-toast .spt-msg{font-size:0.75rem;color:var(--muted)}
+.smart-pomo-toast .spt-act{display:flex;gap:6px;margin-top:8px}
+.smart-pomo-toast .spt-btn{padding:6px 14px;border-radius:8px;font-size:0.72rem;font-weight:800;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+.smart-pomo-toast .spt-yes{background:var(--purple);color:#fff}
+.smart-pomo-toast .spt-no{background:rgba(255,255,255,0.06);color:var(--muted);border:1px solid var(--border)}
+.smart-pomo-toast .spt-yes:hover{opacity:.85}
+.smart-pomo-toast .spt-no:hover{color:var(--text)}
+
+/* ══ AI WEEKLY REPORT MODAL ══ */
+.ai-report-modal-bg{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.ai-report-modal-bg.open{display:flex}
+.ai-report-modal{background:#0d1520;border:1px solid rgba(56,189,209,0.2);border-radius:24px;width:100%;max-width:640px;box-shadow:0 32px 100px rgba(0,0,0,0.6);overflow:hidden;margin:auto}
+[data-theme="light"] .ai-report-modal{background:#fff}
+.ai-report-header{padding:28px 32px 20px;background:linear-gradient(135deg,rgba(56,189,209,0.1),rgba(123,97,241,0.06));border-bottom:1px solid rgba(255,255,255,0.05);position:relative}
+.ai-report-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--cyan),var(--purple),var(--green),var(--cyan));background-size:300% 100%;animation:analyticsShine 3s linear infinite}
+.ai-report-header h2{font-size:1.25rem;font-weight:900;display:flex;align-items:center;gap:10px}
+.ai-report-body{padding:28px 32px}
+.ai-report-score-ring{display:flex;flex-direction:column;align-items:center;margin-bottom:24px}
+.ai-score-circle{width:120px;height:120px;position:relative;display:flex;align-items:center;justify-content:center}
+.ai-score-circle svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+.ai-score-num{font-size:2.4rem;font-weight:900;position:relative;z-index:1}
+.ai-score-grade{font-size:0.72rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:2px;position:relative;z-index:1}
+.ai-report-summary{text-align:center;font-size:0.88rem;color:var(--muted);margin-bottom:22px;line-height:1.6;padding:0 12px}
+.ai-insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px}
+@media(max-width:480px){.ai-insights-grid{grid-template-columns:1fr}}
+.ai-insight-card{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px}
+[data-theme="light"] .ai-insight-card{background:#f8f9fb;border-color:rgba(0,0,0,0.07)}
+.ai-insight-icon{font-size:1.5rem;margin-bottom:6px}
+.ai-insight-title{font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:4px}
+.ai-insight-body{font-size:0.82rem;color:var(--text);line-height:1.5}
+.ai-next-week{margin-bottom:20px}
+.ai-next-week h4{font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ai-next-week h4 i{color:var(--cyan)}
+.ai-next-week ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.ai-next-week li{display:flex;align-items:flex-start;gap:10px;font-size:0.83rem;padding:10px 14px;background:rgba(56,189,209,0.04);border:1px solid rgba(56,189,209,0.1);border-radius:10px}
+.ai-next-week li::before{content:'→';color:var(--cyan);font-weight:900;flex-shrink:0}
+.ai-report-close{width:100%;padding:13px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-weight:700;font-size:0.84rem;cursor:pointer;font-family:inherit;transition:all .15s;margin-top:4px}
+.ai-report-close:hover{border-color:var(--purple);color:var(--purple)}
+
 /* ══ ANALYTICS DASHBOARD ══ */
 .kb-analytics{background:var(--glass);border:1px solid var(--border);border-radius:22px;padding:28px 32px;margin-bottom:28px;backdrop-filter:blur(14px);position:relative;overflow:hidden}
 .kb-analytics::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple),var(--cyan),var(--green),var(--purple));background-size:300% 100%;animation:analyticsShine 4s linear infinite}
@@ -379,6 +528,10 @@ footer{display:none!important}
         <p>{{ 'taskboard.subtitle'|trans }}</p>
     </div>
     <div class="kb-head-btns">
+        <button class="kb-ai-btn" onclick="document.getElementById('aiPlannerModal').classList.add('open')">
+            <span class="kb-ai-btn-icon">🧠</span>
+            <span>AI Study Planner</span>
+        </button>
         <button class="kb-add-btn" onclick="document.getElementById('addModal').classList.add('open')">
             <i class='bx bx-plus'></i> {{ 'taskboard.add_task'|trans }}
         </button>
@@ -428,9 +581,17 @@ footer{display:none!important}
             <h2><i class='bx bx-bar-chart-alt-2'></i> {{ 'taskboard.analytics_title'|trans|default('Analytics Dashboard') }}</h2>
             <div class="sub">{{ 'taskboard.analytics_sub'|trans|default('Pomodoro focus time & productivity insights') }}</div>
         </div>
-        <button class="kb-analytics-toggle" onclick="let b=document.getElementById('analyBody');b.classList.toggle('open');this.innerHTML=b.classList.contains('open')?'<i class=\'bx bx-chevron-up\'></i> {{ 'taskboard.hide'|trans|default('Hide') }}':'<i class=\'bx bx-chevron-down\'></i> {{ 'taskboard.show'|trans|default('Show') }}'">
-            <i class='bx bx-chevron-down'></i> {{ 'taskboard.show'|trans|default('Show') }}
-        </button>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <button class="focus-mode-toggle" id="focusModeToggle" onclick="toggleFocusMode()">
+                <i class='bx bx-target-lock'></i> Focus Mode
+            </button>
+            <button class="kb-analytics-toggle" id="aiReportBtn" onclick="openAiReport()" style="background:rgba(56,189,209,0.06);border-color:rgba(56,189,209,0.15);color:var(--cyan)">
+                <i class='bx bx-brain'></i> AI Weekly Report
+            </button>
+            <button class="kb-analytics-toggle" onclick="let b=document.getElementById('analyBody');b.classList.toggle('open');this.innerHTML=b.classList.contains('open')?'<i class=\'bx bx-chevron-up\'></i> {{ 'taskboard.hide'|trans|default('Hide') }}':'<i class=\'bx bx-chevron-down\'></i> {{ 'taskboard.show'|trans|default('Show') }}'">
+                <i class='bx bx-chevron-down'></i> {{ 'taskboard.show'|trans|default('Show') }}
+            </button>
+        </div>
     </div>
     <div class="kb-analytics-body" id="analyBody">
 
@@ -465,22 +626,11 @@ footer{display:none!important}
 
         {# Charts #}
         <div class="kb-charts">
-            {# Bar chart – last 7 days #}
+            {# Bar chart – last 7 days — powered by Chart.js (via symfony/ux-chartjs data) #}
             <div class="kb-chart-box">
                 <h3><i class='bx bx-bar-chart-square'></i> {{ 'taskboard.weekly_focus'|trans|default('Weekly Focus (minutes)') }}</h3>
-                {% set maxMin = 1 %}
-                {% for d in weekData %}{% if d.minutes > maxMin %}{% set maxMin = d.minutes %}{% endif %}{% endfor %}
-                <div class="kb-bars">
-                    {% for d in weekData %}
-                    {% set pct = maxMin > 0 ? (d.minutes / maxMin * 100) : 0 %}
-                    <div class="kb-bar-col" style="animation-delay:{{ loop.index * 0.1 }}s">
-                        <div class="kb-bar-val">{{ d.minutes }}m</div>
-                        <div class="kb-bar" style="height:{{ pct > 0 ? pct : 3 }}%;animation-delay:{{ loop.index * 0.12 }}s">
-                            <div class="kb-bar-tip">{{ d.minutes }} min · {{ d.sessions }} sess.</div>
-                        </div>
-                        <div class="kb-bar-day">{{ d.day|date('D') }}</div>
-                    </div>
-                    {% endfor %}
+                <div style="height:180px;position:relative">
+                    <canvas id="pomodoroWeekChart"></canvas>
                 </div>
             </div>
 
@@ -809,6 +959,174 @@ footer{display:none!important}
                 <button type="submit" class="kb-modal-submit" style="background:linear-gradient(135deg,var(--cyan),#5dd8e8)"><i class='bx bx-save' style="vertical-align:middle;margin-right:4px"></i> {{ 'taskboard.save_changes'|trans }}</button>
             </div>
         </form>
+    </div>
+</div>
+
+{# ══ AI STUDY PLANNER MODAL ══ #}
+<div class="ai-modal-bg" id="aiPlannerModal">
+    <div class="ai-modal">
+        <div class="ai-modal-header">
+            <h2>
+                🧠 AI Study Planner
+                <span class="ai-badge">✨ Premium</span>
+            </h2>
+            <p>Describe your study goal — AI will build a structured plan & add tasks to your board.</p>
+            <button class="ai-modal-close" onclick="closeAiPlanner()"><i class='bx bx-x'></i></button>
+        </div>
+        <div class="ai-modal-body">
+
+            {# Form #}
+            <div id="aiPlanForm">
+                <div class="ai-form-group">
+                    <label><i class='bx bx-edit'></i> Study Goal</label>
+                    <textarea id="aiGoal" rows="2" placeholder="e.g. I want to master probability theory for my exam on Friday…"></textarea>
+                </div>
+                <div class="ai-form-grid">
+                    <div class="ai-form-group">
+                        <label><i class='bx bx-book-open'></i> Subject</label>
+                        <select id="aiSubject">
+                            <option>Mathematics</option>
+                            <option>Physics</option>
+                            <option>Chemistry</option>
+                            <option>Biology</option>
+                            <option>Computer Science</option>
+                            <option>History</option>
+                            <option>Literature</option>
+                            <option>Languages</option>
+                            <option>Economics</option>
+                            <option selected>General</option>
+                        </select>
+                    </div>
+                    <div class="ai-form-group">
+                        <label><i class='bx bx-time'></i> Available Time</label>
+                        <select id="aiTime">
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60" selected>1 hour</option>
+                            <option value="90">1h 30min</option>
+                            <option value="120">2 hours</option>
+                            <option value="180">3 hours</option>
+                            <option value="240">4 hours</option>
+                        </select>
+                    </div>
+                    <div class="ai-form-group">
+                        <label><i class='bx bx-signal-5'></i> Level</label>
+                        <select id="aiLevel">
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate" selected>Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="ai-gen-btn" id="aiGenBtn" onclick="generateAiPlan()">
+                    <i class='bx bx-brain'></i> Generate My Study Plan
+                </button>
+            </div>
+
+            {# Loading #}
+            <div class="ai-loading" id="aiLoading">
+                <div class="ai-loading-ring"></div>
+                <div class="ai-loading-dots">
+                    <div class="ai-loading-dot"></div>
+                    <div class="ai-loading-dot"></div>
+                    <div class="ai-loading-dot"></div>
+                </div>
+                <div class="ai-loading-text" id="aiLoadText">AI is building your plan…</div>
+            </div>
+
+            {# Result #}
+            <div class="ai-result" id="aiResult">
+                <div class="ai-result-header">
+                    <h3><i class='bx bx-check-circle'></i> Your AI Study Plan</h3>
+                    <div class="ai-result-meta" id="aiResultMeta"></div>
+                </div>
+                <table class="ai-plan-table" id="aiPlanTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Action</th>
+                            <th>Type</th>
+                            <th>Priority</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody id="aiPlanBody"></tbody>
+                </table>
+                <div class="ai-total-time" id="aiTotalTime"></div>
+                <button class="ai-import-btn" id="aiImportBtn" onclick="importPlanToBoard()">
+                    <i class='bx bx-import'></i> Import All to Board &amp; Start
+                </button>
+                <div style="text-align:center;margin-top:10px">
+                    <button onclick="resetAiPlanner()" style="background:none;border:none;color:var(--muted);font-size:0.78rem;cursor:pointer;font-family:inherit;text-decoration:underline">← Plan something else</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{# ══ AI WEEKLY REPORT MODAL ══ #}
+<div class="ai-report-modal-bg" id="aiReportModal">
+    <div class="ai-report-modal">
+        <div class="ai-report-header">
+            <h2><i class='bx bx-trending-up' style="color:var(--cyan)"></i> AI Weekly Report</h2>
+            <p style="font-size:0.8rem;color:var(--muted);margin-top:4px">Personalized AI analysis of your study week</p>
+            <button class="ai-modal-close" onclick="document.getElementById('aiReportModal').classList.remove('open')" style="top:20px;right:20px"><i class='bx bx-x'></i></button>
+        </div>
+        <div class="ai-report-body" id="aiReportBody">
+            <div class="ai-loading show" id="aiReportLoading" style="padding:60px 20px">
+                <div class="ai-loading-ring"></div>
+                <div class="ai-loading-dots">
+                    <div class="ai-loading-dot"></div>
+                    <div class="ai-loading-dot"></div>
+                    <div class="ai-loading-dot"></div>
+                </div>
+                <div class="ai-loading-text">Analyzing your week…</div>
+            </div>
+            <div id="aiReportContent" style="display:none">
+                <div class="ai-report-score-ring">
+                    <div class="ai-score-circle">
+                        <svg viewBox="0 0 120 120" width="120" height="120">
+                            <circle cx="60" cy="60" r="54" stroke="rgba(255,255,255,0.06)" stroke-width="10" fill="none"/>
+                            <circle id="aiScoreRing" cx="60" cy="60" r="54" stroke="var(--cyan)" stroke-width="10" fill="none" stroke-linecap="round"
+                                    stroke-dasharray="339.29" stroke-dashoffset="339.29"/>
+                        </svg>
+                        <div class="ai-score-num" id="aiScoreNum">—</div>
+                    </div>
+                    <div style="text-align:center;margin-top:6px">
+                        <div id="aiScoreGrade" style="font-size:1.1rem;font-weight:900;color:var(--cyan)"></div>
+                    </div>
+                </div>
+                <div class="ai-report-summary" id="aiReportSummary"></div>
+                <div class="ai-insights-grid" id="aiInsightsGrid"></div>
+                <div class="ai-next-week" id="aiNextWeek">
+                    <h4><i class='bx bx-calendar-check'></i> Next Week Action Plan</h4>
+                    <ul id="aiNextWeekList"></ul>
+                </div>
+                <button class="ai-report-close" onclick="document.getElementById('aiReportModal').classList.remove('open')">Close Report</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ══ FOCUS MODE OVERLAY ══ #}
+<div class="focus-mode-overlay" id="focusModeOverlay">
+    <div class="fmo-icon">🎯</div>
+    <div class="fmo-title">You Left Focus Mode!</div>
+    <div class="fmo-sub">Your Pomodoro timer is still running. Stay focused — you're almost there!</div>
+    <button class="fmo-btn" onclick="returnToFocus()">↩ Return to Focus</button>
+</div>
+
+{# ══ SMART POMODORO TOAST ══ #}
+<div class="smart-pomo-toast" id="smartPomoToast">
+    <div class="spt-icon" id="sptIcon">🤖</div>
+    <div class="spt-body">
+        <div class="spt-title" id="sptTitle">AI Suggestion</div>
+        <div class="spt-msg" id="sptMsg"></div>
+        <div class="spt-act">
+            <button class="spt-btn spt-yes" id="sptYes" onclick="smartPomoAccept()">Apply</button>
+            <button class="spt-btn spt-no" onclick="dismissSmartToast()">Dismiss</button>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -1187,5 +1505,398 @@ function setPreset(w,b,c,btn) {
 document.querySelectorAll('.kb-flash').forEach(function(el) {
     setTimeout(function() { el.style.opacity='0'; el.style.transform='translateY(-10px)'; setTimeout(function(){el.remove()},400); }, 4000);
 });
+
+// ══════════════════════════════════════════════════
+// AI STUDY PLANNER
+// ══════════════════════════════════════════════════
+var _aiCurrentPlan = [];
+
+function closeAiPlanner() {
+    document.getElementById('aiPlannerModal').classList.remove('open');
+}
+document.getElementById('aiPlannerModal').addEventListener('click', function(e) {
+    if (e.target === this) closeAiPlanner();
+});
+
+var aiLoadingMessages = [
+    'AI is building your plan…',
+    'Analyzing study patterns…',
+    'Optimizing Pomodoro sessions…',
+    'Structuring your learning path…',
+    'Almost ready…'
+];
+
+function generateAiPlan() {
+    var goal    = document.getElementById('aiGoal').value.trim();
+    var subject = document.getElementById('aiSubject').value;
+    var time    = document.getElementById('aiTime').value;
+    var level   = document.getElementById('aiLevel').value;
+
+    if (!goal) {
+        document.getElementById('aiGoal').focus();
+        document.getElementById('aiGoal').style.borderColor = 'var(--red)';
+        setTimeout(function(){ document.getElementById('aiGoal').style.borderColor = ''; }, 2000);
+        return;
+    }
+
+    // Show loading
+    document.getElementById('aiPlanForm').style.display = 'none';
+    document.getElementById('aiLoading').classList.add('show');
+    document.getElementById('aiResult').classList.remove('show');
+
+    // Cycle loading messages
+    var msgEl = document.getElementById('aiLoadText');
+    var msgIdx = 0;
+    var msgTimer = setInterval(function() {
+        msgIdx = (msgIdx + 1) % aiLoadingMessages.length;
+        msgEl.textContent = aiLoadingMessages[msgIdx];
+    }, 1800);
+
+    var fd = new FormData();
+    fd.append('goal', goal);
+    fd.append('subject', subject);
+    fd.append('time', time);
+    fd.append('level', level);
+
+    fetch('{{ path("app_taskboard_ai_plan") }}', { method: 'POST', body: fd })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+        clearInterval(msgTimer);
+        document.getElementById('aiLoading').classList.remove('show');
+
+        if (data.error) {
+            document.getElementById('aiPlanForm').style.display = '';
+            alert('⚠️ ' + data.error);
+            return;
+        }
+
+        _aiCurrentPlan = data.plan;
+        renderAiPlan(data);
+    })
+    .catch(function(e) {
+        clearInterval(msgTimer);
+        document.getElementById('aiLoading').classList.remove('show');
+        document.getElementById('aiPlanForm').style.display = '';
+        alert('Network error. Please check your connection.');
+    });
+}
+
+function typeIcons(type) {
+    var map = { read:'📖', summarize:'✏️', summary:'✏️', quiz:'🧩', exercise:'💪', review:'🔄', practice:'🎯', study:'📚' };
+    return map[type] || '📚';
+}
+
+function renderAiPlan(data) {
+    var tbody = document.getElementById('aiPlanBody');
+    tbody.innerHTML = '';
+    var totalMin = 0;
+
+    data.plan.forEach(function(step) {
+        totalMin += step.duration;
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td><div class="ai-step-num">' + step.step + '</div></td>' +
+            '<td style="font-weight:700;color:var(--text)">' + typeIcons(step.type) + ' ' + escHtml(step.action) + '</td>' +
+            '<td><span class="ai-type-badge ai-type-' + step.type + '">' + step.type + '</span></td>' +
+            '<td><span class="ai-prio-badge ai-prio-' + step.priority + '">' + step.priority + '</span></td>' +
+            '<td><div class="ai-duration"><i class=\'bx bx-timer\'></i> ' + step.duration + ' min</div></td>';
+        tbody.appendChild(tr);
+    });
+
+    var h = Math.floor(totalMin / 60);
+    var m = totalMin % 60;
+    var timeStr = h > 0 ? h + 'h ' + (m > 0 ? m + 'min' : '') : m + 'min';
+    document.getElementById('aiTotalTime').innerHTML =
+        '<i class=\'bx bx-time-five\'></i>&nbsp; Total study time: <strong>' + timeStr.trim() + '</strong> across ' + data.plan.length + ' sessions';
+
+    document.getElementById('aiResultMeta').textContent = data.subject + ' · ' + data.goal.substring(0, 60) + (data.goal.length > 60 ? '…' : '');
+    document.getElementById('aiResult').classList.add('show');
+}
+
+function importPlanToBoard() {
+    if (!_aiCurrentPlan.length) return;
+    var btn = document.getElementById('aiImportBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class=\'bx bx-loader-alt bx-spin\'></i> Importing…';
+
+    fetch('{{ path("app_taskboard_ai_import") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ steps: _aiCurrentPlan })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+        if (data.ok) {
+            btn.innerHTML = '<i class=\'bx bx-check\'></i> ' + data.count + ' tasks added to board!';
+            btn.style.background = 'linear-gradient(135deg,var(--green),#059669)';
+            setTimeout(function() {
+                closeAiPlanner();
+                window.location.reload();
+            }, 1400);
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<i class=\'bx bx-import\'></i> Import All to Board';
+            alert('Import failed. Please try again.');
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class=\'bx bx-import\'></i> Import All to Board';
+        alert('Network error.');
+    });
+}
+
+function resetAiPlanner() {
+    _aiCurrentPlan = [];
+    document.getElementById('aiPlanForm').style.display = '';
+    document.getElementById('aiLoading').classList.remove('show');
+    document.getElementById('aiResult').classList.remove('show');
+    document.getElementById('aiImportBtn').disabled = false;
+    document.getElementById('aiImportBtn').innerHTML = '<i class=\'bx bx-import\'></i> Import All to Board &amp; Start';
+}
+
+function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════════════════
+// FOCUS MODE
+// ══════════════════════════════════════════════════
+var _focusModeActive = false;
+
+function toggleFocusMode() {
+    _focusModeActive = !_focusModeActive;
+    var btn = document.getElementById('focusModeToggle');
+    if (_focusModeActive) {
+        btn.classList.add('active');
+        btn.innerHTML = '<i class=\'bx bx-target-lock\'></i> Focus ON 🔥';
+        btn.style.background = 'rgba(248,113,113,0.1)';
+        btn.style.borderColor = 'rgba(248,113,113,0.3)';
+        btn.style.color = 'var(--red)';
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '<i class=\'bx bx-target-lock\'></i> Focus Mode';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        document.getElementById('focusModeOverlay').classList.remove('show');
+    }
+}
+
+function returnToFocus() {
+    document.getElementById('focusModeOverlay').classList.remove('show');
+    window.focus();
+}
+
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden && _focusModeActive && window._pomoRunning) {
+        // Show overlay when user comes back
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('⚠️ Focus Interrupted!', { body: 'You left the study tab. Your timer is still running — come back!' });
+        }
+    } else if (!document.hidden && _focusModeActive && window._pomoRunning) {
+        document.getElementById('focusModeOverlay').classList.add('show');
+        setTimeout(function(){ document.getElementById('focusModeOverlay').classList.remove('show'); }, 5000);
+    }
+});
+
+// ══════════════════════════════════════════════════
+// SMART POMODORO AI TIPS
+// ══════════════════════════════════════════════════
+var _pauseCount = 0;
+var _lastPauseTime = null;
+var _totalPauseSec = 0;
+var _smartPomoAcceptFn = null;
+
+function showSmartToast(icon, title, msg, yesLabel, acceptFn) {
+    document.getElementById('sptIcon').textContent = icon;
+    document.getElementById('sptTitle').textContent = title;
+    document.getElementById('sptMsg').textContent = msg;
+    document.getElementById('sptYes').textContent = yesLabel;
+    _smartPomoAcceptFn = acceptFn;
+    var toast = document.getElementById('smartPomoToast');
+    toast.style.display = 'flex';
+    requestAnimationFrame(function(){ toast.classList.add('show'); });
+    setTimeout(dismissSmartToast, 12000);
+}
+
+function dismissSmartToast() {
+    var toast = document.getElementById('smartPomoToast');
+    toast.classList.remove('show');
+    setTimeout(function(){ toast.style.display = 'none'; }, 400);
+}
+
+function smartPomoAccept() {
+    if (_smartPomoAcceptFn) _smartPomoAcceptFn();
+    dismissSmartToast();
+}
+
+// Hook into Pomodoro pause/resume to detect fatigue or flow
+(function patchPomodoro() {
+    var pauseBtn = document.getElementById('pomoPause');
+    if (!pauseBtn) return;
+
+    var _origPause = pauseBtn.onclick;
+    pauseBtn.addEventListener('click', function() {
+        _pauseCount++;
+        _lastPauseTime = Date.now();
+
+        // After 2+ pauses, suggest shorter sessions
+        if (_pauseCount === 2) {
+            setTimeout(function() {
+                if (!window._pomoRunning) return;
+                showSmartToast(
+                    '😴', 'Feeling a bit tired?',
+                    'You\'ve paused ' + _pauseCount + ' times. AI suggests switching to a 15-min session with more breaks.',
+                    'Switch to 15/5',
+                    function() {
+                        document.getElementById('pomoWork').value = 15;
+                        document.getElementById('pomoBreak').value = 5;
+                        window._pomoReset();
+                    }
+                );
+            }, 500);
+        }
+    });
+
+    // Track long uninterrupted focus → suggest extending
+    var _focusStartTime = null;
+    var _flowCheckInterval = setInterval(function() {
+        if (!window._pomoRunning) { _focusStartTime = null; return; }
+        if (!_focusStartTime) { _focusStartTime = Date.now(); return; }
+        var elapsed = (Date.now() - _focusStartTime) / 60000; // minutes
+        var work = parseInt(document.getElementById('pomoWork').value) || 25;
+        // If 80% through a long session with 0 pauses since start
+        if (elapsed >= work * 0.75 && _pauseCount === 0 && work < 50) {
+            clearInterval(_flowCheckInterval);
+            showSmartToast(
+                '🔥', 'You\'re in the Flow!',
+                'You\'ve been focused for ' + Math.round(elapsed) + ' minutes without pause. Extend session to 40 min?',
+                'Extend to 40 min',
+                function() {
+                    document.getElementById('pomoWork').value = 40;
+                }
+            );
+        }
+    }, 30000);
+})();
+
+// ══════════════════════════════════════════════════
+// AI WEEKLY REPORT
+// ══════════════════════════════════════════════════
+var _reportLoaded = false;
+
+function openAiReport() {
+    document.getElementById('aiReportModal').classList.add('open');
+    if (_reportLoaded) return;
+
+    // Reset state
+    document.getElementById('aiReportLoading').classList.add('show');
+    document.getElementById('aiReportContent').style.display = 'none';
+
+    fetch('{{ path("app_taskboard_ai_report") }}', { method: 'POST' })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+        document.getElementById('aiReportLoading').classList.remove('show');
+        if (data.error) {
+            document.getElementById('aiReportContent').style.display = 'block';
+            document.getElementById('aiReportContent').innerHTML = '<p style="color:var(--red);text-align:center;padding:20px">⚠️ ' + data.error + '</p><button class="ai-report-close" onclick="document.getElementById(\'aiReportModal\').classList.remove(\'open\')">Close</button>';
+            return;
+        }
+
+        renderAiReport(data);
+        _reportLoaded = true;
+    })
+    .catch(function() {
+        document.getElementById('aiReportLoading').classList.remove('show');
+        document.getElementById('aiReportContent').style.display = 'block';
+        document.getElementById('aiReportContent').innerHTML = '<p style="color:var(--red);text-align:center;padding:20px">⚠️ Could not connect to AI service.</p><button class="ai-report-close" onclick="document.getElementById(\'aiReportModal\').classList.remove(\'open\')">Close</button>';
+    });
+}
+
+function renderAiReport(data) {
+    // Score ring
+    var score = Math.max(0, Math.min(100, data.score || 0));
+    var circ = 339.29;
+    var offset = circ - (circ * score / 100);
+    var ring = document.getElementById('aiScoreRing');
+    ring.style.strokeDashoffset = circ; // start hidden
+    ring.style.transition = 'stroke-dashoffset 1.8s cubic-bezier(0.34,1.56,0.64,1)';
+    if (score >= 70) ring.style.stroke = 'var(--green)';
+    else if (score >= 45) ring.style.stroke = '#fbbf24';
+    else ring.style.stroke = 'var(--red)';
+
+    setTimeout(function(){ ring.style.strokeDashoffset = offset; }, 100);
+
+    document.getElementById('aiScoreNum').textContent = score;
+    document.getElementById('aiScoreGrade').textContent = data.grade || '';
+    document.getElementById('aiReportSummary').textContent = data.summary || '';
+
+    // Insights
+    var grid = document.getElementById('aiInsightsGrid');
+    grid.innerHTML = '';
+    (data.insights || []).forEach(function(ins) {
+        var card = document.createElement('div');
+        card.className = 'ai-insight-card';
+        card.innerHTML =
+            '<div class="ai-insight-icon">' + escHtml(ins.icon || '💡') + '</div>' +
+            '<div class="ai-insight-title">' + escHtml(ins.title || '') + '</div>' +
+            '<div class="ai-insight-body">' + escHtml(ins.body || '') + '</div>';
+        grid.appendChild(card);
+    });
+
+    // Next week tips
+    var ul = document.getElementById('aiNextWeekList');
+    ul.innerHTML = '';
+    (data.next_week || []).forEach(function(tip) {
+        var li = document.createElement('li');
+        li.textContent = tip;
+        ul.appendChild(li);
+    });
+
+    document.getElementById('aiReportContent').style.display = 'block';
+}
+
+document.getElementById('aiReportModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+});
+
+{# symfony/ux-chartjs: Chart.js loaded via CDN since this project uses CDN assets #}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+    var labels = {{ weekData|map(d => d.day|date('D'))|json_encode|raw }};
+    var data   = {{ weekData|map(d => d.minutes)|json_encode|raw }};
+    var ctx = document.getElementById('pomodoroWeekChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Focus Minutes',
+                    data: data,
+                    backgroundColor: 'rgba(123,97,241,0.65)',
+                    borderColor: 'rgba(123,97,241,1)',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.6)' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { ticks: { color: 'rgba(255,255,255,0.6)' }, grid: { display: false } }
+                }
+            }
+        });
+    }
+})();
 </script>
 {% endblock %}

@@ -3,274 +3,427 @@
 <head>
 <meta charset="UTF-8">
 <title>LearnAdapt — Task Report</title>
-<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:#0a0c14;color:#f6f8fc;min-height:100vh;overflow-x:hidden}
+body{font-family:'Inter',system-ui,sans-serif;background:#030810;color:#f0f4fc;min-height:100vh;overflow-x:hidden}
 
-/* ══ ANIMATED INTRO OVERLAY ══ */
-.pdf-intro{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#04060e;animation:introFade 3s ease forwards}
-.pdf-intro-logo{width:90px;height:90px;border-radius:22px;background:linear-gradient(135deg,#7b61f1,#38bdd1);display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:logoFloat 2s ease-in-out infinite,logoPop .6s ease;box-shadow:0 0 60px rgba(123,97,241,0.4)}
-.pdf-intro-logo svg{width:48px;height:48px}
-.pdf-intro h1{font-size:2rem;font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,#7b61f1,#38bdd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:titleSlide .8s ease .2s both}
-.pdf-intro p{color:#8896ab;margin-top:6px;font-size:0.9rem;animation:titleSlide .8s ease .4s both}
-.pdf-intro .pdf-bar{width:200px;height:4px;background:rgba(255,255,255,0.06);border-radius:4px;margin-top:24px;overflow:hidden;animation:titleSlide .8s ease .5s both}
-.pdf-intro .pdf-bar-fill{width:0%;height:100%;background:linear-gradient(90deg,#7b61f1,#38bdd1);border-radius:4px;animation:barGrow 2s ease .6s forwards}
+/* ══ INTRO OVERLAY ══ */
+.intro{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;background:radial-gradient(ellipse at 40% 30%,#0d1530,#030810 70%);animation:introFade 3.2s cubic-bezier(0.4,0,0.2,1) forwards}
+.intro-logo{width:260px;opacity:0;animation:logoAppear .9s cubic-bezier(0.34,1.56,0.64,1) .15s forwards}
+.intro-sub{font-size:0.78rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#4a5578;margin-top:20px;opacity:0;animation:fadeUp .6s ease .7s forwards}
+.intro-bar-wrap{width:220px;height:3px;background:rgba(255,255,255,0.05);border-radius:3px;margin-top:22px;overflow:hidden;opacity:0;animation:fadeUp .5s ease .9s forwards}
+.intro-bar-fill{width:0%;height:100%;border-radius:3px;background:linear-gradient(90deg,#7b61f1,#38bdd1);animation:barFill 2s cubic-bezier(0.4,0,0.2,1) 1s forwards}
+@keyframes introFade{0%,75%{opacity:1;pointer-events:all}100%{opacity:0;pointer-events:none}}
+@keyframes logoAppear{from{opacity:0;transform:translateY(20px) scale(0.92)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes barFill{to{width:100%}}
 
-@keyframes logoPop{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
-@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes titleSlide{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-@keyframes barGrow{to{width:100%}}
-@keyframes introFade{0%,80%{opacity:1;pointer-events:all}100%{opacity:0;pointer-events:none}}
-
-/* ══ PAGE ══ */
-.pdf-page{max-width:900px;margin:0 auto;padding:40px 32px;opacity:0;animation:pageIn .8s ease 2.8s forwards}
+/* ══ MAIN PAGE ══ */
+.page{max-width:860px;margin:0 auto;padding:44px 36px 60px;opacity:0;animation:pageIn .7s ease 3s forwards}
 @keyframes pageIn{to{opacity:1}}
 
-/* ══ HEADER ══ */
-.pdf-header{display:flex;align-items:center;justify-content:space-between;padding:28px 32px;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:20px;margin-bottom:32px;position:relative;overflow:hidden}
-.pdf-header::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7b61f1,#38bdd1,#34d399,#7b61f1);background-size:300% 100%;animation:headerShine 4s linear infinite}
-@keyframes headerShine{0%{background-position:0% 0}100%{background-position:300% 0}}
-.pdf-logo{display:flex;align-items:center;gap:16px}
-.pdf-logo-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#7b61f1,#38bdd1);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(123,97,241,0.3)}
-.pdf-logo-icon svg{width:28px;height:28px}
-.pdf-logo h1{font-size:1.4rem;font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,#7b61f1,#38bdd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.pdf-logo p{color:#8896ab;font-size:0.76rem;margin-top:2px}
-.pdf-meta{text-align:right;font-size:0.78rem;color:#8896ab}
-.pdf-meta strong{color:#f6f8fc;display:block;font-size:0.88rem;margin-bottom:2px}
+/* ══ PRINT BUTTON ══ */
+.print-bar{text-align:center;margin-bottom:36px}
+.print-btn{display:inline-flex;align-items:center;gap:10px;padding:13px 38px;background:linear-gradient(135deg,#7b61f1,#38bdd1);border:none;border-radius:12px;color:#fff;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:inherit;letter-spacing:0.01em;box-shadow:0 6px 32px rgba(123,97,241,0.35);transition:all .2s;position:relative;overflow:hidden}
+.print-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,0.18) 50%,transparent 60%);transform:translateX(-100%);animation:sheen 3s ease-in-out 3.5s infinite}
+@keyframes sheen{to{transform:translateX(200%)}}
+.print-btn:hover{transform:translateY(-2px);box-shadow:0 10px 44px rgba(123,97,241,0.45)}
+.print-btn svg{width:18px;height:18px;flex-shrink:0}
 
-/* ══ STATS ══ */
-.pdf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
-.pdf-stat{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:18px 20px;text-align:center;transition:all .2s}
-.pdf-stat:hover{border-color:rgba(123,97,241,0.2);transform:translateY(-2px)}
-.pdf-stat-v{font-size:2rem;font-weight:900;letter-spacing:-0.02em}
-.pdf-stat-l{font-size:0.68rem;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px}
+/* ══ COVER HEADER ══ */
+.cover{position:relative;border-radius:22px;overflow:hidden;margin-bottom:32px;background:linear-gradient(135deg,#0c1428 0%,#0d1b38 55%,#0a1625 100%);border:1px solid rgba(255,255,255,0.07)}
+.cover-bg-mesh{position:absolute;inset:0;background:radial-gradient(ellipse 60% 100% at 80% 50%,rgba(56,189,209,0.08),transparent),radial-gradient(ellipse 50% 80% at 10% 20%,rgba(123,97,241,0.1),transparent);pointer-events:none}
+.cover-stripe{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7b61f1,#38bdd1,#34d399,#fb923c,#7b61f1);background-size:400% 100%;animation:stripeMove 6s linear infinite}
+@keyframes stripeMove{to{background-position:400% 0}}
+.cover-inner{position:relative;padding:38px 40px 34px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.cover-logo-wrap{flex:1;min-width:220px}
+.cover-logo-wrap svg{max-width:240px;height:auto}
+.cover-right{text-align:right;flex-shrink:0}
+.cover-label{font-size:0.6rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#38bdd1;margin-bottom:6px}
+.cover-name{font-size:1.15rem;font-weight:800;color:#f0f4fc;letter-spacing:-0.02em}
+.cover-date{font-size:0.72rem;color:#6474a0;margin-top:5px;font-weight:500}
+.cover-doc-type{display:inline-block;margin-top:12px;padding:5px 14px;border-radius:8px;background:rgba(123,97,241,0.12);border:1px solid rgba(123,97,241,0.22);font-size:0.62rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#a78bfa}
 
-/* ══ TABLE ══ */
-.pdf-section{margin-bottom:32px}
-.pdf-section h2{font-size:1.1rem;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:2px solid rgba(255,255,255,0.06)}
-.pdf-section h2 .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+/* ══ PROGRESS BAND ══ */
+.progress-band{background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.055);border-radius:16px;padding:22px 28px;margin-bottom:28px;display:flex;align-items:center;gap:32px;flex-wrap:wrap}
+.progress-ring-wrap{position:relative;flex-shrink:0}
+.progress-ring-wrap svg{width:80px;height:80px}
+.progress-ring-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;letter-spacing:-0.03em}
+.progress-stats{display:flex;gap:20px;flex-wrap:wrap;flex:1}
+.ps-item{text-align:center;min-width:60px}
+.ps-val{font-size:1.45rem;font-weight:900;letter-spacing:-0.03em;line-height:1}
+.ps-lbl{font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#6474a0;margin-top:4px}
+.progress-bar-wrap{flex:2;min-width:180px}
+.progress-bar-label{display:flex;justify-content:space-between;font-size:0.7rem;font-weight:600;color:#6474a0;margin-bottom:8px}
+.progress-bar-track{height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#7b61f1,#38bdd1)}
 
-.pdf-table{width:100%;border-collapse:separate;border-spacing:0;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.06);border-radius:14px;overflow:hidden}
-.pdf-table thead th{padding:14px 16px;text-align:left;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#8896ab;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06)}
-.pdf-table tbody tr{transition:background .15s}
-.pdf-table tbody tr:hover{background:rgba(123,97,241,0.04)}
-.pdf-table tbody td{padding:14px 16px;font-size:0.84rem;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle}
-.pdf-table tbody tr:last-child td{border-bottom:none}
+/* ══ SECTION HEADING ══ */
+.section-head{display:flex;align-items:center;gap:12px;margin:36px 0 16px}
+.section-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.section-label{font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em}
+.section-count{margin-left:auto;font-size:0.7rem;font-weight:600;color:#6474a0}
+.section-rule{flex:1;height:1px;background:rgba(255,255,255,0.05)}
 
-.pdf-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:8px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em}
-.badge-todo{background:rgba(59,130,246,0.12);color:#60a5fa}
-.badge-in-progress{background:rgba(245,158,11,0.12);color:#fbbf24}
-.badge-done{background:rgba(16,185,129,0.12);color:#34d399}
-.badge-blocked{background:rgba(239,68,68,0.12);color:#fca5a5}
-.badge-low{background:rgba(16,185,129,0.08);color:#34d399}
-.badge-medium{background:rgba(251,146,60,0.1);color:#fb923c}
-.badge-high{background:rgba(239,68,68,0.1);color:#f87171}
-.badge-overdue{background:rgba(239,68,68,0.12);color:#fca5a5;font-size:0.62rem}
+/* ══ TASK CARDS ══ */
+.task-cards{display:flex;flex-direction:column;gap:12px}
+.task-card{position:relative;background:rgba(255,255,255,0.022);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:18px 20px 18px 24px;overflow:hidden}
+.task-card-accent{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:14px 0 0 14px}
+.task-card-top{display:flex;align-items:flex-start;gap:14px;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap}
+.task-title{font-size:0.92rem;font-weight:700;color:#f0f4fc;line-height:1.35;flex:1}
+.task-desc{font-size:0.76rem;color:#6474a0;line-height:1.5;margin-bottom:12px;max-width:600px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.task-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:7px;font-size:0.64rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap}
+.chip-priority-high{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.15)}
+.chip-priority-medium{background:rgba(251,146,60,0.1);color:#fb923c;border:1px solid rgba(251,146,60,0.15)}
+.chip-priority-low{background:rgba(52,211,153,0.08);color:#34d399;border:1px solid rgba(52,211,153,0.12)}
+.chip-due{background:rgba(255,255,255,0.04);color:#8896ab;border:1px solid rgba(255,255,255,0.07)}
+.chip-overdue{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.15)}
+.chip-course{background:rgba(56,189,209,0.08);color:#38bdd1;border:1px solid rgba(56,189,209,0.12)}
+.chip svg{width:11px;height:11px;flex-shrink:0}
 
-.task-title{font-weight:700;color:#f6f8fc}
-.task-desc{font-size:0.74rem;color:#8896ab;margin-top:3px;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ══ SUMMARY ══ */
+.summary{margin-top:40px;background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.055);border-radius:18px;padding:28px 32px}
+.summary-title{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.14em;color:#38bdd1;margin-bottom:20px}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.sum-card{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:20px;text-align:center}
+.sum-val{font-size:1.8rem;font-weight:900;letter-spacing:-0.04em;line-height:1}
+.sum-lbl{font-size:0.62rem;font-weight:700;color:#6474a0;text-transform:uppercase;letter-spacing:0.1em;margin-top:5px}
 
 /* ══ FOOTER ══ */
-.pdf-footer{text-align:center;padding:28px 0;border-top:1px solid rgba(255,255,255,0.06);margin-top:20px;color:#8896ab;font-size:0.74rem}
-.pdf-footer strong{background:linear-gradient(135deg,#7b61f1,#38bdd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.pdf-footer{margin-top:44px;padding-top:22px;border-top:1px solid rgba(255,255,255,0.055);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.footer-logo{width:130px;height:auto;opacity:0.55}
+.footer-right{text-align:right;font-size:0.66rem;color:#3e4d6a;line-height:1.8}
+.footer-conf{display:inline-block;padding:3px 10px;border-radius:6px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.12);color:#f87171;font-size:0.58rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-top:6px}
 
-/* ══ PRINT BUTTON ══ */
-.pdf-print-wrap{text-align:center;margin-bottom:28px}
-.pdf-print-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 36px;background:linear-gradient(135deg,#ef4444,#f97316);border:none;border-radius:14px;color:#fff;font-weight:800;font-size:0.92rem;cursor:pointer;font-family:inherit;box-shadow:0 6px 30px rgba(239,68,68,0.3);transition:all .2s;position:relative;overflow:hidden}
-.pdf-print-btn:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(239,68,68,0.4)}
-.pdf-print-btn i{font-size:1.2rem}
-.pdf-print-btn::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,0.15),transparent);transform:rotate(45deg);animation:btnShine 3s ease-in-out infinite}
-@keyframes btnShine{0%{transform:translateX(-100%) rotate(45deg)}30%,100%{transform:translateX(100%) rotate(45deg)}}
+/* ══ EMPTY STATE ══ */
+.empty-state{text-align:center;padding:48px 24px;color:#3e4d6a;font-size:0.82rem}
 
-/* ══ PRINT STYLES ══ */
+/* ══ PRINT ══ */
 @media print{
-    body{background:#fff!important;color:#1a1a2e!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .pdf-intro,.pdf-print-wrap{display:none!important}
-    .pdf-page{opacity:1!important;animation:none!important;padding:0;max-width:100%}
-    .pdf-header{background:#f8f9fb!important;border-color:#e5e7eb!important;page-break-after:avoid}
-    .pdf-header::before{display:none}
-    .pdf-logo h1{-webkit-text-fill-color:#7b61f1!important}
-    .pdf-meta strong{color:#1a1a2e!important}
-    .pdf-meta{color:#6b7280!important}
-    .pdf-stat{background:#f8f9fb!important;border-color:#e5e7eb!important}
-    .pdf-stat-l{color:#6b7280!important}
-    .pdf-table{background:#fff!important;border-color:#e5e7eb!important}
-    .pdf-table thead th{background:#f1f3f5!important;color:#6b7280!important;border-bottom-color:#e5e7eb!important}
-    .pdf-table tbody td{border-bottom-color:#f0f0f0!important;color:#1a1a2e!important}
-    .task-title{color:#1a1a2e!important}
+    body{background:#fff!important;color:#111827!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .intro,.print-bar{display:none!important}
+    .page{opacity:1!important;animation:none!important;padding:0;max-width:100%}
+    .cover{background:#f1f5fb!important;border-color:#dde3ef!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .cover-bg-mesh,.cover-stripe{display:none}
+    .cover-name{color:#111827!important}
+    .cover-date{color:#6b7280!important}
+    .cover-doc-type{background:#ede9fe!important;border-color:#c4b5fd!important;color:#7c3aed!important}
+    .progress-band,.summary,.task-card{background:#f8fafc!important;border-color:#e2e8f0!important}
+    .progress-bar-track{background:#e5e7eb!important}
+    .task-title{color:#111827!important}
     .task-desc{color:#6b7280!important}
-    .pdf-section h2{color:#1a1a2e!important;border-bottom-color:#e5e7eb!important}
-    .pdf-footer{color:#9ca3af!important;border-top-color:#e5e7eb!important}
-    .pdf-footer strong{-webkit-text-fill-color:#7b61f1!important}
-    .pdf-table tbody tr:hover{background:transparent!important}
-    .pdf-stat:hover{transform:none!important}
+    .section-rule{background:#e5e7eb!important}
+    .section-label{color:#374151!important}
+    .section-count,.ps-lbl,.sum-lbl,.footer-right{color:#6b7280!important}
+    .pdf-footer{border-top-color:#e5e7eb!important}
+    .footer-logo{opacity:0.8!important}
+    .sum-card{background:#f1f5f9!important;border-color:#e2e8f0!important}
+    @page{margin:16mm 18mm;size:A4}
 }
 </style>
 </head>
 <body>
 
-<!-- ══ ANIMATED INTRO ══ -->
-<div class="pdf-intro">
-    <div class="pdf-intro-logo">
-        <svg viewBox="0 0 48 48" fill="none">
-            <path d="M12 8h24a4 4 0 014 4v24a4 4 0 01-4 4H12a4 4 0 01-4-4V12a4 4 0 014-4z" fill="rgba(255,255,255,0.15)"/>
-            <path d="M16 18h16M16 24h12M16 30h8" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-            <circle cx="34" cy="34" r="8" fill="#34d399"/>
-            <path d="M31 34l2 2 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+{# ── Twig counters ── #}
+{% set todoCount = 0 %}{% set inpCount = 0 %}{% set doneCount = 0 %}{% set blkCount = 0 %}
+{% for t in tasks %}
+    {% if t.status == 'TODO' %}{% set todoCount = todoCount + 1 %}
+    {% elseif t.status == 'IN_PROGRESS' %}{% set inpCount = inpCount + 1 %}
+    {% elseif t.status == 'DONE' %}{% set doneCount = doneCount + 1 %}
+    {% elseif t.status == 'BLOCKED' %}{% set blkCount = blkCount + 1 %}
+    {% endif %}
+{% endfor %}
+{% set totalTasks = tasks|length %}
+{% set completionPct = totalTasks > 0 ? (doneCount / totalTasks * 100)|round : 0 %}
+{% set circum = 188.5 %}
+{% set dashOff = circum * (1 - completionPct / 100) %}
+
+<!-- ══ INTRO OVERLAY ══ -->
+<div class="intro">
+    <div class="intro-logo">
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="96" viewBox="0 0 340 96" fill="none">
+  <defs>
+    <linearGradient id="i_mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F8FAFC"/><stop offset="48%" stop-color="#CBD5E1"/><stop offset="100%" stop-color="#64748B"/></linearGradient>
+    <linearGradient id="i_sh" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop offset="0%" stop-color="#fff" stop-opacity="0"/><stop offset="50%" stop-color="#fff" stop-opacity="0.85"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/><animate attributeName="y1" values="-1;2" dur="3s" repeatCount="indefinite"/><animate attributeName="y2" values="0;3" dur="3s" repeatCount="indefinite"/></linearGradient>
+    <linearGradient id="i_mb" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#94A3B8"/><stop offset="100%" stop-color="#334155"/></linearGradient>
+    <radialGradient id="i_ga" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(28 60) rotate(51.2) scale(24.6)"><stop offset="0%" stop-color="#FFF7D6"/><stop offset="28%" stop-color="#FCD34D"/><stop offset="62%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#78350F"/></radialGradient>
+    <radialGradient id="i_gb" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(51 63) rotate(44.5) scale(26.8)"><stop offset="0%" stop-color="#FFF8E1"/><stop offset="30%" stop-color="#FBBF24"/><stop offset="68%" stop-color="#D97706"/><stop offset="100%" stop-color="#713F12"/></radialGradient>
+    <radialGradient id="i_gc" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(73 60) rotate(132.3) scale(24.6)"><stop offset="0%" stop-color="#FFF7D6"/><stop offset="28%" stop-color="#FCD34D"/><stop offset="62%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#78350F"/></radialGradient>
+    <linearGradient id="i_wd" x1="108" y1="16" x2="304" y2="74" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E2E8F0"/><stop offset="38%" stop-color="#A5B4FC"/><stop offset="72%" stop-color="#60A5FA"/><stop offset="100%" stop-color="#22D3EE"/></linearGradient>
+    <linearGradient id="i_rl" x1="108" y1="64" x2="240" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#FB923C"/><stop offset="100%" stop-color="#22D3EE"/></linearGradient>
+    <filter id="i_sg" x="-10" y="-10" width="130" height="112" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="6" result="blur"/><feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 0.75 0 0 0  0 0 0 0 0  0 0 0 0.4 0" result="g2"/><feBlend in="SourceGraphic" in2="g2" mode="screen"/></filter>
+    <filter id="i_tg" x="94" y="4" width="238" height="78" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="7" result="blur"/><feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.38  0 0 0 0 0.59  0 0 0 0 1  0 0 0 0.18 0"/><feBlend in="SourceGraphic" mode="screen"/></filter>
+  </defs>
+  <g transform="translate(8 8)">
+    <g filter="url(#i_sg)">
+      <ellipse cx="51" cy="61" rx="35" ry="15" fill="#F59E0B" fill-opacity="0.16"><animate attributeName="fill-opacity" values="0.10;0.22;0.10" dur="2.5s" repeatCount="indefinite"/></ellipse>
+      <circle cx="28" cy="59" r="12" fill="url(#i_ga)"><animate attributeName="cy" values="59;56;59" dur="3s" repeatCount="indefinite"/></circle>
+      <circle cx="51" cy="63" r="14" fill="url(#i_gb)"><animate attributeName="cy" values="63;60;63" dur="2.8s" repeatCount="indefinite"/></circle>
+      <circle cx="74" cy="59" r="12" fill="url(#i_gc)"><animate attributeName="cy" values="59;56;59" dur="3.2s" repeatCount="indefinite"/></circle>
+      <circle cx="24" cy="55" r="4" fill="#FFF7D6" fill-opacity="0.42"><animate attributeName="fill-opacity" values="0.25;0.6;0.25" dur="2s" repeatCount="indefinite"/></circle>
+      <circle cx="47" cy="58" r="4.6" fill="#FFF7D6" fill-opacity="0.44"><animate attributeName="fill-opacity" values="0.3;0.65;0.3" dur="2.3s" repeatCount="indefinite"/></circle>
+      <circle cx="70" cy="55" r="4" fill="#FFF7D6" fill-opacity="0.42"><animate attributeName="fill-opacity" values="0.25;0.6;0.25" dur="2.6s" repeatCount="indefinite"/></circle>
+    </g>
+    <g>
+      <rect x="20" y="2" width="5" height="36" rx="2.5" fill="url(#i_mt)"/>
+      <rect x="34" y="2" width="5" height="36" rx="2.5" fill="url(#i_mt)"/>
+      <rect x="48" y="2" width="6" height="40" rx="3" fill="url(#i_mt)"/>
+      <rect x="64" y="2" width="5" height="36" rx="2.5" fill="url(#i_mt)"/>
+      <rect x="78" y="2" width="5" height="36" rx="2.5" fill="url(#i_mt)"/>
+      <rect x="20" y="2" width="5" height="36" rx="2.5" fill="url(#i_sh)"/>
+      <rect x="34" y="2" width="5" height="36" rx="2.5" fill="url(#i_sh)"/>
+      <rect x="48" y="2" width="6" height="40" rx="3" fill="url(#i_sh)"/>
+      <rect x="64" y="2" width="5" height="36" rx="2.5" fill="url(#i_sh)"/>
+      <rect x="78" y="2" width="5" height="36" rx="2.5" fill="url(#i_sh)"/>
+      <rect x="16" y="34" width="13" height="8" rx="3" fill="url(#i_mb)"/>
+      <rect x="30" y="34" width="13" height="8" rx="3" fill="url(#i_mb)"/>
+      <rect x="45" y="38" width="13" height="8" rx="3" fill="url(#i_mb)"/>
+      <rect x="60" y="34" width="13" height="8" rx="3" fill="url(#i_mb)"/>
+      <rect x="74" y="34" width="13" height="8" rx="3" fill="url(#i_mb)"/>
+    </g>
+  </g>
+  <g filter="url(#i_tg)">
+    <text x="108" y="29" fill="#8F9BB2" font-family="Inter,'Segoe UI',sans-serif" font-size="12" font-weight="700" letter-spacing="3.3">ADAPTIVE LEARNING</text>
+    <text x="108" y="66" fill="url(#i_wd)" font-family="Inter,'Segoe UI',sans-serif" font-size="38" font-weight="800" letter-spacing="-1.1">LearnAdapt</text>
+    <rect x="110" y="73" width="134" height="3" rx="1.5" fill="url(#i_rl)" fill-opacity="0.9"><animate attributeName="width" values="0;134" dur="1.2s" fill="freeze"/></rect>
+  </g>
+</svg>
     </div>
-    <h1>LearnAdapt</h1>
-    <p>Generating your premium task report...</p>
-    <div class="pdf-bar"><div class="pdf-bar-fill"></div></div>
+    <div class="intro-sub">Preparing your task report</div>
+    <div class="intro-bar-wrap"><div class="intro-bar-fill"></div></div>
 </div>
 
-<!-- ══ CONTENT ══ -->
-<div class="pdf-page">
+<!-- ══ PAGE ══ -->
+<div class="page">
 
     <!-- Print button -->
-    <div class="pdf-print-wrap">
-        <button class="pdf-print-btn" onclick="window.print()">
-            <i class='bx bx-download'></i> Download PDF / Print
+    <div class="print-bar">
+        <button class="print-btn" onclick="window.print()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><rect x="6" y="17" width="12" height="5" rx="1"/><path d="M6 17H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/></svg>
+            Print / Save as PDF
         </button>
     </div>
 
-    <!-- Header -->
-    <div class="pdf-header">
-        <div class="pdf-logo">
-            <div class="pdf-logo-icon">
-                <svg viewBox="0 0 48 48" fill="none">
-                    <path d="M12 8h24a4 4 0 014 4v24a4 4 0 01-4 4H12a4 4 0 01-4-4V12a4 4 0 014-4z" fill="rgba(255,255,255,0.15)"/>
-                    <path d="M16 18h16M16 24h12M16 30h8" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-                    <circle cx="34" cy="34" r="8" fill="#34d399"/>
-                    <path d="M31 34l2 2 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+    <!-- ══ COVER ══ -->
+    <div class="cover">
+        <div class="cover-bg-mesh"></div>
+        <div class="cover-stripe"></div>
+        <div class="cover-inner">
+            <div class="cover-logo-wrap">
+<svg xmlns="http://www.w3.org/2000/svg" width="340" height="96" viewBox="0 0 340 96" fill="none">
+  <defs>
+    <linearGradient id="c_mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F8FAFC"/><stop offset="48%" stop-color="#CBD5E1"/><stop offset="100%" stop-color="#64748B"/></linearGradient>
+    <linearGradient id="c_sh" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop offset="0%" stop-color="#fff" stop-opacity="0"/><stop offset="50%" stop-color="#fff" stop-opacity="0.85"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/><animate attributeName="y1" values="-1;2" dur="3s" repeatCount="indefinite"/><animate attributeName="y2" values="0;3" dur="3s" repeatCount="indefinite"/></linearGradient>
+    <linearGradient id="c_mb" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#94A3B8"/><stop offset="100%" stop-color="#334155"/></linearGradient>
+    <radialGradient id="c_ga" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(28 60) rotate(51.2) scale(24.6)"><stop offset="0%" stop-color="#FFF7D6"/><stop offset="28%" stop-color="#FCD34D"/><stop offset="62%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#78350F"/></radialGradient>
+    <radialGradient id="c_gb" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(51 63) rotate(44.5) scale(26.8)"><stop offset="0%" stop-color="#FFF8E1"/><stop offset="30%" stop-color="#FBBF24"/><stop offset="68%" stop-color="#D97706"/><stop offset="100%" stop-color="#713F12"/></radialGradient>
+    <radialGradient id="c_gc" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(73 60) rotate(132.3) scale(24.6)"><stop offset="0%" stop-color="#FFF7D6"/><stop offset="28%" stop-color="#FCD34D"/><stop offset="62%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#78350F"/></radialGradient>
+    <linearGradient id="c_wd" x1="108" y1="16" x2="304" y2="74" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E2E8F0"/><stop offset="38%" stop-color="#A5B4FC"/><stop offset="72%" stop-color="#60A5FA"/><stop offset="100%" stop-color="#22D3EE"/></linearGradient>
+    <linearGradient id="c_rl" x1="108" y1="64" x2="240" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#FB923C"/><stop offset="100%" stop-color="#22D3EE"/></linearGradient>
+    <filter id="c_sg" x="-10" y="-10" width="130" height="112" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="6" result="blur"/><feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 0.75 0 0 0  0 0 0 0 0  0 0 0 0.4 0" result="g2"/><feBlend in="SourceGraphic" in2="g2" mode="screen"/></filter>
+    <filter id="c_tg" x="94" y="4" width="238" height="78" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="7" result="blur"/><feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.38  0 0 0 0 0.59  0 0 0 0 1  0 0 0 0.18 0"/><feBlend in="SourceGraphic" mode="screen"/></filter>
+  </defs>
+  <g transform="translate(8 8)">
+    <g filter="url(#c_sg)">
+      <ellipse cx="51" cy="61" rx="35" ry="15" fill="#F59E0B" fill-opacity="0.16"><animate attributeName="fill-opacity" values="0.10;0.22;0.10" dur="2.5s" repeatCount="indefinite"/></ellipse>
+      <circle cx="28" cy="59" r="12" fill="url(#c_ga)"><animate attributeName="cy" values="59;56;59" dur="3s" repeatCount="indefinite"/></circle>
+      <circle cx="51" cy="63" r="14" fill="url(#c_gb)"><animate attributeName="cy" values="63;60;63" dur="2.8s" repeatCount="indefinite"/></circle>
+      <circle cx="74" cy="59" r="12" fill="url(#c_gc)"><animate attributeName="cy" values="59;56;59" dur="3.2s" repeatCount="indefinite"/></circle>
+      <circle cx="24" cy="55" r="4" fill="#FFF7D6" fill-opacity="0.42"><animate attributeName="fill-opacity" values="0.25;0.6;0.25" dur="2s" repeatCount="indefinite"/></circle>
+      <circle cx="47" cy="58" r="4.6" fill="#FFF7D6" fill-opacity="0.44"><animate attributeName="fill-opacity" values="0.3;0.65;0.3" dur="2.3s" repeatCount="indefinite"/></circle>
+      <circle cx="70" cy="55" r="4" fill="#FFF7D6" fill-opacity="0.42"><animate attributeName="fill-opacity" values="0.25;0.6;0.25" dur="2.6s" repeatCount="indefinite"/></circle>
+    </g>
+    <g>
+      <rect x="20" y="2" width="5" height="36" rx="2.5" fill="url(#c_mt)"/>
+      <rect x="34" y="2" width="5" height="36" rx="2.5" fill="url(#c_mt)"/>
+      <rect x="48" y="2" width="6" height="40" rx="3" fill="url(#c_mt)"/>
+      <rect x="64" y="2" width="5" height="36" rx="2.5" fill="url(#c_mt)"/>
+      <rect x="78" y="2" width="5" height="36" rx="2.5" fill="url(#c_mt)"/>
+      <rect x="20" y="2" width="5" height="36" rx="2.5" fill="url(#c_sh)"/>
+      <rect x="34" y="2" width="5" height="36" rx="2.5" fill="url(#c_sh)"/>
+      <rect x="48" y="2" width="6" height="40" rx="3" fill="url(#c_sh)"/>
+      <rect x="64" y="2" width="5" height="36" rx="2.5" fill="url(#c_sh)"/>
+      <rect x="78" y="2" width="5" height="36" rx="2.5" fill="url(#c_sh)"/>
+      <rect x="16" y="34" width="13" height="8" rx="3" fill="url(#c_mb)"/>
+      <rect x="30" y="34" width="13" height="8" rx="3" fill="url(#c_mb)"/>
+      <rect x="45" y="38" width="13" height="8" rx="3" fill="url(#c_mb)"/>
+      <rect x="60" y="34" width="13" height="8" rx="3" fill="url(#c_mb)"/>
+      <rect x="74" y="34" width="13" height="8" rx="3" fill="url(#c_mb)"/>
+    </g>
+  </g>
+  <g filter="url(#c_tg)">
+    <text x="108" y="29" fill="#8F9BB2" font-family="Inter,'Segoe UI',sans-serif" font-size="12" font-weight="700" letter-spacing="3.3">ADAPTIVE LEARNING</text>
+    <text x="108" y="66" fill="url(#c_wd)" font-family="Inter,'Segoe UI',sans-serif" font-size="38" font-weight="800" letter-spacing="-1.1">LearnAdapt</text>
+    <rect x="110" y="73" width="134" height="3" rx="1.5" fill="url(#c_rl)" fill-opacity="0.9"/>
+  </g>
+</svg>
             </div>
-            <div>
-                <h1>LearnAdapt</h1>
-                <p>Task Board Report</p>
+            <div class="cover-right">
+                <div class="cover-label">Prepared for</div>
+                <div class="cover-name">{{ user.fullName|default(user.email) }}</div>
+                <div class="cover-date">{{ exportDate|date('D, d M Y') }} &nbsp;&middot;&nbsp; {{ exportDate|date('H:i') }}</div>
+                <div class="cover-doc-type">Task Board Report</div>
             </div>
-        </div>
-        <div class="pdf-meta">
-            <strong>{{ user.fullName|default(user.email) }}</strong>
-            {{ exportDate|date('d M Y, H:i') }}
         </div>
     </div>
 
-    <!-- Stats -->
-    {% set countByStatus = {} %}
-    {% set todoCount = 0 %}{% set inpCount = 0 %}{% set doneCount = 0 %}{% set blkCount = 0 %}
-    {% for t in tasks %}
-        {% if t.status == 'TODO' %}{% set todoCount = todoCount + 1 %}
-        {% elseif t.status == 'IN_PROGRESS' %}{% set inpCount = inpCount + 1 %}
-        {% elseif t.status == 'DONE' %}{% set doneCount = doneCount + 1 %}
-        {% elseif t.status == 'BLOCKED' %}{% set blkCount = blkCount + 1 %}
-        {% endif %}
-    {% endfor %}
-    <div class="pdf-stats">
-        <div class="pdf-stat">
-            <div class="pdf-stat-v" style="color:#3b82f6">{{ todoCount }}</div>
-            <div class="pdf-stat-l">To Do</div>
+    <!-- ══ PROGRESS BAND ══ -->
+    <div class="progress-band">
+        <div class="progress-ring-wrap">
+            <svg viewBox="0 0 80 80">
+                <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7b61f1"/><stop offset="100%" stop-color="#38bdd1"/></linearGradient></defs>
+                <circle cx="40" cy="40" r="30" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="7"/>
+                <circle cx="40" cy="40" r="30" fill="none" stroke="url(#rg)" stroke-width="7" stroke-linecap="round"
+                    stroke-dasharray="{{ circum }}" stroke-dashoffset="{{ dashOff }}" transform="rotate(-90 40 40)"/>
+            </svg>
+            <div class="progress-ring-val" style="color:{% if completionPct >= 75 %}#34d399{% elseif completionPct >= 40 %}#fbbf24{% else %}#f87171{% endif %}">{{ completionPct }}%</div>
         </div>
-        <div class="pdf-stat">
-            <div class="pdf-stat-v" style="color:#f59e0b">{{ inpCount }}</div>
-            <div class="pdf-stat-l">In Progress</div>
+        <div class="progress-stats">
+            <div class="ps-item"><div class="ps-val" style="color:#60a5fa">{{ todoCount }}</div><div class="ps-lbl">To Do</div></div>
+            <div class="ps-item"><div class="ps-val" style="color:#fbbf24">{{ inpCount }}</div><div class="ps-lbl">In Progress</div></div>
+            <div class="ps-item"><div class="ps-val" style="color:#f87171">{{ blkCount }}</div><div class="ps-lbl">Blocked</div></div>
+            <div class="ps-item"><div class="ps-val" style="color:#34d399">{{ doneCount }}</div><div class="ps-lbl">Done</div></div>
         </div>
-        <div class="pdf-stat">
-            <div class="pdf-stat-v" style="color:#10b981">{{ doneCount }}</div>
-            <div class="pdf-stat-l">Done</div>
-        </div>
-        <div class="pdf-stat">
-            <div class="pdf-stat-v" style="color:#ef4444">{{ blkCount }}</div>
-            <div class="pdf-stat-l">Blocked</div>
+        <div class="progress-bar-wrap">
+            <div class="progress-bar-label">
+                <span>Completion</span>
+                <span style="color:#f0f4fc;font-weight:700">{{ doneCount }} / {{ totalTasks }} tasks</span>
+            </div>
+            <div class="progress-bar-track">
+                <div class="progress-bar-fill" style="width:{{ completionPct }}%"></div>
+            </div>
         </div>
     </div>
 
-    <!-- Tasks by status -->
+    <!-- ══ TASKS BY STATUS ══ -->
     {% set statusGroups = {
-        'TODO':        { label: 'To Do',        color: '#3b82f6', badge: 'badge-todo' },
-        'IN_PROGRESS': { label: 'In Progress',  color: '#f59e0b', badge: 'badge-in-progress' },
-        'BLOCKED':     { label: 'Blocked',       color: '#ef4444', badge: 'badge-blocked' },
-        'DONE':        { label: 'Done',          color: '#10b981', badge: 'badge-done' }
+        'IN_PROGRESS': { label: 'In Progress', color: '#fbbf24' },
+        'TODO':        { label: 'To Do',        color: '#60a5fa' },
+        'BLOCKED':     { label: 'Blocked',       color: '#f87171' },
+        'DONE':        { label: 'Completed',     color: '#34d399' }
     } %}
 
     {% for status, meta in statusGroups %}
-        {% set groupTasks = tasks|filter(t => t.status == status) %}
-        {% if groupTasks|length > 0 %}
-        <div class="pdf-section">
-            <h2><span class="dot" style="background:{{ meta.color }}"></span> {{ meta.label }} ({{ groupTasks|length }})</h2>
-            <table class="pdf-table">
-                <thead>
-                    <tr>
-                        <th style="width:5%">#</th>
-                        <th style="width:35%">Task</th>
-                        <th style="width:12%">Priority</th>
-                        <th style="width:12%">Status</th>
-                        <th style="width:12%">Due Date</th>
-                        <th style="width:12%">Course</th>
-                        <th style="width:12%">Created</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in groupTasks %}
-                    <tr>
-                        <td style="color:#8896ab;font-weight:600">{{ loop.index }}</td>
-                        <td>
-                            <div class="task-title">{{ task.title }}</div>
-                            {% if task.description %}<div class="task-desc">{{ task.description }}</div>{% endif %}
-                        </td>
-                        <td><span class="pdf-badge badge-{{ task.priority|lower }}">{{ task.priority }}</span></td>
-                        <td><span class="pdf-badge {{ meta.badge }}">{{ meta.label }}</span></td>
-                        <td>
-                            {% if task.due_date %}
-                                {{ task.due_date|date('d M Y') }}
-                                {% set isOverdue = task.due_date|date('Y-m-d') < 'now'|date('Y-m-d') and task.status != 'DONE' %}
-                                {% if isOverdue %}<br><span class="pdf-badge badge-overdue">OVERDUE</span>{% endif %}
-                            {% else %}
-                                <span style="color:#8896ab">—</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if task.course_title %}
-                                <span style="color:#38bdd1;font-weight:600;font-size:0.78rem">{{ task.course_title }}</span>
-                            {% else %}
-                                <span style="color:#8896ab">—</span>
-                            {% endif %}
-                        </td>
-                        <td style="color:#8896ab;font-size:0.78rem">{{ task.created_at|date('d M Y') }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    {% set groupTasks = tasks|filter(t => t.status == status) %}
+    {% if groupTasks|length > 0 %}
+        <div class="section-head">
+            <div class="section-dot" style="background:{{ meta.color }};box-shadow:0 0 8px {{ meta.color }}55"></div>
+            <div class="section-label" style="color:{{ meta.color }}">{{ meta.label }}</div>
+            <div class="section-rule"></div>
+            <div class="section-count">{{ groupTasks|length }} task{{ groupTasks|length != 1 ? 's' : '' }}</div>
         </div>
-        {% endif %}
+        <div class="task-cards">
+        {% for task in groupTasks %}
+        {% set isOverdue = task.due_date is not null and task.due_date < 'now'|date('Y-m-d') and task.status != 'DONE' %}
+        <div class="task-card">
+            <div class="task-card-accent" style="background:{{ meta.color }}"></div>
+            <div class="task-card-top">
+                <div class="task-title">{{ task.title }}</div>
+            </div>
+            {% if task.description %}
+            <div class="task-desc">{{ task.description }}</div>
+            {% endif %}
+            <div class="task-chips">
+                {% if task.priority == 'HIGH' %}
+                <span class="chip chip-priority-high">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 2v5M6 9v1"/></svg>
+                    High Priority
+                </span>
+                {% elseif task.priority == 'MEDIUM' %}
+                <span class="chip chip-priority-medium">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="4" x2="11" y2="4"/><line x1="1" y1="8" x2="11" y2="8"/></svg>
+                    Medium
+                </span>
+                {% elseif task.priority %}
+                <span class="chip chip-priority-low">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2v8M3 7l3 3 3-3"/></svg>
+                    Low
+                </span>
+                {% endif %}
+                {% if task.due_date %}
+                <span class="chip {{ isOverdue ? 'chip-overdue' : 'chip-due' }}">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="2" width="10" height="9" rx="1.5"/><line x1="1" y1="5" x2="11" y2="5"/><line x1="4" y1="1" x2="4" y2="3"/><line x1="8" y1="1" x2="8" y2="3"/></svg>
+                    {{ isOverdue ? 'Overdue · ' : '' }}{{ task.due_date|date('d M Y') }}
+                </span>
+                {% endif %}
+                {% if task.course_title %}
+                <span class="chip chip-course">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="2" width="10" height="8" rx="1"/><line x1="1" y1="5.5" x2="11" y2="5.5"/><line x1="4" y1="2" x2="4" y2="10"/></svg>
+                    {{ task.course_title }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        </div>
+    {% endif %}
     {% endfor %}
 
-    <!-- Summary -->
-    <div class="pdf-section">
-        <h2><span class="dot" style="background:linear-gradient(135deg,#7b61f1,#38bdd1)"></span> Summary</h2>
-        <div class="pdf-stats" style="grid-template-columns:repeat(3,1fr)">
-            <div class="pdf-stat">
-                <div class="pdf-stat-v">{{ tasks|length }}</div>
-                <div class="pdf-stat-l">Total tasks</div>
+    {% if totalTasks == 0 %}
+    <div class="empty-state">No tasks found in your board.</div>
+    {% endif %}
+
+    <!-- ══ SUMMARY ══ -->
+    <div class="summary">
+        <div class="summary-title">Session Summary</div>
+        <div class="summary-grid">
+            <div class="sum-card">
+                <div class="sum-val" style="background:linear-gradient(135deg,#7b61f1,#38bdd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">{{ totalTasks }}</div>
+                <div class="sum-lbl">Total Tasks</div>
             </div>
-            <div class="pdf-stat">
-                <div class="pdf-stat-v" style="color:#f87171">{{ pomodoroStats.total_sessions }}</div>
-                <div class="pdf-stat-l">Pomodoro sessions</div>
+            <div class="sum-card">
+                <div class="sum-val" style="color:#f87171">{{ pomodoroStats.total_sessions|default(0) }}</div>
+                <div class="sum-lbl">Pomodoro Sessions</div>
             </div>
-            <div class="pdf-stat">
-                <div class="pdf-stat-v" style="color:#38bdd1">{{ (pomodoroStats.total_minutes / 60)|number_format(1) }}h</div>
-                <div class="pdf-stat-l">Focus time</div>
+            <div class="sum-card">
+                <div class="sum-val" style="color:#38bdd1">{{ (pomodoroStats.total_minutes|default(0) / 60)|number_format(1) }}h</div>
+                <div class="sum-lbl">Total Focus Time</div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
+    <!-- ══ FOOTER ══ -->
     <div class="pdf-footer">
-        Generated by <strong>LearnAdapt</strong> &nbsp;•&nbsp; {{ exportDate|date('d/m/Y H:i') }} &nbsp;•&nbsp; {{ tasks|length }} tasks &nbsp;•&nbsp; Confidential
+        <div>
+<svg xmlns="http://www.w3.org/2000/svg" width="130" height="37" viewBox="0 0 340 96" fill="none" class="footer-logo">
+  <defs>
+    <linearGradient id="f_mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F8FAFC"/><stop offset="48%" stop-color="#CBD5E1"/><stop offset="100%" stop-color="#64748B"/></linearGradient>
+    <linearGradient id="f_mb" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#94A3B8"/><stop offset="100%" stop-color="#334155"/></linearGradient>
+    <radialGradient id="f_ga" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(28 60) rotate(51.2) scale(24.6)"><stop offset="0%" stop-color="#FFF7D6"/><stop offset="28%" stop-color="#FCD34D"/><stop offset="62%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#78350F"/></radialGradient>
+    <radialGradient id="f_gb" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(51 63) rotate(44.5) scale(26.8)"><stop offset="0%" stop-color="#FFF8E1"/><stop offset="30%" stop-color="#FBBF24"/><stop offset="68%" stop-color="#D97706"/><stop offset="100%" stop-color="#713F12"/></radialGradient>
+    <radialGradient id="f_gc" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(73 60) rotate(132.3) scale(24.6)"><stop offset="0%" stop-color="#FFF7D6"/><stop offset="28%" stop-color="#FCD34D"/><stop offset="62%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#78350F"/></radialGradient>
+    <linearGradient id="f_wd" x1="108" y1="16" x2="304" y2="74" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E2E8F0"/><stop offset="38%" stop-color="#A5B4FC"/><stop offset="72%" stop-color="#60A5FA"/><stop offset="100%" stop-color="#22D3EE"/></linearGradient>
+    <linearGradient id="f_rl" x1="108" y1="64" x2="240" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#FB923C"/><stop offset="100%" stop-color="#22D3EE"/></linearGradient>
+  </defs>
+  <g transform="translate(8 8)">
+    <circle cx="28" cy="59" r="12" fill="url(#f_ga)"/>
+    <circle cx="51" cy="63" r="14" fill="url(#f_gb)"/>
+    <circle cx="74" cy="59" r="12" fill="url(#f_gc)"/>
+    <rect x="20" y="2" width="5" height="36" rx="2.5" fill="url(#f_mt)"/>
+    <rect x="34" y="2" width="5" height="36" rx="2.5" fill="url(#f_mt)"/>
+    <rect x="48" y="2" width="6" height="40" rx="3" fill="url(#f_mt)"/>
+    <rect x="64" y="2" width="5" height="36" rx="2.5" fill="url(#f_mt)"/>
+    <rect x="78" y="2" width="5" height="36" rx="2.5" fill="url(#f_mt)"/>
+    <rect x="16" y="34" width="13" height="8" rx="3" fill="url(#f_mb)"/>
+    <rect x="30" y="34" width="13" height="8" rx="3" fill="url(#f_mb)"/>
+    <rect x="45" y="38" width="13" height="8" rx="3" fill="url(#f_mb)"/>
+    <rect x="60" y="34" width="13" height="8" rx="3" fill="url(#f_mb)"/>
+    <rect x="74" y="34" width="13" height="8" rx="3" fill="url(#f_mb)"/>
+  </g>
+  <text x="108" y="29" fill="#8F9BB2" font-family="Inter,'Segoe UI',sans-serif" font-size="12" font-weight="700" letter-spacing="3.3">ADAPTIVE LEARNING</text>
+  <text x="108" y="66" fill="url(#f_wd)" font-family="Inter,'Segoe UI',sans-serif" font-size="38" font-weight="800" letter-spacing="-1.1">LearnAdapt</text>
+  <rect x="110" y="73" width="134" height="3" rx="1.5" fill="url(#f_rl)" fill-opacity="0.9"/>
+</svg>
+        </div>
+        <div class="footer-right">
+            Generated {{ exportDate|date('d/m/Y') }} at {{ exportDate|date('H:i') }}<br>
+            {{ user.fullName|default(user.email) }} &nbsp;&middot;&nbsp; {{ totalTasks }} task{{ totalTasks != 1 ? 's' : '' }}
+            <br><span class="footer-conf">Confidential</span>
+        </div>
     </div>
-</div>
 
+</div>
 </body>
 </html>

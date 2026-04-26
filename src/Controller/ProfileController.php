@@ -9,7 +9,7 @@ use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\RoundBlockSizeMode;
-use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Writer\SvgWriter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +20,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class ProfileController extends AbstractController
 {
     private const AUTH_SESSION_KEY = 'auth.user';
-    private const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2 MB
+    private const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
     private const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
     public function __construct(
@@ -128,6 +128,12 @@ class ProfileController extends AbstractController
         );
         $unreadCount = count($unreadNotifications);
 
+        // Profile photos gallery
+        $profilePhotos = $conn->fetchAllAssociative(
+            'SELECT id, photo_data, is_active, uploaded_at FROM user_profile_photos WHERE user_id = ? ORDER BY uploaded_at DESC',
+            [$userId]
+        );
+
         return $this->render('profile/index.html.twig', [
             'user' => $user,
             'totalPomodoroMinutes' => $totalPomodoroMinutes,
@@ -142,6 +148,8 @@ class ProfileController extends AbstractController
             'unreadNotifications' => $unreadNotifications,
             'unreadCount' => $unreadCount,
             'profileShareUrl' => $this->generateUrl('app_profile', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'profileEmail'    => $user->getEmail(),
+            'profilePhotos'   => $profilePhotos,
         ]);
     }
 
@@ -155,26 +163,26 @@ class ProfileController extends AbstractController
         }
 
         $size = max(160, min(800, $request->query->getInt('size', 220)));
-        $profileUrl = $this->generateUrl('app_profile', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        $mailtoUrl = 'mailto:' . $user->getEmail();
 
         try {
-            $result = Builder::create()
-                ->writer(new PngWriter())
-                ->data($profileUrl)
-                ->encoding(new Encoding('UTF-8'))
-                ->errorCorrectionLevel(ErrorCorrectionLevel::Medium)
-                ->size($size)
-                ->margin(10)
-                ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
-                ->build();
+            $result = (new Builder(
+                writer: new SvgWriter(),
+                data: $mailtoUrl,
+                encoding: new Encoding('UTF-8'),
+                errorCorrectionLevel: ErrorCorrectionLevel::Medium,
+                size: $size,
+                margin: 10,
+                roundBlockSizeMode: RoundBlockSizeMode::Margin,
+            ))->build();
 
             $response = new Response($result->getString(), Response::HTTP_OK, [
-                'Content-Type' => 'image/png',
+                'Content-Type' => 'image/svg+xml',
                 'Cache-Control' => 'private, max-age=3600',
             ]);
 
             if ($request->query->getBoolean('download')) {
-                $response->headers->set('Content-Disposition', 'attachment; filename="learnadapt-profile-qr.png"');
+                $response->headers->set('Content-Disposition', 'attachment; filename="learnadapt-profile-qr.svg"');
             }
 
             return $response;
@@ -189,6 +197,127 @@ class ProfileController extends AbstractController
                 ['Content-Type' => 'image/svg+xml']
             );
         }
+    }
+
+    #[Route('/profile/photos/add', name: 'app_profile_photo_add', methods: ['POST'])]
+    public function addProfilePhoto(Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $file = $request->files->get('photo');
+        if ($file === null || !$file->isValid()) {
+            $this->addFlash('error', 'Please select a valid image file.');
+            return $this->redirectToRoute('app_profile');
+        }
+        if ($file->getSize() > self::MAX_IMAGE_SIZE) {
+            $this->addFlash('error', 'Image must be under 2 MB.');
+            return $this->redirectToRoute('app_profile');
+        }
+        $mime = $file->getMimeType();
+        if (!in_array($mime, self::ALLOWED_MIME_TYPES, true)) {
+            $this->addFlash('error', 'Only JPEG, PNG, GIF and WebP images are allowed.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        $base64 = $this->resizeImageToBase64($file->getPathname(), $mime);
+        $conn   = $this->entityManager->getConnection();
+        $userId = $user->getId();
+
+        // Count existing photos to decide if this should be the active one
+        $count = (int) $conn->fetchOne('SELECT COUNT(*) FROM user_profile_photos WHERE user_id = ?', [$userId]);
+
+        $conn->executeStatement(
+            'INSERT INTO user_profile_photos (user_id, photo_data, is_active) VALUES (?, ?, ?)',
+            [$userId, $base64, $count === 0 ? 1 : 0]
+        );
+
+        // If first photo ever, also update the user avatar
+        if ($count === 0) {
+            $user->setAvatar_base64($base64);
+            $user->setUpdated_at(new \DateTime());
+            $this->entityManager->flush();
+        }
+
+        $this->addFlash('success', 'Photo added to your gallery.');
+        return $this->redirectToRoute('app_profile');
+    }
+
+    #[Route('/profile/photos/set-active/{id}', name: 'app_profile_photo_set_active', methods: ['POST'])]
+    public function setActivePhoto(int $id, Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $conn   = $this->entityManager->getConnection();
+        $userId = $user->getId();
+
+        $photo = $conn->fetchAssociative(
+            'SELECT id, photo_data FROM user_profile_photos WHERE id = ? AND user_id = ?',
+            [$id, $userId]
+        );
+        if (!$photo) {
+            $this->addFlash('error', 'Photo not found.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        // Clear previous active, set new one
+        $conn->executeStatement('UPDATE user_profile_photos SET is_active = 0 WHERE user_id = ?', [$userId]);
+        $conn->executeStatement('UPDATE user_profile_photos SET is_active = 1 WHERE id = ?', [$id]);
+
+        // Sync user avatar
+        $user->setAvatar_base64($photo['photo_data']);
+        $user->setUpdated_at(new \DateTime());
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Profile photo updated.');
+        return $this->redirectToRoute('app_profile');
+    }
+
+    #[Route('/profile/photos/delete/{id}', name: 'app_profile_photo_delete', methods: ['POST'])]
+    public function deleteProfilePhoto(int $id, Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $conn   = $this->entityManager->getConnection();
+        $userId = $user->getId();
+
+        $photo = $conn->fetchAssociative(
+            'SELECT id, is_active FROM user_profile_photos WHERE id = ? AND user_id = ?',
+            [$id, $userId]
+        );
+        if (!$photo) {
+            $this->addFlash('error', 'Photo not found.');
+            return $this->redirectToRoute('app_profile');
+        }
+
+        $conn->executeStatement('DELETE FROM user_profile_photos WHERE id = ?', [$id]);
+
+        // If it was the active photo, promote the next one or clear the avatar
+        if ($photo['is_active']) {
+            $next = $conn->fetchAssociative(
+                'SELECT id, photo_data FROM user_profile_photos WHERE user_id = ? ORDER BY uploaded_at DESC LIMIT 1',
+                [$userId]
+            );
+            if ($next) {
+                $conn->executeStatement('UPDATE user_profile_photos SET is_active = 1 WHERE id = ?', [$next['id']]);
+                $user->setAvatar_base64($next['photo_data']);
+            } else {
+                $user->setAvatar_base64(null);
+            }
+            $user->setUpdated_at(new \DateTime());
+            $this->entityManager->flush();
+        }
+
+        $this->addFlash('success', 'Photo deleted.');
+        return $this->redirectToRoute('app_profile');
     }
 
     #[Route('/profile/upload-avatar', name: 'app_profile_upload_avatar', methods: ['POST'])]
@@ -300,6 +429,11 @@ class ProfileController extends AbstractController
         }
 
         return $this->userRepository->find((int) $auth['id']);
+    }
+
+    private function resizeImageToBase64(string $path, string $mime): string
+    {
+        return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
     }
 
 }

@@ -1,0 +1,736 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}{{ exercise.title }} — LearnAdapt{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+
+/* ── PAGE LAYOUT ── */
+.ev-page{min-height:100vh;padding:90px 0 80px;position:relative}
+.ev-bg-orb{position:fixed;border-radius:50%;filter:blur(130px);opacity:0.10;pointer-events:none;z-index:0}
+.ev-bg-orb--1{width:700px;height:700px;background:radial-gradient(circle,var(--cyan),transparent 70%);top:-15%;left:-10%;animation:o1 20s ease-in-out infinite}
+.ev-bg-orb--2{width:500px;height:500px;background:radial-gradient(circle,var(--purple),transparent 70%);bottom:0;right:-10%;animation:o2 25s ease-in-out infinite}
+@keyframes o1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,40px)}}
+@keyframes o2{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,-30px)}}
+.ev-wrap{max-width:1200px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+
+/* ── BACK LINK ── */
+.ev-back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:0.82rem;font-weight:600;text-decoration:none;margin-bottom:24px;transition:color .2s;padding:8px 0}
+.ev-back:hover{color:var(--cyan)}
+.ev-back i{font-size:1rem}
+
+/* ── HEADER ── */
+.ev-header{background:linear-gradient(135deg,rgba(56,189,209,0.05),rgba(123,97,241,0.03));border:1px solid rgba(56,189,209,0.08);border-radius:20px;padding:32px 36px;margin-bottom:28px;position:relative;overflow:hidden;animation:fadeIn .6s var(--ease)}
+.ev-header::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.3),rgba(123,97,241,0.2),transparent)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.ev-header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.ev-title{font-size:1.9rem;font-weight:900;letter-spacing:-0.04em;line-height:1.2;background:linear-gradient(135deg,var(--text),rgba(246,248,252,0.7));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px}
+.ev-meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ev-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:10px;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.ev-badge.easy{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.2)}
+.ev-badge.medium{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.2)}
+.ev-badge.hard{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
+.ev-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:9px;font-size:0.72rem;font-weight:600;background:rgba(123,97,241,0.08);color:var(--purple);border:1px solid rgba(123,97,241,0.12)}
+.ev-muted-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:9px;font-size:0.72rem;font-weight:600;background:var(--glass);color:var(--muted);border:1px solid var(--border)}
+
+/* ── TWO-COLUMN LAYOUT ── */
+.ev-body{display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start}
+@media(max-width:900px){.ev-body{grid-template-columns:1fr}}
+
+/* ── LEFT COLUMN: description + PDF/video ── */
+.ev-left{display:flex;flex-direction:column;gap:20px}
+
+/* ── SECTION BLOCK ── */
+.ev-section{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;animation:fadeUp .5s var(--ease) backwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.ev-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 22px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.015)}
+.ev-section-head h3{font-size:0.9rem;font-weight:800;display:flex;align-items:center;gap:8px;color:var(--text)}
+.ev-section-head h3 i{font-size:1.05rem;color:var(--cyan)}
+.ev-section-body{padding:22px}
+
+/* Description */
+.ev-desc{word-break:break-word;direction:auto;unicode-bidi:plaintext}
+
+/* ── PDF VIEWER ── */
+.ev-pdf-wrap{width:100%;height:640px;border-radius:12px;overflow:hidden;background:#0a0f1a;border:1px solid var(--border)}
+.ev-pdf-wrap iframe{width:100%;height:100%;border:none;display:block}
+.ev-pdf-none{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;gap:12px;color:var(--muted)}
+.ev-pdf-none i{font-size:2.5rem;opacity:.3}
+.ev-pdf-none p{font-size:0.84rem}
+
+/* ── VIDEO PLAYER ── */
+.ev-video-wrap{border-radius:12px;overflow:hidden;background:#000;border:1px solid var(--border)}
+.ev-video-wrap video{width:100%;max-height:380px;display:block;outline:none}
+.ev-video-none{display:flex;flex-direction:column;align-items:center;justify-content:center;height:160px;gap:12px;color:var(--muted)}
+.ev-video-none i{font-size:2rem;opacity:.3}
+
+/* ── RIGHT COLUMN: focus monitor ── */
+.ev-right{display:flex;flex-direction:column;gap:20px;position:sticky;top:80px}
+
+/* ── FOCUS MONITOR CARD ── */
+.fm-card{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;animation:fadeUp .5s var(--ease) .1s backwards}
+.fm-head{padding:16px 20px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.015);display:flex;align-items:center;justify-content:space-between}
+.fm-head h3{font-size:0.88rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.fm-head h3 i{font-size:1rem;color:var(--cyan)}
+.fm-status-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);transition:all .3s;flex-shrink:0}
+.fm-status-dot.active{background:var(--green);box-shadow:0 0 8px var(--green);animation:dotPulse 1.5s ease-in-out infinite}
+.fm-status-dot.distracted{background:var(--red);box-shadow:0 0 10px var(--red)}
+@keyframes dotPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(0.85)}}
+
+.fm-cam-area{position:relative;background:#000;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.fm-video{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1)}
+.fm-canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1)}
+.fm-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(2,10,16,0.85);transition:opacity .4s}
+.fm-overlay.hidden{opacity:0;pointer-events:none}
+.fm-cam-icon{width:64px;height:64px;border-radius:20px;background:rgba(56,189,209,0.08);border:1px solid rgba(56,189,209,0.15);display:flex;align-items:center;justify-content:center}
+.fm-cam-icon i{font-size:1.8rem;color:var(--cyan);opacity:.6}
+.fm-overlay p{font-size:0.78rem;color:var(--muted);text-align:center;max-width:180px}
+
+/* Focus meter bar */
+.fm-meter-wrap{padding:14px 18px 0}
+.fm-meter-label{display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;font-weight:700;margin-bottom:7px}
+.fm-meter-label span:first-child{color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.fm-meter-pct{font-size:0.75rem;font-weight:800;color:var(--green);transition:color .3s}
+.fm-meter-pct.low{color:var(--red)}
+.fm-meter-pct.mid{color:var(--yellow)}
+.fm-bar-track{height:8px;background:rgba(255,255,255,0.05);border-radius:6px;overflow:hidden}
+.fm-bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--green),#6ee7b7);transition:width .5s var(--ease),background .5s;width:0%}
+.fm-bar-fill.low{background:linear-gradient(90deg,var(--red),#fca5a5)}
+.fm-bar-fill.mid{background:linear-gradient(90deg,var(--yellow),var(--orange))}
+
+/* Stats row */
+.fm-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 18px}
+.fm-stat{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:12px 14px;text-align:center}
+.fm-stat-val{font-size:1.25rem;font-weight:900;letter-spacing:-0.02em}
+.fm-stat-lbl{font-size:0.63rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+
+/* Alert banner */
+.fm-alert{margin:0 18px;padding:10px 14px;border-radius:10px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:var(--red);font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:8px;display:none}
+.fm-alert.show{display:flex}
+.fm-alert i{font-size:1rem;flex-shrink:0;animation:shake .5s ease-in-out infinite}
+@keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+
+/* Controls */
+.fm-controls{padding:14px 18px 18px;display:flex;flex-direction:column;gap:10px}
+.fm-btn{width:100%;padding:11px;border-radius:12px;border:none;font-size:0.84rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .25s var(--ease)}
+.fm-btn-start{background:linear-gradient(135deg,var(--cyan),#2dd4bf);color:#fff}
+.fm-btn-start:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(56,189,209,0.3)}
+.fm-btn-stop{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
+.fm-btn-stop:hover{background:rgba(248,113,113,0.18);transform:translateY(-2px)}
+.fm-btn-silence{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.2);display:none}
+.fm-btn-silence.show{display:flex}
+.fm-btn-silence:hover{background:rgba(251,191,36,0.18)}
+.fm-sensitivity{display:flex;flex-direction:column;gap:5px}
+.fm-sensitivity label{font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between}
+.fm-sensitivity input[type=range]{width:100%;accent-color:var(--cyan);cursor:pointer}
+
+/* ── TOAST ── */
+.ev-toast{position:fixed;bottom:24px;right:24px;padding:12px 22px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);border-radius:14px;color:var(--green);font-size:0.8rem;font-weight:600;z-index:9999;transform:translateY(100px);opacity:0;transition:all .4s var(--ease);backdrop-filter:blur(20px)}
+.ev-toast.show{transform:translateY(0);opacity:1}
+.ev-toast.err{background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.25);color:var(--red)}
+
+@media(max-width:900px){.ev-right{position:static}.ev-wrap{padding:0 16px}.ev-title{font-size:1.4rem}}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="ev-bg-orb ev-bg-orb--1"></div>
+<div class="ev-bg-orb ev-bg-orb--2"></div>
+
+<div class="ev-page">
+<div class="ev-wrap">
+
+	<a href="{{ path('app_exercises') }}" class="ev-back"><i class='bx bx-arrow-back'></i> Back to Exercises</a>
+
+	<!-- Header -->
+	<div class="ev-header">
+		<div class="ev-header-top">
+			<div>
+				<div class="ev-title">{{ exercise.title }}</div>
+				<div class="ev-meta">
+					<span class="ev-badge {{ exercise.level|lower }}">
+						{% if exercise.level == 'EASY' %}<i class='bx bx-leaf'></i>
+						{% elseif exercise.level == 'MEDIUM' %}<i class='bx bx-trending-up'></i>
+						{% else %}<i class='bx bx-trophy'></i>{% endif %}
+						{{ exercise.level }}
+					</span>
+					{% if exercise.module_name %}
+						<span class="ev-tag"><i class='bx bx-category'></i> {{ exercise.module_name }}</span>
+					{% endif %}
+					{% if exercise.teacher_name %}
+						<span class="ev-muted-tag"><i class='bx bx-user'></i> {{ exercise.teacher_name }}</span>
+					{% endif %}
+					<span class="ev-muted-tag"><i class='bx bx-calendar'></i> {{ exercise.created_at|date('M d, Y') }}</span>
+				</div>
+			</div>
+			{% if exercise.pdf_path %}
+				<a href="#pdfSection" onclick="scrollToPdf(event)" style="display:inline-flex;align-items:center;gap:7px;padding:11px 22px;background:linear-gradient(135deg,var(--cyan),#2dd4bf);border-radius:13px;color:#fff;font-weight:700;font-size:0.82rem;text-decoration:none;white-space:nowrap;transition:all .25s;flex-shrink:0" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+					<i class='bx bxs-file-pdf'></i> Open PDF
+				</a>
+			{% endif %}
+		</div>
+	</div>
+
+	<!-- Two-column body -->
+	<div class="ev-body">
+
+		<!-- LEFT: description + PDF + video -->
+		<div class="ev-left">
+
+			<!-- Description -->
+			{% if exercise.description %}
+			<div class="ev-section" style="animation-delay:.05s">
+				<div class="ev-section-head">
+					<h3><i class='bx bx-detail'></i> Exercise Description</h3>
+				</div>
+				<div class="ev-section-body">
+					<div class="ev-desc" id="evDescBody" data-raw="{{ exercise.description|e('html_attr') }}"></div>
+				</div>
+			</div>
+			{% endif %}
+
+			<!-- PDF Viewer -->
+			<div class="ev-section" style="animation-delay:.1s" id="pdfSection">
+				<div class="ev-section-head">
+					<h3><i class='bx bxs-file-pdf'></i> PDF Viewer</h3>
+					{% if exercise.pdf_path %}
+						<a href="{{ path('app_exercise_download', {id: exercise.id}) }}" style="display:inline-flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--cyan);text-decoration:none;font-weight:700;padding:5px 12px;background:rgba(56,189,209,0.06);border:1px solid rgba(56,189,209,0.15);border-radius:9px"><i class='bx bx-download'></i> Download</a>
+					{% endif %}
+				</div>
+				<div class="ev-section-body" style="padding:16px">
+					{% if exercise.pdf_path %}
+						<div class="ev-pdf-wrap">
+							<iframe id="pdfIframe" src="{{ path('app_exercise_view_pdf', {id: exercise.id}) }}" title="Exercise PDF"></iframe>
+						</div>
+					{% else %}
+						<div class="ev-pdf-none">
+							<i class='bx bxs-file-pdf'></i>
+							<p>No PDF attached to this exercise yet.</p>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+
+			<!-- Explanatory Video -->
+			{% if exercise.video_path %}
+			<div class="ev-section" style="animation-delay:.15s" id="videoSection">
+				<div class="ev-section-head">
+					<h3><i class='bx bx-play-circle'></i> Explanatory Video</h3>
+				</div>
+				<div class="ev-section-body" style="padding:16px">
+					<video controls style="width:100%;max-height:420px;background:#000;border-radius:12px;display:block">
+						<source src="{{ path('app_exercise_view_video', {id: exercise.id}) }}" type="video/mp4">
+						Your browser does not support video playback.
+					</video>
+					{% if exercise.video_original_name %}
+					<p style="font-size:0.72rem;color:var(--muted);margin-top:8px;text-align:right">
+						<i class='bx bx-film'></i> {{ exercise.video_original_name }}
+					</p>
+					{% endif %}
+				</div>
+			</div>
+			{% endif %}
+
+		</div><!-- /ev-left -->
+
+		<!-- RIGHT: AI Focus Monitor -->
+		<div class="ev-right">
+			<div class="fm-card">
+				<div class="fm-head">
+					<h3><i class='bx bx-camera'></i> AI Focus Monitor</h3>
+					<span class="fm-status-dot" id="fmDot" title="Camera inactive"></span>
+				</div>
+
+				<!-- Camera viewport -->
+				<div class="fm-cam-area">
+					<video id="fmVideo" class="fm-video" autoplay playsinline muted></video>
+					<canvas id="fmCanvas" class="fm-canvas"></canvas>
+					<div class="fm-overlay" id="fmOverlay">
+						<div class="fm-cam-icon"><i class='bx bx-camera'></i></div>
+						<p>Activate the monitor to begin real-time focus tracking</p>
+					</div>
+				</div>
+
+				<!-- Alert banner -->
+				<div class="fm-alert" id="fmAlert">
+					<i class='bx bx-alarm-exclamation'></i>
+					<span id="fmAlertText">Distraction detected! Please refocus.</span>
+				</div>
+
+				<!-- Focus meter -->
+				<div class="fm-meter-wrap">
+					<div class="fm-meter-label">
+						<span>Focus Score</span>
+						<span class="fm-meter-pct" id="fmPct">—</span>
+					</div>
+					<div class="fm-bar-track"><div class="fm-bar-fill" id="fmBar"></div></div>
+				</div>
+
+				<!-- Stats -->
+				<div class="fm-stats">
+					<div class="fm-stat">
+						<div class="fm-stat-val" id="fmFocusTime" style="color:var(--green)">0:00</div>
+						<div class="fm-stat-lbl">Focused</div>
+					</div>
+					<div class="fm-stat">
+						<div class="fm-stat-val" id="fmDistTime" style="color:var(--red)">0:00</div>
+						<div class="fm-stat-lbl">Distracted</div>
+					</div>
+				</div>
+
+				<!-- Controls -->
+				<div class="fm-controls">
+					<!-- Sensitivity slider -->
+					<div class="fm-sensitivity">
+						<label>
+							<span>Alarm delay</span>
+							<span id="sensitivityLabel">4 s</span>
+						</label>
+						<input type="range" id="sensitivitySlider" min="2" max="15" value="4" oninput="updateSensitivity(this.value)">
+					</div>
+
+					<button class="fm-btn fm-btn-start" id="fmStartBtn" onclick="startMonitor()">
+						<i class='bx bx-play-circle'></i> Start Monitoring
+					</button>
+					<button class="fm-btn fm-btn-stop" id="fmStopBtn" style="display:none" onclick="stopMonitor()">
+						<i class='bx bx-stop-circle'></i> Stop Monitoring
+					</button>
+					<button class="fm-btn fm-btn-silence" id="fmSilenceBtn" onclick="silenceAlarm()">
+						<i class='bx bx-volume-mute'></i> Silence Alarm
+					</button>
+				</div>
+
+			</div><!-- /fm-card -->
+
+			<!-- Session summary card -->
+			<div class="ev-section" style="animation-delay:.2s">
+				<div class="ev-section-head">
+					<h3><i class='bx bx-bar-chart-alt-2'></i> Session Summary</h3>
+				</div>
+				<div class="ev-section-body" style="padding:18px">
+					<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+						<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center">
+							<div style="font-size:1.3rem;font-weight:900;color:var(--cyan)" id="sumTotal">0:00</div>
+							<div style="font-size:0.62rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px">Session Time</div>
+						</div>
+						<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center">
+							<div style="font-size:1.3rem;font-weight:900;color:var(--green)" id="sumRate">—</div>
+							<div style="font-size:0.62rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px">Focus Rate</div>
+						</div>
+					</div>
+					<div style="font-size:0.75rem;color:var(--muted);line-height:1.6;padding:10px 12px;background:rgba(56,189,209,0.04);border:1px solid rgba(56,189,209,0.08);border-radius:10px">
+						<i class='bx bx-info-circle' style="color:var(--cyan)"></i>
+						The monitor uses your browser's camera and MediaPipe Face Mesh to detect head pose and eye gaze. No video is stored or transmitted.
+					</div>
+				</div>
+			</div>
+
+		</div><!-- /ev-right -->
+	</div><!-- /ev-body -->
+
+</div>
+</div>
+
+<div class="ev-toast" id="evToast"></div>
+
+<!-- MediaPipe Face Mesh (CDN — no install needed) -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+
+<script>
+/* ════════════════════════════════════════════
+   DESCRIPTION RENDERER
+   ════════════════════════════════════════════ */
+function parseDescHtml(raw){
+	if(!raw||!raw.trim())return'';
+	const lines=raw.split('\n');
+	let html='';
+	for(const line of lines){
+		const t=line.trim();
+		if(t==='⸻'||/^[─—]{3,}$/.test(t)){
+			html+='<div style="height:1px;background:rgba(255,255,255,0.07);margin:22px 0"></div>';
+		}else if(/^[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{1F300}-\u{1F9FF}]/u.test(t)&&t.length>1){
+			html+=`<div style="font-size:1.05rem;font-weight:800;color:var(--cyan);margin:24px 0 10px;letter-spacing:-0.01em">${escH(t)}</div>`;
+		}else if(/^\d+\.\s+\S/.test(t)){
+			html+=`<div style="font-size:0.95rem;font-weight:800;color:var(--purple);margin:20px 0 8px;padding:10px 16px;background:rgba(123,97,241,0.05);border-left:3px solid var(--purple);border-radius:0 10px 10px 0">${escH(t)}</div>`;
+		}else if(/^\s{3,}[*\-]\s/.test(line)){
+			html+=`<div style="display:flex;gap:10px;align-items:baseline;margin:5px 0 5px 32px;font-size:0.83rem;color:rgba(246,248,252,0.7)"><span style="color:var(--cyan);flex-shrink:0;font-size:0.55rem;margin-top:5px">◦</span><span>${escH(t.replace(/^[*\-]\s/,''))}</span></div>`;
+		}else if(/^[*\-]\s/.test(t)){
+			html+=`<div style="display:flex;gap:10px;align-items:baseline;margin:8px 0;font-size:0.86rem;color:rgba(246,248,252,0.88)"><span style="color:var(--cyan);flex-shrink:0;font-size:0.6rem;margin-top:5px">●</span><span>${escH(t.slice(2))}</span></div>`;
+		}else if(t===''){
+			html+='<div style="height:6px"></div>';
+		}else{
+			html+=`<p style="font-size:0.87rem;line-height:1.85;color:rgba(246,248,252,0.75);margin:8px 0">${escH(t)}</p>`;
+		}
+	}
+	return html;
+}
+function escH(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+// Render description on load
+(function(){
+	const el=document.getElementById('evDescBody');
+	if(el){
+		const raw=el.getAttribute('data-raw')||'';
+		const rendered=parseDescHtml(raw);
+		el.innerHTML=rendered||'<em style="color:var(--muted)">No description provided.</em>';
+		el.removeAttribute('data-raw');
+	}
+})();
+
+/* ════════════════════════════════════════════
+   AI FOCUS MONITOR — MediaPipe Face Mesh
+   ════════════════════════════════════════════ */
+
+const videoEl   = document.getElementById('fmVideo');
+const canvasEl  = document.getElementById('fmCanvas');
+const ctx       = canvasEl.getContext('2d');
+const overlay   = document.getElementById('fmOverlay');
+const dot       = document.getElementById('fmDot');
+const bar       = document.getElementById('fmBar');
+const pctEl     = document.getElementById('fmPct');
+const alertBox  = document.getElementById('fmAlert');
+const alertText = document.getElementById('fmAlertText');
+const silenceBtn= document.getElementById('fmSilenceBtn');
+const startBtn  = document.getElementById('fmStartBtn');
+const stopBtn   = document.getElementById('fmStopBtn');
+
+let monitoring    = false;
+let stream        = null;
+let faceMesh      = null;
+let mpCamera      = null;
+let alarmAudio    = null;
+let alarmActive   = false;
+let alarmTimer    = null;     // timer before alarm fires
+let lastFocused   = true;
+let distractionStart = null;
+let sensitivitySec = 4;       // seconds of distraction before alarm
+
+let focusedMs  = 0;
+let distractedMs = 0;
+let sessionStart = null;
+let lastTick   = null;
+let ticker     = null;
+
+// MediaPipe landmark indices
+const LEFT_EYE_INNER  = 133;
+const RIGHT_EYE_INNER = 362;
+const NOSE_TIP        = 1;
+const CHIN            = 152;
+const FOREHEAD        = 10;
+const LEFT_EAR        = 234;
+const RIGHT_EAR       = 454;
+
+function updateSensitivity(v) {
+    sensitivitySec = parseInt(v);
+    document.getElementById('sensitivityLabel').textContent = v + ' s';
+}
+
+// ── Start ──────────────────────────────────
+async function startMonitor() {
+    if (monitoring) return;
+
+    // Check browser support
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        toast('Camera not supported in this browser.', true); return;
+    }
+
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 }, audio: false });
+    } catch (e) {
+        toast('Camera permission denied. Please allow camera access.', true); return;
+    }
+
+    videoEl.srcObject = stream;
+    monitoring = true;
+    sessionStart = Date.now();
+    lastTick = Date.now();
+    focusedMs = 0;
+    distractedMs = 0;
+
+    overlay.classList.add('hidden');
+    startBtn.style.display = 'none';
+    stopBtn.style.display  = 'flex';
+    dot.classList.add('active');
+
+    // Init MediaPipe Face Mesh
+    faceMesh = new FaceMesh({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
+    faceMesh.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: true,
+        minDetectionConfidence: 0.6,
+        minTrackingConfidence: 0.6
+    });
+    faceMesh.onResults(onResults);
+
+    mpCamera = new Camera(videoEl, {
+        onFrame: async () => { await faceMesh.send({ image: videoEl }); },
+        width: 640, height: 480
+    });
+    mpCamera.start();
+
+    // Tick every second for session time display
+    ticker = setInterval(updateSessionDisplay, 1000);
+
+    toast('Focus monitoring started');
+}
+
+// ── Stop ───────────────────────────────────
+function stopMonitor() {
+    if (!monitoring) return;
+    monitoring = false;
+
+    if (mpCamera) { mpCamera.stop(); mpCamera = null; }
+    if (faceMesh) { faceMesh.close(); faceMesh = null; }
+    if (stream)   { stream.getTracks().forEach(t => t.stop()); stream = null; }
+    if (ticker)   { clearInterval(ticker); ticker = null; }
+
+    silenceAlarm();
+
+    videoEl.srcObject = null;
+    overlay.classList.remove('hidden');
+    startBtn.style.display = 'flex';
+    stopBtn.style.display  = 'none';
+    dot.classList.remove('active', 'distracted');
+
+    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+    bar.style.width = '0%';
+    pctEl.textContent = '—';
+    pctEl.className = 'fm-meter-pct';
+    bar.className = 'fm-bar-fill';
+
+    toast('Monitoring stopped');
+}
+
+// ── Silence alarm ──────────────────────────
+function silenceAlarm() {
+    if (alarmAudio) { alarmAudio.pause(); alarmAudio = null; }
+    alarmActive = false;
+    alertBox.classList.remove('show');
+    silenceBtn.classList.remove('show');
+    if (alarmTimer) { clearTimeout(alarmTimer); alarmTimer = null; }
+}
+
+// ── Generate alarm beep via Web Audio API ──
+function startAlarm() {
+    if (alarmActive) return;
+    alarmActive = true;
+    silenceBtn.classList.add('show');
+    alertBox.classList.add('show');
+
+    // Looping beep via AudioContext
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const actx = new AudioCtx();
+        function beep() {
+            if (!alarmActive) return;
+            const osc = actx.createOscillator();
+            const gain = actx.createGain();
+            osc.connect(gain); gain.connect(actx.destination);
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(880, actx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(440, actx.currentTime + 0.3);
+            gain.gain.setValueAtTime(0.5, actx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.4);
+            osc.start(actx.currentTime);
+            osc.stop(actx.currentTime + 0.4);
+            osc.onended = () => { if (alarmActive) setTimeout(beep, 300); };
+        }
+        beep();
+        alarmAudio = { pause: () => { alarmActive = false; try { actx.close(); } catch(e){} } };
+    } catch (e) {
+        // Fallback: vibrate if available
+        if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 500]);
+    }
+}
+
+// ── MediaPipe result handler ───────────────
+function onResults(results) {
+    if (!monitoring) return;
+
+    canvasEl.width  = videoEl.videoWidth  || 640;
+    canvasEl.height = videoEl.videoHeight || 480;
+
+    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+
+    const now = Date.now();
+    const dt  = now - lastTick;
+    lastTick  = now;
+
+    if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
+        // No face detected → distracted
+        handleFocus(false, dt);
+        dot.className = 'fm-status-dot distracted';
+        updateMeter(0);
+        return;
+    }
+
+    const lm = results.multiFaceLandmarks[0];
+    const W  = canvasEl.width;
+    const H  = canvasEl.height;
+
+    // ── Head pose estimation via 3-point triangle ──
+    const nose     = lm[NOSE_TIP];
+    const chin     = lm[CHIN];
+    const forehead = lm[FOREHEAD];
+    const leftEar  = lm[LEFT_EAR];
+    const rightEar = lm[RIGHT_EAR];
+
+    // Vertical tilt: nose between chin and forehead — if nose.y is far from center, head tilts
+    const faceHeight = Math.abs(forehead.y - chin.y);
+    const noseCenterY = (forehead.y + chin.y) / 2;
+    const verticalTilt = Math.abs(nose.y - noseCenterY) / (faceHeight + 0.001);
+
+    // Horizontal turn: ear-to-ear x distance vs nose x position
+    const faceWidth = Math.abs(rightEar.x - leftEar.x);
+    const faceCenterX = (leftEar.x + rightEar.x) / 2;
+    const horizontalTurn = Math.abs(nose.x - faceCenterX) / (faceWidth + 0.001);
+
+    // Eye openness (gaze proxy): upper and lower eyelid landmarks
+    // Left eye: 159 (upper) 145 (lower); Right eye: 386 (upper) 374 (lower)
+    const leftEAR  = eyeAspectRatio(lm, [159, 145, 33, 133]);
+    const rightEAR = eyeAspectRatio(lm, [386, 374, 362, 263]);
+    const avgEAR   = (leftEAR + rightEAR) / 2;
+
+    // Focus thresholds (tuned experimentally)
+    const tiltOk  = verticalTilt < 0.15;
+    const turnOk  = horizontalTurn < 0.18;
+    const eyesOk  = avgEAR > 0.15; // eyes open (> 0.15 = open, < 0.10 = closed/looking away)
+
+    const focusScore = Math.max(0, Math.min(100, Math.round(
+        (tiltOk  ? 35 : Math.max(0, 35 - verticalTilt  * 200)) +
+        (turnOk  ? 35 : Math.max(0, 35 - horizontalTurn * 180)) +
+        (eyesOk  ? 30 : Math.max(0, 30 - (0.15 - avgEAR) * 300))
+    )));
+
+    const isFocused = focusScore >= 55;
+    handleFocus(isFocused, dt);
+    dot.className = 'fm-status-dot ' + (isFocused ? 'active' : 'distracted');
+    updateMeter(focusScore);
+
+    // Draw minimal landmark overlay — nose tip + eye corners
+    drawOverlay(lm, W, H, isFocused);
+}
+
+function eyeAspectRatio(lm, [top, bottom, left, right]) {
+    const h = Math.abs(lm[top].y - lm[bottom].y);
+    const w = Math.abs(lm[left].x - lm[right].x);
+    return w > 0 ? h / w : 0;
+}
+
+function drawOverlay(lm, W, H, focused) {
+    const color = focused ? 'rgba(52,211,153,0.7)' : 'rgba(248,113,113,0.7)';
+
+    // Draw face oval (simplified: connect a ring of points)
+    const ovalPts = [10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
+    ctx.beginPath();
+    ovalPts.forEach((i, idx) => {
+        const p = lm[i];
+        if (idx === 0) ctx.moveTo(p.x * W, p.y * W);
+        else ctx.lineTo(p.x * W, p.y * W);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Nose dot
+    const n = lm[1];
+    ctx.beginPath();
+    ctx.arc(n.x * W, n.y * W, 4, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    // Status text
+    ctx.font = 'bold 13px Inter, sans-serif';
+    ctx.fillStyle = color;
+    ctx.textAlign = 'left';
+    ctx.fillText(focused ? '✓ Focused' : '⚠ Look at screen', 10, 22);
+}
+
+function handleFocus(isFocused, dt) {
+    if (isFocused) {
+        focusedMs += dt;
+        if (alarmTimer) { clearTimeout(alarmTimer); alarmTimer = null; }
+        if (alarmActive) silenceAlarm();
+        alertBox.classList.remove('show');
+        distractionStart = null;
+    } else {
+        distractedMs += dt;
+        if (!distractionStart) distractionStart = Date.now();
+        const elapsed = (Date.now() - distractionStart) / 1000;
+        if (elapsed >= sensitivitySec && !alarmActive) {
+            alertText.textContent = 'Distraction detected! Please refocus on the exercise.';
+            startAlarm();
+        }
+    }
+    lastFocused = isFocused;
+}
+
+function updateMeter(score) {
+    bar.style.width = score + '%';
+    pctEl.textContent = score + '%';
+    if (score >= 60) {
+        bar.className = 'fm-bar-fill';
+        pctEl.className = 'fm-meter-pct';
+    } else if (score >= 35) {
+        bar.className = 'fm-bar-fill mid';
+        pctEl.className = 'fm-meter-pct mid';
+    } else {
+        bar.className = 'fm-bar-fill low';
+        pctEl.className = 'fm-meter-pct low';
+    }
+}
+
+function updateSessionDisplay() {
+    if (!monitoring) return;
+    const total = focusedMs + distractedMs;
+    document.getElementById('fmFocusTime').textContent   = msToTime(focusedMs);
+    document.getElementById('fmDistTime').textContent    = msToTime(distractedMs);
+    document.getElementById('sumTotal').textContent      = msToTime(total);
+    document.getElementById('sumRate').textContent       = total > 0 ? Math.round(focusedMs / total * 100) + '%' : '—';
+}
+
+function msToTime(ms) {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    return m + ':' + String(s % 60).padStart(2, '0');
+}
+
+/* ── PDF SCROLL ── */
+function scrollToPdf(e) {
+    if (e) e.preventDefault();
+    const sec = document.getElementById('pdfSection');
+    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── LOCAL VIDEO LOADER ── */
+function loadLocalVideo(input) {
+    if (!input.files[0]) return;
+    const url = URL.createObjectURL(input.files[0]);
+    const vp  = document.getElementById('videoPlayer');
+    vp.src = url;
+    vp.style.display = 'block';
+    document.getElementById('videoPlaceholder').style.display = 'none';
+    toast('Video loaded — use controls to play');
+}
+
+/* ── TOAST ── */
+function toast(msg, err = false) {
+    const t = document.getElementById('evToast');
+    t.textContent = msg;
+    t.className = 'ev-toast' + (err ? ' err' : '') + ' show';
+    setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// Stop monitoring if user leaves page
+window.addEventListener('beforeunload', () => { if (monitoring) stopMonitor(); });
+</script>
+{% endblock %}

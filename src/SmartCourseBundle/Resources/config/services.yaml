@@ -1,0 +1,16 @@
+services:
+    # Analytics service — course view stats, completion rates, global metrics
+    App\SmartCourseBundle\Service\AnalyticsService:
+        arguments:
+            - '@doctrine.dbal.default_connection'
+            - '%smart_course.analytics.enabled%'
+        public: true
+
+    # Event subscriber — records user activity and triggers notifications
+    App\SmartCourseBundle\EventSubscriber\CourseActivitySubscriber:
+        arguments:
+            - '@doctrine.dbal.default_connection'
+            - '@mailer'
+            - '%smart_course.notifications.email%'
+        tags:
+            - { name: kernel.event_subscriber }

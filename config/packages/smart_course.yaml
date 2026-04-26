@@ -1,0 +1,26 @@
+smart_course:
+
+  recommendation:
+    # Enable/disable the recommendation engine entirely
+    enabled: true
+
+    # Strategy: hybrid | content | popularity
+    # - hybrid:     combines similarity + popularity + history (recommended)
+    # - content:    matches same level + same module only
+    # - popularity: ranks purely by enrolments + ratings
+    strategy: hybrid
+
+    # Hybrid scoring weights (must sum to 1.0)
+    #   score = (similarity × w1) + (popularity × w2) + (history × w3)
+    weights:
+      similarity: 0.5
+      popularity: 0.3
+      history:    0.2
+
+  notifications:
+    # Send enrolment confirmation email when a user enrols in a course
+    email: false   # set to true + configure mailer in .env to activate
+
+  analytics:
+    # Enable course analytics (views, completions, engagement scores)
+    enabled: true

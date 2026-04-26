@@ -158,6 +158,33 @@ footer{display:none!important}
 .cr-dl-btn:hover::before{opacity:1}
 .cr-dl-btn i{font-size:1rem}
 
+/* ═══ RECOMMENDATION PANEL ═══ */
+.cr-rec-panel{margin-bottom:32px;animation:fadeUp .5s var(--ease) .22s backwards}
+.cr-rec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cr-rec-title{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);display:flex;align-items:center;gap:7px}
+.cr-rec-title i{font-size:0.9rem;color:var(--purple);opacity:.8}
+.cr-rec-tab{display:inline-flex;background:var(--glass);border:1px solid var(--border);border-radius:10px;padding:3px;gap:3px}
+.cr-rec-tab button{padding:5px 14px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-size:0.72rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.cr-rec-tab button.active{background:rgba(123,97,241,0.15);color:var(--purple)}
+.cr-rec-scroll{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:rgba(123,97,241,0.2) transparent}
+.cr-rec-scroll::-webkit-scrollbar{height:3px}
+.cr-rec-scroll::-webkit-scrollbar-thumb{background:rgba(123,97,241,0.25);border-radius:4px}
+.cr-rec-card{flex:0 0 240px;background:linear-gradient(145deg,rgba(123,97,241,0.05),rgba(123,97,241,0.02));border:1px solid rgba(123,97,241,0.1);border-radius:16px;padding:16px;transition:all .25s var(--ease);cursor:pointer;text-decoration:none;color:inherit;display:block;position:relative;overflow:hidden}
+.cr-rec-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--purple),var(--cyan));opacity:.5}
+.cr-rec-card:hover{border-color:rgba(123,97,241,0.25);transform:translateY(-3px);box-shadow:0 12px 32px rgba(123,97,241,0.12)}
+.cr-rec-card-title{font-size:0.85rem;font-weight:700;line-height:1.4;margin-bottom:6px;color:var(--text)}
+.cr-rec-card-mod{font-size:0.7rem;color:var(--purple);margin-bottom:8px;opacity:.8}
+.cr-rec-card-meta{display:flex;align-items:center;justify-content:space-between;font-size:0.68rem;color:var(--muted)}
+.cr-rec-badge{padding:2px 8px;border-radius:6px;font-weight:700;font-size:0.62rem;text-transform:uppercase}
+.cr-rec-badge.easy{background:rgba(52,211,153,0.1);color:var(--green)}
+.cr-rec-badge.medium{background:rgba(251,191,36,0.1);color:var(--yellow)}
+.cr-rec-badge.hard{background:rgba(248,113,113,0.1);color:var(--red)}
+.cr-rec-score{background:rgba(123,97,241,0.1);color:var(--purple);padding:2px 8px;border-radius:6px;font-weight:700;font-size:0.62rem}
+.cr-rec-empty{color:var(--muted);font-size:0.82rem;padding:20px 0;text-align:center;opacity:.6}
+.cr-rec-loading{display:flex;gap:14px}
+.cr-rec-skel{flex:0 0 240px;height:96px;background:var(--glass);border-radius:16px;animation:skelPulse 1.5s ease-in-out infinite}
+@keyframes skelPulse{0%,100%{opacity:.3}50%{opacity:.7}}
+
 /* ═══ EMPTY STATE ═══ */
 .cr-empty{text-align:center;padding:100px 20px;color:var(--muted);animation:fadeUp .6s var(--ease)}
 .cr-empty-icon{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,rgba(251,146,60,0.08),rgba(251,191,36,0.05));border:1px solid rgba(251,146,60,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
@@ -301,9 +328,40 @@ footer{display:none!important}
 	</div>
 	{% endif %}
 
+	<!-- Smart Recommendation Panel -->
+	<div class="cr-rec-panel" id="recPanel">
+		<div class="cr-rec-header">
+			<div class="cr-rec-title"><i class='bx bx-brain'></i> Smart Recommendations</div>
+			<div class="cr-rec-tab">
+				<button class="active" onclick="showRec('for-you',this)">For You</button>
+				<button onclick="showRec('trending',this)">🔥 Trending</button>
+			</div>
+		</div>
+		<!-- For You -->
+		<div id="recForYou">
+			<div class="cr-rec-loading" id="recLoading">
+				<div class="cr-rec-skel"></div>
+				<div class="cr-rec-skel"></div>
+				<div class="cr-rec-skel"></div>
+				<div class="cr-rec-skel"></div>
+			</div>
+			<div class="cr-rec-scroll" id="recList" style="display:none"></div>
+			<div class="cr-rec-empty" id="recEmpty" style="display:none">No personalised recommendations yet — explore more courses to train the algorithm!</div>
+		</div>
+		<!-- Trending -->
+		<div id="recTrending" style="display:none">
+			<div class="cr-rec-loading" id="trendLoading">
+				<div class="cr-rec-skel"></div>
+				<div class="cr-rec-skel"></div>
+				<div class="cr-rec-skel"></div>
+				<div class="cr-rec-skel"></div>
+			</div>
+			<div class="cr-rec-scroll" id="trendList" style="display:none"></div>
+		</div>
+	</div>
+
 	<!-- Results count -->
 	<div class="cr-results">
-		<i class='bx bx-list-ul'></i>
 		Showing <strong>{{ courses|length }}</strong> course{{ courses|length != 1 ? 's' : '' }}
 		{% if currentLevel %} &middot; Level: <strong>{{ currentLevel }}</strong>{% endif %}
 		{% if searchQuery %} &middot; Search: <strong>"{{ searchQuery }}"</strong>{% endif %}
@@ -388,6 +446,96 @@ footer{display:none!important}
 </div>
 
 <script>
+// ── Recommendation panel ──────────────────────────────────────────────────
+const CURRENT_USER_ID = {{ userId|default(0) }};
+
+function recCardHtml(c, scoreKey) {
+    const score = scoreKey && c[scoreKey] !== undefined
+        ? `<span class="cr-rec-score">Score: ${parseFloat(c[scoreKey]).toFixed(2)}</span>` : '';
+    const lvl   = (c.level||'').toLowerCase();
+    const mod   = c.module_name ? `<div class="cr-rec-card-mod">${c.module_name}</div>` : '';
+    const prog  = parseInt(c.progress_percent||0);
+    const enrolled = parseInt(c.is_enrolled||0);
+    const progressBar = prog > 0
+        ? `<div style="height:3px;background:rgba(255,255,255,0.08);border-radius:3px;margin:8px 0 6px"><div style="height:100%;width:${prog}%;background:linear-gradient(90deg,#7b61f1,#38bdd1);border-radius:3px"></div></div>`
+        : '';
+    const enrolledTag = enrolled
+        ? `<span style="font-size:0.6rem;background:rgba(56,189,209,0.12);color:#38bdd1;padding:1px 7px;border-radius:5px;font-weight:700">${prog===100?'✓ Done':'In Progress'}</span>`
+        : '';
+    return `<a href="/courses/${c.id}" class="cr-rec-card" onclick="trackView(${c.id})">
+        <div class="cr-rec-card-title">${c.title}</div>
+        ${mod}
+        ${progressBar}
+        <div class="cr-rec-card-meta">
+            <span class="cr-rec-badge ${lvl}">${c.level||'—'}</span>
+            <div style="display:flex;gap:6px;align-items:center">${enrolledTag}${score}</div>
+        </div>
+    </a>`;
+}
+
+function showRec(tab, btn) {
+    document.querySelectorAll('.cr-rec-tab button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('recForYou').style.display  = tab==='for-you'   ? '' : 'none';
+    document.getElementById('recTrending').style.display = tab==='trending' ? '' : 'none';
+    if (tab === 'trending' && !trendLoaded) loadTrending();
+}
+
+let trendLoaded = false;
+
+function loadRecommendations() {
+    if (!CURRENT_USER_ID) return;
+    fetch(`/api/recommendations/${CURRENT_USER_ID}?limit=8`)
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('recLoading').style.display = 'none';
+            const list = document.getElementById('recList');
+            const empty = document.getElementById('recEmpty');
+            const items = data.recommendations || [];
+            if (!items.length) { empty.style.display = ''; return; }
+            list.innerHTML = items.map(c => recCardHtml(c, 'score')).join('');
+            list.style.display = 'flex';
+        })
+        .catch(() => {
+            document.getElementById('recLoading').style.display = 'none';
+            document.getElementById('recEmpty').style.display = '';
+        });
+}
+
+function loadTrending() {
+    trendLoaded = true;
+    fetch('/api/courses/trending?limit=8')
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('trendLoading').style.display = 'none';
+            const list = document.getElementById('trendList');
+            const items = data.courses || [];
+            if (!items.length) { list.innerHTML='<div class="cr-rec-empty">No trending data yet</div>'; list.style.display=''; return; }
+            list.innerHTML = items.map(c => recCardHtml(c, 'trend_score')).join('');
+            list.style.display = 'flex';
+        });
+}
+
+function trackView(courseId) {
+    if (!CURRENT_USER_ID || !courseId) return;
+    navigator.sendBeacon
+        ? navigator.sendBeacon('/api/user/activity', JSON.stringify({activity_type:'view', course_id:courseId}))
+        : fetch('/api/user/activity', {method:'POST', body: JSON.stringify({activity_type:'view', course_id:courseId}), headers:{'Content-Type':'application/json'}});
+}
+
+// Load on page ready
+loadRecommendations();
+
+// Track page visit (browse activity)
+if (CURRENT_USER_ID) {
+    fetch('/api/user/activity', {
+        method: 'POST',
+        body: JSON.stringify({activity_type: 'view', course_id: null}),
+        headers: {'Content-Type': 'application/json'}
+    }).catch(()=>{});
+}
+
+// ── Bookmark ──────────────────────────────────────────────────────────────
 function toggleBookmark(id, btn) {
 	fetch('/courses/'+id+'/bookmark', {method:'POST'}).then(r=>r.json()).then(d=>{
 		if(d.bookmarked){

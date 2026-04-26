@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -12,10 +14,23 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class AiChatController extends AbstractController
 {
     private EntityManagerInterface $em;
+    private UserRepository $userRepository;
 
-    public function __construct(EntityManagerInterface $em)
+    private const AUTH_SESSION_KEY = 'auth.user';
+
+    public function __construct(EntityManagerInterface $em, UserRepository $userRepository)
     {
         $this->em = $em;
+        $this->userRepository = $userRepository;
+    }
+
+    private function getAuthenticatedUser(Request $request): ?User
+    {
+        $auth = $request->getSession()->get(self::AUTH_SESSION_KEY);
+        if (!is_array($auth) || !isset($auth['id'])) {
+            return null;
+        }
+        return $this->userRepository->find((int) $auth['id']);
     }
 
     private function conn(): \Doctrine\DBAL\Connection
@@ -82,19 +97,19 @@ PROMPT;
             }
         }
 
-        // Always try smart offline first — it uses real user data
-        $user = $this->getUser();
-        $smartReply = $this->generateSmartReply($userMessage, $user, $data['messages']);
-        if ($smartReply) {
-            return $this->json(['reply' => $smartReply]);
-        }
+        $user = $this->getAuthenticatedUser($request);
+        $userId = $user ? $user->getId() : null;
 
-        // Try Groq API as enhancement
+        // Build real-time context from the database to feed Groq
+        $siteContext = $this->buildSiteContext($userId);
+
+        // Try Groq API first with full site context
         $apiKey = $this->getParameter('app.groq_api_key');
         if ($apiKey && $apiKey !== 'your-groq-api-key-here') {
             try {
+                $systemPrompt = self::SYSTEM_PROMPT . "\n\n" . $siteContext;
                 $messages = [
-                    ['role' => 'system', 'content' => self::SYSTEM_PROMPT],
+                    ['role' => 'system', 'content' => $systemPrompt],
                 ];
                 $userMessages = array_slice($data['messages'], -20);
                 foreach ($userMessages as $msg) {
@@ -111,7 +126,7 @@ PROMPT;
                     'json' => [
                         'model' => 'llama-3.3-70b-versatile',
                         'messages' => $messages,
-                        'max_tokens' => 500,
+                        'max_tokens' => 1000,
                         'temperature' => 0.7,
                     ],
                     'timeout' => 30,
@@ -123,12 +138,283 @@ PROMPT;
                     return $this->json(['reply' => $reply]);
                 }
             } catch (\Exception $e) {
+                // In dev, surface the actual Groq error so we can debug it
+                if ($this->getParameter('kernel.environment') === 'dev') {
+                    return $this->json(['reply' => '⚠️ Groq API error: ' . $e->getMessage()]);
+                }
                 // Fall through to offline
             }
         }
 
+        // Offline fallback — try smart replies using local data
+        $smartReply = $this->generateSmartReply($userMessage, $user, $data['messages']);
+        if ($smartReply) {
+            return $this->json(['reply' => $smartReply]);
+        }
+
         // Final fallback
         return $this->json(['reply' => $this->getGenericFallback($userMessage)]);
+    }
+
+    /**
+     * Build a rich context string with real data from the database
+     * so Groq can answer questions about the user's actual courses, exercises, quizzes, progress, etc.
+     */
+    private function buildSiteContext(?int $userId): string
+    {
+        $ctx = "=== REAL-TIME PLATFORM DATA ===\n";
+        $ctx .= "Use this data to answer user questions accurately. Reference specific names, titles, and numbers.\n\n";
+
+        // ─── ALL AVAILABLE COURSES ───
+        try {
+            $courses = $this->conn()->fetchAllAssociative(
+                'SELECT c.id, c.title, c.level, c.description, m.name as module_name,
+                    (SELECT COUNT(*) FROM course_progress cp2 WHERE cp2.course_id = c.id) as enrolled_count,
+                    (SELECT ROUND(AVG(cr.rating), 1) FROM course_ratings cr WHERE cr.course_id = c.id) as avg_rating
+                 FROM courses c
+                 LEFT JOIN modules m ON c.module_id = m.id
+                 ORDER BY enrolled_count DESC'
+            );
+            $ctx .= "AVAILABLE COURSES (" . count($courses) . " total):\n";
+            foreach ($courses as $c) {
+                $module = $c['module_name'] ? " [Module: {$c['module_name']}]" : '';
+                $rating = $c['avg_rating'] ? " Rating: {$c['avg_rating']}/5" : '';
+                $desc = $c['description'] ? ' - ' . mb_substr($c['description'], 0, 100) : '';
+                $ctx .= "- ID:{$c['id']} \"{$c['title']}\" (Level: {$c['level']}){$module}{$rating}, {$c['enrolled_count']} enrolled{$desc}\n";
+            }
+            $ctx .= "\n";
+        } catch (\Exception $e) {}
+
+        // ─── ALL MODULES ───
+        try {
+            $modules = $this->conn()->fetchAllAssociative('SELECT id, name, description FROM modules ORDER BY name');
+            if ($modules) {
+                $ctx .= "MODULES/CATEGORIES:\n";
+                foreach ($modules as $m) {
+                    $desc = $m['description'] ? " - {$m['description']}" : '';
+                    $ctx .= "- {$m['name']}{$desc}\n";
+                }
+                $ctx .= "\n";
+            }
+        } catch (\Exception $e) {}
+
+        // ─── ALL EXERCISES ───
+        try {
+            $exercises = $this->conn()->fetchAllAssociative(
+                'SELECT e.id, e.title, e.level, e.description, m.name as module_name
+                 FROM exercises e
+                 LEFT JOIN modules m ON e.module_id = m.id
+                 ORDER BY m.name, e.level'
+            );
+            if ($exercises) {
+                $ctx .= "EXERCISES (" . count($exercises) . " total):\n";
+                foreach ($exercises as $ex) {
+                    $module = $ex['module_name'] ? " [Module: {$ex['module_name']}]" : '';
+                    $desc = $ex['description'] ? ' - ' . mb_substr($ex['description'], 0, 80) : '';
+                    $ctx .= "- ID:{$ex['id']} \"{$ex['title']}\" (Level: {$ex['level']}){$module}{$desc}\n";
+                }
+                $ctx .= "\n";
+            }
+
+            // Also check the exercice table (legacy)
+            $exercices = $this->conn()->fetchAllAssociative(
+                'SELECT id, titre, niveau, module FROM exercice ORDER BY module'
+            );
+            if ($exercices) {
+                $ctx .= "PRACTICE EXERCISES (legacy, " . count($exercices) . " total):\n";
+                foreach ($exercices as $ex) {
+                    $ctx .= "- ID:{$ex['id']} \"{$ex['titre']}\" (Level: {$ex['niveau']}, Module: {$ex['module']})\n";
+                }
+                $ctx .= "\n";
+            }
+        } catch (\Exception $e) {}
+
+        // ─── DIAGNOSTIC QUIZZES ───
+        try {
+            $quizzes = $this->conn()->fetchAllAssociative(
+                'SELECT dq.id, dq.title, dq.description, dq.time_limit_minutes,
+                    (SELECT COUNT(*) FROM quiz_questions qq WHERE qq.quiz_id = dq.id) as question_count
+                 FROM diagnostic_quizzes dq
+                 WHERE dq.is_active = 1'
+            );
+            if ($quizzes) {
+                $ctx .= "DIAGNOSTIC QUIZZES (" . count($quizzes) . " active):\n";
+                foreach ($quizzes as $q) {
+                    $time = $q['time_limit_minutes'] ? " ({$q['time_limit_minutes']} min)" : '';
+                    $ctx .= "- ID:{$q['id']} \"{$q['title']}\"{$time} — {$q['question_count']} questions\n";
+                }
+                $ctx .= "\n";
+            }
+        } catch (\Exception $e) {}
+
+        // ─── FORUM TOPICS ───
+        try {
+            $topics = $this->conn()->fetchAllAssociative(
+                'SELECT ft.title, ft.category, u.full_name as author,
+                    (SELECT COUNT(*) FROM forum_posts fp WHERE fp.topic_id = ft.id) as reply_count
+                 FROM forum_topics ft
+                 LEFT JOIN users u ON ft.user_id = u.id
+                 ORDER BY ft.created_at DESC LIMIT 10'
+            );
+            if ($topics) {
+                $ctx .= "RECENT FORUM TOPICS:\n";
+                foreach ($topics as $t) {
+                    $cat = $t['category'] ? " [{$t['category']}]" : '';
+                    $ctx .= "- \"{$t['title']}\"{$cat} by {$t['author']} — {$t['reply_count']} replies\n";
+                }
+                $ctx .= "\n";
+            }
+        } catch (\Exception $e) {}
+
+        // ─── USER-SPECIFIC DATA ───
+        if ($userId) {
+            $ctx .= "=== CURRENT USER DATA ===\n";
+
+            try {
+                $userInfo = $this->conn()->fetchAssociative(
+                    'SELECT full_name, email, role FROM users WHERE id = ?', [$userId]
+                );
+                if ($userInfo) {
+                    $ctx .= "User: {$userInfo['full_name']} (Role: {$userInfo['role']})\n\n";
+                }
+            } catch (\Exception $e) {}
+
+            // User's enrolled courses with progress
+            try {
+                $userCourses = $this->conn()->fetchAllAssociative(
+                    'SELECT c.title, c.level, cp.progress_percent, cp.xp_earned, cp.last_accessed,
+                        m.name as module_name
+                     FROM course_progress cp
+                     JOIN courses c ON cp.course_id = c.id
+                     LEFT JOIN modules m ON c.module_id = m.id
+                     WHERE cp.user_id = ?
+                     ORDER BY cp.last_accessed DESC',
+                    [$userId]
+                );
+                if ($userCourses) {
+                    $ctx .= "USER'S ENROLLED COURSES:\n";
+                    foreach ($userCourses as $uc) {
+                        $module = $uc['module_name'] ? " [{$uc['module_name']}]" : '';
+                        $ctx .= "- \"{$uc['title']}\" ({$uc['level']}){$module} — Progress: {$uc['progress_percent']}%, XP: {$uc['xp_earned']}, Last accessed: {$uc['last_accessed']}\n";
+                    }
+                    $ctx .= "\n";
+                } else {
+                    $ctx .= "USER'S ENROLLED COURSES: None yet.\n\n";
+                }
+            } catch (\Exception $e) {}
+
+            // User's quiz attempts
+            try {
+                $quizAttempts = $this->conn()->fetchAllAssociative(
+                    'SELECT dq.title, qa.score_percent, qa.level_result, qa.started_at, qa.finished_at,
+                        qa.earned_points, qa.total_points
+                     FROM quiz_attempts qa
+                     JOIN diagnostic_quizzes dq ON qa.quiz_id = dq.id
+                     WHERE qa.student_user_id = ?
+                     ORDER BY qa.started_at DESC LIMIT 10',
+                    [$userId]
+                );
+                if ($quizAttempts) {
+                    $ctx .= "USER'S QUIZ ATTEMPTS:\n";
+                    foreach ($quizAttempts as $qa) {
+                        $finished = $qa['finished_at'] ? "Finished: {$qa['finished_at']}" : 'In progress';
+                        $level = $qa['level_result'] ? ", Result: {$qa['level_result']}" : '';
+                        $ctx .= "- \"{$qa['title']}\" — Score: {$qa['score_percent']}% ({$qa['earned_points']}/{$qa['total_points']} pts){$level}, {$finished}\n";
+                    }
+                    $ctx .= "\n";
+                }
+            } catch (\Exception $e) {}
+
+            // User's streak
+            try {
+                $streak = $this->conn()->fetchAssociative(
+                    'SELECT current_streak, longest_streak, last_activity_date FROM user_streaks WHERE user_id = ?',
+                    [$userId]
+                );
+                if ($streak) {
+                    $ctx .= "USER'S STREAK: Current: {$streak['current_streak']} days, Longest: {$streak['longest_streak']} days, Last active: {$streak['last_activity_date']}\n";
+                }
+            } catch (\Exception $e) {}
+
+            // User's total XP and ranking
+            try {
+                $totalXp = (int)$this->conn()->fetchOne(
+                    'SELECT COALESCE(SUM(xp_earned), 0) FROM course_progress WHERE user_id = ?', [$userId]
+                );
+                $ctx .= "USER'S TOTAL XP: {$totalXp}\n";
+            } catch (\Exception $e) {}
+
+            // User's bookmarks
+            try {
+                $bookmarks = $this->conn()->fetchAllAssociative(
+                    'SELECT c.title FROM course_bookmarks cb
+                     JOIN courses c ON cb.course_id = c.id
+                     WHERE cb.user_id = ? ORDER BY cb.created_at DESC LIMIT 10',
+                    [$userId]
+                );
+                if ($bookmarks) {
+                    $ctx .= "USER'S BOOKMARKED COURSES: " . implode(', ', array_column($bookmarks, 'title')) . "\n";
+                }
+            } catch (\Exception $e) {}
+
+            // User's notes
+            try {
+                $noteCount = (int)$this->conn()->fetchOne(
+                    'SELECT COUNT(*) FROM course_notes WHERE user_id = ?', [$userId]
+                );
+                if ($noteCount > 0) {
+                    $ctx .= "USER'S NOTES: {$noteCount} notes saved across courses\n";
+                }
+            } catch (\Exception $e) {}
+
+            // User's tasks
+            try {
+                $tasks = $this->conn()->fetchAllAssociative(
+                    'SELECT title, status, priority, due_date FROM tasks WHERE user_id = ? ORDER BY due_date ASC LIMIT 10',
+                    [$userId]
+                );
+                if ($tasks) {
+                    $ctx .= "USER'S TASKS:\n";
+                    foreach ($tasks as $t) {
+                        $due = $t['due_date'] ? " (Due: {$t['due_date']})" : '';
+                        $ctx .= "- \"{$t['title']}\" — Status: {$t['status']}, Priority: {$t['priority']}{$due}\n";
+                    }
+                    $ctx .= "\n";
+                }
+            } catch (\Exception $e) {}
+
+            // Pomodoro stats
+            try {
+                $pomodoroCount = (int)$this->conn()->fetchOne(
+                    'SELECT COUNT(*) FROM pomodoro_sessions WHERE user_id = ?', [$userId]
+                );
+                $pomodoroMinutes = (int)$this->conn()->fetchOne(
+                    'SELECT COALESCE(SUM(duration), 0) FROM pomodoro_sessions WHERE user_id = ?', [$userId]
+                );
+                if ($pomodoroCount > 0) {
+                    $ctx .= "USER'S POMODORO: {$pomodoroCount} sessions, {$pomodoroMinutes} total minutes\n";
+                }
+            } catch (\Exception $e) {}
+        }
+
+        $ctx .= "\n=== INSTRUCTIONS ===\n";
+        $ctx .= "- Use the above real data to give specific, personalized answers.\n";
+        $ctx .= "- When the user asks about courses, exercises, quizzes, reference ACTUAL titles and IDs from the data above.\n";
+        $ctx .= "- When recommending courses, suggest ones the user hasn't enrolled in yet.\n";
+        $ctx .= "- When discussing progress, reference their real XP, streak, and completion percentages.\n";
+        $ctx .= "- Be helpful and conversational. Use markdown formatting and occasional emoji.\n";
+        $ctx .= "\n=== ACTION TAGS ===\n";
+        $ctx .= "IMPORTANT: When the user asks to open, go to, start, or view a specific course/quiz/exercise, you MUST include a special action tag at the END of your reply (after your text). Use EXACTLY this format:\n";
+        $ctx .= "  For a course:   [OPEN:course:ID:Title]\n";
+        $ctx .= "  For a quiz:     [OPEN:quiz:ID:Title]\n";
+        $ctx .= "  For exercises:  [OPEN:exercises::Exercises Page]\n";
+        $ctx .= "  For quizzes list: [OPEN:quizzes::All Quizzes]\n";
+        $ctx .= "  For courses list: [OPEN:courses::All Courses]\n";
+        $ctx .= "You can include multiple action tags if suggesting several items. Replace ID with the actual numeric ID and Title with the actual title from the data above.\n";
+        $ctx .= "Example: If user says 'open the Python course' and there's ID:3 Python course, reply with your answer then add [OPEN:course:3:Python for Beginners]\n";
+        $ctx .= "Example: If user says 'take a quiz', reply with text then add [OPEN:quiz:1:Data Science Quiz]\n";
+
+        return $ctx;
     }
 
     /**

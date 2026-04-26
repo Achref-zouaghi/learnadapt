@@ -229,7 +229,24 @@ class ForumController extends AbstractController
             'SELECT
                 (SELECT COUNT(*) FROM forum_topics) as total_topics,
                 (SELECT COUNT(*) FROM forum_posts) as total_posts,
-                (SELECT COUNT(DISTINCT author_user_id) FROM forum_posts) as active_users'
+                (SELECT COUNT(DISTINCT author_user_id) FROM forum_posts) as active_users,
+                (SELECT COUNT(*) FROM forum_posts WHERE DATE(created_at) = CURDATE()) as posts_today,
+                (SELECT COUNT(*) FROM forum_topics WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)) as topics_this_week,
+                (SELECT category FROM forum_topics GROUP BY category ORDER BY COUNT(*) DESC LIMIT 1) as top_category'
+        );
+
+        // Category breakdown
+        $categoryBreakdown = $this->conn()->fetchAllAssociative(
+            'SELECT category, COUNT(*) as cnt FROM forum_topics GROUP BY category ORDER BY cnt DESC'
+        );
+
+        // Top contributors (most posts)
+        $topContributors = $this->conn()->fetchAllAssociative(
+            'SELECT u.id, u.full_name, u.avatar_base64, u.role, COUNT(fp.id) as post_count
+             FROM forum_posts fp JOIN users u ON fp.author_user_id = u.id
+             GROUP BY u.id, u.full_name, u.avatar_base64, u.role
+             ORDER BY post_count DESC
+             LIMIT 5'
         );
 
         // Recent active users for the right sidebar
@@ -257,6 +274,8 @@ class ForumController extends AbstractController
             'currentCategory' => $filterCategory,
             'search' => $search,
             'stats' => $stats,
+            'categoryBreakdown' => $categoryBreakdown,
+            'topContributors' => $topContributors,
             'recentUsers' => $recentUsers,
             'userStats' => $userStats,
         ]);

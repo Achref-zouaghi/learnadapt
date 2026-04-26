@@ -138,6 +138,38 @@ class AdminController extends AbstractController
              ORDER BY day ASC'
         );
 
+        // Subscription / revenue stats
+        $revenueStats = $this->conn()->fetchAssociative(
+            'SELECT
+                COALESCE(SUM(amount), 0) as total_revenue,
+                COALESCE(SUM(CASE WHEN started_at >= DATE_FORMAT(NOW(), \'%Y-%m-01\') THEN amount ELSE 0 END), 0) as revenue_this_month,
+                COUNT(*) as total_subscriptions,
+                SUM(CASE WHEN status = \'active\' THEN 1 ELSE 0 END) as active_subscriptions,
+                SUM(CASE WHEN billing_cycle = \'monthly\' AND status = \'active\' THEN 1 ELSE 0 END) as monthly_subs,
+                SUM(CASE WHEN billing_cycle = \'annual\' AND status = \'active\' THEN 1 ELSE 0 END) as annual_subs
+             FROM user_subscriptions'
+        );
+
+        $planBreakdown = $this->conn()->fetchAllAssociative(
+            'SELECT
+                plan,
+                COUNT(*) as subscribers,
+                COALESCE(SUM(CASE WHEN status = \'active\' THEN 1 ELSE 0 END), 0) as active,
+                COALESCE(SUM(amount), 0) as revenue
+             FROM user_subscriptions
+             GROUP BY plan
+             ORDER BY revenue DESC'
+        );
+
+        $recentSubscriptions = $this->conn()->fetchAllAssociative(
+            'SELECT us.plan, us.billing_cycle, us.amount, us.currency, us.status, us.started_at,
+                    u.full_name, u.email
+             FROM user_subscriptions us
+             JOIN users u ON us.user_id = u.id
+             ORDER BY us.started_at DESC
+             LIMIT 8'
+        );
+
         return $this->render('admin/dashboard.html.twig', [
             'user' => $admin,
             'userStats' => $userStats,
@@ -148,6 +180,9 @@ class AdminController extends AbstractController
             'recentTopics' => $recentTopics,
             'recentFeedback' => $recentFeedback,
             'registrationTrend' => $registrationTrend,
+            'revenueStats' => $revenueStats,
+            'planBreakdown' => $planBreakdown,
+            'recentSubscriptions' => $recentSubscriptions,
         ]);
     }
 
@@ -644,6 +679,56 @@ class AdminController extends AbstractController
         $this->conn()->executeStatement(
             'UPDATE exercises SET pdf_path = ?, pdf_original_name = ?, pdf_size_bytes = ? WHERE id = ?',
             [$pdfPath, $originalName, filesize($uploadDir . '/' . $safeName), $id]
+        );
+
+        return new JsonResponse(['success' => true, 'filename' => $originalName]);
+    }
+
+    #[Route('/admin/exercises/{id}/upload-video', name: 'app_admin_exercise_upload_video', methods: ['POST'])]
+    public function uploadExerciseVideo(int $id, Request $request): JsonResponse
+    {
+        $admin = $this->getAuthenticatedAdmin($request);
+        if (!$admin) {
+            return new JsonResponse(['error' => 'Unauthorized'], 403);
+        }
+
+        $file = $request->files->get('video');
+        if (!$file) {
+            return new JsonResponse(['error' => 'No file uploaded'], 400);
+        }
+
+        $allowedMimes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-msvideo'];
+        if (!in_array($file->getMimeType(), $allowedMimes, true)) {
+            return new JsonResponse(['error' => 'Only video files are allowed (mp4, webm, ogg, avi, mov)'], 400);
+        }
+
+        if ($file->getSize() > 500 * 1024 * 1024) {
+            return new JsonResponse(['error' => 'File too large (max 500MB)'], 400);
+        }
+
+        // Remove old video if exists
+        $existing = $this->conn()->fetchAssociative('SELECT video_path FROM exercises WHERE id = ?', [$id]);
+        if ($existing && $existing['video_path']) {
+            $oldPath = $this->getParameter('kernel.project_dir') . '/' . $existing['video_path'];
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+        }
+
+        $uploadDir = $this->getParameter('kernel.project_dir') . '/var/uploads/exercises';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $originalName = $file->getClientOriginalName();
+        $safeName = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
+        $file->move($uploadDir, $safeName);
+
+        $videoPath = 'var/uploads/exercises/' . $safeName;
+
+        $this->conn()->executeStatement(
+            'UPDATE exercises SET video_path = ?, video_original_name = ? WHERE id = ?',
+            [$videoPath, $originalName, $id]
         );
 
         return new JsonResponse(['success' => true, 'filename' => $originalName]);

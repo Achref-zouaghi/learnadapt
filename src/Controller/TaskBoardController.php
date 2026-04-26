@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 
 class TaskBoardController extends AbstractController
 {
@@ -18,6 +21,8 @@ class TaskBoardController extends AbstractController
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly HttpClientInterface $httpClient,
+        private readonly ChartBuilderInterface $chartBuilder,
     ) {
     }
 
@@ -151,6 +156,31 @@ class TaskBoardController extends AbstractController
             }
         }
 
+        // Build Pomodoro weekly chart with UX ChartJS (Symfony UX)
+        $chartLabels = array_map(fn($d) => date('D', strtotime($d['day'])), $weekData);
+        $chartMinutes = array_column($weekData, 'minutes');
+        $pomodoroChart = $this->chartBuilder->createChart(Chart::TYPE_BAR);
+        $pomodoroChart->setData([
+            'labels' => $chartLabels,
+            'datasets' => [[
+                'label' => 'Focus Minutes',
+                'data' => $chartMinutes,
+                'backgroundColor' => 'rgba(123, 97, 241, 0.65)',
+                'borderColor' => 'rgba(123, 97, 241, 1)',
+                'borderWidth' => 2,
+                'borderRadius' => 8,
+            ]],
+        ]);
+        $pomodoroChart->setOptions([
+            'responsive' => true,
+            'maintainAspectRatio' => false,
+            'plugins' => ['legend' => ['display' => false]],
+            'scales' => [
+                'y' => ['beginAtZero' => true, 'ticks' => ['color' => 'rgba(255,255,255,0.6)']],
+                'x' => ['ticks' => ['color' => 'rgba(255,255,255,0.6)']],
+            ],
+        ]);
+
         return $this->render('taskboard/index.html.twig', [
             'darkPage' => true,
             'columns' => $columns,
@@ -163,6 +193,7 @@ class TaskBoardController extends AbstractController
             'tasksThisWeek' => (int) $tasksThisWeek,
             'avgDailyFocus' => $avgDailyFocus,
             'streak' => $streak,
+            'pomodoroChart' => $pomodoroChart,
         ]);
     }
 
@@ -388,6 +419,269 @@ class TaskBoardController extends AbstractController
         );
 
         return new JsonResponse(['ok' => true]);
+    }
+
+    // ── AI Study Planner ──────────────────────────────────────────────────────
+
+    #[Route('/taskboard/ai/plan', name: 'app_taskboard_ai_plan', methods: ['POST'])]
+    public function aiGeneratePlan(Request $request): JsonResponse
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => 'unauthorized'], 401);
+        }
+
+        $goal    = trim($request->request->get('goal', ''));
+        $subject = trim($request->request->get('subject', 'General'));
+        $time    = max(15, min(480, (int) $request->request->get('time', 60)));
+        $level   = $request->request->get('level', 'Intermediate');
+
+        $allowedLevels = ['Beginner', 'Intermediate', 'Advanced'];
+        if (!in_array($level, $allowedLevels, true)) {
+            $level = 'Intermediate';
+        }
+
+        if ($goal === '') {
+            return new JsonResponse(['error' => 'Goal is required'], 400);
+        }
+
+        $apiKey = $this->getParameter('app.groq_api_key');
+        if (!$apiKey || $apiKey === 'your-groq-api-key-here') {
+            return new JsonResponse(['error' => 'AI not configured'], 503);
+        }
+
+        $systemPrompt = <<<PROMPT
+You are a professional AI study planner. Your job is to decompose a study goal into structured, actionable subtasks optimized for a Pomodoro timer.
+
+RULES:
+- Return ONLY valid JSON, no markdown, no explanation
+- The "plan" array must contain steps whose "duration" values sum to approximately {$time} minutes
+- Each step must have: step (number), action (string, concise), duration (integer minutes), type (one of: read, summarize, quiz, exercise, review, practice), priority (HIGH/MEDIUM/LOW)
+- Step durations should be Pomodoro-friendly (15, 20, 25, 30, 45, 50 minutes)
+- Adapt to level: {$level}
+- Maximum 8 steps
+
+JSON format:
+{{"plan":[{{"step":1,"action":"...","duration":25,"type":"read","priority":"HIGH"}}]}}
+PROMPT;
+
+        $userPrompt = "Study goal: {$goal}\nSubject: {$subject}\nAvailable time: {$time} minutes\nLevel: {$level}";
+
+        try {
+            $response = $this->httpClient->request('POST', 'https://api.groq.com/openai/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Content-Type'  => 'application/json',
+                ],
+                'json' => [
+                    'model'       => 'llama-3.3-70b-versatile',
+                    'messages'    => [
+                        ['role' => 'system', 'content' => $systemPrompt],
+                        ['role' => 'user',   'content' => $userPrompt],
+                    ],
+                    'max_tokens'  => 1200,
+                    'temperature' => 0.4,
+                ],
+                'timeout' => 20,
+            ]);
+
+            $data    = $response->toArray();
+            $content = $data['choices'][0]['message']['content'] ?? '';
+
+            // Extract JSON (strip markdown fences if present)
+            $content = preg_replace('/```json\s*|\s*```/', '', $content);
+            $parsed  = json_decode(trim($content), true);
+
+            if (!isset($parsed['plan']) || !is_array($parsed['plan'])) {
+                return new JsonResponse(['error' => 'AI returned an unexpected format. Please try again.'], 500);
+            }
+
+            // Sanitize plan steps
+            $plan = [];
+            foreach ($parsed['plan'] as $step) {
+                $plan[] = [
+                    'step'     => (int)  ($step['step']     ?? 0),
+                    'action'   => substr(trim((string)($step['action'] ?? '')), 0, 200),
+                    'duration' => max(5, min(120, (int)($step['duration'] ?? 25))),
+                    'type'     => in_array($step['type'] ?? '', ['read','summarize','quiz','exercise','review','practice'], true)
+                                  ? $step['type'] : 'study',
+                    'priority' => in_array($step['priority'] ?? '', ['HIGH','MEDIUM','LOW'], true)
+                                  ? $step['priority'] : 'MEDIUM',
+                ];
+            }
+
+            return new JsonResponse(['plan' => $plan, 'goal' => $goal, 'subject' => $subject]);
+
+        } catch (\Throwable $e) {
+            return new JsonResponse(['error' => 'AI service unavailable: ' . $e->getMessage()], 503);
+        }
+    }
+
+    #[Route('/taskboard/ai/import', name: 'app_taskboard_ai_import', methods: ['POST'])]
+    public function aiImportPlan(Request $request): JsonResponse
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => 'unauthorized'], 401);
+        }
+
+        $body = json_decode($request->getContent(), true);
+        $steps = $body['steps'] ?? [];
+
+        if (!is_array($steps) || count($steps) === 0) {
+            return new JsonResponse(['error' => 'No steps provided'], 400);
+        }
+
+        $created = [];
+        foreach ($steps as $step) {
+            $title    = substr(trim((string)($step['action'] ?? '')), 0, 255);
+            $duration = max(5, min(120, (int)($step['duration'] ?? 25)));
+            $type     = $step['type']     ?? 'study';
+            $priority = in_array($step['priority'] ?? '', ['HIGH','MEDIUM','LOW'], true) ? $step['priority'] : 'MEDIUM';
+
+            if ($title === '') {
+                continue;
+            }
+
+            $desc = sprintf('[AI Plan] %s — %d min Pomodoro session', ucfirst($type), $duration);
+
+            $this->conn()->executeStatement(
+                'INSERT INTO tasks (student_user_id, title, description, status, priority, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, NOW(), NOW())',
+                [$user->getId(), $title, $desc, 'TODO', $priority]
+            );
+            $taskId = (int) $this->conn()->lastInsertId();
+
+            // Pre-create a Pomodoro session for this task
+            $this->conn()->executeStatement(
+                'INSERT INTO pomodoro_sessions (task_id, work_minutes, break_minutes, cycles, started_at, completed)
+                 VALUES (?, ?, ?, 1, NOW(), 0)',
+                [$taskId, $duration, max(5, (int) round($duration / 5)), ]
+            );
+
+            $created[] = ['id' => $taskId, 'title' => $title, 'duration' => $duration];
+        }
+
+        return new JsonResponse(['ok' => true, 'created' => $created, 'count' => count($created)]);
+    }
+
+    #[Route('/taskboard/ai/report', name: 'app_taskboard_ai_report', methods: ['POST'])]
+    public function aiWeeklyReport(Request $request): JsonResponse
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return new JsonResponse(['error' => 'unauthorized'], 401);
+        }
+
+        $apiKey = $this->getParameter('app.groq_api_key');
+        if (!$apiKey || $apiKey === 'your-groq-api-key-here') {
+            return new JsonResponse(['error' => 'AI not configured'], 503);
+        }
+
+        $uid = $user->getId();
+
+        // Gather last 7 days data
+        $weekData = $this->conn()->fetchAllAssociative(
+            "SELECT DATE(ps.started_at) as day, DAYNAME(ps.started_at) as day_name,
+                    SUM(ps.work_minutes * ps.cycles) as focus_min, COUNT(*) as sessions,
+                    COUNT(CASE WHEN ps.completed=1 THEN 1 END) as completed
+             FROM pomodoro_sessions ps JOIN tasks t ON ps.task_id = t.id
+             WHERE (t.student_user_id = ? OR t.created_by_teacher_id = ?)
+               AND ps.started_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+             GROUP BY DATE(ps.started_at), DAYNAME(ps.started_at)
+             ORDER BY day ASC",
+            [$uid, $uid]
+        );
+
+        $taskStats = $this->conn()->fetchAssociative(
+            "SELECT COUNT(*) as total,
+                    COUNT(CASE WHEN status='DONE' THEN 1 END) as done,
+                    COUNT(CASE WHEN status='TODO' THEN 1 END) as todo,
+                    COUNT(CASE WHEN status='IN_PROGRESS' THEN 1 END) as in_progress
+             FROM tasks WHERE student_user_id = ? OR created_by_teacher_id = ?",
+            [$uid, $uid]
+        );
+
+        $totalFocusMin = array_sum(array_column($weekData, 'focus_min'));
+        $totalSessions = array_sum(array_column($weekData, 'sessions'));
+
+        // Find best day
+        $bestDay = '';
+        $bestMin = 0;
+        foreach ($weekData as $d) {
+            if ($d['focus_min'] > $bestMin) {
+                $bestMin = $d['focus_min'];
+                $bestDay = $d['day_name'];
+            }
+        }
+
+        $dataStr = "Weekly focus: {$totalFocusMin} minutes across {$totalSessions} sessions.\n";
+        $dataStr .= "Best day: {$bestDay} ({$bestMin} min).\n";
+        $dataStr .= 'Daily breakdown: ' . implode(', ', array_map(
+            fn($d) => "{$d['day_name']}: {$d['focus_min']}min/{$d['sessions']}sess",
+            $weekData
+        )) . ".\n";
+        $dataStr .= "Task board: {$taskStats['total']} total, {$taskStats['done']} done, {$taskStats['in_progress']} in progress, {$taskStats['todo']} todo.\n";
+        $dataStr .= 'Completion rate: ' . ($taskStats['total'] > 0 ? round(($taskStats['done'] / $taskStats['total']) * 100) : 0) . "%.";
+
+        $systemPrompt = <<<PROMPT
+You are a premium AI productivity coach for students. Analyze study data and return a rich weekly report.
+
+Return ONLY valid JSON:
+{
+  "score": 78,
+  "grade": "B+",
+  "summary": "Brief 1-sentence overall summary",
+  "insights": [
+    {"icon": "🕘", "title": "Best Study Time", "body": "..."},
+    {"icon": "🔥", "title": "Streak Highlight", "body": "..."},
+    {"icon": "⚠️", "title": "Watch Out", "body": "..."},
+    {"icon": "💡", "title": "AI Tip", "body": "..."}
+  ],
+  "next_week": ["Actionable tip 1", "Actionable tip 2", "Actionable tip 3"]
+}
+Adapt tone: encouraging but honest. Be specific with numbers. Score is 0-100.
+PROMPT;
+
+        try {
+            $response = $this->httpClient->request('POST', 'https://api.groq.com/openai/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Content-Type'  => 'application/json',
+                ],
+                'json' => [
+                    'model'       => 'llama-3.3-70b-versatile',
+                    'messages'    => [
+                        ['role' => 'system', 'content' => $systemPrompt],
+                        ['role' => 'user',   'content' => "Student study data this week:\n" . $dataStr],
+                    ],
+                    'max_tokens'  => 800,
+                    'temperature' => 0.6,
+                ],
+                'timeout' => 20,
+            ]);
+
+            $data    = $response->toArray();
+            $content = $data['choices'][0]['message']['content'] ?? '';
+            $content = preg_replace('/```json\s*|\s*```/', '', $content);
+            $parsed  = json_decode(trim($content), true);
+
+            if (!isset($parsed['score'])) {
+                return new JsonResponse(['error' => 'AI returned an unexpected format'], 500);
+            }
+
+            $parsed['raw_data'] = [
+                'total_focus_min' => $totalFocusMin,
+                'total_sessions'  => $totalSessions,
+                'best_day'        => $bestDay,
+                'best_min'        => $bestMin,
+            ];
+
+            return new JsonResponse($parsed);
+
+        } catch (\Throwable $e) {
+            return new JsonResponse(['error' => 'AI service unavailable: ' . $e->getMessage()], 503);
+        }
     }
 
     private function generateTaskNotifications(array $tasks, int $userId, string $today): void

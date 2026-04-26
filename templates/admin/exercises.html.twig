@@ -208,6 +208,19 @@ footer{display:none!important}
 .adm-main::-webkit-scrollbar-thumb:hover{background:rgba(56,189,209,.3)}
 
 @media(max-width:768px){.adm-side{display:none}.adm-main{margin-left:0}.ex-table-wrap{overflow-x:auto}}
+
+/* ─── DESCRIPTION VIEW MODAL ─── */
+.adm-modal.wide{width:720px;max-width:95vw}
+.ex-desc-body{max-height:70vh;overflow-y:auto;padding-right:8px}
+.ex-desc-body::-webkit-scrollbar{width:4px}
+.ex-desc-body::-webkit-scrollbar-thumb{background:rgba(56,189,209,.2);border-radius:2px}
+.ex-desc-pre{font-family:'Inter',sans-serif;word-break:break-word;direction:auto;unicode-bidi:plaintext}
+.ex-desc-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:8px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:16px}
+.ex-desc-badge.hard{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
+.ex-desc-badge.medium{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.2)}
+.ex-desc-badge.easy{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.2)}
+.ex-title-cell{cursor:pointer}
+.ex-title-cell:hover{text-decoration:underline;text-decoration-color:var(--cyan);text-underline-offset:3px}
 </style>
 {% endblock %}
 
@@ -354,6 +367,7 @@ footer{display:none!important}
 						<th>Module</th>
 						<th>Teacher</th>
 						<th>PDF</th>
+						<th>Video</th>
 						<th>Created</th>
 						<th>Actions</th>
 					</tr>
@@ -361,7 +375,7 @@ footer{display:none!important}
 				<tbody>
 					{% for ex in exercises %}
 					<tr id="ex-row-{{ ex.id }}" style="animation:fadeUp .3s var(--ease) {{ loop.index0 * 0.03 }}s backwards">
-						<td><span class="ex-title-cell">{{ ex.title }}</span></td>
+						<td><span class="ex-title-cell" onclick="viewDesc({{ ex.id }})" title="Click to view details">{{ ex.title }}</span></td>
 						<td><span class="lvl-badge {{ ex.level|lower }}">{{ ex.level }}</span></td>
 						<td>
 							{% if ex.module_name %}
@@ -380,10 +394,20 @@ footer{display:none!important}
 								<input type="file" id="pdf-input-{{ ex.id }}" accept=".pdf" style="display:none" onchange="uploadPdf({{ ex.id }},this)">
 							</div>
 						</td>
+						<td>
+							<div class="ex-act">
+							{% if ex.video_path %}
+								<span style="font-size:0.72rem;color:#22c55e;font-weight:600"><i class='bx bx-check-circle'></i> Video</span>
+							{% endif %}
+								<button class="ex-btn edit" onclick="document.getElementById('video-input-{{ ex.id }}').click()" title="{{ ex.video_path ? 'Replace Video' : 'Upload Video' }}"><i class='bx bx-video-plus'></i></button>
+								<input type="file" id="video-input-{{ ex.id }}" accept="video/*" style="display:none" onchange="uploadVideo({{ ex.id }},this)">
+							</div>
+						</td>
 						<td style="font-size:0.78rem;color:var(--muted)">{{ ex.created_at|date('M d, Y') }}</td>
 						<td>
 							<div class="ex-act">
-								<button class="ex-btn edit" onclick="openEditEx({{ ex.id }},'{{ ex.title|e('js') }}','{{ ex.description|default('')|e('js') }}','{{ ex.level }}',{{ ex.module_id|default('null') }})" title="Edit"><i class='bx bx-edit-alt'></i></button>
+								<button class="ex-btn" onclick="viewDesc({{ ex.id }})" title="View Description"><i class='bx bx-show'></i></button>
+							<button class="ex-btn edit" onclick="openEditEx({{ ex.id }})" title="Edit"><i class='bx bx-edit-alt'></i></button>
 								<button class="ex-btn danger" onclick="deleteExercise({{ ex.id }},'{{ ex.title|e('js') }}')" title="Delete"><i class='bx bx-trash'></i></button>
 							</div>
 						</td>
@@ -403,9 +427,28 @@ footer{display:none!important}
 
 <div class="adm-toast" id="admToast"></div>
 
+<!-- View Description Modal -->
+<div class="adm-modal-bg" id="viewDescModal" onclick="if(event.target===this)closeViewDesc()">
+	<div class="adm-modal wide">
+		<h3><i class='bx bx-detail'></i> <span id="viewDescTitle">Exercise Details</span></h3>
+		<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+			<span id="viewDescLevel" class="ex-desc-badge"></span>
+			<span id="viewDescModule" style="font-size:0.75rem;color:var(--muted)"></span>
+		</div>
+		<div class="ex-desc-body">
+			<div id="viewDescContent" class="ex-desc-pre"></div>
+		</div>
+		<div class="adm-modal-actions">
+			<button class="adm-modal-btn cancel" onclick="closeViewDesc()">Close</button>
+			<a id="viewDescOpenLink" href="#" class="adm-modal-btn" style="background:rgba(56,189,209,0.08);color:var(--cyan);border:1px solid rgba(56,189,209,0.2);text-decoration:none;display:inline-flex;align-items:center;gap:5px"><i class='bx bx-link-external'></i>Open Page</a>
+			<button class="adm-modal-btn save" onclick="closeViewDesc();openEditEx(currentViewId)"><i class='bx bx-edit-alt' style="margin-right:4px"></i>Edit</button>
+		</div>
+	</div>
+</div>
+
 <!-- Edit Exercise Modal -->
 <div class="adm-modal-bg" id="editExModal" onclick="if(event.target===this)closeEditEx()">
-	<div class="adm-modal">
+	<div class="adm-modal wide">
 		<h3><i class='bx bx-edit-alt'></i> Edit Exercise</h3>
 		<input type="hidden" id="editExId">
 		<div class="adm-modal-field">
@@ -414,7 +457,7 @@ footer{display:none!important}
 		</div>
 		<div class="adm-modal-field">
 			<label>Description</label>
-			<textarea id="editExDesc"></textarea>
+			<textarea id="editExDesc" style="min-height:180px"></textarea>
 		</div>
 		<div class="adm-modal-field">
 			<label>Level</label>
@@ -481,6 +524,12 @@ footer{display:none!important}
 </div>
 
 <script>
+const exData = {
+{% for ex in exercises %}	{{ ex.id }}: { title: {{ ex.title|json_encode|raw }}, desc: {{ ex.description|default('')|json_encode|raw }}, level: '{{ ex.level }}', module_id: {{ ex.module_id|default('null') }}, module_name: {{ ex.module_name|default('')|json_encode|raw }} }{% if not loop.last %},{% endif %}
+{% endfor %}};
+
+let currentViewId = null;
+
 function showToast(m,e=false){const t=document.getElementById('admToast');t.textContent=m;t.className='adm-toast'+(e?' error':'')+' show';setTimeout(()=>t.classList.remove('show'),3000)}
 function deleteExercise(id,title){
 	if(!confirm('Delete exercise "'+title+'"?'))return;
@@ -489,12 +538,64 @@ function deleteExercise(id,title){
 		else showToast(d.error||'Error',true)
 	}).catch(()=>showToast('Network error',true));
 }
-function openEditEx(id,title,desc,level,moduleId){
+function parseDescHtml(raw){
+	if(!raw||!raw.trim())return'<em style="color:var(--muted);font-size:0.84rem">No description provided.</em>';
+	const lines=raw.split('\n');
+	let html='';
+	for(const line of lines){
+		const t=line.trim();
+		// horizontal separator
+		if(t==='⸻'||/^[─—\-]{3,}$/.test(t)){
+			html+='<div style="height:1px;background:rgba(255,255,255,0.06);margin:18px 0"></div>';
+		}
+		// emoji section header (line starts with emoji character)
+		else if(/^[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{1F300}-\u{1F9FF}]/u.test(t)){
+			html+=`<div style="font-size:0.96rem;font-weight:800;color:var(--cyan);margin:20px 0 8px;display:flex;align-items:center;gap:6px;letter-spacing:-0.01em">${escH(t)}</div>`;
+		}
+		// numbered section heading  e.g.  "1. Title"
+		else if(/^\d+\.\s+\S/.test(t)){
+			html+=`<div style="font-size:0.88rem;font-weight:800;color:var(--purple);margin:18px 0 7px;padding-left:2px">${escH(t)}</div>`;
+		}
+		// sub-bullet (4+ leading spaces before *)
+		else if(/^\s{3,}[*\-]\s/.test(line)){
+			html+=`<div style="display:flex;gap:8px;align-items:baseline;margin:4px 0 4px 28px;font-size:0.82rem;color:rgba(246,248,252,0.72)"><span style="color:var(--cyan);flex-shrink:0;font-size:0.6rem;margin-top:4px">◦</span><span>${escH(t.replace(/^[*\-]\s/,''))}</span></div>`;
+		}
+		// top-level bullet
+		else if(/^[*\-]\s/.test(t)){
+			html+=`<div style="display:flex;gap:9px;align-items:baseline;margin:6px 0;font-size:0.84rem;color:rgba(246,248,252,0.85)"><span style="color:var(--cyan);flex-shrink:0;font-size:0.55rem;margin-top:5px">●</span><span>${escH(t.slice(2))}</span></div>`;
+		}
+		// blank line → small gap
+		else if(t===''){
+			html+='<div style="height:4px"></div>';
+		}
+		// regular paragraph
+		else{
+			html+=`<p style="font-size:0.85rem;line-height:1.8;color:rgba(246,248,252,0.7);margin:6px 0">${escH(t)}</p>`;
+		}
+	}
+	return html;
+}
+function escH(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function viewDesc(id){
+	const d=exData[id]; if(!d)return;
+	currentViewId=id;
+	document.getElementById('viewDescTitle').textContent=d.title;
+	const lvlEl=document.getElementById('viewDescLevel');
+	lvlEl.textContent=d.level;
+	lvlEl.className='ex-desc-badge '+d.level.toLowerCase();
+	document.getElementById('viewDescModule').textContent=d.module_name?'Module: '+d.module_name:'';
+	document.getElementById('viewDescContent').innerHTML=parseDescHtml(d.desc);
+	document.getElementById('viewDescOpenLink').href='/exercises/'+id;
+	document.getElementById('viewDescModal').classList.add('show');
+}
+function closeViewDesc(){document.getElementById('viewDescModal').classList.remove('show');currentViewId=null;}
+function openEditEx(id){
+	const d=exData[id]; if(!d)return;
 	document.getElementById('editExId').value=id;
-	document.getElementById('editExTitle').value=title;
-	document.getElementById('editExDesc').value=desc;
-	document.getElementById('editExLevel').value=level;
-	document.getElementById('editExModule').value=moduleId||'';
+	document.getElementById('editExTitle').value=d.title;
+	document.getElementById('editExDesc').value=d.desc;
+	document.getElementById('editExLevel').value=d.level;
+	document.getElementById('editExModule').value=d.module_id||'';
 	document.getElementById('editExModal').classList.add('show');
 }
 function closeEditEx(){document.getElementById('editExModal').classList.remove('show')}
@@ -504,6 +605,16 @@ function saveEditEx(){
 	fetch('/admin/exercises/'+id+'/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
 	.then(r=>r.json()).then(d=>{
 		if(d.success){closeEditEx();showToast('Exercise updated');setTimeout(()=>location.reload(),600)}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+function uploadVideo(id,input){
+	if(!input.files[0])return;
+	const fd=new FormData();fd.append('video',input.files[0]);
+	showToast('Uploading video...');
+	fetch('/admin/exercises/'+id+'/upload-video',{method:'POST',body:fd})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){showToast('Video uploaded: '+d.filename);setTimeout(()=>location.reload(),800)}
 		else showToast(d.error||'Error',true);
 	}).catch(()=>showToast('Network error',true));
 }

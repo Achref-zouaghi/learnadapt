@@ -12,8 +12,11 @@ use App\Repository\CourseCommentRepository;
 use App\Repository\CourseFileRepository;
 use App\Repository\CourseProgressRepository;
 use App\Repository\UserStreakRepository;
+use App\SmartCourseBundle\Event\CourseEnrolledEvent;
+use App\SmartCourseBundle\Event\CourseViewedEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,6 +38,7 @@ class CourseController extends AbstractController
         private readonly CourseProgressRepository $progressRepository,
         private readonly UserStreakRepository $streakRepository,
         private readonly EntityManagerInterface $em,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -87,6 +91,7 @@ class CourseController extends AbstractController
             'progressMap' => $progressMap,
             'ratingMap' => $ratingMap,
             'streak' => $streak,
+            'userId' => $user->getId(),
         ]);
     }
 
@@ -193,10 +198,27 @@ class CourseController extends AbstractController
                 'UPDATE course_progress SET last_accessed = NOW(), xp_earned = xp_earned + 1 WHERE user_id = ? AND course_id = ?',
                 [$userId, $courseId]
             );
+            // Dispatch view event for analytics + recommendation engine
+            $this->eventDispatcher->dispatch(
+                new CourseViewedEvent($userId, $courseId),
+                CourseViewedEvent::NAME
+            );
         } else {
             $conn->executeStatement(
                 'INSERT INTO course_progress (user_id, course_id, progress_percent, xp_earned, last_accessed) VALUES (?, ?, 10, 5, NOW())',
                 [$userId, $courseId]
+            );
+            // First time accessing = enrolment — fetch course title + user email for notification
+            $courseRow = $conn->fetchAssociative('SELECT title FROM courses WHERE id = ?', [$courseId]);
+            $userRow   = $conn->fetchAssociative('SELECT email FROM users WHERE id = ?', [$userId]);
+            $this->eventDispatcher->dispatch(
+                new CourseEnrolledEvent(
+                    $userId,
+                    $courseId,
+                    $courseRow['title'] ?? '',
+                    $userRow['email'] ?? '',
+                ),
+                CourseEnrolledEvent::NAME
             );
         }
 

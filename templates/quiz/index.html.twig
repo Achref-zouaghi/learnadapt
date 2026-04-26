@@ -174,5 +174,34 @@ footer{display:none!important}
 		<p>{{ 'quiz.empty_desc'|trans }}</p>
 	</div>
 	{% endif %}
+
+	{# KnpPaginatorBundle navigation — always visible #}
+	{% set pd = quizzes.paginationData %}
+	<div style="display:flex;justify-content:center;align-items:center;gap:8px;margin:32px 0;flex-wrap:wrap">
+		{% if pd.previous is defined %}
+			<a href="?page={{ pd.previous }}" style="display:inline-flex;align-items:center;gap:5px;padding:9px 16px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.7);text-decoration:none;font-size:.84rem;font-weight:600;transition:all .2s ease">
+				<i class='bx bx-chevron-left'></i> Prev
+			</a>
+		{% endif %}
+
+		{% for p in pd.startPage..pd.endPage %}
+			<a href="?page={{ p }}" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;font-size:.86rem;font-weight:700;text-decoration:none;transition:all .2s ease;
+				{% if p == pd.current %}
+					background:linear-gradient(135deg,#7b61f1,#9b7bf7);color:#fff;border:none;box-shadow:0 4px 14px rgba(123,97,241,0.4)
+				{% else %}
+					border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.6)
+				{% endif %}
+			">{{ p }}</a>
+		{% endfor %}
+
+		{% if pd.next is defined %}
+			<a href="?page={{ pd.next }}" style="display:inline-flex;align-items:center;gap:5px;padding:9px 16px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.7);text-decoration:none;font-size:.84rem;font-weight:600;transition:all .2s ease">
+				Next <i class='bx bx-chevron-right'></i>
+			</a>
+		{% endif %}
+	</div>
+	<p style="text-align:center;color:rgba(255,255,255,0.35);font-size:.78rem">
+		Page {{ pd.current }} of {{ pd.pageCount }} &mdash; {{ pd.totalCount }} total quizze{{ pd.totalCount == 1 ? '' : 's' }}
+	</p>
 </div>
 {% endblock %}

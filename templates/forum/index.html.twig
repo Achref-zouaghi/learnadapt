@@ -433,15 +433,82 @@ footer{display:none!important}
             {% endif %}
         </main>
 
-        {# â•â•â• RIGHT SIDEBAR â•â•â• #}
+              {# RIGHT SIDEBAR #}
         <aside class="right-col">
-            <div class="card right-card">
-                <h3>{{ 'forum.activity'|trans }}</h3>
-                <div class="activity">
-                    <div class="activity-item"><i class='bx bx-trending-up'></i><p>{{ stats.total_topics }} {{ 'forum.topics'|trans }} &middot; {{ stats.total_posts }} posts</p></div>
-                    <div class="activity-item"><i class='bx bx-group'></i><p>{{ stats.active_users }} {{ 'forum.active_users'|trans|lower }}</p></div>
+            {# Forum Statistics card #}
+            <div class="card right-card" style="margin-bottom:14px">
+                <h3 style="display:flex;align-items:center;gap:6px"><i class='bx bx-bar-chart-alt-2' style="color:var(--purple)"></i> Forum Statistics</h3>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+                    <div style="background:rgba(123,97,241,0.08);border:1px solid rgba(123,97,241,0.15);border-radius:12px;padding:12px;text-align:center">
+                        <div style="font-size:1.45rem;font-weight:900;color:var(--purple);line-height:1">{{ stats.total_topics }}</div>
+                        <div style="font-size:.7rem;color:var(--muted);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Topics</div>
+                    </div>
+                    <div style="background:rgba(56,189,209,0.08);border:1px solid rgba(56,189,209,0.15);border-radius:12px;padding:12px;text-align:center">
+                        <div style="font-size:1.45rem;font-weight:900;color:var(--cyan);line-height:1">{{ stats.total_posts }}</div>
+                        <div style="font-size:.7rem;color:var(--muted);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Posts</div>
+                    </div>
+                    <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.15);border-radius:12px;padding:12px;text-align:center">
+                        <div style="font-size:1.45rem;font-weight:900;color:var(--green);line-height:1">{{ stats.active_users }}</div>
+                        <div style="font-size:.7rem;color:var(--muted);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Contributors</div>
+                    </div>
+                    <div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.15);border-radius:12px;padding:12px;text-align:center">
+                        <div style="font-size:1.45rem;font-weight:900;color:var(--orange);line-height:1">{{ stats.posts_today }}</div>
+                        <div style="font-size:.7rem;color:var(--muted);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Today</div>
+                    </div>
                 </div>
-                <div class="activity-divider"></div>
+
+                <div style="display:flex;align-items:center;gap:8px;background:rgba(123,97,241,0.06);border:1px solid rgba(123,97,241,0.12);border-radius:10px;padding:9px 12px;margin-bottom:14px">
+                    <i class='bx bx-trending-up' style="color:var(--purple);font-size:1.1rem;flex-shrink:0"></i>
+                    <span style="font-size:.82rem;color:var(--muted)"><b style="color:var(--text)">{{ stats.topics_this_week }}</b> new topic{{ stats.topics_this_week == 1 ? '' : 's' }} this week</span>
+                    {% if stats.top_category %}
+                        <span style="margin-left:auto;font-size:.68rem;font-weight:800;padding:2px 8px;border-radius:999px;background:rgba(56,189,209,0.12);color:var(--cyan);border:1px solid rgba(56,189,209,0.2);white-space:nowrap">{{ stats.top_category|replace({'_':' '})|title }}</span>
+                    {% endif %}
+                </div>
+
+                {% if categoryBreakdown|length > 0 %}
+                    {% set maxCnt = categoryBreakdown[0].cnt %}
+                    <div style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">By category</div>
+                    <div style="display:grid;gap:6px;margin-bottom:6px">
+                        {% set catColors = {'GENERAL':'#60a5fa','ADVICE':'#34d399','DIFFICULTIES':'#fb923c','APP_HELP':'#a78bfa','SUCCESS_STORY':'#38bdd1'} %}
+                        {% for row in categoryBreakdown %}
+                            {% set color = catColors[row.category] ?? '#8896ab' %}
+                            {% set pct = maxCnt > 0 ? ((row.cnt / maxCnt) * 100)|round : 0 %}
+                            <div>
+                                <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+                                    <span style="font-size:.72rem;font-weight:700;color:var(--muted)">{{ row.category|replace({'_':' '})|title }}</span>
+                                    <span style="font-size:.72rem;font-weight:800;color:var(--text)">{{ row.cnt }}</span>
+                                </div>
+                                <div style="height:5px;background:rgba(255,255,255,0.05);border-radius:999px;overflow:hidden">
+                                    <div style="height:100%;width:{{ pct }}%;background:{{ color }};border-radius:999px;opacity:0.8;transition:width 0.6s ease"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if topContributors|length > 0 %}
+            <div class="card right-card" style="margin-bottom:14px">
+                <h3 style="display:flex;align-items:center;gap:6px"><i class='bx bx-trophy' style="color:var(--yellow)"></i> Top Contributors</h3>
+                {% for member in topContributors %}
+                    <div class="suggested-user" style="{% if loop.index == 1 %}background:rgba(251,191,36,0.04);border-radius:10px{% endif %}">
+                        {% if loop.index <= 3 %}
+                            <div style="width:20px;text-align:center;font-size:.85rem;flex-shrink:0">{{ loop.index == 1 ? '🥇' : (loop.index == 2 ? '🥈' : '🥉') }}</div>
+                        {% else %}
+                            <div style="width:20px;text-align:center;font-size:.75rem;color:var(--muted);font-weight:700;flex-shrink:0">{{ loop.index }}</div>
+                        {% endif %}
+                        <img src="{{ member.avatar_base64 ?: 'https://ui-avatars.com/api/?name=' ~ member.full_name|url_encode ~ '&size=76&background=e2e8f0&color=0f172a&bold=true&format=svg' }}" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,0.06);flex-shrink:0">
+                        <div class="suggested-info">
+                            <div class="suggested-name" style="font-size:.82rem">{{ member.full_name }}</div>
+                            <div class="suggested-role">{{ member.post_count }} post{{ member.post_count == 1 ? '' : 's' }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="card right-card">
                 <h3>{{ 'forum.suggested_for_you'|trans }}</h3>
                 {% for member in recentUsers %}
                     <div class="suggested-user">

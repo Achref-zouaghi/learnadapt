@@ -3145,7 +3145,7 @@
 					<li><span class="check-icon" aria-hidden="true">✓</span>AI assistant (50 queries/mo)</li>
 					<li><span class="check-icon" aria-hidden="true">✓</span>2 certificates</li>
 				</ul>
-				<a href="#" class="pricing-btn outline">Get Started</a>
+				<a href="{{ path('app_checkout', {plan: 'starter', cycle: 'monthly'}) }}" class="pricing-btn outline" id="pricing-btn-starter" data-plan="starter" data-monthly-url="{{ path('app_checkout', {plan: 'starter', cycle: 'monthly'}) }}" data-annual-url="{{ path('app_checkout', {plan: 'starter', cycle: 'annual'}) }}">Get Started</a>
 			</div>
 			<div class="pricing-card featured" data-pricing data-monthly="79" data-annual="63">
 				<div class="pricing-badge">Most Popular</div>
@@ -3159,7 +3159,7 @@
 					<li><span class="check-icon" aria-hidden="true">✓</span>Unlimited certificates</li>
 					<li><span class="check-icon" aria-hidden="true">✓</span>Priority support</li>
 				</ul>
-				<a href="#" class="pricing-btn primary">Start Free Trial</a>
+				<a href="{{ path('app_checkout', {plan: 'pro', cycle: 'monthly'}) }}" class="pricing-btn primary" id="pricing-btn-pro" data-plan="pro" data-monthly-url="{{ path('app_checkout', {plan: 'pro', cycle: 'monthly'}) }}" data-annual-url="{{ path('app_checkout', {plan: 'pro', cycle: 'annual'}) }}">Start Free Trial</a>
 			</div>
 			<div class="pricing-card" data-pricing data-monthly="0" data-annual="0">
 				<h3 class="pricing-name">Teams</h3>
@@ -3172,7 +3172,7 @@
 					<li><span class="check-icon" aria-hidden="true">✓</span>SSO &amp; SCIM</li>
 					<li><span class="check-icon" aria-hidden="true">✓</span>Dedicated success manager</li>
 				</ul>
-				<a href="#" class="pricing-btn outline">Contact Sales</a>
+				<a href="{{ path('app_checkout', {plan: 'teams', cycle: 'monthly'}) }}" class="pricing-btn outline" id="pricing-btn-teams" data-plan="teams" data-monthly-url="{{ path('app_checkout', {plan: 'teams', cycle: 'monthly'}) }}" data-annual-url="{{ path('app_checkout', {plan: 'teams', cycle: 'annual'}) }}">Contact Sales</a>
 			</div>
 		</div>
 	</section>
@@ -3785,6 +3785,9 @@
 							priceEl.style.opacity = '1';
 						});
 					}, 150);
+					// Update checkout button URL to match selected cycle
+					const btn = card.querySelector('a[data-monthly-url]');
+					if (btn) btn.href = isAnnual ? btn.dataset.annualUrl : btn.dataset.monthlyUrl;
 				});
 			});
 		})();

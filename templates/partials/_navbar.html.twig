@@ -2533,6 +2533,20 @@
 	.ai-chat-send:hover { transform: scale(1.08); box-shadow: 0 4px 20px rgba(124,58,237,0.5); }
 	.ai-chat-send:active { transform: scale(0.95); }
 	.ai-chat-send svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+	.ai-mic-btn {
+		width: 36px; height: 36px; border-radius: 12px; border: none; cursor: pointer;
+		background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+		display: flex; align-items: center; justify-content: center;
+		transition: all 0.25s cubic-bezier(0.22,1,0.36,1);
+		flex-shrink: 0; color: rgba(148,163,184,0.7);
+	}
+	.ai-mic-btn:hover { background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.3); color: #a78bfa; }
+	.ai-mic-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+	.ai-mic-btn.recording {
+		background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #f87171;
+		animation: aiMicPulse 1s ease-in-out infinite;
+	}
+	@keyframes aiMicPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); } }
 
 	/* ═══════ TYPING INDICATOR ═══════ */
 	.ai-typing {
@@ -2548,6 +2562,21 @@
 	.ai-typing span:nth-child(2) { animation-delay: 0.2s; }
 	.ai-typing span:nth-child(3) { animation-delay: 0.4s; }
 	@keyframes aiTypingDot { 0%, 60%, 100% { opacity: 0.3; transform: scale(0.7); } 30% { opacity: 1; transform: scale(1.2); } }
+
+	/* ═══════ ACTION CARDS ═══════ */
+	.ai-action-card {
+		display: flex; align-items: center; gap: 10px;
+		margin-top: 10px; padding: 10px 14px;
+		background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25);
+		border-radius: 12px; text-decoration: none;
+		transition: all 0.2s ease; cursor: pointer;
+	}
+	.ai-action-card:hover { background: rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.5); transform: translateY(-1px); }
+	.ai-action-card-icon { font-size: 1.2rem; flex-shrink: 0; }
+	.ai-action-card-text { flex: 1; min-width: 0; }
+	.ai-action-card-text strong { display: block; color: #e2e8f0; font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	.ai-action-card-text span { font-size: 0.7rem; color: rgba(139,92,246,0.8); }
+	.ai-action-card-arrow { color: rgba(139,92,246,0.6); font-size: 0.9rem; flex-shrink: 0; }
 
 	/* ═══════ FOOTER ═══════ */
 	.ai-chat-footer {
@@ -2584,6 +2613,9 @@
 			<p>Always online</p>
 		</div>
 		<div class="ai-chat-head-actions">
+			<button class="ai-head-btn" id="aiTtsBtn" type="button" title="Enable AI voice">
+				<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+			</button>
 			<button class="ai-head-btn" id="aiClearBtn" type="button" title="New conversation">
 				<svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
 			</button>
@@ -2615,6 +2647,9 @@
 	<div class="ai-chat-input">
 		<div class="ai-chat-input-wrap">
 			<input type="text" id="aiChatInput" placeholder="Ask me anything..." autocomplete="off">
+			<button class="ai-mic-btn" id="aiMicBtn" type="button" aria-label="Voice input" title="Speak your message" onclick="aiVoiceToggle()">
+				<svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M19 10a7 7 0 01-14 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+			</button>
 			<button class="ai-chat-send" id="aiChatSend" type="button" aria-label="Send message">
 				<svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
 			</button>
@@ -2632,6 +2667,7 @@
 	var body = document.getElementById('aiChatBody');
 	var input = document.getElementById('aiChatInput');
 	var sendBtn = document.getElementById('aiChatSend');
+	var micBtn  = document.getElementById('aiMicBtn');
 	var suggestions = document.getElementById('aiSuggestions');
 	var clearBtn = document.getElementById('aiClearBtn');
 	if (!fab || !chat) return;
@@ -2676,6 +2712,37 @@
 		return "Great question! I can help with:\n\n• 📚 Courses & topics\n• 🧠 Adaptive learning\n• 💰 Pricing & plans\n• 🏆 Certificates\n• 📊 Progress tracking\n• 🤝 Community\n\nTry asking about any of these!";
 	}
 
+	function parseActions(text) {
+		/* Extract [OPEN:type:id:title] tags and return { clean, actions } */
+		var actions = [];
+		var clean = text.replace(/\[OPEN:([a-z]+):(\d*):([^\]]+)\]/g, function(_, type, id, title) {
+			actions.push({ type: type, id: id, title: title.trim() });
+			return '';
+		}).trim();
+		return { clean: clean, actions: actions };
+	}
+
+	function actionIcon(type) {
+		var icons = { course: '📚', quiz: '🧠', exercise: '💪', exercises: '💪', quizzes: '🧠', courses: '📚' };
+		return icons[type] || '▶️';
+	}
+
+	function actionUrl(type, id) {
+		var base = window.location.origin;
+		if (type === 'course' && id)    return base + '/courses/' + id;
+		if (type === 'quiz' && id)      return base + '/quizzes';
+		if (type === 'exercise' && id)  return base + '/exercises';
+		if (type === 'exercises')       return base + '/exercises';
+		if (type === 'quizzes')         return base + '/quizzes';
+		if (type === 'courses')         return base + '/courses';
+		return base + '/' + type + (id ? '/' + id : '');
+	}
+
+	function actionLabel(type) {
+		var labels = { course: 'Open Course', quiz: 'Start Quiz', exercise: 'Open Exercise', exercises: 'Browse Exercises', quizzes: 'Browse Quizzes', courses: 'Browse Courses' };
+		return labels[type] || 'Open';
+	}
+
 	function formatMsg(text) {
 		return text
 			.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
@@ -2700,9 +2767,28 @@
 			label.className = 'ai-msg-label';
 			label.textContent = 'LearnAdapt AI';
 			div.appendChild(label);
+
+			var parsed = parseActions(text);
 			var span = document.createElement('span');
-			span.innerHTML = formatMsg(text);
+			span.innerHTML = formatMsg(parsed.clean);
 			div.appendChild(span);
+
+			/* Render action cards */
+			if (parsed.actions.length > 0) {
+				parsed.actions.forEach(function(action) {
+					var card = document.createElement('a');
+					card.className = 'ai-action-card';
+					card.href = actionUrl(action.type, action.id);
+					card.innerHTML =
+						'<span class="ai-action-card-icon">' + actionIcon(action.type) + '</span>' +
+						'<span class="ai-action-card-text">' +
+							'<strong>' + (action.title || actionLabel(action.type)) + '</strong>' +
+							'<span>' + actionLabel(action.type) + '</span>' +
+						'</span>' +
+						'<span class="ai-action-card-arrow">→</span>';
+					div.appendChild(card);
+				});
+			}
 		} else {
 			div.textContent = text;
 		}
@@ -2761,22 +2847,51 @@
 				var reply = data.reply || matchFallback(text);
 				history.push({ role: 'assistant', content: reply });
 				addMsg(reply, 'bot');
+				speakReply(reply);
 			} else {
 				/* API unavailable or no key — use fallback */
 				var reply = matchFallback(text);
 				history.push({ role: 'assistant', content: reply });
 				addMsg(reply, 'bot');
+				speakReply(reply);
 			}
 		} catch (e) {
 			hideTyping();
 			var reply = matchFallback(text);
 			history.push({ role: 'assistant', content: reply });
 			addMsg(reply, 'bot');
+			speakReply(reply);
 		}
 
 		sending = false;
 		setInputEnabled(true);
 		input.focus();
+	}
+
+	/* voice handled globally via aiVoiceToggle() */
+
+	/* ── TEXT-TO-SPEECH (speak AI replies) ── */
+	var ttsEnabled = false; /* off by default — user can enable via the TTS toggle */
+	function speakReply(text) {
+		if (!ttsEnabled || !window.speechSynthesis) return;
+		window.speechSynthesis.cancel();
+		var plain = text.replace(/<[^>]+>/g, '').replace(/[*_`#]/g, '').trim();
+		var utt = new SpeechSynthesisUtterance(plain);
+		utt.lang = 'en-US'; utt.rate = 1.05; utt.pitch = 1;
+		window.speechSynthesis.speak(utt);
+	}
+
+	/* ── TOGGLE TTS button in header ── */
+	var ttsBtn = document.getElementById('aiTtsBtn');
+	if (ttsBtn) {
+		if (!window.speechSynthesis) { ttsBtn.style.display = 'none'; }
+		ttsBtn.addEventListener('click', function() {
+			ttsEnabled = !ttsEnabled;
+			ttsBtn.title = ttsEnabled ? 'Mute AI voice' : 'Enable AI voice';
+			ttsBtn.style.color = ttsEnabled ? '#a78bfa' : '';
+			ttsBtn.style.background = ttsEnabled ? 'rgba(139,92,246,0.15)' : '';
+			if (!ttsEnabled) window.speechSynthesis.cancel();
+		});
 	}
 
 	/* Toggle */
@@ -2832,6 +2947,99 @@
 			input.focus();
 		});
 	}
+})();
+
+/* ── GLOBAL VOICE FUNCTION (outside IIFE so onclick always works) ── */
+(function() {
+	var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+	var isRecording = false;
+
+	function addBotMsg(text) {
+		var body = document.getElementById('aiChatBody');
+		if (!body) return;
+		var div = document.createElement('div');
+		div.className = 'ai-msg bot';
+		var label = document.createElement('div');
+		label.className = 'ai-msg-label';
+		label.textContent = 'LearnAdapt AI';
+		div.appendChild(label);
+		var span = document.createElement('span');
+		span.textContent = text;
+		div.appendChild(span);
+		body.appendChild(div);
+		body.scrollTop = body.scrollHeight;
+	}
+
+	window.aiVoiceToggle = function() {
+		var micBtn = document.getElementById('aiMicBtn');
+		var input  = document.getElementById('aiChatInput');
+
+		if (!SR) {
+			addBotMsg('⚠️ Voice input is not supported in this browser. Please use Chrome or Edge.');
+			return;
+		}
+
+		if (isRecording) {
+			isRecording = false;
+			if (micBtn) { micBtn.classList.remove('recording'); micBtn.title = 'Speak your message'; }
+			if (input)  { input.placeholder = 'Ask me anything...'; }
+			return;
+		}
+
+		var recognition = new SR();
+		recognition.continuous = false;
+		recognition.interimResults = true;
+		recognition.lang = navigator.language || 'en-US';
+
+		recognition.onstart = function() {
+			isRecording = true;
+			if (micBtn) { micBtn.classList.add('recording'); micBtn.title = 'Listening… click to stop'; }
+			if (input)  { input.placeholder = '🎤 Listening…'; }
+		};
+
+		recognition.onresult = function(e) {
+			if (!input) return;
+			var interim = '', final = '';
+			for (var i = e.resultIndex; i < e.results.length; i++) {
+				var t = e.results[i][0].transcript;
+				if (e.results[i].isFinal) final += t; else interim += t;
+			}
+			input.value = final || interim;
+		};
+
+		var hadError = false;
+
+		recognition.onerror = function(e) {
+			hadError = true;
+			isRecording = false;
+			if (micBtn) { micBtn.classList.remove('recording'); micBtn.title = 'Speak your message'; }
+			if (input)  { input.placeholder = 'Ask me anything...'; }
+			if (e.error === 'not-allowed' || e.error === 'permission-denied') {
+				addBotMsg('⚠️ Microphone access denied. Click the 🔒 lock icon in the address bar → allow Microphone → refresh the page.');
+			} else if (e.error !== 'no-speech' && e.error !== 'aborted') {
+				addBotMsg('⚠️ Voice error: ' + e.error + '. Make sure your microphone is connected.');
+			}
+		};
+
+		recognition.onend = function() {
+			isRecording = false;
+			if (micBtn) { micBtn.classList.remove('recording'); micBtn.title = 'Speak your message'; }
+			if (input)  { input.placeholder = 'Ask me anything...'; }
+			if (!hadError && input && input.value.trim()) {
+				var event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true });
+				input.dispatchEvent(event);
+			}
+		};
+
+		try {
+			recognition.start();
+		} catch (err) {
+			isRecording = false;
+			if (micBtn) { micBtn.classList.remove('recording'); }
+			if (input)  { input.placeholder = 'Ask me anything...'; }
+			addBotMsg('⚠️ Could not start microphone: ' + err.message);
+		}
+	};
 })();
 </script>
 

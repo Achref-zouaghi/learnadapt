@@ -293,13 +293,15 @@ footer{display:none!important}
 				</div>
 			</div>
 			<div class="ex-card-foot">
+				<a href="{{ path('app_exercise_view', {id: ex.id}) }}" class="ex-dl-btn" style="background:linear-gradient(135deg,var(--purple),var(--cyan))"><i class='bx bx-play-circle'></i> Open Exercise</a>
 				{% if ex.pdf_path %}
-					<a href="{{ path('app_exercise_download', {id: ex.id}) }}" class="ex-dl-btn"><i class='bx bx-download'></i> {{ 'exercises.download'|trans }}</a>
 					{% if ex.pdf_size_bytes %}
-						<span class="ex-file-size"><i class='bx bx-file'></i> {{ (ex.pdf_size_bytes / 1024)|round(0) }} KB</span>
+						<span class="ex-file-size"><i class='bx bx-file-pdf'></i> {{ (ex.pdf_size_bytes / 1024)|round(0) }} KB</span>
+					{% else %}
+						<span class="ex-file-size"><i class='bx bx-file-pdf'></i> PDF</span>
 					{% endif %}
 				{% else %}
-					<span class="ex-no-file"><i class='bx bx-info-circle'></i> {{ 'exercises.no_file'|trans }}</span>
+					<span class="ex-no-file" style="font-size:0.7rem"><i class='bx bx-camera'></i> AI Monitor</span>
 				{% endif %}
 			</div>
 		</div>

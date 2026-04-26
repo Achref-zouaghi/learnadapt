@@ -208,8 +208,6 @@ footer{display:none!important}
 		<div class="adm-particles"><div class="adm-particle"></div><div class="adm-particle"></div><div class="adm-particle"></div><div class="adm-particle"></div></div>
 
 		<div class="adm-hero">
-			<h1><i class='bx bxs-brain' style="font-size:1.5rem;vertical-align:middle;margin-right:6px"></i> <span class="head-gradient">Quiz Management</span>
-		<div class="adm-hero">
 			<h1><i class='bx bxs-brain' style="font-size:1.5rem;vertical-align:middle;margin-right:6px"></i> <span class="head-gradient">Quiz Management</span></h1>
 			<p class="adm-hero-sub">Create, manage and monitor diagnostic quizzes for students</p>
 		</div>
@@ -236,15 +234,8 @@ footer{display:none!important}
 				<input type="text" id="quizSearch" placeholder="Search quizzes..." oninput="filterQuizzes()">
 			</div>
 			<button class="aq-add-btn" onclick="openCreateQuiz()"><i class='bx bx-plus-circle'></i> New Quiz</button>
-		<!-- Section header -->
-		<div class="aq-section-head">
-			<div class="aq-section-title"><i class='bx bxs-brain'></i> Quiz List</div>
-			<div class="aq-section-count">{{ totalQuizzes }} quiz{{ totalQuizzes != 1 ? 'zes' : '' }}</div>
 		</div>
 
-		</div>
-
-		<!-- Section header -->
 		<div class="aq-section-head">
 			<div class="aq-section-title"><i class='bx bxs-brain'></i> Quiz List</div>
 			<div class="aq-section-count">{{ totalQuizzes }} quiz{{ totalQuizzes != 1 ? 'zes' : '' }}</div>
@@ -379,8 +370,8 @@ footer{display:none!important}
 									<button class="adm-modal-btn save" style="margin-top:10px" onclick="addQuestion({{ q.id }})"><i class='bx bx-plus'></i> Add Question</button>
 								</div>
 							</div>
-						<class="aq-empty">
-			<i class='bx bx-brain'
+						</td>
+					</tr>
 					{% endfor %}
 				</tbody>
 			</table>

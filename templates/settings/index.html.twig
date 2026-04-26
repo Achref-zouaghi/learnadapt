@@ -255,6 +255,7 @@
                     <li><a href="{{ path('app_settings', {section: 'appearance'}) }}" class="s-sidebar-link {{ section == 'appearance' ? 'active' : '' }}">{{ 'settings.sidebar.appearance'|trans }}</a></li>
 
                     <li><a href="{{ path('app_settings', {section: 'payment'}) }}" class="s-sidebar-link {{ section == 'payment' ? 'active' : '' }}">{{ 'settings.sidebar.payment'|trans }}</a></li>
+                    <li><a href="{{ path('app_settings', {section: 'security'}) }}" class="s-sidebar-link {{ section == 'security' ? 'active' : '' }}">Security</a></li>
                     <li><a href="{{ path('app_settings', {section: 'data-export'}) }}" class="s-sidebar-link {{ section == 'data-export' ? 'active' : '' }}">{{ 'settings.sidebar.data_privacy'|trans }}</a></li>
                 </ul>
             </nav>
@@ -649,147 +650,332 @@
 
                 {% elseif section == 'payment' %}
 
+                <style>
+                .pm-flash-ok  { display:flex; align-items:center; gap:10px; padding:13px 16px; border-radius:12px; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.22); color:#22c55e; font-size:0.86rem; margin-bottom:20px; }
+                .pm-flash-err { display:flex; align-items:center; gap:10px; padding:13px 16px; border-radius:12px; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.22); color:#ef4444; font-size:0.86rem; margin-bottom:20px; }
+                .pm-flash-ok i, .pm-flash-err i { font-size:1.1rem; flex-shrink:0; }
+
+                .pm-section-title { font-size:0.7rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+
+                /* Card rows */
+                .pm-card-row {
+                    display:flex; align-items:center; gap:16px;
+                    padding:16px 18px; border-radius:14px;
+                    border:1px solid var(--border); background:rgba(255,255,255,0.02);
+                    margin-bottom:10px; transition:border-color 0.2s, background 0.2s;
+                }
+                .pm-card-row.is-default { border-color:rgba(123,97,241,0.45); background:rgba(123,97,241,0.04); }
+                .pm-card-chip {
+                    width:52px; height:34px; border-radius:8px; flex-shrink:0;
+                    display:flex; align-items:center; justify-content:center;
+                    font-size:0.6rem; font-weight:800; letter-spacing:0.5px; color:#fff;
+                }
+                .pm-card-chip.visa      { background:linear-gradient(135deg,#1a1f71,#2d5dab); }
+                .pm-card-chip.mastercard{ background:linear-gradient(135deg,#1a1433,#c8102e); }
+                .pm-card-chip.amex      { background:linear-gradient(135deg,#007bc1,#00a9e0); }
+                .pm-card-chip.discover  { background:linear-gradient(135deg,#e65c00,#f9d423); }
+                .pm-card-chip.other     { background:linear-gradient(135deg,#374151,#6b7280); }
+                .pm-card-num  { font-size:0.95rem; font-weight:700; color:var(--text); letter-spacing:0.05em; }
+                .pm-card-meta { font-size:0.76rem; color:var(--muted); margin-top:3px; }
+                .pm-default-pill {
+                    display:inline-flex; align-items:center; gap:4px;
+                    font-size:0.65rem; font-weight:700; letter-spacing:0.04em;
+                    background:rgba(123,97,241,0.14); color:#a78bfa;
+                    border:1px solid rgba(123,97,241,0.25); padding:2px 9px; border-radius:999px;
+                }
+                .pm-card-actions { display:flex; gap:8px; margin-left:auto; }
+                .pm-btn-ghost {
+                    padding:6px 13px; border-radius:9px; font-size:0.75rem; font-weight:600;
+                    border:1px solid var(--border); background:transparent; color:var(--muted);
+                    cursor:pointer; font-family:inherit; transition:color 0.15s, border-color 0.15s;
+                }
+                .pm-btn-ghost:hover { color:var(--text); border-color:rgba(255,255,255,0.15); }
+                .pm-btn-danger {
+                    padding:6px 11px; border-radius:9px; font-size:0.8rem;
+                    border:1px solid rgba(239,68,68,0.25); background:transparent; color:#ef4444;
+                    cursor:pointer; font-family:inherit; transition:background 0.15s, border-color 0.15s;
+                    display:flex; align-items:center; gap:4px;
+                }
+                .pm-btn-danger:hover { background:rgba(239,68,68,0.08); border-color:rgba(239,68,68,0.45); }
+
+                /* Empty state */
+                .pm-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 20px; border-radius:14px; border:1px dashed rgba(255,255,255,0.1); background:rgba(255,255,255,0.01); text-align:center; margin-bottom:20px; }
+                .pm-empty i { font-size:2rem; color:var(--muted); margin-bottom:10px; }
+                .pm-empty p { font-size:0.85rem; color:var(--muted); }
+
+                /* Add card form */
+                .pm-form-wrap { border-radius:16px; border:1px solid var(--border); background:rgba(255,255,255,0.02); padding:24px; margin-bottom:20px; }
+                .pm-form-header { display:flex; align-items:center; gap:10px; margin-bottom:22px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+                .pm-form-header-icon { width:36px; height:36px; border-radius:10px; background:rgba(123,97,241,0.12); display:flex; align-items:center; justify-content:center; }
+                .pm-form-header-icon i { color:#a78bfa; font-size:1rem; }
+                .pm-form-header span { font-size:0.95rem; font-weight:700; color:var(--text); }
+                .pm-input-wrap { position:relative; }
+                .pm-brand-badge { position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:0.65rem; font-weight:800; letter-spacing:0.05em; color:var(--muted); pointer-events:none; }
+                .pm-err-msg { color:#ef4444; font-size:0.74rem; margin-top:5px; display:none; }
+                .pm-field { margin-bottom:16px; }
+                .pm-field label { display:block; font-size:0.77rem; font-weight:600; color:var(--muted); margin-bottom:6px; letter-spacing:0.02em; text-transform:uppercase; }
+                .pm-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+                .pm-submit-row { display:flex; align-items:center; justify-content:space-between; margin-top:20px; padding-top:18px; border-top:1px solid var(--border); }
+                .pm-secure-note { display:flex; align-items:center; gap:6px; font-size:0.75rem; color:var(--muted); }
+                .pm-secure-note i { color:#22c55e; }
+                .pm-btn-submit {
+                    display:inline-flex; align-items:center; gap:8px;
+                    padding:11px 22px; border-radius:12px; border:none;
+                    background:linear-gradient(135deg,#7856ed,#3cc5d9); color:#fff;
+                    font-size:0.86rem; font-weight:700; cursor:pointer; font-family:inherit;
+                    transition:opacity 0.2s, transform 0.15s;
+                }
+                .pm-btn-submit:hover { opacity:0.88; transform:scale(0.98); }
+
+                /* Accepted brands footer */
+                .pm-brands { display:flex; align-items:center; gap:8px; padding:14px 18px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid var(--border); }
+                .pm-brand-chip { padding:5px 12px; border-radius:6px; font-size:0.62rem; font-weight:800; letter-spacing:0.06em; color:#fff; }
+                .pm-brands-label { font-size:0.76rem; color:var(--muted); margin-right:4px; }
+                </style>
+
                 <div class="s-label">{{ 'settings.payment.label'|trans }}</div>
-
                 <h2>{{ 'settings.payment.title'|trans }}</h2>
+                <p class="sub" style="margin-top:4px; margin-bottom:26px;">{{ 'settings.payment.subtitle'|trans }}</p>
 
-                <p class="sub" style="margin-top: 4px; margin-bottom: 22px;">{{ 'settings.payment.subtitle'|trans }}</p>
+                {# Flash messages #}
+                {% for msg in app.flashes('success') %}
+                    <div class="pm-flash-ok"><i class='bx bx-check-circle'></i> {{ msg|trans }}</div>
+                {% endfor %}
+                {% for msg in app.flashes('error') %}
+                    <div class="pm-flash-err"><i class='bx bx-error-circle'></i> {{ msg|trans }}</div>
+                {% endfor %}
 
-
-
-                {# Current payment methods #}
-
-                <div class="s-tile" style="margin-bottom: 16px;">
-
-                    <div style="display: flex; align-items: center; gap: 14px;">
-
-                        <div style="width: 48px; height: 32px; border-radius: 6px; background: linear-gradient(135deg, #1a1f71 0%, #2d5dab 100%); display: flex; align-items: center; justify-content: center;">
-
-                            <i class='bx bxl-visa' style="color: #fff; font-size: 1.4rem;"></i>
-
+                {# ── Saved cards ── #}
+                {% if paymentMethods is defined and paymentMethods|length > 0 %}
+                    <div class="pm-section-title"><i class='bx bx-wallet-alt' style="margin-right:5px;"></i>Saved cards</div>
+                    <div style="margin-bottom:24px;">
+                        {% for card in paymentMethods %}
+                        {% set brand_class = card.card_brand == 'Visa' ? 'visa' : (card.card_brand == 'Mastercard' ? 'mastercard' : (card.card_brand == 'Amex' ? 'amex' : (card.card_brand == 'Discover' ? 'discover' : 'other'))) %}
+                        <div class="pm-card-row {{ card.is_default ? 'is-default' : '' }}">
+                            <div class="pm-card-chip {{ brand_class }}">{{ card.card_brand|upper }}</div>
+                            <div>
+                                <div class="pm-card-num">•••• •••• •••• {{ card.card_last4 }}</div>
+                                <div class="pm-card-meta">
+                                    {{ card.card_holder }} &nbsp;·&nbsp; Expires {{ card.expiry_month }}/{{ card.expiry_year }}
+                                    {% if card.is_default %}
+                                    &nbsp;<span class="pm-default-pill"><i class='bx bx-check' style="font-size:0.7rem;"></i> Default</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="pm-card-actions">
+                                {% if not card.is_default %}
+                                <form method="POST" action="{{ path('app_settings_payment_default', {id: card.id}) }}">
+                                    <button type="submit" class="pm-btn-ghost">Set default</button>
+                                </form>
+                                {% endif %}
+                                <form method="POST" action="{{ path('app_settings_payment_remove', {id: card.id}) }}" onsubmit="return confirm('Remove this card from your account?')">
+                                    <button type="submit" class="pm-btn-danger"><i class='bx bx-trash'></i> Remove</button>
+                                </form>
+                            </div>
                         </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="pm-empty">
+                        <i class='bx bx-credit-card'></i>
+                        <p>No payment methods saved yet.<br>Add a card below to get started.</p>
+                    </div>
+                {% endif %}
 
-                        <div style="flex: 1;">
-
-                            <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">{{ 'settings.payment.no_method'|trans }}</div>
-
-                            <div style="color: var(--muted); font-size: 0.78rem; margin-top: 2px;">{{ 'settings.payment.no_method_hint'|trans }}</div>
-
-                        </div>
-
+                {# ── Add card form ── #}
+                <div class="pm-form-wrap">
+                    <div class="pm-form-header">
+                        <div class="pm-form-header-icon"><i class='bx bx-plus'></i></div>
+                        <span>Add a new card</span>
                     </div>
 
-                </div>
-
-
-
-                {# Add card form #}
-
-                <div class="s-tile" style="margin-bottom: 18px;">
-
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-
-                        <i class='bx bx-credit-card' style="color: var(--purple); font-size: 1.1rem;"></i>
-
-                        <span style="font-weight: 600; color: var(--text); font-size: 0.92rem;">{{ 'settings.payment.add_card'|trans }}</span>
-
-                    </div>
-
-
-
-                    <form onsubmit="return false;" style="max-width: 460px;">
-
-                        <div style="margin-bottom: 14px;">
-
-                            <label class="s-field-label" style="margin-bottom: 4px;">{{ 'settings.payment.card_name'|trans }}</label>
-
-                            <input type="text" class="s-input" placeholder="{{ 'settings.payment.card_name_placeholder'|trans }}" disabled>
-
+                    <form method="POST" action="{{ path('app_settings_payment_add') }}" id="paymentForm">
+                        <div class="pm-field">
+                            <label>Cardholder name</label>
+                            <input type="text" name="card_holder" class="s-input" placeholder="Name as it appears on card" required autocomplete="cc-name">
                         </div>
 
-
-
-                        <div style="margin-bottom: 14px;">
-
-                            <label class="s-field-label" style="margin-bottom: 4px;">{{ 'settings.payment.card_number'|trans }}</label>
-
-                            <input type="text" class="s-input" placeholder="•••• •••• •••• ••••" disabled>
-
-                        </div>
-
-
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-
-                            <div>
-
-                                <label class="s-field-label" style="margin-bottom: 4px;">{{ 'settings.payment.expiry'|trans }}</label>
-
-                                <input type="text" class="s-input" placeholder="MM / YY" disabled>
-
+                        <div class="pm-field">
+                            <label>Card number</label>
+                            <div class="pm-input-wrap">
+                                <input type="text" id="cardNumber" name="card_number" class="s-input" placeholder="1234  5678  9012  3456" maxlength="19" required autocomplete="cc-number" inputmode="numeric" style="padding-right:56px; letter-spacing:0.05em;">
+                                <span id="cardBrandBadge" class="pm-brand-badge"></span>
                             </div>
+                            <div id="cardError" class="pm-err-msg"></div>
+                        </div>
 
-                            <div>
-
-                                <label class="s-field-label" style="margin-bottom: 4px;">{{ 'settings.payment.cvv'|trans }}</label>
-
-                                <input type="text" class="s-input" placeholder="•••" disabled>
-
+                        <div class="pm-grid-2">
+                            <div class="pm-field">
+                                <label>Expiry date</label>
+                                <input type="text" id="expiryInput" class="s-input" placeholder="MM / YY" maxlength="7" required autocomplete="cc-exp" inputmode="numeric">
+                                <input type="hidden" name="expiry_month" id="expiryMonth">
+                                <input type="hidden" name="expiry_year"  id="expiryYear">
                             </div>
-
+                            <div class="pm-field">
+                                <label>Security code (CVV)</label>
+                                <input type="password" name="cvv" class="s-input" placeholder="•••" maxlength="4" required autocomplete="cc-csc" inputmode="numeric">
+                            </div>
                         </div>
 
-
-
-                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
-
-                            <button type="button" class="s-btn-brand-outline" disabled style="opacity: 0.5;">{{ 'settings.payment.coming_soon'|trans }}</button>
-
+                        <div class="pm-submit-row">
+                            <span class="pm-secure-note"><i class='bx bxs-lock-alt'></i> 256-bit SSL encrypted</span>
+                            <button type="submit" class="pm-btn-submit" id="submitCard">
+                                <i class='bx bx-lock-alt'></i> Add card
+                            </button>
                         </div>
-
                     </form>
-
                 </div>
 
+                {# ── Accepted brands ── #}
+                <div class="pm-brands">
+                    <span class="pm-brands-label">Accepted:</span>
+                    <span class="pm-brand-chip" style="background:linear-gradient(135deg,#1a1f71,#2d5dab);">VISA</span>
+                    <span class="pm-brand-chip" style="background:linear-gradient(135deg,#1a1433,#c8102e);">MC</span>
+                    <span class="pm-brand-chip" style="background:linear-gradient(135deg,#007bc1,#00a9e0);">AMEX</span>
+                    <span class="pm-brand-chip" style="background:linear-gradient(135deg,#e65c00,#f9d423);">DISC</span>
+                    <span style="margin-left:auto; font-size:0.74rem; color:var(--muted); display:flex; align-items:center; gap:5px;"><i class='bx bx-shield-alt-2' style="color:#22c55e;"></i> Secure &amp; encrypted</span>
+                </div>
+
+                <script>
+                (() => {
+                    const cardInput  = document.getElementById('cardNumber');
+                    const brandBadge = document.getElementById('cardBrandBadge');
+                    const cardError  = document.getElementById('cardError');
+                    const expiryInput = document.getElementById('expiryInput');
+
+                    const brandColors = { VISA:'#4f7dc9', MC:'#c8102e', AMEX:'#00a9e0', DISC:'#e65c00' };
+
+                    function detectBrand(n) {
+                        if (/^4/.test(n))          return 'VISA';
+                        if (/^5[1-5]/.test(n))     return 'MC';
+                        if (/^3[47]/.test(n))       return 'AMEX';
+                        if (/^6(?:011|5)/.test(n))  return 'DISC';
+                        return '';
+                    }
+
+                    function luhn(n) {
+                        let s = 0, l = n.length, p = l % 2;
+                        for (let i = 0; i < l; i++) {
+                            let d = +n[i];
+                            if (i % 2 === p) { d *= 2; if (d > 9) d -= 9; }
+                            s += d;
+                        }
+                        return s % 10 === 0;
+                    }
+
+                    cardInput.addEventListener('input', function () {
+                        let raw = this.value.replace(/\D/g, '').slice(0, 16);
+                        this.value = raw.replace(/(.{4})/g, '$1 ').trim();
+                        const brand = detectBrand(raw);
+                        brandBadge.textContent = brand;
+                        brandBadge.style.color = brandColors[brand] || 'var(--muted)';
+                        if (raw.length >= 13) {
+                            if (!luhn(raw)) {
+                                cardError.textContent = 'Card number is invalid'; cardError.style.display = 'block';
+                            } else { cardError.style.display = 'none'; }
+                        } else { cardError.style.display = 'none'; }
+                    });
+
+                    expiryInput.addEventListener('input', function () {
+                        let raw = this.value.replace(/\D/g, '').slice(0, 4);
+                        if (raw.length >= 3) raw = raw.slice(0,2) + ' / ' + raw.slice(2);
+                        this.value = raw;
+                    });
+
+                    document.getElementById('paymentForm').addEventListener('submit', function () {
+                        const parts = expiryInput.value.replace(/\s/g,'').split('/');
+                        document.getElementById('expiryMonth').value = parts[0] || '';
+                        document.getElementById('expiryYear').value  = parts[1] || '';
+                    });
+                })();
+                </script>
 
 
-                {# Accepted payment methods #}
+                {# ═══════════ SECURITY ═══════════ #}
+                {% elseif section == 'security' %}
+                <div class="s-label">Authentication</div>
+                <h2>Security</h2>
+                <p class="sub" style="margin-top:4px;margin-bottom:26px;">Manage how you sign in to your account.</p>
 
-                <div style="padding: 16px 18px; border-radius: 12px; background: rgba(123,97,241,0.06); border: 1px solid rgba(123,97,241,0.15);">
-
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-
-                        <i class='bx bx-lock-alt' style="color: var(--purple); font-size: 1rem;"></i>
-
-                        <span style="font-size: 0.84rem; font-weight: 600; color: var(--text);">{{ 'settings.payment.secure_title'|trans }}</span>
-
-                    </div>
-
-                    <p style="font-size: 0.78rem; color: var(--muted); margin-bottom: 10px;">{{ 'settings.payment.secure_desc'|trans }}</p>
-
-                    <div style="display: flex; gap: 12px; align-items: center;">
-
-                        <div style="width: 42px; height: 26px; border-radius: 4px; background: #1a1f71; display: flex; align-items: center; justify-content: center;"><span style="color: #fff; font-size: 0.6rem; font-weight: 700;">VISA</span></div>
-
-                        <div style="width: 42px; height: 26px; border-radius: 4px; background: #eb001b; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
-
-                            <div style="position: absolute; left: 10px; width: 16px; height: 16px; border-radius: 50%; background: #eb001b; opacity: 0.8;"></div>
-
-                            <div style="position: absolute; right: 10px; width: 16px; height: 16px; border-radius: 50%; background: #f79e1b; opacity: 0.8;"></div>
-
+                {# ── Face ID / Passkey card ── #}
+                <div class="s-tile" style="margin-bottom:16px;">
+                    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+                        <div style="width:42px;height:42px;border-radius:12px;background:rgba(56,189,209,0.12);border:1px solid rgba(56,189,209,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class='bx bx-face' style="font-size:1.4rem;color:#38bdd1;"></i>
                         </div>
-
-                        <div style="width: 42px; height: 26px; border-radius: 4px; background: #0070ba; display: flex; align-items: center; justify-content: center;"><span style="color: #fff; font-size: 0.55rem; font-weight: 700;">PayPal</span></div>
-
-                        <div style="width: 42px; height: 26px; border-radius: 4px; background: linear-gradient(135deg, #635bff, #a259ff); display: flex; align-items: center; justify-content: center;"><span style="color: #fff; font-size: 0.55rem; font-weight: 700;">Stripe</span></div>
-
+                        <div>
+                            <div style="font-weight:600;color:var(--text);font-size:0.92rem;">Face ID / Passkey</div>
+                            <div style="color:var(--muted);font-size:0.8rem;margin-top:3px;">Sign in with your device biometric instead of a password.</div>
+                        </div>
                     </div>
 
+                    <div id="skPasskeyStatus" style="font-size:0.82rem;color:var(--muted);padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);margin-bottom:14px;">
+                        Checking status…
+                    </div>
+
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button type="button" class="s-btn-brand-outline" id="skRegisterBtn" onclick="skRegisterPasskey()" style="display:none;gap:8px;align-items:center;">
+                            <i class='bx bx-fingerprint'></i> Register Passkey
+                        </button>
+                        <button type="button" id="skDeleteBtn" onclick="skDeletePasskey()" style="display:none;gap:8px;align-items:center;padding:9px 16px;border-radius:12px;font-size:0.83rem;font-weight:600;cursor:pointer;transition:all 0.18s;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:#f87171;">
+                            <i class='bx bx-trash'></i> Remove Passkey
+                        </button>
+                    </div>
+                    <div id="skFeedback" style="display:none;margin-top:12px;font-size:0.82rem;padding:9px 14px;border-radius:10px;border:1px solid;"></div>
                 </div>
 
+                {# ── Change Password hint ── #}
+                <div class="s-tile">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <div style="font-weight:600;color:var(--text);font-size:0.9rem;">Password</div>
+                            <div style="color:var(--muted);font-size:0.82rem;margin-top:4px;">Change your login password.</div>
+                        </div>
+                        <a href="{{ path('app_settings', {section: 'password'}) }}" class="s-btn-brand-outline" style="text-decoration:none;">Change</a>
+                    </div>
+                </div>
 
+                {# ── NelmioSecurityBundle — HTTP Security Headers Status ── #}
+                <div class="s-tile" style="margin-top:16px;">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+                        <div style="width:42px;height:42px;border-radius:12px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class='bx bx-shield-quarter' style="font-size:1.4rem;color:#22c55e;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:700;color:var(--text);font-size:0.92rem;">HTTP Security Headers <span style="font-size:0.72rem;background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);border-radius:20px;padding:2px 9px;font-weight:700;margin-left:6px;vertical-align:middle;">ACTIVE</span></div>
+                            <div style="color:var(--muted);font-size:0.8rem;margin-top:3px;">Managed by <strong style="color:rgba(255,255,255,0.5);">NelmioSecurityBundle</strong> — protects all pages automatically.</div>
+                        </div>
+                    </div>
 
-                {# â•â•â•â•â•â•â•â•â•â•â•â• DATA & PRIVACY â•â•â•â•â•â•â•â•â•â•â•â• #}
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        {% set securityHeaders = [
+                            {icon: 'bx-block', color: '#f59e0b', label: 'Clickjacking Protection', desc: 'X-Frame-Options: DENY — blocks embedding in iframes', status: true},
+                            {icon: 'bx-file-blank', color: '#38bdd1', label: 'Content-Type Sniffing', desc: 'X-Content-Type-Options: nosniff — prevents MIME-type attacks', status: true},
+                            {icon: 'bx-link-external', color: '#a78bfa', label: 'Referrer Policy', desc: 'strict-origin-when-cross-origin — limits referrer leakage', status: true},
+                            {icon: 'bx-lock-alt', color: '#fb7185', label: 'XSS Protection', desc: 'Browser-level reflected XSS attack blocking', status: true}
+                        ] %}
+
+                        {% for h in securityHeaders %}
+                        <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;">
+                            <i class='bx {{ h.icon }}' style="font-size:1.2rem;color:{{ h.color }};flex-shrink:0;"></i>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-size:0.84rem;font-weight:600;color:var(--text);">{{ h.label }}</div>
+                                <div style="font-size:0.76rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ h.desc }}</div>
+                            </div>
+                            <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,0.7);flex-shrink:0;"></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <p style="margin-top:14px;font-size:0.77rem;color:var(--muted);line-height:1.5;">
+                        <i class='bx bx-info-circle'></i>
+                        These headers are enforced on every response via <code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:5px;">nelmio_security.yaml</code>.
+                        Verify them in your browser DevTools → Network → Response Headers.
+                    </p>
+                </div>
+
+                {# ═══════════ DATA & PRIVACY ═══════════ #}
                 {% elseif section == 'data-export' %}
                 <div class="s-label">Governance</div>
                 <h2>Data & Privacy</h2>
@@ -915,4 +1101,119 @@ document.querySelectorAll('input[name="theme"]').forEach(function(radio) {
     }
 });
 </script>
+
+{% if section == 'security' %}
+<script>
+/* ── Settings: Face ID / WebAuthn ── */
+(async function skInit() {
+    if (!window.PublicKeyCredential) {
+        skSetStatus('Your browser does not support passkeys / Face ID.', 'error');
+        return;
+    }
+    if (location.hostname === '127.0.0.1') {
+        skSetStatus('Open the app via http://localhost:8000 (not 127.0.0.1) to use Face ID / Passkey — browsers require a real domain name.', 'error');
+        document.getElementById('skRegisterBtn').style.display = 'none';
+        return;
+    }
+    try {
+        const res  = await fetch('/auth/webauthn/status');
+        const data = await res.json();
+        if (data.registered) {
+            skSetStatus('✓ A passkey is registered on this device.', 'ok');
+            document.getElementById('skDeleteBtn').style.display = 'inline-flex';
+        } else {
+            skSetStatus('No passkey registered yet. Add one to enable biometric sign-in.', 'none');
+            document.getElementById('skRegisterBtn').style.display = 'inline-flex';
+        }
+    } catch(e) {
+        skSetStatus('Could not check passkey status.', 'error');
+    }
+})();
+
+async function skRegisterPasskey() {
+    const btn  = document.getElementById('skRegisterBtn');
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bx bx-loader-alt" style="animation:sk-spin 0.8s linear infinite;"></i> Waiting for biometric…';
+
+    try {
+        const optRes  = await fetch('/auth/webauthn/register-options');
+        const optData = await optRes.json();
+        if (!optRes.ok) throw new Error(optData.error || 'Could not get options');
+
+        const publicKey = skPrepareCreate(optData.publicKey);
+        const cred      = await navigator.credentials.create({ publicKey });
+
+        const vRes  = await fetch('/auth/webauthn/register', {
+            method:  'POST',
+            headers: {'Content-Type': 'application/json'},
+            body:    JSON.stringify({
+                clientDataJSON:    skBufToB64(cred.response.clientDataJSON),
+                attestationObject: skBufToB64(cred.response.attestationObject),
+            })
+        });
+        const vData = await vRes.json();
+        if (!vRes.ok) throw new Error(vData.error || 'Registration failed');
+
+        skSetStatus('✓ Passkey registered successfully!', 'ok');
+        skFeedback('Passkey added. You can now sign in with Face ID.', 'success');
+        btn.style.display = 'none';
+        document.getElementById('skDeleteBtn').style.display = 'inline-flex';
+    } catch(e) {
+        btn.disabled = false;
+        btn.innerHTML = orig;
+        if (e.name !== 'NotAllowedError') skFeedback('Error: ' + e.message, 'error');
+    }
+}
+
+async function skDeletePasskey() {
+    if (!confirm('Remove your registered passkey? You will need to sign in with your password.')) return;
+    const res = await fetch('/auth/webauthn/delete', { method: 'POST' });
+    if (res.ok) {
+        skSetStatus('No passkey registered yet. Add one to enable biometric sign-in.', 'none');
+        skFeedback('Passkey removed.', 'neutral');
+        document.getElementById('skDeleteBtn').style.display = 'none';
+        document.getElementById('skRegisterBtn').style.display = 'inline-flex';
+    }
+}
+
+function skPrepareCreate(opts) {
+    opts.challenge = skB64ToBuf(opts.challenge);
+    opts.user.id  = skB64ToBuf(opts.user.id);
+    if (opts.excludeCredentials) {
+        opts.excludeCredentials = opts.excludeCredentials.map(c => ({ ...c, id: skB64ToBuf(c.id) }));
+    }
+    return opts;
+}
+function skB64ToBuf(b64) {
+    b64 = b64.replace(/-/g,'+').replace(/_/g,'/');
+    while (b64.length % 4) b64 += '=';
+    const bin = atob(b64);
+    const buf = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    return buf.buffer;
+}
+function skBufToB64(buf) {
+    return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+function skSetStatus(msg, type) {
+    const el = document.getElementById('skPasskeyStatus');
+    el.textContent = msg;
+    if (type === 'ok')    { el.style.color='#34d399'; el.style.borderColor='rgba(52,211,153,0.2)'; el.style.background='rgba(52,211,153,0.06)'; }
+    else if (type==='error') { el.style.color='#f87171'; el.style.borderColor='rgba(248,113,113,0.2)'; el.style.background='rgba(248,113,113,0.06)'; }
+    else                  { el.style.color=''; el.style.borderColor=''; el.style.background=''; }
+}
+function skFeedback(msg, type) {
+    const el = document.getElementById('skFeedback');
+    el.textContent = msg;
+    el.style.display = 'block';
+    if (type === 'success') { el.style.color='#aef7ff'; el.style.borderColor='rgba(56,189,209,0.3)'; el.style.background='rgba(56,189,209,0.08)'; }
+    else { el.style.color='#ffd7e1'; el.style.borderColor='rgba(248,113,113,0.25)'; el.style.background='rgba(248,113,113,0.08)'; }
+    setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+const _skStyle = document.createElement('style');
+_skStyle.textContent = '@keyframes sk-spin { to { transform: rotate(360deg); } } #skRegisterBtn, #skDeleteBtn { display: inline-flex; align-items: center; gap: 8px; }';
+document.head.appendChild(_skStyle);
+</script>
+{% endif %}
 {% endblock %}

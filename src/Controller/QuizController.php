@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,7 @@ class QuizController extends AbstractController
     public function __construct(
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $em,
+        private readonly PaginatorInterface $paginator,
     ) {
     }
 
@@ -42,13 +44,20 @@ class QuizController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $quizzes = $this->conn()->fetchAllAssociative(
+        $allQuizzes = $this->conn()->fetchAllAssociative(
             'SELECT q.*,
                     (SELECT COUNT(*) FROM quiz_questions qq WHERE qq.quiz_id = q.id) as question_count,
                     (SELECT SUM(qq2.points) FROM quiz_questions qq2 WHERE qq2.quiz_id = q.id) as total_points
              FROM diagnostic_quizzes q
              WHERE q.is_active = 1
              ORDER BY q.created_at DESC'
+        );
+
+        // Paginate using KnpPaginatorBundle (2 per page for demo; change to 6 in production)
+        $quizzes = $this->paginator->paginate(
+            $allQuizzes,
+            $request->query->getInt('page', 1),
+            2
         );
 
         // Get user's attempts for each quiz

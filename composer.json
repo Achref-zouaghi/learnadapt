@@ -11,7 +11,12 @@
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.6",
         "endroid/qr-code": "^6.0",
+        "knplabs/knp-paginator-bundle": "^6.10",
+        "knplabs/knp-time-bundle": "^2.5",
+        "lbuchs/webauthn": "^2.2",
+        "nelmio/security-bundle": "^3.9",
         "snipe/banbuilder": "^2.3",
+        "stof/doctrine-extensions-bundle": "^1.15",
         "symfony/console": "6.4.*",
         "symfony/dotenv": "6.4.*",
         "symfony/flex": "^2",
@@ -22,9 +27,11 @@
         "symfony/runtime": "6.4.*",
         "symfony/translation": "6.4.*",
         "symfony/twig-bundle": "6.4.*",
+        "symfony/ux-chartjs": "^2.35",
         "symfony/yaml": "6.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "vich/uploader-bundle": "^2.9"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.67"

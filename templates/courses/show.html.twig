@@ -536,7 +536,7 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 							<div class="cs-comment-head">
 								<span class="cs-comment-name">{{ c.full_name }}</span>
 								<span class="cs-comment-time">{{ c.created_at|date('M d, Y H:i') }}</span>
-								{% if c.user_id == app.user.id %}
+								{% if navUser is defined and c.user_id == navUser.id %}
 								<button class="cs-comment-del" onclick="deleteComment({{ c.id }})"><i class='bx bx-trash'></i></button>
 								{% endif %}
 							</div>
