@@ -17,8 +17,23 @@ footer{display:none!important}
 .kb{min-height:100vh;padding:100px 0 60px;display:flex;justify-content:center;background:transparent;position:relative;z-index:1}
 .kb-wrap{width:100%;max-width:1320px;margin:0 auto;padding:0 32px}
 
+/* ══ PAGE BANNER ══ */
+@keyframes bannerShimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes floatOrb{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.04)}}
+@keyframes heroIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+.kb-banner{margin-bottom:28px;position:relative;padding:48px 48px 40px;background:linear-gradient(135deg,rgba(239,68,68,0.09) 0%,rgba(249,115,22,0.06) 50%,rgba(251,191,36,0.03) 100%);border:1px solid rgba(239,68,68,0.18);border-radius:28px;backdrop-filter:blur(24px);overflow:hidden;animation:heroIn .7s ease backwards}
+.kb-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#ef4444,#f97316,#ef4444,transparent);background-size:200% 100%;animation:bannerShimmer 3s linear infinite}
+.kb-banner-watermark{position:absolute;right:-20px;bottom:-30px;font-size:14rem;opacity:0.04;background:linear-gradient(135deg,#ef4444,#f97316);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;pointer-events:none;user-select:none;line-height:1}
+.kb-banner-orb1{position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(239,68,68,0.12),transparent 70%);top:-70px;right:140px;animation:floatOrb 6s ease-in-out infinite;pointer-events:none}
+.kb-banner-orb2{position:absolute;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,0.10),transparent 70%);bottom:-50px;left:80px;animation:floatOrb 8s ease-in-out infinite reverse;pointer-events:none}
+.kb-banner-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;background:linear-gradient(135deg,rgba(239,68,68,0.15),rgba(249,115,22,0.10));border:1px solid rgba(239,68,68,0.22);border-radius:20px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#ef4444;margin-bottom:12px}
+.kb-banner-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.kb-banner h1{font-size:2.4rem;font-weight:900;letter-spacing:-0.04em;line-height:1.1;background:linear-gradient(135deg,#ef4444,#f97316);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.kb-banner p{color:var(--muted);font-size:0.9rem;margin-top:8px;max-width:500px;line-height:1.6}
+.kb-banner-icon{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,rgba(239,68,68,0.20),rgba(249,115,22,0.12));border:1px solid rgba(239,68,68,0.22);box-shadow:0 0 40px rgba(239,68,68,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kb-banner-icon i{font-size:2.2rem;background:linear-gradient(135deg,#ef4444,#f97316);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 /* ══ HEADER ══ */
-.kb-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px}
+.kb-head{display:flex;align-items:flex-end;justify-content:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:28px}
 .kb-head h1{font-size:1.85rem;font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--purple),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .kb-head p{color:var(--muted);font-size:0.84rem;margin-top:4px}
 .kb-add-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:linear-gradient(135deg,var(--purple),#9b7bf7);border:none;border-radius:12px;color:#fff;font-weight:700;font-size:0.84rem;cursor:pointer;transition:all .2s ease;box-shadow:0 4px 20px rgba(123,97,241,0.3);font-family:inherit}
@@ -521,12 +536,24 @@ footer{display:none!important}
   {% endfor %}
 {% endfor %}
 
-{# ══ HEADER ══ #}
-<div class="kb-head">
-    <div>
-        <h1><i class='bx bx-columns' style="font-size:1.6rem;margin-right:6px;vertical-align:middle"></i> {{ 'taskboard.title'|trans }}</h1>
-        <p>{{ 'taskboard.subtitle'|trans }}</p>
+{# ══ PAGE BANNER ══ #}
+<div class="kb-banner">
+    <div class="kb-banner-watermark"><i class='bx bx-columns'></i></div>
+    <div class="kb-banner-orb1"></div>
+    <div class="kb-banner-orb2"></div>
+    <div class="kb-banner-row">
+        <div>
+            <div class="kb-banner-badge"><i class='bx bx-check-square'></i> Productivity</div>
+            <h1>{{ 'taskboard.title'|trans }}</h1>
+            <p>{{ 'taskboard.subtitle'|trans }}</p>
+        </div>
+        <div class="kb-banner-icon">
+            <i class='bx bx-layout'></i>
+        </div>
     </div>
+</div>
+{# ══ HEADER (actions) ══ #}
+<div class="kb-head">
     <div class="kb-head-btns">
         <button class="kb-ai-btn" onclick="document.getElementById('aiPlannerModal').classList.add('open')">
             <span class="kb-ai-btn-icon">🧠</span>
@@ -626,11 +653,11 @@ footer{display:none!important}
 
         {# Charts #}
         <div class="kb-charts">
-            {# Bar chart – last 7 days — powered by Chart.js (via symfony/ux-chartjs data) #}
+            {# Bar chart – last 7 days — rendered via symfony/ux-chartjs render_chart() #}
             <div class="kb-chart-box">
                 <h3><i class='bx bx-bar-chart-square'></i> {{ 'taskboard.weekly_focus'|trans|default('Weekly Focus (minutes)') }}</h3>
                 <div style="height:180px;position:relative">
-                    <canvas id="pomodoroWeekChart"></canvas>
+                    {{ render_chart(pomodoroChart, {'style': 'height:180px'}) }}
                 </div>
             </div>
 
@@ -785,8 +812,8 @@ footer{display:none!important}
     </div>
 </div>
 
-{# ══ KANBAN BOARD ══ #}
-<div class="kb-board">
+{# ══ KANBAN BOARD (StimulusBundle: stimulus_controller) ══ #}
+<div class="kb-board" {{ stimulus_controller('kanban') }}>
     {% set colMeta = {
         'TODO':        { cls: 'col-todo', icon: 'bx-list-ul',       label: 'taskboard.todo'|trans,        emoji: '📋' },
         'IN_PROGRESS': { cls: 'col-inp',  icon: 'bx-loader-circle', label: 'taskboard.in_progress'|trans, emoji: '⚡' },
@@ -1864,39 +1891,17 @@ document.getElementById('aiReportModal').addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('open');
 });
 
-{# symfony/ux-chartjs: Chart.js loaded via CDN since this project uses CDN assets #}
+{# symfony/ux-chartjs: Chart.js loaded via CDN; auto-init all render_chart() canvases #}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <script>
-(function() {
-    var labels = {{ weekData|map(d => d.day|date('D'))|json_encode|raw }};
-    var data   = {{ weekData|map(d => d.minutes)|json_encode|raw }};
-    var ctx = document.getElementById('pomodoroWeekChart');
-    if (ctx) {
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Focus Minutes',
-                    data: data,
-                    backgroundColor: 'rgba(123,97,241,0.65)',
-                    borderColor: 'rgba(123,97,241,1)',
-                    borderWidth: 2,
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: true, ticks: { color: 'rgba(255,255,255,0.6)' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    x: { ticks: { color: 'rgba(255,255,255,0.6)' }, grid: { display: false } }
-                }
-            }
-        });
-    }
-})();
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('canvas[data-controller="symfony--ux-chartjs--chart"]').forEach(function (canvas) {
+        try {
+            var view = JSON.parse(canvas.getAttribute('data-symfony--ux-chartjs--chart-view-value') || 'null');
+            if (view) new Chart(canvas, view);
+        } catch(e) {}
+    });
+});
 </script>
 {% endblock %}

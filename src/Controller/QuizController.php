@@ -6,6 +6,8 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +21,7 @@ class QuizController extends AbstractController
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $em,
         private readonly PaginatorInterface $paginator,
+        private readonly ChartBuilderInterface $chartBuilder,
     ) {
     }
 
@@ -77,9 +80,30 @@ class QuizController extends AbstractController
             $attemptMap[$a['quiz_id']] = $a;
         }
 
+        // ChartjsBundle — doughnut chart showing quiz completion
+        $completedCount = count(array_filter($attempts, fn($a) => (float)$a['best_score'] > 0));
+        $totalCount     = count($allQuizzes);
+        $scoreChart = $this->chartBuilder->createChart(Chart::TYPE_DOUGHNUT);
+        $scoreChart->setData([
+            'labels'   => ['Completed', 'Remaining'],
+            'datasets' => [[
+                'data'            => [$completedCount, max(0, $totalCount - $completedCount)],
+                'backgroundColor' => ['rgba(167,139,250,0.85)', 'rgba(255,255,255,0.07)'],
+                'borderColor'     => ['#7c3aed', 'rgba(255,255,255,0.0)'],
+                'borderWidth'     => [2, 0],
+                'hoverOffset'     => 4,
+            ]],
+        ]);
+        $scoreChart->setOptions([
+            'cutout'  => '72%',
+            'plugins' => ['legend' => ['display' => false], 'tooltip' => ['enabled' => false]],
+            'animation' => ['animateRotate' => true, 'duration' => 900],
+        ]);
+
         return $this->render('quiz/index.html.twig', [
-            'quizzes' => $quizzes,
+            'quizzes'    => $quizzes,
             'attemptMap' => $attemptMap,
+            'scoreChart' => $scoreChart,
         ]);
     }
 

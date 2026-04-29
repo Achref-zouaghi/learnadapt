@@ -27,17 +27,23 @@ footer{display:none!important}
 .cr-wrap{width:100%;max-width:1360px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
 
 /* ═══ HERO HEADER ═══ */
-.cr-hero{margin-bottom:40px;position:relative;padding:36px 40px 32px;background:linear-gradient(135deg,rgba(251,146,60,0.06),rgba(251,191,36,0.04));border:1px solid rgba(251,146,60,0.08);border-radius:24px;backdrop-filter:blur(20px);overflow:hidden;animation:heroIn .7s var(--ease) backwards}
-.cr-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,146,60,0.3),rgba(251,191,36,0.2),transparent)}
-.cr-hero::after{content:'';position:absolute;bottom:-60px;right:-30px;width:200px;height:200px;background:radial-gradient(circle,rgba(251,146,60,0.08),transparent 70%);border-radius:50%;pointer-events:none}
+@keyframes bannerShimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes floatOrb{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.04)}}
 @keyframes heroIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+.cr-hero{margin-bottom:40px;position:relative;padding:48px 48px 40px;background:linear-gradient(135deg,rgba(251,146,60,0.10) 0%,rgba(251,191,36,0.06) 50%,rgba(239,68,68,0.03) 100%);border:1px solid rgba(251,146,60,0.18);border-radius:28px;backdrop-filter:blur(24px);overflow:hidden;animation:heroIn .7s var(--ease) backwards}
+.cr-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#f97316,#f59e0b,#f97316,transparent);background-size:200% 100%;animation:bannerShimmer 3s linear infinite}
+.cr-hero::after{content:'';display:none}
+.cr-hero-watermark{position:absolute;right:-20px;bottom:-30px;font-size:14rem;opacity:0.04;background:linear-gradient(135deg,#f97316,#f59e0b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;pointer-events:none;user-select:none;line-height:1}
+.cr-hero-orb1{position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(251,146,60,0.13),transparent 70%);top:-70px;right:140px;animation:floatOrb 6s ease-in-out infinite;pointer-events:none}
+.cr-hero-orb2{position:absolute;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(251,191,36,0.10),transparent 70%);bottom:-50px;left:80px;animation:floatOrb 8s ease-in-out infinite reverse;pointer-events:none}
+.cr-hero-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;background:linear-gradient(135deg,rgba(251,146,60,0.15),rgba(251,191,36,0.10));border:1px solid rgba(251,146,60,0.22);border-radius:20px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#f97316;margin-bottom:12px}
 .cr-hero-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
-.cr-hero h1{font-size:2.2rem;font-weight:900;letter-spacing:-0.04em;line-height:1.1}
+.cr-hero h1{font-size:2.4rem;font-weight:900;letter-spacing:-0.04em;line-height:1.1}
 .cr-hero h1 span.t1{background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .cr-hero h1 span.t2{color:var(--text);-webkit-text-fill-color:var(--text)}
-.cr-hero-sub{color:var(--muted);font-size:0.88rem;margin-top:8px;max-width:500px;line-height:1.6}
-.cr-hero-icon{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,rgba(251,146,60,0.15),rgba(251,191,36,0.1));border:1px solid rgba(251,146,60,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.cr-hero-icon i{font-size:2rem;background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.cr-hero-sub{color:var(--muted);font-size:0.9rem;margin-top:8px;max-width:500px;line-height:1.6}
+.cr-hero-icon{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,rgba(251,146,60,0.20),rgba(251,191,36,0.12));border:1px solid rgba(251,146,60,0.22);box-shadow:0 0 40px rgba(251,146,60,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cr-hero-icon i{font-size:2.2rem;background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* ═══ STAT CARDS ═══ */
 .cr-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
@@ -238,8 +244,12 @@ footer{display:none!important}
 
 	<!-- Hero Header -->
 	<div class="cr-hero">
+		<div class="cr-hero-watermark"><i class='bx bxs-graduation'></i></div>
+		<div class="cr-hero-orb1"></div>
+		<div class="cr-hero-orb2"></div>
 		<div class="cr-hero-row">
 			<div>
+				<div class="cr-hero-badge"><i class='bx bx-book-open'></i> Learning Hub</div>
 				<h1><span class="t1">{{ 'nav.courses'|trans }}</span> <span class="t2">Catalog</span></h1>
 				<p class="cr-hero-sub">Browse all available courses organized by level and module</p>
 			</div>
@@ -248,6 +258,28 @@ footer{display:none!important}
 			</div>
 		</div>
 	</div>
+
+	<!-- SmartCourseBundle: Platform Analytics -->
+	{% if platformStats and platformStats.total_courses is defined %}
+	<div style="display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap">
+		<div style="flex:1;min-width:140px;background:rgba(123,97,241,0.08);border:1px solid rgba(123,97,241,0.15);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+			<i class='bx bx-book-open' style="color:var(--purple);font-size:1.3rem"></i>
+			<div><div style="font-size:1.2rem;font-weight:800;color:var(--purple)">{{ platformStats.total_courses }}</div><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Courses</div></div>
+		</div>
+		<div style="flex:1;min-width:140px;background:rgba(56,189,209,0.08);border:1px solid rgba(56,189,209,0.15);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+			<i class='bx bx-group' style="color:var(--cyan);font-size:1.3rem"></i>
+			<div><div style="font-size:1.2rem;font-weight:800;color:var(--cyan)">{{ platformStats.active_learners }}</div><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Learners</div></div>
+		</div>
+		<div style="flex:1;min-width:140px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.15);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+			<i class='bx bx-check-circle' style="color:var(--green);font-size:1.3rem"></i>
+			<div><div style="font-size:1.2rem;font-weight:800;color:var(--green)">{{ platformStats.completions }}</div><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Completions</div></div>
+		</div>
+		<div style="flex:1;min-width:140px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.15);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+			<i class='bx bx-star' style="color:var(--yellow);font-size:1.3rem"></i>
+			<div><div style="font-size:1.2rem;font-weight:800;color:var(--yellow)">{{ platformStats.platform_avg_rating ? platformStats.platform_avg_rating|number_format(1) : '—' }}</div><div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Avg Rating</div></div>
+		</div>
+	</div>
+	{% endif %}
 
 	<!-- Level Stats -->
 	<div class="cr-stats">
@@ -434,6 +466,22 @@ footer{display:none!important}
 		</div>
 		{% endfor %}
 	</div>
+	{# ── KnpPaginatorBundle: course pagination ── #}
+	{% set pd = courses.paginationData %}
+	{% if pd.pageCount > 1 %}
+	<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0 40px;flex-wrap:wrap">
+		{% if pd.previous is defined %}
+		<a href="?page={{ pd.previous }}{{ currentLevel ? '&level=' ~ currentLevel }}{{ searchQuery ? '&q=' ~ searchQuery|url_encode }}" style="display:inline-flex;align-items:center;gap:5px;padding:9px 16px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.7);text-decoration:none;font-size:.84rem;font-weight:600;transition:all .2s ease"><i class='bx bx-chevron-left'></i> Prev</a>
+		{% endif %}
+		{% for p in pd.startPage..pd.endPage %}
+		<a href="?page={{ p }}{{ currentLevel ? '&level=' ~ currentLevel }}{{ searchQuery ? '&q=' ~ searchQuery|url_encode }}" style="display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:38px;border-radius:10px;text-decoration:none;font-size:.84rem;font-weight:700;transition:all .2s ease;{% if p == pd.current %}background:linear-gradient(135deg,var(--orange),var(--yellow));color:#fff;border:none;box-shadow:0 4px 14px rgba(251,146,60,0.3){% else %}border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.7){% endif %}">{{ p }}</a>
+		{% endfor %}
+		{% if pd.next is defined %}
+		<a href="?page={{ pd.next }}{{ currentLevel ? '&level=' ~ currentLevel }}{{ searchQuery ? '&q=' ~ searchQuery|url_encode }}" style="display:inline-flex;align-items:center;gap:5px;padding:9px 16px;border:1px solid rgba(255,255,255,0.1);border-radius:12px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.7);text-decoration:none;font-size:.84rem;font-weight:600;transition:all .2s ease">Next <i class='bx bx-chevron-right'></i></a>
+		{% endif %}
+		<span style="color:var(--muted);font-size:.78rem;margin-left:6px">Page {{ pd.current }} of {{ pd.pageCount }} &mdash; {{ pd.totalCount }} course{{ pd.totalCount == 1 ? '' : 's' }}</span>
+	</div>
+	{% endif %}
 	{% else %}
 	<div class="cr-empty">
 		<div class="cr-empty-icon"><i class='bx bx-book-open'></i></div>

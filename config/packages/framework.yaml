@@ -5,6 +5,7 @@ framework:
     http_method_override: false
     handle_all_throwables: true
     default_locale: en
+    http_cache: true
     translator:
         default_path: '%kernel.project_dir%/translations'
         fallbacks: ['en']

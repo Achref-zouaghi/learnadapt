@@ -14,10 +14,22 @@ footer{display:none!important}
 .qz-bg-orb.b{width:500px;height:500px;bottom:-80px;right:-60px;background:radial-gradient(circle,rgba(56,189,209,.2),transparent 70%)}
 
 .qz-page{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:120px 28px 60px}
-.qz-hero{text-align:center;margin-bottom:48px;animation:heroIn .7s var(--ease) both}
+@keyframes bannerShimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes floatOrb{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.04)}}
 @keyframes heroIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-.qz-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-.03em;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
-.qz-hero p{color:var(--muted);font-size:1.05rem;max-width:500px;margin:0 auto}
+.qz-hero{margin-bottom:48px;position:relative;padding:48px 48px 40px;background:linear-gradient(135deg,rgba(124,58,237,0.10) 0%,rgba(167,139,250,0.06) 50%,rgba(34,211,238,0.03) 100%);border:1px solid rgba(124,58,237,0.18);border-radius:28px;backdrop-filter:blur(24px);overflow:hidden;animation:heroIn .7s var(--ease) both}
+.qz-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#7c3aed,#a78bfa,#7c3aed,transparent);background-size:200% 100%;animation:bannerShimmer 3s linear infinite}
+.qz-hero-watermark{position:absolute;right:-20px;bottom:-30px;font-size:14rem;opacity:0.04;background:linear-gradient(135deg,#7c3aed,#a78bfa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;pointer-events:none;user-select:none;line-height:1}
+.qz-hero-orb1{position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.12),transparent 70%);top:-70px;right:140px;animation:floatOrb 6s ease-in-out infinite;pointer-events:none}
+.qz-hero-orb2{position:absolute;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,0.10),transparent 70%);bottom:-50px;left:80px;animation:floatOrb 8s ease-in-out infinite reverse;pointer-events:none}
+.qz-hero-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;background:linear-gradient(135deg,rgba(124,58,237,0.15),rgba(167,139,250,0.10));border:1px solid rgba(124,58,237,0.22);border-radius:20px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78bfa;margin-bottom:12px}
+.qz-hero-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.qz-hero h1{font-size:2.4rem;font-weight:900;letter-spacing:-0.04em;line-height:1.1;background:none;-webkit-text-fill-color:unset;margin-bottom:0;text-align:left}
+.qz-hero h1 span.t1{background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.qz-hero h1 span.t2{color:var(--text);-webkit-text-fill-color:var(--text)}
+.qz-hero p{color:var(--muted);font-size:0.9rem;margin:8px 0 0;max-width:500px;text-align:left}
+.qz-hero-icon{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,rgba(124,58,237,0.20),rgba(167,139,250,0.12));border:1px solid rgba(124,58,237,0.22);box-shadow:0 0 40px rgba(124,58,237,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qz-hero-icon i{font-size:2.2rem;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* Stats Row */
 .qz-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:40px;animation:heroIn .7s var(--ease) .1s both}
@@ -80,8 +92,19 @@ footer{display:none!important}
 
 <div class="qz-page">
 	<div class="qz-hero">
-		<h1><i class='bx bx-brain' style="font-size:inherit;vertical-align:middle;margin-right:6px"></i>{{ 'quiz.title'|trans }}</h1>
-		<p>{{ 'quiz.subtitle'|trans }}</p>
+		<div class="qz-hero-watermark"><i class='bx bx-brain'></i></div>
+		<div class="qz-hero-orb1"></div>
+		<div class="qz-hero-orb2"></div>
+		<div class="qz-hero-row">
+			<div>
+				<div class="qz-hero-badge"><i class='bx bx-bulb'></i> Knowledge Test</div>
+				<h1><span class="t1">{{ 'quiz.title'|trans }}</span> <span class="t2">Center</span></h1>
+				<p>{{ 'quiz.subtitle'|trans }}</p>
+			</div>
+			<div class="qz-hero-icon">
+				<i class='bx bx-brain'></i>
+			</div>
+		</div>
 	</div>
 
 	{% set totalQ = quizzes|length %}
@@ -106,8 +129,11 @@ footer{display:none!important}
 		<div class="qz-stat green">
 			<div class="qz-stat-num">{{ completedQ > 0 ? (bestAvg / completedQ)|round ~ '%' : '—' }}</div>
 			<div class="qz-stat-label">{{ 'quiz.avg_score'|trans }}</div>
-		</div>
-	</div>
+		</div>		{# ChartjsBundle: completion doughnut chart #}
+		<div class="qz-stat" style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
+			{{ render_chart(scoreChart, {'style': 'width:100px;height:100px'}) }}
+			<div class="qz-stat-label">Progress</div>
+		</div>	</div>
 
 	{% if quizzes|length > 0 %}
 	<div class="qz-grid">
@@ -204,4 +230,16 @@ footer{display:none!important}
 		Page {{ pd.current }} of {{ pd.pageCount }} &mdash; {{ pd.totalCount }} total quizze{{ pd.totalCount == 1 ? '' : 's' }}
 	</p>
 </div>
+{# ChartjsBundle renderer: load Chart.js from CDN and init the UX canvas #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('canvas[data-controller="symfony--ux-chartjs--chart"]').forEach(function (canvas) {
+        try {
+            var view = JSON.parse(canvas.getAttribute('data-symfony--ux-chartjs--chart-view-value') || 'null');
+            if (view) new Chart(canvas, view);
+        } catch (e) {}
+    });
+});
+</script>
 {% endblock %}

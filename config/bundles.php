@@ -15,4 +15,5 @@ return [
     Knp\Bundle\TimeBundle\KnpTimeBundle::class => ['all' => true],
     Nelmio\SecurityBundle\NelmioSecurityBundle::class => ['all' => true],
     App\SmartCourseBundle\SmartCourseBundle::class => ['all' => true],
+    Endroid\QrCodeBundle\EndroidQrCodeBundle::class => ['all' => true],
 ];

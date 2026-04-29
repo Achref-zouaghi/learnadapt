@@ -15,6 +15,8 @@ class ProfanityService
         $this->connection = $connection;
         $this->censor = new CensorWords();
         $this->censor->setDictionary(['en-us', 'fr', 'es']);
+        // Demo word — remove after presentation
+        $this->censor->addFromArray(['test']);
     }
 
     /**

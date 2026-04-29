@@ -3026,6 +3026,42 @@
 			if (micBtn) { micBtn.classList.remove('recording'); micBtn.title = 'Speak your message'; }
 			if (input)  { input.placeholder = 'Ask me anything...'; }
 			if (!hadError && input && input.value.trim()) {
+				// ── Voice navigation commands ──
+				var spoken = input.value.trim().toLowerCase();
+				var navRoutes = {
+					'course':    '/courses',
+					'courses':   '/courses',
+					'exercise':  '/exercises',
+					'exercises': '/exercises',
+					'quiz':      '/quizzes',
+					'quizzes':   '/quizzes',
+					'taskboard': '/taskboard',
+					'task board':'/taskboard',
+					'tasks':     '/taskboard',
+					'forum':     '/forum',
+					'profile':   '/profile',
+					'setting':   '/settings',
+					'settings':  '/settings',
+					'home':      '/home',
+					'dashboard': '/home',
+				};
+				var navTarget = null;
+				// Match "go to X", "open X", "navigate to X", "take me to X", or just "X"
+				var navMatch = spoken.match(/(?:go(?:\s+to)?|open|navigate(?:\s+to)?|take\s+me\s+to|show(?:\s+me)?)\s+(.+)/);
+				var keyword = navMatch ? navMatch[1].trim() : spoken;
+				for (var k in navRoutes) {
+					if (keyword === k || keyword.indexOf(k) !== -1) {
+						navTarget = navRoutes[k];
+						break;
+					}
+				}
+				if (navTarget) {
+					addBotMsg('🎤 Heard: "' + spoken + '" → going to ' + navTarget);
+					setTimeout(function() { window.location.href = navTarget; }, 1200);
+					input.value = '';
+					return;
+				}
+				// Not a navigation command — send to AI as normal
 				var event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true });
 				input.dispatchEvent(event);
 			}

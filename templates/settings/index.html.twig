@@ -1111,8 +1111,8 @@ document.querySelectorAll('input[name="theme"]').forEach(function(radio) {
         return;
     }
     if (location.hostname === '127.0.0.1') {
-        skSetStatus('Open the app via http://localhost:8000 (not 127.0.0.1) to use Face ID / Passkey — browsers require a real domain name.', 'error');
-        document.getElementById('skRegisterBtn').style.display = 'none';
+        skSetStatus('Open via http://localhost:8000 to use Face ID / Passkey.', 'info');
+        document.getElementById('skRegisterBtn').style.display = 'inline-flex';
         return;
     }
     try {
@@ -1131,6 +1131,19 @@ document.querySelectorAll('input[name="theme"]').forEach(function(radio) {
 })();
 
 async function skRegisterPasskey() {
+    if (location.hostname === '127.0.0.1') {
+        // Exchange session for a one-time handoff token, then redirect to localhost
+        try {
+            const res = await fetch('/auth/handoff-token', { method: 'POST' });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Auth failed');
+            const port = location.port ? ':' + location.port : '';
+            location.replace(`http://localhost${port}/auth/handoff?token=${data.token}&return=/settings/security`);
+        } catch(e) {
+            skFeedback('Could not switch to localhost: ' + e.message, 'error');
+        }
+        return;
+    }
     const btn  = document.getElementById('skRegisterBtn');
     const orig = btn.innerHTML;
     btn.disabled = true;
@@ -1201,6 +1214,7 @@ function skSetStatus(msg, type) {
     el.textContent = msg;
     if (type === 'ok')    { el.style.color='#34d399'; el.style.borderColor='rgba(52,211,153,0.2)'; el.style.background='rgba(52,211,153,0.06)'; }
     else if (type==='error') { el.style.color='#f87171'; el.style.borderColor='rgba(248,113,113,0.2)'; el.style.background='rgba(248,113,113,0.06)'; }
+    else if (type==='info') { el.style.color='#fbbf24'; el.style.borderColor='rgba(251,191,36,0.2)'; el.style.background='rgba(251,191,36,0.06)'; }
     else                  { el.style.color=''; el.style.borderColor=''; el.style.background=''; }
 }
 function skFeedback(msg, type) {

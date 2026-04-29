@@ -15,6 +15,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -33,6 +34,7 @@ class AuthController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly MailerInterface $mailer,
         private readonly HttpClientInterface $httpClient,
+        private readonly CacheInterface $cache,
     ) {
     }
 
@@ -303,7 +305,7 @@ class AuthController extends AbstractController
 
             $query = http_build_query([
                 'client_id' => $this->getGoogleClientId(),
-                'redirect_uri' => $this->generateUrl('app_auth_google_callback', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                'redirect_uri' => $this->getGoogleRedirectUri(),
                 'response_type' => 'code',
                 'scope' => 'openid email profile',
                 'access_type' => 'online',
@@ -372,7 +374,7 @@ class AuthController extends AbstractController
                     'client_secret' => $this->getGoogleClientSecret(),
                     'code' => $code,
                     'grant_type' => 'authorization_code',
-                    'redirect_uri' => $this->generateUrl('app_auth_google_callback', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                    'redirect_uri' => $this->getGoogleRedirectUri(),
                 ],
             ])->toArray(false);
 
@@ -688,6 +690,67 @@ class AuthController extends AbstractController
         return $this->render('auth/reset_password.html.twig', ['token' => $token]);
     }
 
+    // ── Session handoff (127.0.0.1 → localhost for WebAuthn) ─────────────────
+
+    #[Route('/auth/handoff-token', name: 'auth_handoff_token', methods: ['POST'])]
+    public function createHandoffToken(Request $request): \Symfony\Component\HttpFoundation\JsonResponse
+    {
+        $auth = $request->getSession()->get(self::AUTH_SESSION_KEY);
+        if (!is_array($auth) || !isset($auth['id'])) {
+            return new \Symfony\Component\HttpFoundation\JsonResponse(['error' => 'Not authenticated'], 401);
+        }
+
+        $token = bin2hex(random_bytes(32)); // 64-char hex token
+        $item = $this->cache->getItem('handoff_' . $token);
+        $item->set($auth);
+        $item->expiresAfter(60); // single-use, 60 seconds
+        $this->cache->save($item);
+
+        return new \Symfony\Component\HttpFoundation\JsonResponse(['token' => $token]);
+    }
+
+    #[Route('/auth/handoff', name: 'auth_handoff', methods: ['GET'])]
+    public function handoff(Request $request): Response
+    {
+        $token = $request->query->get('token', '');
+        $return = $request->query->get('return', '/settings/security');
+
+        // Validate return URL is a safe relative path
+        if (!preg_match('/^\/[a-zA-Z0-9\-_\/]*$/', $return)) {
+            $return = '/settings/security';
+        }
+
+        if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $cacheKey = 'handoff_' . $token;
+        $auth = null;
+        try {
+            // Retrieve without re-computing — if miss, returns null sentinel
+            $item = $this->cache->getItem($cacheKey);
+            if ($item->isHit()) {
+                $auth = $item->get();
+                $this->cache->delete($cacheKey); // single-use
+            }
+        } catch (\Throwable) {
+        }
+
+        if (!is_array($auth) || !isset($auth['id'])) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $user = $this->userRepository->find((int) $auth['id']);
+        if ($user === null) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Establish session on the new hostname (localhost)
+        $this->finishLogin($request->getSession(), $user);
+
+        return $this->redirect($return);
+    }
+
     #[Route('/logout', name: 'app_logout', methods: ['GET'])]
     public function logoutConfirm(Request $request): Response
     {
@@ -990,6 +1053,13 @@ class AuthController extends AbstractController
     private function getGoogleClientId(): string
     {
         return trim((string) ($_ENV['GOOGLE_CLIENT_ID'] ?? $_SERVER['GOOGLE_CLIENT_ID'] ?? ''));
+    }
+
+    private function getGoogleRedirectUri(): string
+    {
+        $url = $this->generateUrl('app_auth_google_callback', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        // Always use 127.0.0.1 to match the URI registered in Google Cloud Console
+        return str_replace('://localhost', '://127.0.0.1', $url);
     }
 
     private function getGoogleClientSecret(): string

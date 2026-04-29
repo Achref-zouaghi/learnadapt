@@ -26,17 +26,23 @@ footer{display:none!important}
 .ex-wrap{width:100%;max-width:1360px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
 
 /* ═══ HERO HEADER ═══ */
-.ex-hero{margin-bottom:40px;position:relative;padding:36px 40px 32px;background:linear-gradient(135deg,rgba(56,189,209,0.06),rgba(123,97,241,0.04));border:1px solid rgba(56,189,209,0.08);border-radius:24px;backdrop-filter:blur(20px);overflow:hidden;animation:heroIn .7s var(--ease) backwards}
-.ex-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.3),rgba(123,97,241,0.2),transparent)}
-.ex-hero::after{content:'';position:absolute;bottom:-60px;right:-30px;width:200px;height:200px;background:radial-gradient(circle,rgba(56,189,209,0.08),transparent 70%);border-radius:50%;pointer-events:none}
+@keyframes bannerShimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes floatOrb{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.04)}}
 @keyframes heroIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+.ex-hero{margin-bottom:40px;position:relative;padding:48px 48px 40px;background:linear-gradient(135deg,rgba(56,189,209,0.10) 0%,rgba(16,185,129,0.06) 50%,rgba(6,182,212,0.03) 100%);border:1px solid rgba(56,189,209,0.18);border-radius:28px;backdrop-filter:blur(24px);overflow:hidden;animation:heroIn .7s var(--ease) backwards}
+.ex-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#06b6d4,#10b981,#06b6d4,transparent);background-size:200% 100%;animation:bannerShimmer 3s linear infinite}
+.ex-hero::after{content:'';display:none}
+.ex-hero-watermark{position:absolute;right:-20px;bottom:-30px;font-size:14rem;opacity:0.04;background:linear-gradient(135deg,#06b6d4,#10b981);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;pointer-events:none;user-select:none;line-height:1}
+.ex-hero-orb1{position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,209,0.13),transparent 70%);top:-70px;right:140px;animation:floatOrb 6s ease-in-out infinite;pointer-events:none}
+.ex-hero-orb2{position:absolute;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,0.10),transparent 70%);bottom:-50px;left:80px;animation:floatOrb 8s ease-in-out infinite reverse;pointer-events:none}
+.ex-hero-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;background:linear-gradient(135deg,rgba(56,189,209,0.15),rgba(16,185,129,0.10));border:1px solid rgba(56,189,209,0.22);border-radius:20px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#06b6d4;margin-bottom:12px}
 .ex-hero-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
-.ex-hero h1{font-size:2.2rem;font-weight:900;letter-spacing:-0.04em;line-height:1.1}
+.ex-hero h1{font-size:2.4rem;font-weight:900;letter-spacing:-0.04em;line-height:1.1}
 .ex-hero h1 span.t1{background:linear-gradient(135deg,var(--cyan),#6ee7b7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .ex-hero h1 span.t2{color:var(--text);-webkit-text-fill-color:var(--text)}
-.ex-hero-sub{color:var(--muted);font-size:0.88rem;margin-top:8px;max-width:500px;line-height:1.6}
-.ex-hero-icon{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,rgba(56,189,209,0.15),rgba(123,97,241,0.1));border:1px solid rgba(56,189,209,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ex-hero-icon i{font-size:2rem;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ex-hero-sub{color:var(--muted);font-size:0.9rem;margin-top:8px;max-width:500px;line-height:1.6}
+.ex-hero-icon{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,rgba(56,189,209,0.20),rgba(16,185,129,0.12));border:1px solid rgba(56,189,209,0.22);box-shadow:0 0 40px rgba(56,189,209,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ex-hero-icon i{font-size:2.2rem;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* ═══ STAT CARDS ═══ */
 .ex-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
@@ -179,8 +185,12 @@ footer{display:none!important}
 
 	<!-- Hero Header -->
 	<div class="ex-hero">
+		<div class="ex-hero-watermark"><i class='bx bx-dumbbell'></i></div>
+		<div class="ex-hero-orb1"></div>
+		<div class="ex-hero-orb2"></div>
 		<div class="ex-hero-row">
 			<div>
+				<div class="ex-hero-badge"><i class='bx bx-run'></i> Practice Zone</div>
 				<h1><span class="t1">{{ 'exercises.title'|trans }}</span> <span class="t2">Library</span></h1>
 				<p class="ex-hero-sub">{{ 'exercises.subtitle'|trans }}</p>
 			</div>
@@ -280,7 +290,7 @@ footer{display:none!important}
 					</span>
 				</div>
 				{% if ex.description %}
-					<div class="ex-card-desc">{{ ex.description }}</div>
+						<div class="ex-card-desc">{{ ex.description|u.truncate(120, '\u2026', true) }}</div>
 				{% endif %}
 				{% if ex.module_name %}
 					<div class="ex-card-module"><i class='bx bx-category'></i> {{ ex.module_name }}</div>

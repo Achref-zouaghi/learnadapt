@@ -1067,7 +1067,7 @@
             return;
         }
         if (location.hostname === '127.0.0.1') {
-            showFaceIdMsg('Open the app via localhost:8000 (not 127.0.0.1) to use Face ID / Passkey.', 'error');
+            location.replace(location.href.replace('127.0.0.1', 'localhost'));
             return;
         }
 

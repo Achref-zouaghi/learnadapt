@@ -14,7 +14,9 @@ use App\Repository\CourseProgressRepository;
 use App\Repository\UserStreakRepository;
 use App\SmartCourseBundle\Event\CourseEnrolledEvent;
 use App\SmartCourseBundle\Event\CourseViewedEvent;
+use App\SmartCourseBundle\Service\AnalyticsService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -39,6 +41,8 @@ class CourseController extends AbstractController
         private readonly UserStreakRepository $streakRepository,
         private readonly EntityManagerInterface $em,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly PaginatorInterface $paginator,
+        private readonly AnalyticsService $analyticsService,
     ) {
     }
 
@@ -63,7 +67,8 @@ class CourseController extends AbstractController
         $search = $request->query->get('q', '');
         $moduleId = $request->query->get('module', '');
 
-        $courses = $this->courseRepository->findFiltered($level, $search, $moduleId ? (int)$moduleId : null);
+        $allCourses = $this->courseRepository->findFiltered($level, $search, $moduleId ? (int)$moduleId : null);
+        $courses = $this->paginator->paginate($allCourses, $request->query->getInt('page', 1), 9);
         $counts = $this->courseRepository->getLevelCounts();
         $modules = $this->courseRepository->getModulesWithCounts();
 
@@ -79,6 +84,7 @@ class CourseController extends AbstractController
         }
 
         $streak = $this->streakRepository->findOneByUser($user->getId());
+        $platformStats = $this->analyticsService->getGlobalStats();
 
         return $this->render('courses/index.html.twig', [
             'courses' => $courses,
@@ -92,6 +98,7 @@ class CourseController extends AbstractController
             'ratingMap' => $ratingMap,
             'streak' => $streak,
             'userId' => $user->getId(),
+            'platformStats' => $platformStats,
         ]);
     }
 
