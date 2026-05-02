@@ -1,0 +1,570 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}LearnAdapt Mind Report — Week of {{ report.week_start|date('M d, Y') }}{% endblock %}
+
+{% block body %}
+{% set m = report.metrics %}
+{% set hs = report.health_score %}
+{% set vel = m.learning_velocity ?? {change_pct: 0, this_week: 0, last_week: 0} %}
+{% set peak = m.peak_window ?? {label: 'No data', multiplier: null} %}
+{% set abandoned = m.abandoned_courses ?? [] %}
+{% set gaps = m.knowledge_gaps ?? [] %}
+{% set goal = m.micro_goal ?? null %}
+
+<style>
+:root {
+    --r-purple: #7b61f1;
+    --r-cyan:   #38bdd1;
+    --r-gold:   #f5c842;
+    --r-red:    #f05e5e;
+    --r-green:  #4ade80;
+    --r-card:   rgba(255,255,255,0.04);
+    --r-border: rgba(255,255,255,0.08);
+}
+
+.rp-wrap { background: #0d0f1a; min-height: 100vh; padding-bottom: 80px; }
+
+/* ── Header ───────────────────────────────────────────────────────────── */
+.rp-header {
+    background: linear-gradient(135deg, rgba(123,97,241,0.18) 0%, rgba(56,189,209,0.08) 100%);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 40px 32px 36px;
+    position: relative;
+    overflow: hidden;
+}
+.rp-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 80% at 0% 50%, rgba(123,97,241,0.1), transparent);
+}
+.rp-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.8rem;
+    text-decoration: none;
+    margin-bottom: 20px;
+    transition: color 0.2s;
+}
+.rp-back:hover { color: rgba(255,255,255,0.8); }
+.rp-meta {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.rp-brand {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--r-purple);
+    margin-bottom: 6px;
+}
+.rp-title {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    margin: 0 0 4px;
+}
+.rp-subtitle {
+    color: rgba(255,255,255,0.4);
+    font-size: 0.85rem;
+}
+.rp-badges { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.rp-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 10px;
+    letter-spacing: 0.05em;
+}
+.rp-badge.ai    { background: rgba(56,189,209,0.12); border: 1px solid rgba(56,189,209,0.25); color: var(--r-cyan); }
+.rp-badge.local { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
+.rp-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.rp-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+.rp-action-btn.print  { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+.rp-action-btn.print:hover  { border-color: rgba(255,255,255,0.3); color: #fff; }
+.rp-action-btn.regen  { background: linear-gradient(135deg, var(--r-purple), var(--r-cyan)); color: #fff; box-shadow: 0 6px 20px rgba(123,97,241,0.35); }
+.rp-action-btn.regen:hover  { transform: translateY(-1px); }
+
+/* ── Layout ───────────────────────────────────────────────────────────── */
+.rp-container { max-width: 1060px; margin: 0 auto; padding: 36px 24px 0; }
+.rp-grid-main {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 24px;
+    align-items: start;
+}
+@media (max-width: 820px) { .rp-grid-main { grid-template-columns: 1fr; } }
+
+/* ── Cards ────────────────────────────────────────────────────────────── */
+.rp-card {
+    background: var(--r-card);
+    border: 1px solid var(--r-border);
+    border-radius: 20px;
+    padding: 26px;
+    margin-bottom: 20px;
+}
+.rp-card:last-child { margin-bottom: 0; }
+.rp-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.38);
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.rp-card-head i { font-size: 1.1rem; color: var(--r-purple); }
+
+/* ── Narrative ────────────────────────────────────────────────────────── */
+.rp-narrative {
+    font-size: 0.92rem;
+    line-height: 1.9;
+    color: rgba(255,255,255,0.82);
+    white-space: pre-wrap;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ── Stat Grid ────────────────────────────────────────────────────────── */
+.rp-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+.rp-stat {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+}
+.rp-stat-val {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.rp-stat-key {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+}
+.rp-stat.purple { border-color: rgba(123,97,241,0.2); }
+.rp-stat.purple .rp-stat-val { color: var(--r-purple); }
+.rp-stat.cyan   { border-color: rgba(56,189,209,0.2); }
+.rp-stat.cyan   .rp-stat-val { color: var(--r-cyan); }
+.rp-stat.gold   { border-color: rgba(245,200,66,0.2); }
+.rp-stat.gold   .rp-stat-val { color: var(--r-gold); }
+.rp-stat.green  { border-color: rgba(74,222,128,0.2); }
+.rp-stat.green  .rp-stat-val { color: var(--r-green); }
+.rp-stat.red    { border-color: rgba(240,94,94,0.2); }
+.rp-stat.red    .rp-stat-val { color: var(--r-red); }
+
+/* ── Health Gauge (sidebar) ───────────────────────────────────────────── */
+.rp-gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 12px 0; }
+.rp-gauge { position: relative; width: 160px; height: 160px; }
+.rp-gauge svg { transform: rotate(-90deg); }
+.rp-gauge-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 12; }
+.rp-gauge-bar   { fill: none; stroke-width: 12; stroke-linecap: round; stroke-dasharray: 452.38; stroke: url(#rpGaugeGrad); }
+.rp-gauge-inner {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.rp-gauge-num  { font-size: 2rem; font-weight: 900; color: #fff; line-height: 1; }
+.rp-gauge-lbl  { font-size: 0.6rem; color: rgba(255,255,255,0.35); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* ── Peak Window ──────────────────────────────────────────────────────── */
+.rp-peak {
+    background: linear-gradient(135deg, rgba(123,97,241,0.08), rgba(56,189,209,0.06));
+    border: 1px solid rgba(123,97,241,0.2);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+}
+.rp-peak-time {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--r-purple);
+    letter-spacing: -0.02em;
+}
+.rp-peak-sub { font-size: 0.75rem; color: rgba(255,255,255,0.45); margin-top: 4px; }
+
+/* ── Abandoned / Gaps Lists ───────────────────────────────────────────── */
+.rp-list { display: flex; flex-direction: column; gap: 8px; }
+.rp-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+.rp-list-item.warn { border-color: rgba(240,94,94,0.15); background: rgba(240,94,94,0.04); }
+.rp-list-item.gap  { border-color: rgba(245,200,66,0.15); background: rgba(245,200,66,0.04); }
+.rp-list-icon { font-size: 1.2rem; flex-shrink: 0; }
+.rp-list-icon.warn { color: var(--r-red); }
+.rp-list-icon.gap  { color: var(--r-gold); }
+.rp-list-title { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.8); }
+.rp-list-sub   { font-size: 0.72rem; color: rgba(255,255,255,0.35); margin-top: 2px; }
+.rp-prog-bar {
+    height: 3px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 3px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+.rp-prog-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--r-red), var(--r-gold));
+    border-radius: 3px;
+}
+
+/* ── Micro-Goal ───────────────────────────────────────────────────────── */
+.rp-goal {
+    background: linear-gradient(135deg, rgba(74,222,128,0.08), rgba(56,189,209,0.06));
+    border: 1px solid rgba(74,222,128,0.2);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+.rp-goal-icon { font-size: 1.6rem; color: var(--r-green); flex-shrink: 0; }
+.rp-goal-title { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.9); margin-bottom: 4px; }
+.rp-goal-sub   { font-size: 0.78rem; color: rgba(255,255,255,0.45); }
+
+/* ── Empty State ──────────────────────────────────────────────────────── */
+.rp-empty {
+    text-align: center;
+    padding: 24px;
+    color: rgba(255,255,255,0.35);
+    font-size: 0.82rem;
+}
+</style>
+
+<div class="rp-wrap">
+
+    <!-- Header -->
+    <div class="rp-header">
+        <a href="{{ path('app_mind_dashboard') }}" class="rp-back">
+            <i class='bx bx-chevron-left'></i> Back to Mind Dashboard
+        </a>
+        <div class="rp-meta">
+            <div>
+                <div class="rp-brand">LearnAdapt Mind — Cognitive Report</div>
+                <h1 class="rp-title">Weekly Intelligence Report</h1>
+                <p class="rp-subtitle">
+                    {{ report.week_start|date('M d') }} – {{ report.week_end|date('M d, Y') }}
+                    &middot; Generated {{ report.created_at|date('M d, Y \\a\\t H:i') }}
+                </p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-end">
+                <div class="rp-badges">
+                    {% if report.groq_used %}
+                        <span class="rp-badge ai"><i class='bx bx-brain'></i> AI Generated</span>
+                    {% else %}
+                        <span class="rp-badge local">Offline Analysis</span>
+                    {% endif %}
+                </div>
+                <div class="rp-actions">
+                    <a href="{{ path('app_mind_report_print', {id: report.id}) }}" target="_blank" class="rp-action-btn print">
+                        <i class='bx bx-printer'></i> Print / PDF
+                    </a>
+                    <a href="{{ path('app_mind_dashboard') }}" class="rp-action-btn regen" onclick="event.preventDefault();history.back()">
+                        <i class='bx bx-left-arrow-alt'></i> Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rp-container">
+        <div class="rp-grid-main">
+
+            <!-- LEFT: Main content -->
+            <div>
+
+                <!-- AI Narrative -->
+                <div class="rp-card">
+                    <div class="rp-card-head">
+                        <i class='bx bx-file-blank'></i>
+                        Personalized Analysis — {{ user.fullName }}
+                    </div>
+                    <div class="rp-narrative">{{ report.ai_narrative }}</div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="rp-card">
+                    <div class="rp-card-head">
+                        <i class='bx bx-bar-chart-alt-2'></i>
+                        This Week's Numbers
+                    </div>
+                    <div class="rp-stat-grid">
+                        <div class="rp-stat purple">
+                            <div class="rp-stat-val">{{ m.focus_minutes_week ?? 0 }}<span style="font-size:1rem">m</span></div>
+                            <div class="rp-stat-key">Focus Minutes</div>
+                        </div>
+                        <div class="rp-stat cyan">
+                            <div class="rp-stat-val">{{ m.active_days_week ?? 0 }}<span style="font-size:1rem">/7</span></div>
+                            <div class="rp-stat-key">Active Days</div>
+                        </div>
+                        <div class="rp-stat gold">
+                            <div class="rp-stat-val">{{ m.total_xp ?? 0 }}</div>
+                            <div class="rp-stat-key">Total XP</div>
+                        </div>
+                        <div class="rp-stat {{ vel.change_pct >= 0 ? 'green' : 'red' }}">
+                            <div class="rp-stat-val">{{ vel.change_pct >= 0 ? '+' : '' }}{{ vel.change_pct }}%</div>
+                            <div class="rp-stat-key">Velocity vs Last Week</div>
+                        </div>
+                        <div class="rp-stat purple">
+                            <div class="rp-stat-val">{{ m.courses_completed_week ?? 0 }}</div>
+                            <div class="rp-stat-key">Courses Completed</div>
+                        </div>
+                        <div class="rp-stat cyan">
+                            {% if m.quiz_avg_week is not null %}
+                                <div class="rp-stat-val">{{ m.quiz_avg_week|round(1) }}<span style="font-size:1rem">%</span></div>
+                            {% else %}
+                                <div class="rp-stat-val" style="font-size:1rem;opacity:0.4">—</div>
+                            {% endif %}
+                            <div class="rp-stat-key">Quiz Average</div>
+                        </div>
+                        <div class="rp-stat green">
+                            <div class="rp-stat-val">{{ m.total_courses_completed ?? 0 }}</div>
+                            <div class="rp-stat-key">Total Completed</div>
+                        </div>
+                        <div class="rp-stat purple">
+                            <div class="rp-stat-val">{{ m.total_courses_enrolled ?? 0 }}</div>
+                            <div class="rp-stat-key">Total Enrolled</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stalled Courses -->
+                <div class="rp-card">
+                    <div class="rp-card-head">
+                        <i class='bx bx-error-circle' style="color:var(--r-red)"></i>
+                        Stalled Courses
+                        {% if abandoned|length > 0 %}
+                            <span style="margin-left:auto;font-size:0.65rem;background:rgba(240,94,94,0.12);color:var(--r-red);padding:2px 8px;border-radius:6px">{{ abandoned|length }} detected</span>
+                        {% endif %}
+                    </div>
+                    {% if abandoned|length > 0 %}
+                        <div class="rp-list">
+                            {% for c in abandoned %}
+                            <div class="rp-list-item warn">
+                                <i class='bx bx-error rp-list-icon warn'></i>
+                                <div style="flex:1;min-width:0">
+                                    <div class="rp-list-title">{{ c.title }}</div>
+                                    <div class="rp-list-sub">
+                                        {{ c.module_name ?? c.level ?? '' }}
+                                        &middot; Stalled since {{ c.last_accessed|date('M d, Y') }}
+                                    </div>
+                                    <div class="rp-prog-bar">
+                                        <div class="rp-prog-fill" style="width:{{ c.progress_percent }}%"></div>
+                                    </div>
+                                </div>
+                                <div style="font-size:0.85rem;font-weight:800;color:var(--r-red);flex-shrink:0">{{ c.progress_percent }}%</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if abandoned|length >= 2 %}
+                            {% set avgPct = 0 %}
+                            {% for c in abandoned %}{% set avgPct = avgPct + c.progress_percent %}{% endfor %}
+                            {% set avgPct = (avgPct / abandoned|length)|round %}
+                            <div style="margin-top:14px;padding:12px 16px;background:rgba(240,94,94,0.06);border:1px solid rgba(240,94,94,0.12);border-radius:10px;font-size:0.78rem;color:rgba(255,255,255,0.5)">
+                                <strong style="color:var(--r-red)">Pattern detected:</strong>
+                                Consistent abandonment around {{ avgPct }}% — you may be hitting a difficulty wall at this stage.
+                                Consider reviewing prerequisite content before continuing.
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="rp-empty">
+                            <i class='bx bx-check-circle' style="font-size:2rem;color:var(--r-green);display:block;margin-bottom:8px"></i>
+                            No stalled courses — great consistency!
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Knowledge Gaps -->
+                <div class="rp-card">
+                    <div class="rp-card-head">
+                        <i class='bx bx-search-alt' style="color:var(--r-gold)"></i>
+                        Knowledge Gaps
+                        {% if gaps|length > 0 %}
+                            <span style="margin-left:auto;font-size:0.65rem;background:rgba(245,200,66,0.1);color:var(--r-gold);padding:2px 8px;border-radius:6px">{{ gaps|length }} found</span>
+                        {% endif %}
+                    </div>
+                    {% if gaps|length > 0 %}
+                        <div class="rp-list">
+                            {% for g in gaps %}
+                            <div class="rp-list-item gap">
+                                <i class='bx bx-bulb rp-list-icon gap'></i>
+                                <div>
+                                    <div class="rp-list-title">{{ g.subject }}</div>
+                                    <div class="rp-list-sub">{{ g.detail }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="rp-empty">
+                            <i class='bx bx-check-shield' style="font-size:2rem;color:var(--r-green);display:block;margin-bottom:8px"></i>
+                            No critical knowledge gaps detected — well-rounded coverage!
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Micro-Goal -->
+                <div class="rp-card">
+                    <div class="rp-card-head">
+                        <i class='bx bx-target-lock' style="color:var(--r-green)"></i>
+                        Your Micro-Goal for Next Week
+                    </div>
+                    {% if goal %}
+                        <div class="rp-goal">
+                            <i class='bx bx-flag rp-goal-icon'></i>
+                            <div>
+                                <div class="rp-goal-title">{{ goal.title }}</div>
+                                <div class="rp-goal-sub">
+                                    Currently {{ goal.progress_percent }}% complete &middot;
+                                    Finish in approximately {{ goal.sessions_needed }} focused Pomodoro session(s)
+                                </div>
+                                <div style="margin-top:10px;height:5px;background:rgba(255,255,255,0.07);border-radius:5px;overflow:hidden">
+                                    <div style="height:100%;width:{{ goal.progress_percent }}%;background:linear-gradient(90deg,var(--r-purple),var(--r-cyan));border-radius:5px"></div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="rp-goal">
+                            <i class='bx bx-book-add rp-goal-icon'></i>
+                            <div>
+                                <div class="rp-goal-title">Start a New Course</div>
+                                <div class="rp-goal-sub">You have no courses in progress. Enroll in a course that matches your current level and hit 30% progress this week.</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <!-- RIGHT: Sidebar -->
+            <div>
+
+                <!-- Health Score -->
+                <div class="rp-card">
+                    <div class="rp-card-head"><i class='bx bx-pulse'></i>Health Score</div>
+                    {% set dashOff = 452.38 - (hs / 100 * 452.38) %}
+                    <div class="rp-gauge-wrap">
+                        <div class="rp-gauge">
+                            <svg width="160" height="160" viewBox="0 0 160 160">
+                                <defs>
+                                    <linearGradient id="rpGaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#7b61f1"/>
+                                        <stop offset="100%" stop-color="#38bdd1"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle class="rp-gauge-track" cx="80" cy="80" r="72"/>
+                                <circle class="rp-gauge-bar" cx="80" cy="80" r="72"
+                                    style="stroke-dashoffset:{{ dashOff }}"/>
+                            </svg>
+                            <div class="rp-gauge-inner">
+                                <div class="rp-gauge-num">{{ hs }}</div>
+                                <div class="rp-gauge-lbl">/ 100</div>
+                            </div>
+                        </div>
+                        <div style="text-align:center">
+                            {% if hs >= 80 %}
+                                <div style="color:var(--r-green);font-weight:700;font-size:0.9rem">Excellent</div>
+                                <div style="color:rgba(255,255,255,0.35);font-size:0.75rem">Keep the momentum</div>
+                            {% elseif hs >= 60 %}
+                                <div style="color:var(--r-purple);font-weight:700;font-size:0.9rem">Good Progress</div>
+                                <div style="color:rgba(255,255,255,0.35);font-size:0.75rem">Room to grow</div>
+                            {% elseif hs >= 40 %}
+                                <div style="color:var(--r-gold);font-weight:700;font-size:0.9rem">Needs Attention</div>
+                                <div style="color:rgba(255,255,255,0.35);font-size:0.75rem">Refocus this week</div>
+                            {% else %}
+                                <div style="color:var(--r-red);font-weight:700;font-size:0.9rem">At Risk</div>
+                                <div style="color:rgba(255,255,255,0.35);font-size:0.75rem">Take action now</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Peak Window -->
+                <div class="rp-card">
+                    <div class="rp-card-head"><i class='bx bx-time-five'></i>Peak Performance Window</div>
+                    <div class="rp-peak">
+                        <div class="rp-peak-time">{{ peak.label ?? 'No data' }}</div>
+                        {% if peak.multiplier %}
+                            <div class="rp-peak-sub">{{ peak.multiplier }}× better quiz performance during this window</div>
+                        {% else %}
+                            <div class="rp-peak-sub">Complete more quizzes after study sessions to see your multiplier</div>
+                        {% endif %}
+                    </div>
+                    <p style="font-size:0.75rem;color:rgba(255,255,255,0.35);line-height:1.6;margin:0">
+                        Schedule your hardest topics and most important quizzes during this window for maximum retention.
+                    </p>
+                </div>
+
+                <!-- Velocity -->
+                <div class="rp-card">
+                    <div class="rp-card-head"><i class='bx bx-trending-up'></i>Learning Velocity</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+                        <div style="text-align:center;padding:14px;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.06)">
+                            <div style="font-size:1.4rem;font-weight:800;color:var(--r-cyan)">{{ vel.this_week ?? 0 }}</div>
+                            <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.1em">This Week</div>
+                        </div>
+                        <div style="text-align:center;padding:14px;background:rgba(255,255,255,0.03);border-radius:12px;border:1px solid rgba(255,255,255,0.06)">
+                            <div style="font-size:1.4rem;font-weight:800;color:rgba(255,255,255,0.4)">{{ vel.last_week ?? 0 }}</div>
+                            <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.1em">Last Week</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center;font-size:1.1rem;font-weight:800;color:{{ vel.change_pct >= 0 ? 'var(--r-green)' : 'var(--r-red)' }}">
+                        {{ vel.change_pct >= 0 ? '+' : '' }}{{ vel.change_pct }}%
+                        <span style="font-size:0.7rem;font-weight:400;color:rgba(255,255,255,0.3)"> vs last week</span>
+                    </div>
+                </div>
+
+                <!-- Generated by -->
+                <div style="text-align:center;padding:16px;color:rgba(255,255,255,0.2);font-size:0.7rem;line-height:1.6">
+                    Generated by LearnAdapt Mind v1.0<br>
+                    {{ report.created_at|date('M d, Y \\a\\t H:i') }}<br>
+                    {% if report.groq_used %}<span style="color:rgba(56,189,209,0.5)">Powered by LearnAdapt Neural Context Engine</span>{% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

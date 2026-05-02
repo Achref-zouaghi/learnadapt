@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnAdapt Mind Report — {{ report.week_start|date('M d') }}–{{ report.week_end|date('M d, Y') }}</title>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+        --purple: #7b61f1;
+        --cyan:   #38bdd1;
+        --gold:   #f5c842;
+        --red:    #e55;
+        --green:  #3ab96f;
+        --text:   #1a1a2e;
+        --sub:    #5a5a7a;
+        --border: #dde1f0;
+        --bg:     #f7f8fc;
+        --white:  #ffffff;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1.6;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .page {
+        max-width: 820px;
+        margin: 0 auto;
+        padding: 40px 48px;
+        background: var(--white);
+    }
+
+    /* ── Header ───────────────────────────────────────────────────────── */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding-bottom: 24px;
+        border-bottom: 2px solid var(--border);
+        margin-bottom: 28px;
+        gap: 24px;
+    }
+    .header-brand {
+        font-size: 0.6rem;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--purple);
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .brand-dot {
+        width: 6px; height: 6px;
+        background: var(--cyan);
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .header h1 {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--text);
+        letter-spacing: -0.02em;
+    }
+    .header-sub {
+        font-size: 0.78rem;
+        color: var(--sub);
+        margin-top: 3px;
+    }
+    .header-right { text-align: right; flex-shrink: 0; }
+    .score-badge {
+        display: inline-block;
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--purple);
+        line-height: 1;
+    }
+    .score-badge span { font-size: 0.9rem; font-weight: 400; color: var(--sub); }
+    .score-lbl {
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sub);
+        margin-top: 3px;
+    }
+    .ai-tag {
+        display: inline-block;
+        font-size: 0.6rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 6px;
+        margin-top: 6px;
+    }
+    .ai-tag.ai    { background: #e8f7fa; color: var(--cyan); border: 1px solid #b0e8f0; }
+    .ai-tag.local { background: #f0f0f5; color: var(--sub); border: 1px solid var(--border); }
+
+    /* ── Section ──────────────────────────────────────────────────────── */
+    .section { margin-bottom: 28px; }
+    .section-title {
+        font-size: 0.6rem;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--purple);
+        border-left: 3px solid var(--purple);
+        padding-left: 10px;
+        margin-bottom: 14px;
+    }
+
+    /* ── Narrative ────────────────────────────────────────────────────── */
+    .narrative {
+        font-size: 0.88rem;
+        line-height: 1.85;
+        color: #2a2a4a;
+        white-space: pre-wrap;
+        padding: 18px 20px;
+        background: #f9f9fe;
+        border: 1px solid #e8e6ff;
+        border-left: 3px solid var(--purple);
+        border-radius: 8px;
+    }
+
+    /* ── Stats Grid ───────────────────────────────────────────────────── */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    .stat-box {
+        padding: 14px 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        text-align: center;
+        background: var(--bg);
+    }
+    .stat-box.purple { border-color: #c9beff; background: #f5f2ff; }
+    .stat-box.cyan   { border-color: #afe8f2; background: #f0fbff; }
+    .stat-box.gold   { border-color: #f9e5a0; background: #fffdf0; }
+    .stat-box.green  { border-color: #aae8c6; background: #f0fff8; }
+    .stat-box.red    { border-color: #f5b8b8; background: #fff5f5; }
+    .stat-val { font-size: 1.5rem; font-weight: 900; color: var(--text); letter-spacing: -0.03em; line-height: 1; }
+    .stat-val.purple { color: var(--purple); }
+    .stat-val.cyan   { color: var(--cyan); }
+    .stat-val.gold   { color: #c8a200; }
+    .stat-val.green  { color: var(--green); }
+    .stat-val.red    { color: var(--red); }
+    .stat-key { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sub); margin-top: 4px; }
+
+    /* ── Two Column ───────────────────────────────────────────────────── */
+    .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    /* ── Peak Window ──────────────────────────────────────────────────── */
+    .peak-box {
+        background: #f5f2ff;
+        border: 1px solid #c9beff;
+        border-radius: 10px;
+        padding: 16px;
+    }
+    .peak-time {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--purple);
+        margin-bottom: 4px;
+    }
+    .peak-sub { font-size: 0.75rem; color: var(--sub); }
+
+    /* ── Velocity ─────────────────────────────────────────────────────── */
+    .vel-box {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+    }
+    .vel-nums { display: flex; gap: 10px; margin-bottom: 10px; }
+    .vel-num {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+    }
+    .vel-n  { font-size: 1.3rem; font-weight: 800; color: var(--text); }
+    .vel-l  { font-size: 0.6rem; color: var(--sub); text-transform: uppercase; letter-spacing: 0.08em; }
+    .vel-pct { text-align: center; font-size: 0.9rem; font-weight: 800; }
+
+    /* ── Lists ────────────────────────────────────────────────────────── */
+    .list-item {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px 12px;
+        border-radius: 8px;
+        margin-bottom: 6px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+    }
+    .list-item.warn { background: #fff5f5; border-color: #f5b8b8; }
+    .list-item.gap  { background: #fffdf0; border-color: #f9e5a0; }
+    .list-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .list-dot.warn { background: var(--red); }
+    .list-dot.gap  { background: var(--gold); }
+    .list-title { font-size: 0.82rem; font-weight: 700; color: var(--text); }
+    .list-sub   { font-size: 0.7rem; color: var(--sub); margin-top: 2px; }
+    .prog-row   { height: 3px; background: #dde1f0; border-radius: 3px; margin-top: 5px; overflow: hidden; }
+    .prog-fill  { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--red), var(--gold)); }
+    .list-pct   { font-size: 0.8rem; font-weight: 800; color: var(--red); flex-shrink: 0; margin-top: 2px; }
+
+    /* ── Goal ─────────────────────────────────────────────────────────── */
+    .goal-box {
+        display: flex;
+        gap: 14px;
+        padding: 16px 18px;
+        background: #f0fff8;
+        border: 1px solid #aae8c6;
+        border-radius: 10px;
+    }
+    .goal-flag { font-size: 1.4rem; color: var(--green); flex-shrink: 0; }
+    .goal-title { font-size: 0.9rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+    .goal-sub   { font-size: 0.75rem; color: var(--sub); }
+    .goal-bar   { height: 4px; background: #dde1f0; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+    .goal-fill  { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--purple), var(--cyan)); }
+
+    /* ── Footer ───────────────────────────────────────────────────────── */
+    .footer {
+        border-top: 1px solid var(--border);
+        padding-top: 16px;
+        margin-top: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--sub);
+        font-size: 0.65rem;
+    }
+
+    /* ── Empty ────────────────────────────────────────────────────────── */
+    .empty-note {
+        padding: 12px 14px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.78rem;
+        color: var(--sub);
+        text-align: center;
+    }
+
+    @media print {
+        body { background: #fff; }
+        .page { padding: 20px 28px; max-width: 100%; }
+        .no-print { display: none !important; }
+        .section { page-break-inside: avoid; }
+    }
+    </style>
+</head>
+<body>
+{% set m = report.metrics %}
+{% set hs = report.health_score %}
+{% set vel = m.learning_velocity ?? {change_pct: 0, this_week: 0, last_week: 0} %}
+{% set peak = m.peak_window ?? {label: 'No data', multiplier: null} %}
+{% set abandoned = m.abandoned_courses ?? [] %}
+{% set gaps = m.knowledge_gaps ?? [] %}
+{% set goal = m.micro_goal ?? null %}
+
+<!-- Print button (hidden on print) -->
+<div class="no-print" style="background:#1a1a2e;padding:12px 24px;display:flex;justify-content:space-between;align-items:center">
+    <span style="color:rgba(255,255,255,0.5);font-size:0.8rem;font-family:Inter,sans-serif">
+        LearnAdapt Mind — Print View
+    </span>
+    <div style="display:flex;gap:8px">
+        <button onclick="window.print()"
+            style="padding:8px 16px;background:linear-gradient(135deg,#7b61f1,#38bdd1);border:none;border-radius:8px;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer">
+            Print / Save PDF
+        </button>
+        <button onclick="window.close()"
+            style="padding:8px 16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:rgba(255,255,255,0.6);font-size:0.8rem;cursor:pointer">
+            Close
+        </button>
+    </div>
+</div>
+
+<div class="page">
+
+    <!-- Header -->
+    <div class="header">
+        <div>
+            <div class="header-brand">
+                <span class="brand-dot"></span>
+                LearnAdapt Mind — Cognitive Learning Report
+                <span class="brand-dot"></span>
+            </div>
+            <h1>Weekly Intelligence Report</h1>
+            <div class="header-sub">
+                {{ user.fullName }} &middot;
+                {{ report.week_start|date('M d') }} – {{ report.week_end|date('M d, Y') }}
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="score-badge">{{ hs }}<span>/100</span></div>
+            <div class="score-lbl">Learning Health Score</div>
+            {% if report.groq_used %}
+                <div class="ai-tag ai">AI Generated</div>
+            {% else %}
+                <div class="ai-tag local">Offline Analysis</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Personalized Narrative -->
+    <div class="section">
+        <div class="section-title">Personalized AI Analysis</div>
+        <div class="narrative">{{ report.ai_narrative }}</div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="section">
+        <div class="section-title">This Week's Performance Numbers</div>
+        <div class="stats-grid">
+            <div class="stat-box purple">
+                <div class="stat-val purple">{{ m.focus_minutes_week ?? 0 }}<span style="font-size:0.9rem">m</span></div>
+                <div class="stat-key">Focus Minutes</div>
+            </div>
+            <div class="stat-box cyan">
+                <div class="stat-val cyan">{{ m.active_days_week ?? 0 }}/7</div>
+                <div class="stat-key">Active Days</div>
+            </div>
+            <div class="stat-box gold">
+                <div class="stat-val gold">{{ m.total_xp ?? 0 }}</div>
+                <div class="stat-key">Total XP</div>
+            </div>
+            <div class="stat-box {{ vel.change_pct >= 0 ? 'green' : 'red' }}">
+                <div class="stat-val {{ vel.change_pct >= 0 ? 'green' : 'red' }}">{{ vel.change_pct >= 0 ? '+' : '' }}{{ vel.change_pct }}%</div>
+                <div class="stat-key">Velocity</div>
+            </div>
+            <div class="stat-box purple">
+                <div class="stat-val purple">{{ m.courses_completed_week ?? 0 }}</div>
+                <div class="stat-key">Completed This Week</div>
+            </div>
+            <div class="stat-box cyan">
+                {% if m.quiz_avg_week is not null %}
+                    <div class="stat-val cyan">{{ m.quiz_avg_week|round(1) }}%</div>
+                {% else %}
+                    <div class="stat-val" style="color:#bbb">—</div>
+                {% endif %}
+                <div class="stat-key">Quiz Average</div>
+            </div>
+            <div class="stat-box green">
+                <div class="stat-val green">{{ m.total_courses_completed ?? 0 }}</div>
+                <div class="stat-key">Total Completed</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val">{{ m.total_courses_enrolled ?? 0 }}</div>
+                <div class="stat-key">Total Enrolled</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Peak Window + Velocity -->
+    <div class="section">
+        <div class="section-title">Patterns & Velocity</div>
+        <div class="two-col">
+            <div>
+                <div style="font-size:0.65rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Peak Performance Window</div>
+                <div class="peak-box">
+                    <div class="peak-time">{{ peak.label ?? 'No data' }}</div>
+                    {% if peak.multiplier %}
+                        <div class="peak-sub">{{ peak.multiplier }}× better quiz performance during this window</div>
+                    {% else %}
+                        <div class="peak-sub">Complete more post-session quizzes to reveal your multiplier</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <div style="font-size:0.65rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Learning Velocity</div>
+                <div class="vel-box">
+                    <div class="vel-nums">
+                        <div class="vel-num">
+                            <div class="vel-n" style="color:var(--cyan)">{{ vel.this_week ?? 0 }}</div>
+                            <div class="vel-l">This Week</div>
+                        </div>
+                        <div class="vel-num">
+                            <div class="vel-n" style="color:#aaa">{{ vel.last_week ?? 0 }}</div>
+                            <div class="vel-l">Last Week</div>
+                        </div>
+                    </div>
+                    <div class="vel-pct" style="color:{{ vel.change_pct >= 0 ? 'var(--green)' : 'var(--red)' }}">
+                        {{ vel.change_pct >= 0 ? '+' : '' }}{{ vel.change_pct }}% vs last week
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stalled Courses + Gaps -->
+    <div class="section">
+        <div class="two-col">
+            <div>
+                <div class="section-title">Stalled Courses ({{ abandoned|length }})</div>
+                {% if abandoned|length > 0 %}
+                    {% for c in abandoned %}
+                    <div class="list-item warn">
+                        <div class="list-dot warn"></div>
+                        <div style="flex:1;min-width:0">
+                            <div class="list-title">{{ c.title }}</div>
+                            <div class="list-sub">Last accessed {{ c.last_accessed|date('M d') }}</div>
+                            <div class="prog-row"><div class="prog-fill" style="width:{{ c.progress_percent }}%"></div></div>
+                        </div>
+                        <div class="list-pct">{{ c.progress_percent }}%</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-note">No stalled courses — great consistency!</div>
+                {% endif %}
+            </div>
+            <div>
+                <div class="section-title">Knowledge Gaps ({{ gaps|length }})</div>
+                {% if gaps|length > 0 %}
+                    {% for g in gaps %}
+                    <div class="list-item gap">
+                        <div class="list-dot gap"></div>
+                        <div>
+                            <div class="list-title">{{ g.subject }}</div>
+                            <div class="list-sub">{{ g.detail }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-note">No critical gaps — well-rounded coverage!</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Micro-Goal -->
+    <div class="section">
+        <div class="section-title">Micro-Goal for Next Week</div>
+        {% if goal %}
+        <div class="goal-box">
+            <div class="goal-flag">🎯</div>
+            <div style="flex:1">
+                <div class="goal-title">{{ goal.title }}</div>
+                <div class="goal-sub">
+                    Currently {{ goal.progress_percent }}% complete ·
+                    Est. {{ goal.sessions_needed }} Pomodoro session(s) to finish
+                </div>
+                <div class="goal-bar"><div class="goal-fill" style="width:{{ goal.progress_percent }}%"></div></div>
+            </div>
+        </div>
+        {% else %}
+        <div class="goal-box">
+            <div class="goal-flag">📚</div>
+            <div>
+                <div class="goal-title">Start a New Course</div>
+                <div class="goal-sub">Enroll in a course that matches your level and aim for 30% progress this week.</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div>
+            <strong>LearnAdapt Mind v1.0</strong> — Cognitive Learning Intelligence<br>
+            Report generated {{ report.created_at|date('M d, Y \\a\\t H:i') }}
+            {% if report.groq_used %} · Powered by LearnAdapt Neural Context Engine{% endif %}
+        </div>
+        <div style="text-align:right">
+            {{ user.fullName }}<br>
+            {{ report.week_start|date('M d') }} – {{ report.week_end|date('M d, Y') }}
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
