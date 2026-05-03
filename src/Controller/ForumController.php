@@ -7,6 +7,7 @@ use App\Entity\ForumTopic;
 use App\Entity\Notification;
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\ContentModerationService;
 use App\Service\ProfanityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,6 +27,7 @@ class ForumController extends AbstractController
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly ProfanityService $profanityService,
+        private readonly ContentModerationService $contentModeration,
     ) {
     }
 
@@ -41,6 +43,25 @@ class ForumController extends AbstractController
             return null;
         }
         return $this->userRepository->find((int) $auth['id']);
+    }
+
+    private function ensureForumModerationColumns(): void
+    {
+        $schemaManager = $this->conn()->createSchemaManager();
+        $postCols = $schemaManager->listTableColumns('forum_posts');
+        if (!isset($postCols['moderation_status'])) {
+            $this->conn()->executeStatement("ALTER TABLE forum_posts ADD moderation_status VARCHAR(16) NOT NULL DEFAULT 'approved'");
+        }
+        if (!isset($postCols['toxicity_score'])) {
+            $this->conn()->executeStatement('ALTER TABLE forum_posts ADD toxicity_score FLOAT DEFAULT NULL');
+        }
+        if (!isset($postCols['moderation_classification'])) {
+            $this->conn()->executeStatement("ALTER TABLE forum_posts ADD moderation_classification VARCHAR(20) DEFAULT NULL");
+        }
+        $topicCols = $schemaManager->listTableColumns('forum_topics');
+        if (!isset($topicCols['moderation_status'])) {
+            $this->conn()->executeStatement("ALTER TABLE forum_topics ADD moderation_status VARCHAR(16) NOT NULL DEFAULT 'approved'");
+        }
     }
 
     private function ensureForumMediaColumns(): void
@@ -189,6 +210,7 @@ class ForumController extends AbstractController
     {
         $this->ensureForumMediaColumns();
         $this->ensureForumLikesTable();
+        $this->ensureForumModerationColumns();
 
         $user = $this->getAuthenticatedUser($request);
         if (!$user instanceof User) {
@@ -222,6 +244,13 @@ class ForumController extends AbstractController
             $params[] = '%' . $search . '%';
         }
         $sql .= ' ORDER BY ft.updated_at DESC';
+
+        // Filter out pending/rejected topics (only show owner's own pending topics)
+        $sql = str_replace(
+            'WHERE 1=1',
+            "WHERE (ft.moderation_status = 'approved' OR ft.created_by_user_id = " . (int) $user->getId() . ")",
+            $sql
+        );
 
         $topics = $this->conn()->fetchAllAssociative($sql, $params);
 
@@ -286,6 +315,7 @@ class ForumController extends AbstractController
     {
         $this->ensureForumMediaColumns();
         $this->ensureForumLikesTable();
+        $this->ensureForumModerationColumns();
 
         $user = $this->getAuthenticatedUser($request);
         if (!$user instanceof User) {
@@ -310,8 +340,13 @@ class ForumController extends AbstractController
                     (SELECT r2.reaction_type FROM forum_post_reactions r2 WHERE r2.post_id = fp.id AND r2.user_id = ? LIMIT 1) as user_reaction
              FROM forum_posts fp JOIN users u ON fp.author_user_id = u.id
              WHERE fp.topic_id = ?
+             AND (
+                 fp.moderation_status = \'approved\'
+                 OR fp.author_user_id = ?
+                 OR ? IN (SELECT id FROM users WHERE role IN (\'ADMIN\',\'EXPERT\') AND id = ?)
+             )
              ORDER BY fp.created_at ASC',
-            [$user->getId(), $id]
+            [$user->getId(), $id, $user->getId(), $user->getId(), $user->getId()]
         );
 
         return $this->render('forum/topic.html.twig', [
@@ -325,6 +360,7 @@ class ForumController extends AbstractController
     public function createTopic(Request $request): Response
     {
         $this->ensureForumMediaColumns();
+        $this->ensureForumModerationColumns();
 
         $user = $this->getAuthenticatedUser($request);
         if (!$user instanceof User) {
@@ -354,6 +390,15 @@ class ForumController extends AbstractController
             $this->addFlash('error', '🔇 Your account is temporarily muted due to repeated violations. Please try again later.');
             return $this->redirectToRoute('app_forum');
         }
+
+        // AI content moderation
+        $modResult = $this->contentModeration->analyze($title . ' ' . $content);
+        if ($modResult['action'] === 'block') {
+            $this->profanityService->addStrike($user->getId(), 'AI moderation block on new topic', $modResult['classification']);
+            $this->addFlash('error', '🤖 Your topic was blocked by AI moderation (' . ucfirst($modResult['classification']) . ' content detected, score: ' . round($modResult['toxicity_score'] * 100) . '%). Repeated violations will mute your account.');
+            return $this->redirectToRoute('app_forum');
+        }
+        $topicModerationStatus = $modResult['action'] === 'pending' ? 'pending' : 'approved';
 
         if ($title === '') {
             $title = mb_substr($content !== '' ? $content : 'Untitled topic', 0, 72);
@@ -394,6 +439,16 @@ class ForumController extends AbstractController
         $this->entityManager->persist($post);
         $this->entityManager->flush();
 
+        // Store moderation data
+        $this->conn()->executeStatement(
+            'UPDATE forum_topics SET moderation_status = ? WHERE id = ?',
+            [$topicModerationStatus, $topic->getId()]
+        );
+        $this->conn()->executeStatement(
+            'UPDATE forum_posts SET moderation_status = ?, toxicity_score = ?, moderation_classification = ? WHERE id = ?',
+            [$topicModerationStatus, $modResult['toxicity_score'], $modResult['classification'], $post->getId()]
+        );
+
         if (!empty($media['mediaFiles'])) {
             $this->conn()->executeStatement(
                 'UPDATE forum_posts SET media_files = ? WHERE id = ?',
@@ -401,14 +456,19 @@ class ForumController extends AbstractController
             );
         }
 
-        $this->addFlash('success', 'Topic created successfully!');
-        return $this->redirectToRoute('app_forum_topic', ['id' => $topic->getId()]);
+        if ($topicModerationStatus === 'pending') {
+            $this->addFlash('warning', '⏳ Your topic has been submitted and is under AI review. It will be visible once approved by a moderator.');
+        } else {
+            $this->addFlash('success', 'Topic created successfully!');
+        }
+        return $this->redirectToRoute($topicModerationStatus === 'pending' ? 'app_forum' : 'app_forum_topic', ['id' => $topic->getId()]);
     }
 
     #[Route('/forum/reply/{id}', name: 'app_forum_reply', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function reply(int $id, Request $request): Response
     {
         $this->ensureForumMediaColumns();
+        $this->ensureForumModerationColumns();
 
         $user = $this->getAuthenticatedUser($request);
         if (!$user instanceof User) {
@@ -434,6 +494,15 @@ class ForumController extends AbstractController
             $this->addFlash('error', '⚠️ Your reply contains inappropriate language and was blocked. Strike ' . $strikes . '/3 — after 3 strikes your account will be temporarily muted.');
             return $this->redirectToRoute('app_forum_topic', ['id' => $id]);
         }
+
+        // AI content moderation
+        $replyModResult = $this->contentModeration->analyze($content);
+        if ($replyModResult['action'] === 'block') {
+            $this->profanityService->addStrike($user->getId(), 'AI moderation block on reply', $replyModResult['classification']);
+            $this->addFlash('error', '🤖 Your reply was blocked by AI moderation (' . ucfirst($replyModResult['classification']) . ' content detected). Repeated violations will mute your account.');
+            return $this->redirectToRoute('app_forum_topic', ['id' => $id]);
+        }
+        $replyModerationStatus = $replyModResult['action'] === 'pending' ? 'pending' : 'approved';
 
         if ($content === '' && empty($media['mediaFiles'])) {
             $this->addFlash('error', 'Reply cannot be empty. Add text, photo, or video.');
@@ -463,6 +532,12 @@ class ForumController extends AbstractController
         $this->entityManager->persist($post);
         $this->entityManager->flush();
 
+        // Store AI moderation metadata
+        $this->conn()->executeStatement(
+            'UPDATE forum_posts SET moderation_status = ?, toxicity_score = ?, moderation_classification = ? WHERE id = ?',
+            [$replyModerationStatus, $replyModResult['toxicity_score'], $replyModResult['classification'], $post->getId()]
+        );
+
         if (!empty($media['mediaFiles'])) {
             $this->conn()->executeStatement(
                 'UPDATE forum_posts SET media_files = ? WHERE id = ?',
@@ -470,24 +545,30 @@ class ForumController extends AbstractController
             );
         }
 
-        // Notify topic creator (don't notify yourself)
-        $topicOwnerId = $topicEntity->getUser()?->getId();
-        if ($topicOwnerId && $topicOwnerId !== $user->getId()) {
-            $firstType = $firstMedia ? $firstMedia['type'] : null;
-            $snippetText = $content !== '' ? mb_substr($content, 0, 80) : ($firstType === 'video' ? '[video]' : '[photo]');
-            $this->conn()->executeStatement(
-                'INSERT INTO notifications (user_id, type, title, message, is_read, created_at)
-                 VALUES (?, ?, ?, ?, 0, NOW())',
-                [
-                    $topicOwnerId,
-                    'FORUM_REPLY',
-                    "💬 {$user->getFullName()} replied to your topic",
-                    "{$user->getFullName()} replied to \"{$topicEntity->getTitle()}\": \"{$snippetText}\"",
-                ]
-            );
+        // Notify topic creator only for approved posts (don't notify on pending)
+        if ($replyModerationStatus === 'approved') {
+            $topicOwnerId = $topicEntity->getUser()?->getId();
+            if ($topicOwnerId && $topicOwnerId !== $user->getId()) {
+                $firstType = $firstMedia ? $firstMedia['type'] : null;
+                $snippetText = $content !== '' ? mb_substr($content, 0, 80) : ($firstType === 'video' ? '[video]' : '[photo]');
+                $this->conn()->executeStatement(
+                    'INSERT INTO notifications (user_id, type, title, message, is_read, created_at)
+                     VALUES (?, ?, ?, ?, 0, NOW())',
+                    [
+                        $topicOwnerId,
+                        'FORUM_REPLY',
+                        "💬 {$user->getFullName()} replied to your topic",
+                        "{$user->getFullName()} replied to \"{$topicEntity->getTitle()}\": \"{$snippetText}\"",
+                    ]
+                );
+            }
         }
 
-        $this->addFlash('success', 'Reply posted!');
+        if ($replyModerationStatus === 'pending') {
+            $this->addFlash('warning', '⏳ Your reply is under AI review and will appear once approved by a moderator.');
+        } else {
+            $this->addFlash('success', 'Reply posted!');
+        }
         return $this->redirectToRoute('app_forum_topic', ['id' => $id]);
     }
 
@@ -516,6 +597,14 @@ class ForumController extends AbstractController
             $allMatched = array_merge($titleCheck['matched'], $contentCheck['matched']);
             $strikes = $this->profanityService->addStrike($user->getId(), 'Profanity in topic edit', implode(', ', $allMatched));
             $this->addFlash('error', '⚠️ Your edit contains inappropriate language and was blocked. Strike ' . $strikes . '/3.');
+            return $this->redirectToRoute('app_forum_topic', ['id' => $id]);
+        }
+
+        // AI moderation on edit
+        $editModResult = $this->contentModeration->analyze($title . ' ' . $content);
+        if ($editModResult['action'] === 'block') {
+            $this->profanityService->addStrike($user->getId(), 'AI block on topic edit', $editModResult['classification']);
+            $this->addFlash('error', '🤖 Your edit was blocked by AI moderation (' . ucfirst($editModResult['classification']) . ' content detected).');
             return $this->redirectToRoute('app_forum_topic', ['id' => $id]);
         }
 
@@ -602,6 +691,27 @@ class ForumController extends AbstractController
             $strikes = $this->profanityService->addStrike($user->getId(), 'Profanity in post edit', implode(', ', $contentCheck['matched']));
             $this->addFlash('error', '⚠️ Your edit contains inappropriate language and was blocked. Strike ' . $strikes . '/3.');
             return $this->redirectToRoute('app_forum_topic', ['id' => $postEntity->getForumTopic()->getId()]);
+        }
+
+        // AI moderation on post edit
+        if ($content !== '') {
+            $postEditMod = $this->contentModeration->analyze($content);
+            if ($postEditMod['action'] === 'block') {
+                $this->profanityService->addStrike($user->getId(), 'AI block on post edit', $postEditMod['classification']);
+                $this->addFlash('error', '🤖 Your edit was blocked by AI moderation (' . ucfirst($postEditMod['classification']) . ' content detected).');
+                return $this->redirectToRoute('app_forum_topic', ['id' => $postEntity->getForumTopic()->getId()]);
+            }
+            if ($postEditMod['action'] === 'pending') {
+                $this->ensureForumModerationColumns();
+                $this->conn()->executeStatement(
+                    "UPDATE forum_posts SET moderation_status = 'pending', toxicity_score = ?, moderation_classification = ? WHERE id = ?",
+                    [$postEditMod['toxicity_score'], $postEditMod['classification'], $id]
+                );
+                $postEntity->setContent($content);
+                $this->entityManager->flush();
+                $this->addFlash('warning', '⏳ Your edited post is under AI review and will be visible once approved.');
+                return $this->redirectToRoute('app_forum_topic', ['id' => $postEntity->getForumTopic()->getId()]);
+            }
         }
 
         $postEntity->setContent($content);

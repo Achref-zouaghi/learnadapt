@@ -1,0 +1,14 @@
+# Core
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-dotenv==1.0.1
+pydantic==2.7.1
+httpx==0.27.0
+
+# Computer vision — phone detection
+opencv-python-headless==4.9.0.80
+ultralytics==8.2.18        # YOLOv8 (downloads yolov8n.pt on first run)
+mediapipe==0.10.14         # Fallback detector
+
+# Numpy (pinned for mediapipe compatibility)
+numpy>=1.24,<2.0

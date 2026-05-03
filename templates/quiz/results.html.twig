@@ -69,6 +69,25 @@ footer{display:none!important}
 .qr-btn-secondary:hover{background:rgba(255,255,255,.1)}
 
 @media(max-width:600px){.qr-score-ring{width:140px;height:140px}.qr-score-pct{font-size:2rem}}
+
+/* Integrity Report */
+.qr-integrity{border-radius:18px;padding:28px 32px;margin-bottom:36px;animation:fadeIn .5s var(--ease) both}
+.qr-integrity.clean{background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.25)}
+.qr-integrity.cheated{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.25)}
+.qr-integrity-header{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.qr-integrity-icon{font-size:2.2rem;line-height:1}
+.qr-integrity-title{font-size:1.15rem;font-weight:800}
+.qr-integrity.clean .qr-integrity-title{color:var(--green)}
+.qr-integrity.cheated .qr-integrity-title{color:var(--red)}
+.qr-integrity-sub{font-size:.88rem;color:var(--muted);margin-bottom:0}
+.qr-cheat-list{list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:10px}
+.qr-cheat-item{display:flex;align-items:flex-start;gap:12px;background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.15);border-radius:12px;padding:14px 18px}
+.qr-cheat-item-icon{font-size:1.3rem;flex-shrink:0;margin-top:1px}
+.qr-cheat-item-body{flex:1}
+.qr-cheat-item-label{font-size:.9rem;font-weight:700;color:var(--red);margin-bottom:2px}
+.qr-cheat-item-meta{font-size:.75rem;color:var(--muted)}
+.qr-integrity-clean-checks{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.qr-clean-check{display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.18);border-radius:10px;padding:6px 14px;font-size:.8rem;color:var(--green);font-weight:600}
 </style>
 {% endblock %}
 
@@ -77,6 +96,70 @@ footer{display:none!important}
 <div class="qr-bg-orb b"></div>
 
 <div class="qr-page">
+
+{# ── Integrity Report ── #}
+{% set isCheater = attempt.cheat_ended or attempt.level_result == 'CHEATER' %}
+{% set cheatTypeLabels = {
+	'tab_switch':     'Switched to another tab or window during the exam',
+	'focus_lost':     'Stopped focusing on the exam window (looked away / switched app)',
+	'screenshot':     'Attempted to take a screenshot of the exam screen',
+	'phone_detected': 'Phone detected by AI camera monitoring system',
+	'camera_denied':  'Denied camera access required by the proctoring system',
+} %}
+{% set cheatIcons = {
+	'tab_switch':'bx-window-alt',
+	'focus_lost':'bx-desktop',
+	'screenshot':'bx-screenshot',
+	'phone_detected':'bx-mobile',
+	'camera_denied':'bx-camera-off',
+} %}
+
+{% if isCheater %}
+<div class="qr-integrity cheated">
+	<div class="qr-integrity-header">
+		<div class="qr-integrity-icon">🚨</div>
+		<div>
+			<div class="qr-integrity-title">Academic Integrity Violation Detected</div>
+			<p class="qr-integrity-sub">This attempt was flagged by the proctoring system. Your score has been set to 0.</p>
+		</div>
+	</div>
+	{% if cheat_events|length > 0 %}
+	<ul class="qr-cheat-list">
+		{% for event in cheat_events %}
+		<li class="qr-cheat-item">
+			<i class="bx {{ cheatIcons[event.type] ?? 'bx-error' }} qr-cheat-item-icon" style="color:var(--red)"></i>
+			<div class="qr-cheat-item-body">
+				<div class="qr-cheat-item-label">{{ cheatTypeLabels[event.type] ?? event.type }}</div>
+				<div class="qr-cheat-item-meta">
+					Detected at {{ event.timestamp|date('H:i:s') }}
+					· Source: {{ event.source == 'js_client' ? 'Browser monitor' : (event.source == 'python_service' ? 'AI camera' : event.source) }}
+				</div>
+			</div>
+		</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+</div>
+{% else %}
+<div class="qr-integrity clean">
+	<div class="qr-integrity-header">
+		<div class="qr-integrity-icon">✅</div>
+		<div>
+			<div class="qr-integrity-title">Integrity Verified</div>
+			<p class="qr-integrity-sub">You completed this exam without any integrity violations detected. Great job!</p>
+		</div>
+	</div>
+	<div class="qr-integrity-clean-checks">
+		<span class="qr-clean-check"><i class='bx bx-check'></i> No tab switching</span>
+		<span class="qr-clean-check"><i class='bx bx-check'></i> No phone detected</span>
+		<span class="qr-clean-check"><i class='bx bx-check'></i> No copying or pasting</span>
+		<span class="qr-clean-check"><i class='bx bx-check'></i> No DevTools opened</span>
+		<span class="qr-clean-check"><i class='bx bx-check'></i> Stayed in fullscreen</span>
+		<span class="qr-clean-check"><i class='bx bx-check'></i> Camera monitored</span>
+	</div>
+</div>
+{% endif %}
+
 	{% set pct = attempt.score_percent|round %}
 	{% set scoreColor = pct >= 80 ? 'var(--green)' : (pct >= 50 ? 'var(--orange)' : 'var(--red)') %}
 

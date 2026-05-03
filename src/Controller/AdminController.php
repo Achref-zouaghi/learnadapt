@@ -457,6 +457,126 @@ class AdminController extends AbstractController
         return new JsonResponse(['success' => true]);
     }
 
+    // ─── AI MODERATION QUEUE ──────────────────────────────────────
+
+    #[Route('/admin/forum/moderation', name: 'app_admin_moderation')]
+    public function moderationQueue(Request $request): Response
+    {
+        $admin = $this->getAuthenticatedAdmin($request);
+        if (!$admin) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Ensure columns exist (same guard pattern as ForumController)
+        $schemaManager = $this->conn()->createSchemaManager();
+        $postCols = $schemaManager->listTableColumns('forum_posts');
+        if (!isset($postCols['moderation_status'])) {
+            $this->conn()->executeStatement("ALTER TABLE forum_posts ADD moderation_status VARCHAR(16) NOT NULL DEFAULT 'approved'");
+            $this->conn()->executeStatement('ALTER TABLE forum_posts ADD toxicity_score FLOAT DEFAULT NULL');
+            $this->conn()->executeStatement("ALTER TABLE forum_posts ADD moderation_classification VARCHAR(20) DEFAULT NULL");
+        }
+        $topicCols = $schemaManager->listTableColumns('forum_topics');
+        if (!isset($topicCols['moderation_status'])) {
+            $this->conn()->executeStatement("ALTER TABLE forum_topics ADD moderation_status VARCHAR(16) NOT NULL DEFAULT 'approved'");
+        }
+
+        // Pending posts (replies)
+        $pendingPosts = $this->conn()->fetchAllAssociative(
+            'SELECT fp.*, u.full_name as author_name, u.role as author_role, ft.title as topic_title, ft.id as topic_id
+             FROM forum_posts fp
+             JOIN users u ON fp.author_user_id = u.id
+             JOIN forum_topics ft ON fp.topic_id = ft.id
+             WHERE fp.moderation_status = \'pending\'
+             ORDER BY fp.created_at ASC'
+        );
+
+        // Pending topics (first posts that haven't been approved)
+        $pendingTopics = $this->conn()->fetchAllAssociative(
+            'SELECT ft.*, u.full_name as author_name, u.role as author_role,
+                    (SELECT fp2.toxicity_score FROM forum_posts fp2 WHERE fp2.topic_id = ft.id ORDER BY fp2.created_at ASC LIMIT 1) as toxicity_score,
+                    (SELECT fp3.moderation_classification FROM forum_posts fp3 WHERE fp3.topic_id = ft.id ORDER BY fp3.created_at ASC LIMIT 1) as moderation_classification,
+                    (SELECT fp4.content FROM forum_posts fp4 WHERE fp4.topic_id = ft.id ORDER BY fp4.created_at ASC LIMIT 1) as first_post_content,
+                    (SELECT fp5.id FROM forum_posts fp5 WHERE fp5.topic_id = ft.id ORDER BY fp5.created_at ASC LIMIT 1) as first_post_id
+             FROM forum_topics ft
+             JOIN users u ON ft.created_by_user_id = u.id
+             WHERE ft.moderation_status = \'pending\'
+             ORDER BY ft.created_at ASC'
+        );
+
+        $pendingCount = count($pendingPosts) + count($pendingTopics);
+
+        return $this->render('admin/moderation.html.twig', [
+            'user'          => $admin,
+            'pendingPosts'  => $pendingPosts,
+            'pendingTopics' => $pendingTopics,
+            'pendingCount'  => $pendingCount,
+        ]);
+    }
+
+    #[Route('/admin/moderation/post/{id}/approve', name: 'app_admin_moderation_post_approve', methods: ['POST'])]
+    public function approvePost(int $id, Request $request): JsonResponse
+    {
+        $admin = $this->getAuthenticatedAdmin($request);
+        if (!$admin) {
+            return new JsonResponse(['error' => 'Unauthorized'], 403);
+        }
+        $this->conn()->executeStatement(
+            "UPDATE forum_posts SET moderation_status = 'approved' WHERE id = ?",
+            [$id]
+        );
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/admin/moderation/post/{id}/reject', name: 'app_admin_moderation_post_reject', methods: ['POST'])]
+    public function rejectPost(int $id, Request $request): JsonResponse
+    {
+        $admin = $this->getAuthenticatedAdmin($request);
+        if (!$admin) {
+            return new JsonResponse(['error' => 'Unauthorized'], 403);
+        }
+        $this->conn()->executeStatement(
+            "UPDATE forum_posts SET moderation_status = 'rejected' WHERE id = ?",
+            [$id]
+        );
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/admin/moderation/topic/{id}/approve', name: 'app_admin_moderation_topic_approve', methods: ['POST'])]
+    public function approveTopic(int $id, Request $request): JsonResponse
+    {
+        $admin = $this->getAuthenticatedAdmin($request);
+        if (!$admin) {
+            return new JsonResponse(['error' => 'Unauthorized'], 403);
+        }
+        $this->conn()->executeStatement(
+            "UPDATE forum_topics SET moderation_status = 'approved' WHERE id = ?",
+            [$id]
+        );
+        $this->conn()->executeStatement(
+            "UPDATE forum_posts SET moderation_status = 'approved' WHERE topic_id = ? AND moderation_status = 'pending'",
+            [$id]
+        );
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/admin/moderation/topic/{id}/reject', name: 'app_admin_moderation_topic_reject', methods: ['POST'])]
+    public function rejectTopic(int $id, Request $request): JsonResponse
+    {
+        $admin = $this->getAuthenticatedAdmin($request);
+        if (!$admin) {
+            return new JsonResponse(['error' => 'Unauthorized'], 403);
+        }
+        $this->conn()->executeStatement(
+            "UPDATE forum_topics SET moderation_status = 'rejected' WHERE id = ?",
+            [$id]
+        );
+        $this->conn()->executeStatement(
+            "UPDATE forum_posts SET moderation_status = 'rejected' WHERE topic_id = ?",
+            [$id]
+        );
+        return new JsonResponse(['success' => true]);
+    }
+
     // ─── FEEDBACK MANAGEMENT ─────────────────────────────────────
 
     #[Route('/admin/feedback', name: 'app_admin_feedback')]
@@ -520,6 +640,17 @@ class AdminController extends AbstractController
 
     // ─── EXERCISE MANAGEMENT ─────────────────────────────────────
 
+    private function ensureExerciseCorrectionColumns(): void
+    {
+        $cols = array_column($this->conn()->fetchAllAssociative('SHOW COLUMNS FROM exercises'), 'Field');
+        if (!in_array('correction_pdf_path', $cols, true)) {
+            $this->conn()->executeStatement('ALTER TABLE exercises ADD COLUMN correction_pdf_path VARCHAR(500) DEFAULT NULL');
+        }
+        if (!in_array('correction_pdf_original_name', $cols, true)) {
+            $this->conn()->executeStatement('ALTER TABLE exercises ADD COLUMN correction_pdf_original_name VARCHAR(255) DEFAULT NULL');
+        }
+    }
+
     #[Route('/admin/exercises', name: 'app_admin_exercises')]
     public function exercises(Request $request): Response
     {
@@ -527,6 +658,8 @@ class AdminController extends AbstractController
         if (!$admin) {
             return $this->redirectToRoute('app_login');
         }
+
+        $this->ensureExerciseCorrectionColumns();
 
         $filterLevel = $request->query->get('level', '');
         $filterModule = $request->query->get('module', '');
@@ -589,18 +722,74 @@ class AdminController extends AbstractController
             return new JsonResponse(['error' => 'Unauthorized'], 403);
         }
 
-        // Get pdf path to delete file
-        $exercise = $this->conn()->fetchAssociative('SELECT pdf_path FROM exercises WHERE id = ?', [$id]);
-        if ($exercise && $exercise['pdf_path']) {
-            $filePath = $this->getParameter('kernel.project_dir') . '/' . $exercise['pdf_path'];
-            if (file_exists($filePath)) {
-                unlink($filePath);
+        $this->ensureExerciseCorrectionColumns();
+
+        // Delete exercise files from disk
+        $exercise = $this->conn()->fetchAssociative(
+            'SELECT pdf_path, video_path, correction_pdf_path FROM exercises WHERE id = ?', [$id]
+        );
+        if ($exercise) {
+            $projectDir = $this->getParameter('kernel.project_dir');
+            foreach (['pdf_path', 'video_path', 'correction_pdf_path'] as $col) {
+                if (!empty($exercise[$col])) {
+                    $filePath = $projectDir . '/' . $exercise[$col];
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                }
             }
         }
 
         $this->conn()->executeStatement('DELETE FROM exercises WHERE id = ?', [$id]);
 
         return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/admin/exercises/{id}/upload-correction', name: 'app_admin_exercise_upload_correction', methods: ['POST'])]
+    public function uploadCorrectionPdf(int $id, Request $request): JsonResponse
+    {
+        $admin = $this->getAuthenticatedAdmin($request);
+        if (!$admin) {
+            return new JsonResponse(['error' => 'Unauthorized'], 403);
+        }
+
+        $this->ensureExerciseCorrectionColumns();
+
+        $file = $request->files->get('correction');
+        if (!$file) {
+            return new JsonResponse(['error' => 'No file uploaded'], 400);
+        }
+        if ($file->getMimeType() !== 'application/pdf') {
+            return new JsonResponse(['error' => 'Only PDF files are allowed'], 400);
+        }
+        if ($file->getSize() > 20 * 1024 * 1024) {
+            return new JsonResponse(['error' => 'File too large (max 20MB)'], 400);
+        }
+
+        // Remove old correction if exists
+        $existing = $this->conn()->fetchAssociative('SELECT correction_pdf_path FROM exercises WHERE id = ?', [$id]);
+        if ($existing && $existing['correction_pdf_path']) {
+            $oldPath = $this->getParameter('kernel.project_dir') . '/' . $existing['correction_pdf_path'];
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+        }
+
+        $uploadDir = $this->getParameter('kernel.project_dir') . '/var/uploads/exercises';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        $originalName = $file->getClientOriginalName();
+        $safeName = 'correction_' . time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
+        $file->move($uploadDir, $safeName);
+
+        $this->conn()->executeStatement(
+            'UPDATE exercises SET correction_pdf_path = ?, correction_pdf_original_name = ? WHERE id = ?',
+            ['var/uploads/exercises/' . $safeName, $originalName, $id]
+        );
+
+        return new JsonResponse(['success' => true, 'filename' => $originalName]);
     }
 
     #[Route('/admin/exercises/{id}/update', name: 'app_admin_exercise_update', methods: ['POST'])]

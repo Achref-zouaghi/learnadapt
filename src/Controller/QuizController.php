@@ -398,9 +398,19 @@ class QuizController extends AbstractController
             [$id, (int) $attempt['quiz_id']]
         );
 
+        // Parse cheat flags for the results page
+        $cheatEvents = [];
+        if (!empty($attempt['cheat_flags'])) {
+            $decoded = json_decode($attempt['cheat_flags'], true);
+            if (is_array($decoded)) {
+                $cheatEvents = $decoded;
+            }
+        }
+
         return $this->render('quiz/results.html.twig', [
-            'attempt' => $attempt,
-            'questions' => $questions,
+            'attempt'      => $attempt,
+            'questions'    => $questions,
+            'cheat_events' => $cheatEvents,
         ]);
     }
 }

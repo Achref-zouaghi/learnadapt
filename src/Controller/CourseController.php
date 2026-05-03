@@ -14,6 +14,7 @@ use App\Repository\CourseProgressRepository;
 use App\Repository\UserStreakRepository;
 use App\SmartCourseBundle\Event\CourseEnrolledEvent;
 use App\SmartCourseBundle\Event\CourseViewedEvent;
+use App\Service\AdaptiveLearningService;
 use App\SmartCourseBundle\Service\AnalyticsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -43,6 +44,7 @@ class CourseController extends AbstractController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly PaginatorInterface $paginator,
         private readonly AnalyticsService $analyticsService,
+        private readonly AdaptiveLearningService $adaptiveLearning,
     ) {
     }
 
@@ -85,6 +87,7 @@ class CourseController extends AbstractController
 
         $streak = $this->streakRepository->findOneByUser($user->getId());
         $platformStats = $this->analyticsService->getGlobalStats();
+        $aiProfile = $this->adaptiveLearning->getStudentProfile($user->getId());
 
         return $this->render('courses/index.html.twig', [
             'courses' => $courses,
@@ -99,6 +102,7 @@ class CourseController extends AbstractController
             'streak' => $streak,
             'userId' => $user->getId(),
             'platformStats' => $platformStats,
+            'aiProfile' => $aiProfile,
         ]);
     }
 

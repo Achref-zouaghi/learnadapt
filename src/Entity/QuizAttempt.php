@@ -148,6 +148,34 @@ class QuizAttempt
         return $this;
     }
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $cheat_flags = null;
+
+    public function getCheatFlags(): ?array
+    {
+        return $this->cheat_flags;
+    }
+
+    public function setCheatFlags(?array $cheat_flags): self
+    {
+        $this->cheat_flags = $cheat_flags;
+        return $this;
+    }
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $cheat_ended = false;
+
+    public function isCheatEnded(): bool
+    {
+        return $this->cheat_ended;
+    }
+
+    public function setCheatEnded(bool $cheat_ended): self
+    {
+        $this->cheat_ended = $cheat_ended;
+        return $this;
+    }
+
     #[ORM\OneToMany(targetEntity: QuizAnswer::class, mappedBy: 'quizAttempt')]
     private Collection $quizAnswers;
 

@@ -70,6 +70,26 @@ footer{display:none!important}
 .ev-video-none{display:flex;flex-direction:column;align-items:center;justify-content:center;height:160px;gap:12px;color:var(--muted)}
 .ev-video-none i{font-size:2rem;opacity:.3}
 
+/* ── CORRECTION PDF ── */
+.corr-locked{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:36px 20px;text-align:center}
+.corr-locked-icon{width:72px;height:72px;border-radius:22px;background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);display:flex;align-items:center;justify-content:center;animation:corrPulse 2.5s ease-in-out infinite}
+.corr-locked-icon i{font-size:2rem;color:var(--orange)}
+@keyframes corrPulse{0%,100%{box-shadow:0 0 0 0 rgba(251,146,60,0.25)}50%{box-shadow:0 0 0 12px rgba(251,146,60,0)}}
+.corr-locked-label{font-size:0.78rem;color:var(--muted);line-height:1.5}
+.corr-countdown{font-size:2.2rem;font-weight:900;letter-spacing:-0.03em;color:var(--orange);font-variant-numeric:tabular-nums}
+.corr-countdown-sub{font-size:0.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.corr-progress-wrap{width:100%;max-width:260px;background:rgba(255,255,255,0.04);border-radius:6px;height:5px;overflow:hidden;border:1px solid var(--border)}
+.corr-progress-bar{height:100%;background:linear-gradient(90deg,var(--orange),var(--yellow));border-radius:6px;transition:width 1s linear}
+
+.corr-unlocked{display:none;flex-direction:column;align-items:center;gap:16px;padding:32px 20px;text-align:center}
+.corr-unlocked-icon{width:72px;height:72px;border-radius:22px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);display:flex;align-items:center;justify-content:center}
+.corr-unlocked-icon i{font-size:2rem;color:var(--green)}
+.corr-open-btn{display:inline-flex;align-items:center;gap:9px;padding:13px 28px;background:linear-gradient(135deg,var(--green),var(--cyan));border-radius:14px;color:#fff;font-weight:800;font-size:0.9rem;text-decoration:none;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.corr-open-btn::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left .6s}
+.corr-open-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(52,211,153,0.3)}
+.corr-open-btn:hover::before{left:200%}
+.corr-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:8px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;transition:all .3s}
+
 /* ── RIGHT COLUMN: focus monitor ── */
 .ev-right{display:flex;flex-direction:column;gap:20px;position:sticky;top:80px}
 
@@ -233,6 +253,34 @@ footer{display:none!important}
 						<i class='bx bx-film'></i> {{ exercise.video_original_name }}
 					</p>
 					{% endif %}
+				</div>
+			</div>
+			{% endif %}
+
+			{% if exercise.correction_pdf_path is defined and exercise.correction_pdf_path %}
+			<!-- ── CORRECTION PDF (locked 10 min) ── -->
+			<div class="ev-section" style="animation-delay:.2s" id="correctionSection">
+				<div class="ev-section-head">
+					<h3><i class='bx bxs-lock-alt' id="corrLockIcon" style="color:var(--orange)"></i>&nbsp; <span id="corrSectionTitle">Correction PDF</span></h3>
+					<span class="corr-badge" id="corrBadge" style="background:rgba(251,146,60,0.08);color:var(--orange);border:1px solid rgba(251,146,60,0.2)"><i class='bx bx-lock-alt'></i> Locked</span>
+				</div>
+				<div class="ev-section-body" style="padding:0">
+					<div class="corr-locked" id="corrLocked">
+						<div class="corr-locked-icon"><i class='bx bxs-lock-alt'></i></div>
+						<p class="corr-locked-label">La correction sera disponible après<br><strong>10 minutes</strong> d'ouverture de l'exercice</p>
+						<div class="corr-countdown" id="corrCountdown">10:00</div>
+						<div class="corr-countdown-sub">restant</div>
+						<div class="corr-progress-wrap">
+							<div class="corr-progress-bar" id="corrProgressBar" style="width:0%"></div>
+						</div>
+					</div>
+					<div class="corr-unlocked" id="corrUnlocked">
+						<div class="corr-unlocked-icon"><i class='bx bxs-lock-open-alt'></i></div>
+						<p style="font-size:0.82rem;color:var(--muted)">La correction est maintenant disponible.</p>
+						<a href="{{ path('app_exercise_correction_pdf', {id: exercise.id}) }}" target="_blank" class="corr-open-btn">
+							<i class='bx bxs-file-pdf'></i> Ouvrir la correction
+						</a>
+					</div>
 				</div>
 			</div>
 			{% endif %}
@@ -732,5 +780,55 @@ function toast(msg, err = false) {
 
 // Stop monitoring if user leaves page
 window.addEventListener('beforeunload', () => { if (monitoring) stopMonitor(); });
+
+/* ════════════════════════════════════════════
+   CORRECTION PDF — 10-MINUTE TIMER
+   ════════════════════════════════════════════ */
+(function () {
+    const corrLocked   = document.getElementById('corrLocked');
+    const corrUnlocked = document.getElementById('corrUnlocked');
+    if (!corrLocked) return; // no correction PDF on this exercise
+
+    const LOCK_SECS  = 600; // 10 minutes
+    const openedAt   = {{ openedAt }}; // Unix timestamp set by server on first open
+
+    const countdownEl  = document.getElementById('corrCountdown');
+    const progressEl   = document.getElementById('corrProgressBar');
+    const badgeEl      = document.getElementById('corrBadge');
+    const lockIconEl   = document.getElementById('corrLockIcon');
+
+    function unlock() {
+        corrLocked.style.display   = 'none';
+        corrUnlocked.style.display = 'flex';
+        badgeEl.innerHTML          = '<i class=\'bx bx-check-circle\'></i> Available';
+        badgeEl.style.background   = 'rgba(52,211,153,0.08)';
+        badgeEl.style.color        = 'var(--green)';
+        badgeEl.style.borderColor  = 'rgba(52,211,153,0.2)';
+        lockIconEl.className       = 'bx bxs-lock-open-alt';
+        lockIconEl.style.color     = 'var(--green)';
+    }
+
+    function tick() {
+        const elapsed   = Math.floor(Date.now() / 1000) - openedAt;
+        const remaining = LOCK_SECS - elapsed;
+
+        if (remaining <= 0) {
+            unlock();
+            return;
+        }
+
+        const mins = Math.floor(remaining / 60);
+        const secs = remaining % 60;
+        countdownEl.textContent = mins + ':' + String(secs).padStart(2, '0');
+
+        // Progress bar: grows from 0% to 100% as time passes
+        const pct = Math.min(100, (elapsed / LOCK_SECS) * 100);
+        progressEl.style.width = pct + '%';
+
+        setTimeout(tick, 1000);
+    }
+
+    tick();
+})();
 </script>
 {% endblock %}

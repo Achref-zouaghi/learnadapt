@@ -26,6 +26,17 @@ class ExerciseController extends AbstractController
         return $this->em->getConnection();
     }
 
+    private function ensureExerciseCorrectionColumns(): void
+    {
+        $cols = array_column($this->conn()->fetchAllAssociative('SHOW COLUMNS FROM exercises'), 'Field');
+        if (!in_array('correction_pdf_path', $cols, true)) {
+            $this->conn()->executeStatement('ALTER TABLE exercises ADD COLUMN correction_pdf_path VARCHAR(500) DEFAULT NULL');
+        }
+        if (!in_array('correction_pdf_original_name', $cols, true)) {
+            $this->conn()->executeStatement('ALTER TABLE exercises ADD COLUMN correction_pdf_original_name VARCHAR(255) DEFAULT NULL');
+        }
+    }
+
     private function getAuthenticatedUser(Request $request): ?User
     {
         $auth = $request->getSession()->get(self::AUTH_SESSION_KEY);
@@ -107,6 +118,8 @@ class ExerciseController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
+        $this->ensureExerciseCorrectionColumns();
+
         $exercise = $this->conn()->fetchAssociative(
             'SELECT e.*, m.name as module_name, u.full_name as teacher_name
              FROM exercises e
@@ -120,10 +133,62 @@ class ExerciseController extends AbstractController
             return $this->redirectToRoute('app_exercises');
         }
 
+        // Track when user first opened this exercise (for 10-min correction lock)
+        $sessionKey = 'exercise_opened_' . $id;
+        if (!$request->getSession()->has($sessionKey)) {
+            $request->getSession()->set($sessionKey, time());
+        }
+        $openedAt = $request->getSession()->get($sessionKey);
+
         return $this->render('exercises/view.html.twig', [
             'exercise' => $exercise,
             'user' => $user,
+            'openedAt' => $openedAt,
         ]);
+    }
+
+    #[Route('/exercises/{id}/correction-pdf', name: 'app_exercise_correction_pdf', requirements: ['id' => '\d+'])]
+    public function viewCorrectionPdf(int $id, Request $request): Response
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Enforce 10-minute lock server-side
+        $sessionKey = 'exercise_opened_' . $id;
+        $openedAt = $request->getSession()->get($sessionKey);
+        if (!$openedAt || (time() - $openedAt) < 600) {
+            $remaining = $openedAt ? (600 - (time() - $openedAt)) : 600;
+            $mins = (int) ceil($remaining / 60);
+            throw $this->createAccessDeniedException(
+                'The correction is locked for 10 minutes after opening the exercise. ' . $mins . ' min remaining.'
+            );
+        }
+
+        $this->ensureExerciseCorrectionColumns();
+        $exercise = $this->conn()->fetchAssociative(
+            'SELECT correction_pdf_path, correction_pdf_original_name FROM exercises WHERE id = ?',
+            [$id]
+        );
+
+        if (!$exercise || !$exercise['correction_pdf_path']) {
+            throw $this->createNotFoundException('No correction PDF attached to this exercise.');
+        }
+
+        $projectDir = $this->getParameter('kernel.project_dir');
+        $filePath = $projectDir . '/' . $exercise['correction_pdf_path'];
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException('Correction file not found on server.');
+        }
+
+        $response = new \Symfony\Component\HttpFoundation\BinaryFileResponse($filePath);
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->setContentDisposition(
+            \Symfony\Component\HttpFoundation\ResponseHeaderBag::DISPOSITION_INLINE,
+            $exercise['correction_pdf_original_name'] ?: basename($filePath)
+        );
+        return $response;
     }
 
     #[Route('/exercises/{id}/video', name: 'app_exercise_view_video', requirements: ['id' => '\d+'])]

@@ -1,0 +1,295 @@
+{% extends 'base.html.twig' %}
+{% set darkPage = true %}
+{% block title %}AI Moderation Queue — Admin{% endblock %}
+
+{% block stylesheets %}
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
+footer{display:none!important}
+
+.adm{display:flex;min-height:100vh;padding-top:72px}
+.adm-side{width:260px;position:fixed;top:72px;left:0;bottom:0;background:rgba(6,12,22,0.95);border-right:1px solid var(--border);backdrop-filter:blur(20px);padding:28px 16px;display:flex;flex-direction:column;z-index:50;overflow-y:auto}
+.adm-side-head{padding:0 12px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.adm-side-head h2{font-size:1.1rem;font-weight:900;letter-spacing:-0.03em}
+.adm-side-head h2 span{background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.adm-side-head p{font-size:0.72rem;color:var(--muted);margin-top:4px}
+.adm-nav{list-style:none;display:flex;flex-direction:column;gap:4px;flex:1}
+.adm-nav a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;color:var(--muted);text-decoration:none;font-size:0.84rem;font-weight:600;transition:all .22s var(--ease);position:relative}
+.adm-nav a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+.adm-nav a.is-active{color:var(--orange);background:rgba(251,146,60,0.08)}
+.adm-nav a.is-active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--orange);border-radius:0 3px 3px 0}
+.adm-nav a i{font-size:1.2rem;width:22px;text-align:center}
+.adm-nav-divider{height:1px;background:var(--border);margin:12px 8px}
+.adm-main{flex:1;margin-left:260px;padding:32px;position:relative;overflow-y:auto}
+
+/* heading */
+.pg-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;animation:fadeIn .5s var(--ease)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+.pg-head h1{font-size:1.8rem;font-weight:900;letter-spacing:-0.04em}
+.pg-head h1 span{background:linear-gradient(135deg,var(--orange),var(--red));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.pg-head-sub{font-size:0.82rem;color:var(--muted);margin-top:4px}
+
+/* stat bar */
+.stat-bar{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.stat-card{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:18px 24px;flex:1;min-width:160px;transition:all .22s var(--ease)}
+.stat-card:hover{background:var(--card-h);border-color:rgba(255,255,255,0.12)}
+.stat-card .sc-label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.stat-card .sc-value{font-size:2rem;font-weight:900;letter-spacing:-0.04em;margin-top:4px}
+.stat-card.orange .sc-value{color:var(--orange)}
+.stat-card.red .sc-value{color:var(--red)}
+.stat-card.green .sc-value{color:var(--green)}
+
+/* section header */
+.sec-head{display:flex;align-items:center;gap:10px;margin:28px 0 16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.sec-head i{font-size:1.3rem}
+.sec-head h2{font-size:1rem;font-weight:800;letter-spacing:-0.02em}
+.sec-badge{font-size:0.7rem;font-weight:800;padding:3px 10px;border-radius:20px;line-height:1.4}
+
+/* Queue card */
+.mod-card{background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:14px;display:flex;gap:16px;align-items:flex-start;transition:all .22s var(--ease);animation:cardIn .35s var(--ease)}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.mod-card:hover{background:var(--card);border-color:rgba(255,255,255,0.1)}
+.mod-card-left{flex:1;min-width:0}
+.mod-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.mod-author{font-size:0.78rem;font-weight:700;color:var(--cyan)}
+.mod-time{font-size:0.72rem;color:var(--muted)}
+.mod-topic-label{font-size:0.7rem;font-weight:700;background:rgba(123,97,241,0.15);color:var(--purple);border:1px solid rgba(123,97,241,0.3);border-radius:8px;padding:2px 9px}
+.mod-title{font-size:0.95rem;font-weight:800;margin-bottom:6px;letter-spacing:-0.02em}
+.mod-content{font-size:0.82rem;color:var(--muted);line-height:1.6;max-height:72px;overflow:hidden;position:relative}
+.mod-content::after{content:'';position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(transparent,#020a10)}
+.mod-scores{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.tox-badge{font-size:0.72rem;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:.03em}
+.tox-badge.low{background:rgba(52,211,153,0.12);color:var(--green);border:1px solid rgba(52,211,153,0.3)}
+.tox-badge.med{background:rgba(251,191,36,0.12);color:var(--yellow);border:1px solid rgba(251,191,36,0.3)}
+.tox-badge.high{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.3)}
+.cls-badge{font-size:0.7rem;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border);text-transform:capitalize}
+
+/* action buttons */
+.mod-actions{display:flex;flex-direction:column;gap:8px;align-items:center;min-width:110px}
+.btn-approve{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;background:rgba(52,211,153,0.12);color:var(--green);border:1px solid rgba(52,211,153,0.3);border-radius:12px;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all .2s var(--ease);white-space:nowrap;width:100%}
+.btn-approve:hover{background:rgba(52,211,153,0.22);border-color:var(--green)}
+.btn-reject{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.25);border-radius:12px;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all .2s var(--ease);white-space:nowrap;width:100%}
+.btn-reject:hover{background:rgba(248,113,113,0.2);border-color:var(--red)}
+
+/* empty state */
+.empty-state{text-align:center;padding:64px 0}
+.empty-state i{font-size:3rem;color:var(--green);display:block;margin-bottom:16px}
+.empty-state h3{font-size:1.2rem;font-weight:800;margin-bottom:8px}
+.empty-state p{font-size:0.85rem;color:var(--muted)}
+
+/* toast */
+#mod-toast{position:fixed;bottom:28px;right:28px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{background:rgba(6,12,22,0.97);border:1px solid var(--border);border-radius:14px;padding:14px 18px;font-size:0.83rem;font-weight:600;color:var(--text);backdrop-filter:blur(20px);animation:toastIn .3s var(--ease);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.toast.success{border-color:rgba(52,211,153,0.4);color:var(--green)}
+.toast.error{border-color:rgba(248,113,113,0.4);color:var(--red)}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="adm">
+  <!-- Sidebar -->
+  <aside class="adm-side">
+    <div class="adm-side-head">
+      <h2>Learn<span>Adapt</span></h2>
+      <p>Admin Panel · {{ user.fullName }}</p>
+    </div>
+    <ul class="adm-nav">
+      <li><a href="{{ path('app_admin') }}"><i class='bx bxs-dashboard'></i> Dashboard</a></li>
+      <li><a href="{{ path('app_admin_users') }}"><i class='bx bxs-group'></i> Users</a></li>
+      <li><a href="{{ path('app_admin_courses') }}"><i class='bx bxs-book-open'></i> Courses</a></li>
+      <li><a href="{{ path('app_admin_feedback') }}"><i class='bx bxs-comment-dots'></i> Feedback</a></li>
+      <div class="adm-nav-divider"></div>
+      <li><a href="{{ path('app_admin_forum') }}"><i class='bx bx-chat'></i> Forum</a></li>
+      <li><a href="{{ path('app_admin_moderation') }}" class="is-active"><i class='bx bx-shield-quarter'></i> AI Moderation <span class="sec-badge" style="background:rgba(251,146,60,.15);color:var(--orange);border:1px solid rgba(251,146,60,.3);margin-left:auto">{{ pendingCount }}</span></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="adm-main">
+    <div class="pg-head">
+      <div>
+        <h1>🤖 AI <span>Moderation Queue</span></h1>
+        <p class="pg-head-sub">Review content flagged by the AI for toxicity, hate speech, or spam</p>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-bar">
+      <div class="stat-card orange">
+        <div class="sc-label">Pending Total</div>
+        <div class="sc-value">{{ pendingCount }}</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="sc-label">Pending Topics</div>
+        <div class="sc-value">{{ pendingTopics|length }}</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="sc-label">Pending Replies</div>
+        <div class="sc-value">{{ pendingPosts|length }}</div>
+      </div>
+    </div>
+
+    {% if pendingCount == 0 %}
+      <div class="empty-state">
+        <i class='bx bxs-shield-plus'></i>
+        <h3>All clear! No pending content.</h3>
+        <p>The AI moderation queue is empty — all posts are approved.</p>
+      </div>
+    {% else %}
+
+      {# ── PENDING TOPICS ─────────────────────────────────────── #}
+      {% if pendingTopics|length > 0 %}
+        <div class="sec-head">
+          <i class='bx bx-file' style="color:var(--orange)"></i>
+          <h2>Pending Topics</h2>
+          <span class="sec-badge" style="background:rgba(251,146,60,.12);color:var(--orange);border:1px solid rgba(251,146,60,.3)">{{ pendingTopics|length }}</span>
+        </div>
+
+        {% for topic in pendingTopics %}
+          {% set score = topic.toxicity_score is not null ? (topic.toxicity_score * 100)|round(1) : null %}
+          <div class="mod-card" id="topic-card-{{ topic.id }}">
+            <div class="mod-card-left">
+              <div class="mod-meta">
+                <span class="mod-author"><i class='bx bxs-user-circle' style="font-size:1rem"></i> {{ topic.author_name }}</span>
+                <span class="mod-time">{{ topic.created_at is defined ? topic.created_at|date('d M Y H:i') : '' }}</span>
+                <span class="mod-topic-label">📄 New Topic</span>
+              </div>
+              <div class="mod-title">{{ topic.title }}</div>
+              {% if topic.first_post_content %}
+                <div class="mod-content">{{ topic.first_post_content }}</div>
+              {% endif %}
+              <div class="mod-scores">
+                {% if score is not null %}
+                  <span class="tox-badge {% if score < 45 %}low{% elseif score < 80 %}med{% else %}high{% endif %}">
+                    ⚡ Toxicity: {{ score }}%
+                  </span>
+                {% endif %}
+                {% if topic.moderation_classification %}
+                  <span class="cls-badge">{{ topic.moderation_classification }}</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="mod-actions">
+              <button class="btn-approve" onclick="moderateTopic({{ topic.id }}, 'approve')">
+                <i class='bx bx-check'></i> Approve
+              </button>
+              <button class="btn-reject" onclick="moderateTopic({{ topic.id }}, 'reject')">
+                <i class='bx bx-x'></i> Reject
+              </button>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {# ── PENDING REPLIES ────────────────────────────────────── #}
+      {% if pendingPosts|length > 0 %}
+        <div class="sec-head">
+          <i class='bx bx-comment' style="color:var(--yellow)"></i>
+          <h2>Pending Replies</h2>
+          <span class="sec-badge" style="background:rgba(251,191,36,.12);color:var(--yellow);border:1px solid rgba(251,191,36,.3)">{{ pendingPosts|length }}</span>
+        </div>
+
+        {% for post in pendingPosts %}
+          {% set score = post.toxicity_score is not null ? (post.toxicity_score * 100)|round(1) : null %}
+          <div class="mod-card" id="post-card-{{ post.id }}">
+            <div class="mod-card-left">
+              <div class="mod-meta">
+                <span class="mod-author"><i class='bx bxs-user-circle' style="font-size:1rem"></i> {{ post.author_name }}</span>
+                <span class="mod-time">{{ post.created_at is defined ? post.created_at|date('d M Y H:i') : '' }}</span>
+                <span class="mod-topic-label">💬 In: {{ post.topic_title|slice(0, 40) }}{% if post.topic_title|length > 40 %}…{% endif %}</span>
+              </div>
+              <div class="mod-content">{{ post.content }}</div>
+              <div class="mod-scores">
+                {% if score is not null %}
+                  <span class="tox-badge {% if score < 45 %}low{% elseif score < 80 %}med{% else %}high{% endif %}">
+                    ⚡ Toxicity: {{ score }}%
+                  </span>
+                {% endif %}
+                {% if post.moderation_classification %}
+                  <span class="cls-badge">{{ post.moderation_classification }}</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="mod-actions">
+              <button class="btn-approve" onclick="moderatePost({{ post.id }}, 'approve')">
+                <i class='bx bx-check'></i> Approve
+              </button>
+              <button class="btn-reject" onclick="moderatePost({{ post.id }}, 'reject')">
+                <i class='bx bx-x'></i> Reject
+              </button>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+    {% endif %}
+  </main>
+</div>
+
+<div id="mod-toast"></div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+const toast = (msg, type='success') => {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  document.getElementById('mod-toast').appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+};
+
+async function moderatePost(id, action) {
+  const url = action === 'approve'
+    ? `/admin/moderation/post/${id}/approve`
+    : `/admin/moderation/post/${id}/reject`;
+  try {
+    const res = await fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    if (!res.ok) throw new Error();
+    document.getElementById('post-card-' + id)?.remove();
+    toast(action === 'approve' ? '✅ Reply approved and visible.' : '🗑️ Reply rejected and hidden.', action === 'approve' ? 'success' : 'error');
+    updatePendingCounts();
+  } catch {
+    toast('⚠️ Action failed, try again.', 'error');
+  }
+}
+
+async function moderateTopic(id, action) {
+  const url = action === 'approve'
+    ? `/admin/moderation/topic/${id}/approve`
+    : `/admin/moderation/topic/${id}/reject`;
+  try {
+    const res = await fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    if (!res.ok) throw new Error();
+    document.getElementById('topic-card-' + id)?.remove();
+    toast(action === 'approve' ? '✅ Topic approved and visible.' : '🗑️ Topic rejected and hidden.', action === 'approve' ? 'success' : 'error');
+    updatePendingCounts();
+  } catch {
+    toast('⚠️ Action failed, try again.', 'error');
+  }
+}
+
+function updatePendingCounts() {
+  const remaining = document.querySelectorAll('.mod-card').length;
+  if (remaining === 0) {
+    document.querySelector('.stat-bar')?.remove();
+    const main = document.querySelector('.adm-main');
+    const existing = document.querySelector('.empty-state');
+    if (!existing && main) {
+      main.insertAdjacentHTML('beforeend', `
+        <div class="empty-state">
+          <i class='bx bxs-shield-plus'></i>
+          <h3>All clear! No pending content.</h3>
+          <p>The AI moderation queue is empty — all posts are approved.</p>
+        </div>
+      `);
+    }
+  }
+}
+</script>
+{% endblock %}

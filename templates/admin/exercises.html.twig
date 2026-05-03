@@ -368,6 +368,7 @@ footer{display:none!important}
 						<th>Teacher</th>
 						<th>PDF</th>
 						<th>Video</th>
+						<th>Correction</th>
 						<th>Created</th>
 						<th>Actions</th>
 					</tr>
@@ -401,6 +402,15 @@ footer{display:none!important}
 							{% endif %}
 								<button class="ex-btn edit" onclick="document.getElementById('video-input-{{ ex.id }}').click()" title="{{ ex.video_path ? 'Replace Video' : 'Upload Video' }}"><i class='bx bx-video-plus'></i></button>
 								<input type="file" id="video-input-{{ ex.id }}" accept="video/*" style="display:none" onchange="uploadVideo({{ ex.id }},this)">
+							</div>
+						</td>
+						<td>
+							<div class="ex-act">
+							{% if ex.correction_pdf_path is defined and ex.correction_pdf_path %}
+								<span style="font-size:0.72rem;color:var(--green);font-weight:600"><i class='bx bx-check-circle'></i> Set</span>
+							{% endif %}
+								<button class="ex-btn edit" onclick="document.getElementById('corr-input-{{ ex.id }}').click()" title="{{ ex.correction_pdf_path is defined and ex.correction_pdf_path ? 'Replace Correction PDF' : 'Upload Correction PDF' }}" style="color:var(--orange);border-color:rgba(251,146,60,0.2)"><i class='bx bxs-file-pdf'></i></button>
+								<input type="file" id="corr-input-{{ ex.id }}" accept=".pdf" style="display:none" onchange="uploadCorrection({{ ex.id }},this)">
 							</div>
 						</td>
 						<td style="font-size:0.78rem;color:var(--muted)">{{ ex.created_at|date('M d, Y') }}</td>
@@ -625,6 +635,16 @@ function uploadPdf(id,input){
 	fetch('/admin/exercises/'+id+'/upload-pdf',{method:'POST',body:fd})
 	.then(r=>r.json()).then(d=>{
 		if(d.success){showToast('PDF uploaded: '+d.filename);setTimeout(()=>location.reload(),800)}
+		else showToast(d.error||'Error',true);
+	}).catch(()=>showToast('Network error',true));
+}
+function uploadCorrection(id,input){
+	if(!input.files[0])return;
+	const fd=new FormData();fd.append('correction',input.files[0]);
+	showToast('Uploading correction PDF...');
+	fetch('/admin/exercises/'+id+'/upload-correction',{method:'POST',body:fd})
+	.then(r=>r.json()).then(d=>{
+		if(d.success){showToast('Correction uploaded: '+d.filename);setTimeout(()=>location.reload(),800)}
 		else showToast(d.error||'Error',true);
 	}).catch(()=>showToast('Network error',true));
 }

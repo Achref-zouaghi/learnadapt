@@ -214,6 +214,78 @@ footer{display:none!important}
 .cr-bm-btn.is-active i{animation:bmPop .3s var(--ease)}
 @keyframes bmPop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 
+/* ═══ EDUFUSION AI DASHBOARD ═══ */
+.ai-dash{margin-bottom:36px;animation:fadeUp .6s var(--ease) .15s backwards}
+.ai-dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.ai-dash-title{display:flex;align-items:center;gap:10px}
+.ai-dash-title i{font-size:1.6rem;background:linear-gradient(135deg,#7b61f1,#38bdd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ai-dash-title h3{font-size:1.0rem;font-weight:800;letter-spacing:-0.01em;background:linear-gradient(135deg,#7b61f1,#38bdd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin:0}
+.ai-dash-title small{display:block;font-size:0.68rem;font-weight:500;color:var(--muted);margin-top:1px;-webkit-text-fill-color:var(--muted)}
+.ai-dash-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;border:1px solid}
+.ai-dash-badge.low{background:rgba(52,211,153,0.08);color:var(--green);border-color:rgba(52,211,153,0.2)}
+.ai-dash-badge.medium{background:rgba(251,191,36,0.08);color:var(--yellow);border-color:rgba(251,191,36,0.2)}
+.ai-dash-badge.high{background:rgba(248,113,113,0.08);color:var(--red);border-color:rgba(248,113,113,0.2)}
+
+/* Adaptive message banner */
+.ai-banner{padding:14px 22px;border-radius:16px;margin-bottom:18px;font-size:0.88rem;font-weight:600;display:flex;align-items:center;gap:12px;line-height:1.5}
+.ai-banner.low{background:linear-gradient(135deg,rgba(52,211,153,0.07),rgba(56,189,209,0.04));border:1px solid rgba(52,211,153,0.15);color:var(--green)}
+.ai-banner.medium{background:linear-gradient(135deg,rgba(251,191,36,0.07),rgba(251,146,60,0.04));border:1px solid rgba(251,191,36,0.15);color:var(--yellow)}
+.ai-banner.high{background:linear-gradient(135deg,rgba(248,113,113,0.07),rgba(251,146,60,0.04));border:1px solid rgba(248,113,113,0.15);color:var(--red)}
+.ai-banner i{font-size:1.3rem;flex-shrink:0}
+
+/* Metric grid */
+.ai-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+@media(max-width:900px){.ai-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.ai-grid{grid-template-columns:1fr}}
+.ai-metric{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px 22px;backdrop-filter:blur(12px);transition:all .3s var(--ease);position:relative;overflow:hidden}
+.ai-metric::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0}
+.ai-metric.engagement::before{background:linear-gradient(90deg,#7b61f1,#38bdd1)}
+.ai-metric.success::before{background:linear-gradient(90deg,#34d399,#22c55e)}
+.ai-metric.risk::before{background:linear-gradient(90deg,#f87171,#fb923c)}
+.ai-metric.speed::before{background:linear-gradient(90deg,#38bdd1,#7b61f1)}
+.ai-metric:hover{background:var(--card-h);transform:translateY(-2px)}
+.ai-metric-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;margin-bottom:12px}
+.ai-metric.engagement .ai-metric-icon{background:rgba(123,97,241,0.12);color:#7b61f1}
+.ai-metric.success .ai-metric-icon{background:rgba(52,211,153,0.12);color:var(--green)}
+.ai-metric.risk .ai-metric-icon{background:rgba(248,113,113,0.12);color:var(--red)}
+.ai-metric.speed .ai-metric-icon{background:rgba(56,189,209,0.12);color:var(--cyan)}
+.ai-metric-val{font-size:1.8rem;font-weight:900;letter-spacing:-0.04em;line-height:1}
+.ai-metric.engagement .ai-metric-val{background:linear-gradient(135deg,#7b61f1,#38bdd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ai-metric.success .ai-metric-val{color:var(--green)}
+.ai-metric.risk .ai-metric-val{}
+.ai-metric.speed .ai-metric-val{color:var(--cyan);font-size:1.2rem;padding-top:0.3rem}
+.ai-metric-label{font-size:0.7rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+/* Ring progress for metrics */
+.ai-ring-wrap{display:flex;align-items:center;gap:14px}
+.ai-ring{flex-shrink:0}
+.ai-ring-track{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:5}
+.ai-ring-fill{fill:none;stroke-width:5;stroke-linecap:round;transform-origin:center;transform:rotate(-90deg);transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
+.ai-ring-fill.engagement{stroke:url(#gradPurple)}
+.ai-ring-fill.success{stroke:#34d399}
+.ai-ring-fill.risk{stroke:#f87171}
+
+/* Bottom row: strengths + weaknesses + recommendations */
+.ai-bottom{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:14px}
+@media(max-width:900px){.ai-bottom{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.ai-bottom{grid-template-columns:1fr}}
+.ai-panel{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px 22px;backdrop-filter:blur(12px)}
+.ai-panel-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.ai-panel-title i{font-size:0.85rem}
+.ai-tag-list{display:flex;flex-wrap:wrap;gap:7px}
+.ai-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;font-size:0.72rem;font-weight:600}
+.ai-tag.strength{background:rgba(52,211,153,0.09);color:var(--green);border:1px solid rgba(52,211,153,0.15)}
+.ai-tag.weakness{background:rgba(248,113,113,0.09);color:var(--red);border:1px solid rgba(248,113,113,0.15)}
+.ai-tag i{font-size:0.75rem}
+.ai-rec-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.ai-rec-list li{display:flex;align-items:flex-start;gap:8px;font-size:0.78rem;color:var(--muted);line-height:1.5}
+.ai-rec-list li i{font-size:0.9rem;color:#7b61f1;flex-shrink:0;margin-top:2px}
+.ai-diff-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:7px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:8px}
+.ai-diff-badge.easy{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.2)}
+.ai-diff-badge.medium{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.2)}
+.ai-diff-badge.hard{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
+/* Unavailable state */
+.ai-unavailable{padding:22px;background:var(--card);border:1px dashed var(--border);border-radius:18px;text-align:center;color:var(--muted);font-size:0.82rem}
+
 /* ═══ RESPONSIVE ═══ */
 @media(max-width:768px){
 	.cr-hero{padding:28px 24px}
@@ -360,9 +432,155 @@ footer{display:none!important}
 	</div>
 	{% endif %}
 
+	<!-- EduFusion AI Dashboard -->
+	{% if aiProfile is not null %}
+	{% set ai = aiProfile %}
+	{% set engPct  = ai.engagement_score|default(0)|round %}
+	{% set sucPct  = ai.success_probability|default(0)|round %}
+	{% set riskPct = ai.risk_score|default(0)|round %}
+	{% set rl      = ai.risk_level|default('medium') %}
+	{% set circ    = 3.14159 * 2 * 36 %}
+	{% set engOff  = circ - (engPct / 100 * circ) %}
+	{% set sucOff  = circ - (sucPct / 100 * circ) %}
+	{% set riskOff = circ - (riskPct / 100 * circ) %}
+	<div class="ai-dash">
+		<!-- Header -->
+		<div class="ai-dash-header">
+			<div class="ai-dash-title">
+				<i class='bx bx-brain'></i>
+				<div>
+					<h3>EduFusion AI — Your Adaptive Learning Profile</h3>
+					<small>Powered by real-time behavioral analysis &amp; predictive modelling</small>
+				</div>
+			</div>
+			<span class="ai-dash-badge {{ rl }}">
+				<i class='bx bx-{{ rl == "low" ? "shield-check" : (rl == "medium" ? "error" : "error-circle") }}'></i>
+				{{ rl|upper }} RISK
+			</span>
+		</div>
+
+		<!-- Adaptive message banner -->
+		<div class="ai-banner {{ rl }}">
+			<i class='bx bx-message-square-dots'></i>
+			<span>{{ ai.adaptive_message }}</span>
+		</div>
+
+		<!-- SVG gradients (hidden) -->
+		<svg width="0" height="0" style="position:absolute">
+			<defs>
+				<linearGradient id="gradPurple" x1="0%" y1="0%" x2="100%" y2="0%">
+					<stop offset="0%" stop-color="#7b61f1"/>
+					<stop offset="100%" stop-color="#38bdd1"/>
+				</linearGradient>
+			</defs>
+		</svg>
+
+		<!-- Metric cards -->
+		<div class="ai-grid">
+			<!-- Engagement -->
+			<div class="ai-metric engagement">
+				<div class="ai-metric-icon"><i class='bx bx-pulse'></i></div>
+				<div class="ai-ring-wrap">
+					<svg class="ai-ring" width="72" height="72" viewBox="0 0 84 84">
+						<circle class="ai-ring-track" cx="42" cy="42" r="36"/>
+						<circle class="ai-ring-fill engagement" cx="42" cy="42" r="36"
+							stroke-dasharray="{{ circ|number_format(2,'.',',') }}"
+							stroke-dashoffset="{{ engOff|number_format(2,'.',',') }}"/>
+					</svg>
+					<div>
+						<div class="ai-metric-val">{{ engPct }}%</div>
+						<div class="ai-metric-label">Engagement Score</div>
+					</div>
+				</div>
+			</div>
+			<!-- Success probability -->
+			<div class="ai-metric success">
+				<div class="ai-metric-icon"><i class='bx bx-target-lock'></i></div>
+				<div class="ai-ring-wrap">
+					<svg class="ai-ring" width="72" height="72" viewBox="0 0 84 84">
+						<circle class="ai-ring-track" cx="42" cy="42" r="36"/>
+						<circle class="ai-ring-fill success" cx="42" cy="42" r="36"
+							stroke-dasharray="{{ circ|number_format(2,'.',',') }}"
+							stroke-dashoffset="{{ sucOff|number_format(2,'.',',') }}"/>
+					</svg>
+					<div>
+						<div class="ai-metric-val" style="color:var(--green)">{{ sucPct }}%</div>
+						<div class="ai-metric-label">Success Probability</div>
+					</div>
+				</div>
+			</div>
+			<!-- Risk score -->
+			<div class="ai-metric risk">
+				<div class="ai-metric-icon"><i class='bx bx-shield-x'></i></div>
+				<div class="ai-ring-wrap">
+					<svg class="ai-ring" width="72" height="72" viewBox="0 0 84 84">
+						<circle class="ai-ring-track" cx="42" cy="42" r="36"/>
+						<circle class="ai-ring-fill risk" cx="42" cy="42" r="36"
+							stroke-dasharray="{{ circ|number_format(2,'.',',') }}"
+							stroke-dashoffset="{{ riskOff|number_format(2,'.',',') }}"/>
+					</svg>
+					<div>
+						<div class="ai-metric-val" style="color:{% if riskPct >= 60 %}var(--red){% elseif riskPct >= 30 %}var(--yellow){% else %}var(--green){% endif %}">{{ riskPct }}%</div>
+						<div class="ai-metric-label">Risk Score</div>
+					</div>
+				</div>
+			</div>
+			<!-- Learning speed -->
+			<div class="ai-metric speed">
+				<div class="ai-metric-icon"><i class='bx bx-tachometer'></i></div>
+				<div>
+					<div class="ai-metric-val">
+						{% if ai.learning_speed == 'fast' %}⚡ Fast{% elseif ai.learning_speed == 'slow' %}🐢 Slow{% else %}📘 Normal{% endif %}
+					</div>
+					<div class="ai-metric-label">Learning Speed</div>
+					<div class="ai-diff-badge {{ ai.recommended_difficulty }}">
+						<i class='bx bx-book-bookmark'></i>
+						Suggested: {{ ai.recommended_difficulty|capitalize }}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Bottom row: strengths / improvement / recommendations -->
+		<div class="ai-bottom">
+			<!-- Strengths -->
+			<div class="ai-panel">
+				<div class="ai-panel-title"><i class='bx bx-check-shield' style="color:var(--green)"></i> Strengths</div>
+				<div class="ai-tag-list">
+					{% for s in ai.strengths %}
+					<span class="ai-tag strength"><i class='bx bx-check-circle'></i>{{ s }}</span>
+					{% endfor %}
+				</div>
+			</div>
+			<!-- Improvement areas -->
+			<div class="ai-panel">
+				<div class="ai-panel-title"><i class='bx bx-target-lock' style="color:var(--orange)"></i> Areas to Improve</div>
+				<div class="ai-tag-list">
+					{% for w in ai.improvement_areas %}
+					<span class="ai-tag weakness"><i class='bx bx-x-circle'></i>{{ w }}</span>
+					{% endfor %}
+				</div>
+			</div>
+			<!-- Recommendations -->
+			<div class="ai-panel">
+				<div class="ai-panel-title"><i class='bx bx-bulb' style="color:#7b61f1"></i> AI Recommendations</div>
+				<ul class="ai-rec-list">
+					{% for r in ai.recommendations %}
+					<li><i class='bx bx-right-arrow-alt'></i>{{ r }}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+	{% else %}
+	<div class="ai-unavailable" style="margin-bottom:28px">
+		<i class='bx bx-brain' style="font-size:1.6rem;opacity:.3;display:block;margin-bottom:6px"></i>
+		AI Learning Profile temporarily unavailable — complete a quiz or course to activate your adaptive dashboard.
+	</div>
+	{% endif %}
+
 	<!-- Smart Recommendation Panel -->
-	<div class="cr-rec-panel" id="recPanel">
-		<div class="cr-rec-header">
+	<div class="cr-rec-panel" id="recPanel">		<div class="cr-rec-header">
 			<div class="cr-rec-title"><i class='bx bx-brain'></i> Smart Recommendations</div>
 			<div class="cr-rec-tab">
 				<button class="active" onclick="showRec('for-you',this)">For You</button>

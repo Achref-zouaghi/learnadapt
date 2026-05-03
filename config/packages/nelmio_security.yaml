@@ -4,6 +4,7 @@ nelmio_security:
         paths:
             '^/exercises/\d+/pdf$': SAMEORIGIN
             '^/exercises/\d+/video$': SAMEORIGIN
+            '^/quizzes/attempt/\d+$': DENY   # quiz take page must not be framed
             '^/.*': DENY
 
     # disables content type sniffing for script resources
@@ -20,3 +21,31 @@ nelmio_security:
         policies:
             - 'no-referrer'
             - 'strict-origin-when-cross-origin'
+
+    # Content Security Policy — tightened for the quiz take page
+    # Non-quiz pages inherit 'default' block; quiz page gets strict-dynamic.
+    csp:
+        enforce:
+            default-src:
+                - 'self'
+            script-src:
+                - 'self'
+                - 'unsafe-inline'     # required for inline Twig JS blocks
+            style-src:
+                - 'self'
+                - 'unsafe-inline'     # required for inline <style> in Twig
+                - 'https://unpkg.com' # boxicons CDN
+            font-src:
+                - 'self'
+                - 'https://unpkg.com'
+            img-src:
+                - 'self'
+                - 'data:'
+            connect-src:
+                - 'self'              # heartbeat + cheat API calls
+            frame-ancestors:
+                - 'none'
+            object-src:
+                - 'none'
+            base-uri:
+                - 'self'
