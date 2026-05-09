@@ -276,7 +276,13 @@ class CourseController extends AbstractController
             throw $this->createNotFoundException('PDF file not found.');
         }
 
-        return new BinaryFileResponse($filePath);
+        $response = new BinaryFileResponse($filePath);
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->setContentDisposition(
+            \Symfony\Component\HttpFoundation\ResponseHeaderBag::DISPOSITION_INLINE,
+            basename($filePath)
+        );
+        return $response;
     }
 
     #[Route('/courses/{id}/bookmark', name: 'app_course_bookmark', requirements: ['id' => '\d+'], methods: ['POST'])]

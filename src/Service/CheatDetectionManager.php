@@ -26,10 +26,13 @@ final class CheatDetectionManager
      */
     public const ZERO_SCORE_CHEATS = [
         'phone_detected',
-        'camera_denied',
+        // 'camera_denied' intentionally excluded: Python service unavailability
+        // should NOT penalise the student — browser-based guards remain active.
         'tab_switch',
         'focus_lost',
         'screenshot',
+        'copy_paste',
+        'voice_detected',
     ];
 
     public function __construct(

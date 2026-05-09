@@ -195,7 +195,22 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 .cs-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(52,211,153,0.9);backdrop-filter:blur(10px);color:#fff;padding:10px 24px;border-radius:12px;font-size:0.82rem;font-weight:700;z-index:999;opacity:0;transition:all .4s var(--ease);pointer-events:none}
 .cs-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* â•â•â• RESPONSIVE â•â•â• */
+/* ══ PDF VIEWER MODAL ══ */
+.pdf-modal-backdrop{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.pdf-modal-backdrop.open{opacity:1;pointer-events:all}
+.pdf-modal{width:100%;max-width:960px;height:90vh;background:#0d1120;border:1px solid rgba(255,255,255,0.08);border-radius:20px;display:flex;flex-direction:column;overflow:hidden;transform:scale(0.96);transition:transform .3s ease;box-shadow:0 24px 80px rgba(0,0,0,0.6)}
+.pdf-modal-backdrop.open .pdf-modal{transform:scale(1)}
+.pdf-modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0}
+.pdf-modal-title{font-size:0.88rem;font-weight:700;color:var(--orange);display:flex;align-items:center;gap:8px}
+.pdf-modal-title i{font-size:1.1rem}
+.pdf-modal-actions{display:flex;align-items:center;gap:10px}
+.pdf-modal-dl{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.2);border-radius:10px;color:var(--orange);font-size:0.78rem;font-weight:700;text-decoration:none;transition:all .2s}
+.pdf-modal-dl:hover{background:rgba(251,146,60,0.2)}
+.pdf-modal-close{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all .2s}
+.pdf-modal-close:hover{background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.2);color:var(--red)}
+.pdf-modal iframe{flex:1;border:none;background:#fff}
+
+/* ══ RESPONSIVE ══ */
 @media(max-width:768px){
 	.cs-hero{padding:28px 22px}
 	.cs-hero h1{font-size:1.5rem}
@@ -207,6 +222,20 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 {% endblock %}
 
 {% block body %}
+<!-- PDF Viewer Modal -->
+<div class="pdf-modal-backdrop" id="pdfModalBackdrop" onclick="closePdfViewer(event)">
+	<div class="pdf-modal">
+		<div class="pdf-modal-header">
+			<div class="pdf-modal-title"><i class='bx bxs-file-pdf'></i> <span id="pdfModalTitle">Course PDF</span></div>
+			<div class="pdf-modal-actions">
+				<a href="#" id="pdfModalDlLink" download class="pdf-modal-dl"><i class='bx bx-download'></i> Download</a>
+				<button class="pdf-modal-close" onclick="closePdfViewer()"><i class='bx bx-x'></i></button>
+			</div>
+		</div>
+		<iframe id="pdfModalFrame" src="" title="PDF Viewer"></iframe>
+	</div>
+</div>
+
 <div class="cs-bg-orb cs-bg-orb--1"></div>
 <div class="cs-bg-orb cs-bg-orb--2"></div>
 
@@ -265,9 +294,9 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 				<!-- Action pills -->
 				<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:18px">
 					{% if course.pdf_path %}
-					<a href="{{ path('app_course_pdf', {id: course.id}) }}" target="_blank" class="cs-pill cs-pill-pdf">
-						<i class='bx bxs-file-pdf' style="font-size:1.2rem"></i> Download PDF
-					</a>
+				<button onclick="openPdfViewer('{{ path('app_course_pdf', {id: course.id}) }}')" class="cs-pill cs-pill-pdf">
+					<i class='bx bxs-file-pdf' style="font-size:1.2rem"></i> View PDF
+				</button>
 					{% endif %}
 					<button onclick="toggleBookmark()" class="cs-pill cs-pill-bm {{ isBookmarked ? 'active' : '' }}" id="bmBtn">
 						<i class='bx {{ isBookmarked ? "bxs-bookmark" : "bx-bookmark" }}' id="bmIcon"></i>
@@ -757,5 +786,28 @@ function escapeHtml(text) {
 	d.textContent = text;
 	return d.innerHTML;
 }
+
+function openPdfViewer(url) {
+	const backdrop = document.getElementById('pdfModalBackdrop');
+	const frame    = document.getElementById('pdfModalFrame');
+	const dlLink   = document.getElementById('pdfModalDlLink');
+	frame.src = url;
+	dlLink.href = url;
+	backdrop.classList.add('open');
+	document.body.style.overflow = 'hidden';
+}
+
+function closePdfViewer(e) {
+	if (e && e.target !== document.getElementById('pdfModalBackdrop')) return;
+	const backdrop = document.getElementById('pdfModalBackdrop');
+	const frame    = document.getElementById('pdfModalFrame');
+	backdrop.classList.remove('open');
+	document.body.style.overflow = '';
+	setTimeout(() => { frame.src = ''; }, 300);
+}
+
+document.addEventListener('keydown', function(e) {
+	if (e.key === 'Escape') closePdfViewer();
+});
 </script>
 {% endblock %}

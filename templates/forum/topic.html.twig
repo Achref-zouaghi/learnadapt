@@ -197,6 +197,44 @@ footer{display:none!important}
     .forum-grid{grid-template-columns:1fr}
     .left-col,.right-col{display:none}
 }
+/* AI Summary */
+.sum-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:12px;background:linear-gradient(135deg,rgba(123,97,241,0.15),rgba(56,189,209,0.1));border:1px solid rgba(123,97,241,0.3);color:var(--purple);font-size:.8rem;font-weight:800;cursor:pointer;transition:all .25s;white-space:nowrap}
+.sum-btn:hover{background:linear-gradient(135deg,rgba(123,97,241,0.25),rgba(56,189,209,0.18));border-color:rgba(123,97,241,0.55);transform:translateY(-2px);box-shadow:0 6px 20px rgba(123,97,241,0.2)}
+.sum-btn.loading{pointer-events:none;opacity:.7}
+.sum-btn .sum-spinner{width:14px;height:14px;border:2px solid rgba(123,97,241,0.3);border-top-color:var(--purple);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Summary modal */
+.sum-modal-bg{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.sum-modal-bg.open{opacity:1;pointer-events:all}
+.sum-modal{width:min(580px,96vw);background:linear-gradient(165deg,rgba(14,18,36,0.99),rgba(8,11,22,0.99));border:1px solid rgba(123,97,241,0.2);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,0.03);transform:scale(0.94) translateY(14px);transition:transform .3s ease;overflow:hidden}
+.sum-modal-bg.open .sum-modal{transform:scale(1) translateY(0)}
+.sum-modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06);background:linear-gradient(90deg,rgba(123,97,241,0.08),rgba(56,189,209,0.05))}
+.sum-modal-title{display:flex;align-items:center;gap:9px;font-size:.92rem;font-weight:800;color:var(--text)}
+.sum-modal-title .sum-ai-badge{font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:999px;background:linear-gradient(135deg,rgba(123,97,241,0.3),rgba(56,189,209,0.2));color:var(--cyan);border:1px solid rgba(56,189,209,0.25);letter-spacing:0.04em}
+.sum-modal-close{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all .2s}
+.sum-modal-close:hover{background:rgba(248,113,113,0.12);color:#f87171}
+.sum-body{padding:20px;display:grid;gap:14px}
+.sum-section{background:rgba(255,255,255,0.028);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:14px 16px}
+.sum-section-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sum-section-label i{font-size:.85rem}
+.sum-problem{font-size:.92rem;color:var(--text);line-height:1.6;font-weight:500}
+.sum-solutions{display:grid;gap:8px}
+.sum-sol{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:11px;transition:border-color .2s}
+.sum-sol:hover{border-color:rgba(123,97,241,0.2)}
+.sum-sol-dot{width:8px;height:8px;border-radius:50%;background:var(--purple);flex-shrink:0;margin-top:5px}
+.sum-sol-body{flex:1}
+.sum-sol-text{font-size:.86rem;color:rgba(241,245,249,0.85);line-height:1.5}
+.sum-sol-meta{font-size:.72rem;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:8px}
+.sum-sol-likes{display:inline-flex;align-items:center;gap:3px;color:var(--cyan)}
+.sum-best{background:linear-gradient(135deg,rgba(52,211,153,0.08),rgba(56,189,209,0.06));border:1px solid rgba(52,211,153,0.2);border-radius:11px;padding:12px 14px}
+.sum-best-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:6px}
+.sum-best-text{font-size:.88rem;color:var(--text);line-height:1.5;font-style:italic}
+.sum-consensus{font-size:.82rem;color:var(--muted);line-height:1.6;border-left:2px solid rgba(123,97,241,0.4);padding-left:10px}
+.sum-stats{display:flex;gap:10px}
+.sum-stat{flex:1;text-align:center;background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 8px}
+.sum-stat b{display:block;font-size:1.3rem;font-weight:800;color:var(--purple)}
+.sum-stat span{font-size:.7rem;color:var(--muted)}
+.sum-error{padding:16px;text-align:center;color:var(--red);font-size:.88rem}
 </style>
 {% endblock %}
 
@@ -235,14 +273,18 @@ footer{display:none!important}
             <article class="card topic-head">
                 <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
                     <h2 class="topic-title" style="flex:1">{{ topic.title }}</h2>
-                    {% if topic.created_by_user_id == user.id %}
-                        <div class="topic-actions">
+                    <div class="topic-actions" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                        <button class="sum-btn" id="sumBtn" onclick="openSummary()">
+                            <span>📋</span> Résumer ce sujet
+                        </button>
+                        {% if topic.created_by_user_id == user.id %}
                             <button class="btn-small" onclick="document.getElementById('editTopicModal').classList.add('open')"><i class='bx bx-edit'></i> Edit</button>
                             <form method="post" action="{{ path('app_forum_topic_delete', {id: topic.id}) }}" onsubmit="return confirm('Delete this topic and all its replies?');" style="display:inline">
                                 <button type="submit" class="btn-small danger"><i class='bx bx-trash'></i> Delete</button>
                             </form>
                         </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="topic-meta">
                     <img src="{{ topic.author_avatar ?: 'https://ui-avatars.com/api/?name=' ~ topic.author_name|url_encode ~ '&size=56&background=e2e8f0&color=0f172a&bold=true&format=svg' }}" alt="">
@@ -399,6 +441,23 @@ footer{display:none!important}
                 <button type="submit" class="post-btn">Save</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- AI Summary Modal -->
+<div class="sum-modal-bg" id="sumModalBg" onclick="if(event.target===this)closeSummary()">
+    <div class="sum-modal" id="sumModal">
+        <div class="sum-modal-head">
+            <div class="sum-modal-title">
+                <span style="font-size:1.2rem">📋</span>
+                Résumé du sujet
+                <span class="sum-ai-badge">AI</span>
+            </div>
+            <button class="sum-modal-close" onclick="closeSummary()"><i class='bx bx-x'></i></button>
+        </div>
+        <div class="sum-body" id="sumBody">
+            <div class="sum-error">Chargement...</div>
+        </div>
     </div>
 </div>
 
@@ -701,6 +760,110 @@ function reactToPost(btn) {
             summary.remove();
         }
     });
+}
+
+/* ── AI Summary ── */
+var sumCache = null;
+function openSummary() {
+    document.getElementById('sumModalBg').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (sumCache) { renderSummary(sumCache); return; }
+    loadSummary();
+}
+function closeSummary() {
+    document.getElementById('sumModalBg').classList.remove('open');
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeSummary(); });
+
+function loadSummary() {
+    var btn = document.getElementById('sumBtn');
+    btn.classList.add('loading');
+    btn.innerHTML = '<span class="sum-spinner"></span> Analyse en cours\u2026';
+    document.getElementById('sumBody').innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)"><div class="sum-spinner" style="width:32px;height:32px;border-width:3px;margin:0 auto 12px"></div><div style="font-size:.88rem">L\'IA analyse les messages\u2026</div></div>';
+
+    var _sumUrl = '{{ path('app_forum_topic_summarize', {id: topic.id}) }}';
+    fetch(_sumUrl, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(function(r){
+        if (!r.ok) {
+            return r.text().then(function(t){
+                throw new Error('HTTP ' + r.status + ': ' + t.substring(0, 300));
+            });
+        }
+        return r.json();
+    })
+    .then(function(data){
+        btn.classList.remove('loading');
+        btn.innerHTML = '<span>\ud83d\udccb</span> R\u00e9sumer ce sujet';
+        if (data.error) {
+            document.getElementById('sumBody').innerHTML = '<div class="sum-error"><i class="bx bx-error-circle" style="font-size:1.4rem;display:block;margin-bottom:6px"></i>' + data.error + '</div>';
+            return;
+        }
+        sumCache = data.summary;
+        renderSummary(data.summary);
+    })
+    .catch(function(err){
+        btn.classList.remove('loading');
+        btn.innerHTML = '<span>\ud83d\udccb</span> R\u00e9sumer ce sujet';
+        var msg = err && err.message ? escHtmlSum(err.message) : 'Erreur de connexion.';
+        document.getElementById('sumBody').innerHTML = '<div class="sum-error" style="word-break:break-word"><b>Erreur:</b><br>' + msg + '</div>';
+    });
+}
+
+function escHtmlSum(s){ var d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+function renderSummary(s) {
+    var html = '';
+
+    // Stats row
+    html += '<div class="sum-stats">';
+    html += '<div class="sum-stat"><b>' + (s.reply_count||0) + '</b><span>Messages</span></div>';
+    html += '<div class="sum-stat"><b>' + (s.solutions ? s.solutions.length : 0) + '</b><span>Solutions</span></div>';
+    html += '</div>';
+
+    // Problem
+    html += '<div class="sum-section">';
+    html += '<div class="sum-section-label"><i class="bx bx-question-mark" style="color:var(--yellow)"></i> Probl\u00e8me identifi\u00e9</div>';
+    html += '<div class="sum-problem">' + escHtmlSum(s.problem) + '</div>';
+    html += '</div>';
+
+    // Solutions
+    if (s.solutions && s.solutions.length) {
+        html += '<div class="sum-section">';
+        html += '<div class="sum-section-label"><i class="bx bx-bulb" style="color:var(--purple)"></i> Solutions propos\u00e9es</div>';
+        html += '<div class="sum-solutions">';
+        s.solutions.forEach(function(sol){
+            html += '<div class="sum-sol">';
+            html += '<div class="sum-sol-dot"></div>';
+            html += '<div class="sum-sol-body">';
+            html += '<div class="sum-sol-text">' + escHtmlSum(sol.text) + '</div>';
+            html += '<div class="sum-sol-meta"><span>' + escHtmlSum(sol.supporters||'') + '</span>';
+            if (sol.likes > 0) html += '<span class="sum-sol-likes">\ud83d\udc4d ' + sol.likes + '</span>';
+            html += '</div></div></div>';
+        });
+        html += '</div></div>';
+    }
+
+    // Best solution
+    if (s.best_solution) {
+        html += '<div class="sum-best">';
+        html += '<div class="sum-best-label">\u2705 Solution la plus appr\u00e9ci\u00e9e</div>';
+        html += '<div class="sum-best-text">\u201c' + escHtmlSum(s.best_solution) + '\u201d</div>';
+        html += '</div>';
+    }
+
+    // Consensus
+    if (s.consensus) {
+        html += '<div class="sum-section">';
+        html += '<div class="sum-section-label"><i class="bx bx-group" style="color:var(--cyan)"></i> Consensus</div>';
+        html += '<div class="sum-consensus">' + escHtmlSum(s.consensus) + '</div>';
+        html += '</div>';
+    }
+
+    document.getElementById('sumBody').innerHTML = html;
 }
 </script>
 {% endblock %}

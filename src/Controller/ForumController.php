@@ -12,9 +12,11 @@ use App\Service\ProfanityService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ForumController extends AbstractController
 {
@@ -942,5 +944,83 @@ class ForumController extends AbstractController
                 'user_reaction' => null,
             ],
         ]);
+    }
+
+    #[Route('/forum/topic/{id}/summarize', name: 'app_forum_topic_summarize', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function summarizeTopic(int $id, Request $request, HttpClientInterface $httpClient): JsonResponse
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user instanceof User) {
+            return $this->json(['error' => 'Not authenticated'], 401);
+        }
+
+        $topic = $this->conn()->fetchAssociative('SELECT * FROM forum_topics WHERE id = ?', [$id]);
+        if (!$topic) {
+            return $this->json(['error' => 'Topic not found'], 404);
+        }
+
+        // Fetch all posts with author info and like counts
+        $posts = $this->conn()->fetchAllAssociative(
+            "SELECT fp.content, fp.is_expert_reply, u.full_name as author_name, u.role as author_role,
+                    (SELECT COUNT(*) FROM forum_post_reactions r WHERE r.post_id = fp.id AND r.reaction_type = 'like') as like_count
+             FROM forum_posts fp
+             JOIN users u ON fp.author_user_id = u.id
+             WHERE fp.topic_id = ?
+             ORDER BY fp.created_at ASC",
+            [$id]
+        );
+
+        if (count($posts) < 2) {
+            return $this->json(['error' => 'Not enough posts to summarize (need at least 2 replies).'], 422);
+        }
+
+        // Build conversation text for the prompt
+        $conversationText = "Topic: {$topic['title']}\nCategory: {$topic['category']}\n\nPosts:\n";
+        foreach ($posts as $i => $p) {
+            $role = $p['is_expert_reply'] ? ' [Expert]' : ($p['author_role'] === 'PARENT' ? ' [Parent]' : '');
+            $likes = (int)$p['like_count'];
+            $conversationText .= ($i + 1) . ". {$p['author_name']}{$role}: {$p['content']}" . ($likes > 0 ? " [{$likes} likes]" : '') . "\n";
+        }
+
+        $systemPrompt = 'You are an AI assistant that summarizes forum discussions. Analyze the given forum thread and return a JSON object with this exact structure: {"problem":"One clear sentence describing the main issue raised","solutions":[{"text":"solution description","supporters":"who suggested it e.g. 3 parents 1 expert","likes":0}],"best_solution":"The exact text of the most liked or most supported solution","consensus":"One sentence about overall community agreement"}. Return ONLY valid JSON, no markdown, no explanation. Detect the language of the posts and respond in the same language.';
+
+        $apiKey = $this->getParameter('app.groq_api_key');
+        if (!$apiKey || $apiKey === 'your-groq-api-key-here') {
+            return $this->json(['error' => 'AI summarization is not configured.'], 503);
+        }
+
+        try {
+            $response = $httpClient->request('POST', 'https://api.groq.com/openai/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'model' => 'llama-3.3-70b-versatile',
+                    'messages' => [
+                        ['role' => 'system', 'content' => $systemPrompt],
+                        ['role' => 'user', 'content' => $conversationText],
+                    ],
+                    'max_tokens' => 800,
+                    'temperature' => 0.3,
+                    'response_format' => ['type' => 'json_object'],
+                ],
+                'timeout' => 30,
+            ]);
+
+            $result = $response->toArray();
+            $raw = $result['choices'][0]['message']['content'] ?? '{}';
+            $summary = json_decode($raw, true);
+
+            if (!$summary || !isset($summary['problem'])) {
+                return $this->json(['error' => 'AI returned an invalid response. Please try again.'], 500);
+            }
+
+            $summary['reply_count'] = count($posts);
+            return $this->json(['summary' => $summary]);
+
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'AI service error: ' . $e->getMessage()], 500);
+        }
     }
 }

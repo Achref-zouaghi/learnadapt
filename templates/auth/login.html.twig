@@ -811,6 +811,264 @@
                 font-size: 0.82rem;
             }
         }
+
+        /* ── AI Voice Button ── */
+        .ai-voice-btn {
+            border-color: rgba(168, 85, 247, 0.35) !important;
+            background: rgba(88, 28, 135, 0.12);
+            transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+        .ai-voice-btn:hover {
+            background: rgba(126, 34, 206, 0.2);
+            border-color: rgba(192, 132, 252, 0.55) !important;
+            box-shadow: 0 0 22px rgba(168, 85, 247, 0.25);
+        }
+
+        /* ── AI Voice Modal ── */
+        .ai-modal-wrap {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .ai-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(3, 9, 20, 0.78);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .ai-modal-card {
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.97), rgba(23, 12, 48, 0.97));
+            border: 1px solid rgba(168, 85, 247, 0.28);
+            border-radius: 24px;
+            padding: 42px 36px 32px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 80px rgba(126, 34, 206, 0.22), 0 24px 60px rgba(0,0,0,0.55);
+            text-align: center;
+            animation: aiModalIn 0.35s cubic-bezier(0.22,1,0.36,1);
+        }
+        @keyframes aiModalIn {
+            from { opacity: 0; transform: translateY(22px) scale(0.95); }
+            to   { opacity: 1; transform: translateY(0)   scale(1); }
+        }
+        .ai-modal-close {
+            position: absolute;
+            top: 14px; right: 14px;
+            background: rgba(168,85,247,0.12);
+            border: 1px solid rgba(168,85,247,0.22);
+            border-radius: 50%;
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            color: rgba(192,132,252,0.8);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background 0.18s;
+        }
+        .ai-modal-close:hover { background: rgba(168,85,247,0.25); }
+
+        /* Brain icon rings */
+        .ai-brain-wrap {
+            position: relative;
+            width: 88px; height: 88px;
+            margin: 0 auto 18px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ai-brain-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(192,132,252,0.3);
+            animation: aiRingPulse 2.4s ease-in-out infinite;
+        }
+        .ai-ring-1 { width: 88px; height: 88px; animation-delay: 0s; }
+        .ai-ring-2 { width: 68px; height: 68px; animation-delay: 0.5s; border-color: rgba(168,85,247,0.4); }
+        .ai-ring-3 { width: 50px; height: 50px; animation-delay: 1s;   border-color: rgba(139,92,246,0.5); }
+        @keyframes aiRingPulse {
+            0%, 100% { opacity: 0.35; transform: scale(1); }
+            50%       { opacity: 0.9;  transform: scale(1.06); }
+        }
+        .ai-brain-core {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #7e22ce, #a855f7);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
+            color: #fff;
+            box-shadow: 0 0 24px rgba(168,85,247,0.55);
+        }
+        .ai-modal-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #f3f8ff;
+            margin-bottom: 4px;
+        }
+        .ai-modal-sub {
+            color: rgba(192,132,252,0.75);
+            font-size: 0.82rem;
+            margin-bottom: 20px;
+        }
+
+        /* Waveform */
+        .ai-waveform {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 36px;
+            margin-bottom: 14px;
+        }
+        .ai-waveform span {
+            display: inline-block;
+            width: 4px;
+            border-radius: 2px;
+            background: rgba(168,85,247,0.35);
+            height: 8px;
+            transition: background 0.2s;
+        }
+        .ai-waveform.listening span {
+            background: #a855f7;
+            animation: aiWave 0.9s ease-in-out infinite alternate;
+        }
+        .ai-waveform.listening span:nth-child(1)  { animation-delay: 0s;    }
+        .ai-waveform.listening span:nth-child(2)  { animation-delay: 0.08s; }
+        .ai-waveform.listening span:nth-child(3)  { animation-delay: 0.16s; }
+        .ai-waveform.listening span:nth-child(4)  { animation-delay: 0.24s; }
+        .ai-waveform.listening span:nth-child(5)  { animation-delay: 0.32s; }
+        .ai-waveform.listening span:nth-child(6)  { animation-delay: 0.24s; }
+        .ai-waveform.listening span:nth-child(7)  { animation-delay: 0.16s; }
+        .ai-waveform.listening span:nth-child(8)  { animation-delay: 0.08s; }
+        .ai-waveform.listening span:nth-child(9)  { animation-delay: 0.04s; }
+        .ai-waveform.listening span:nth-child(10) { animation-delay: 0s;    }
+        @keyframes aiWave {
+            from { height: 6px;  opacity: 0.5; }
+            to   { height: 30px; opacity: 1; }
+        }
+
+        .ai-status-line {
+            font-size: 0.84rem;
+            color: rgba(212,229,248,0.7);
+            margin-bottom: 10px;
+            min-height: 1.2em;
+        }
+        .ai-transcript-box {
+            background: rgba(168,85,247,0.08);
+            border: 1px solid rgba(168,85,247,0.2);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            color: rgba(243,248,255,0.85);
+            margin-bottom: 12px;
+            text-align: left;
+            min-height: 42px;
+        }
+
+        /* AI response bubble */
+        .ai-bubble-wrap {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: rgba(126,34,206,0.15);
+            border: 1px solid rgba(168,85,247,0.25);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 18px;
+            text-align: left;
+            animation: aiBubbleIn 0.3s ease;
+        }
+        @keyframes aiBubbleIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .ai-bubble-avatar {
+            width: 28px; height: 28px;
+            background: linear-gradient(135deg, #7e22ce, #a855f7);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .ai-bubble-text {
+            font-size: 0.84rem;
+            color: rgba(243,248,255,0.9);
+            line-height: 1.5;
+        }
+
+        /* Mic button */
+        .ai-mic-btn {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6d28d9, #a855f7);
+            border: none;
+            color: #fff;
+            font-size: 1.6rem;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 14px;
+            cursor: pointer;
+            box-shadow: 0 0 28px rgba(168,85,247,0.4);
+            transition: transform 0.18s, box-shadow 0.18s;
+        }
+        .ai-mic-btn:hover  { transform: scale(1.08); box-shadow: 0 0 38px rgba(168,85,247,0.6); }
+        .ai-mic-btn.active { background: linear-gradient(135deg, #991b1b, #dc2626); box-shadow: 0 0 28px rgba(239,68,68,0.5); }
+        .ai-mic-btn.active:hover { box-shadow: 0 0 42px rgba(239,68,68,0.7); }
+
+        .ai-hint {
+            font-size: 0.75rem;
+            color: rgba(148,163,184,0.55);
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+        .ai-hint em { color: rgba(192,132,252,0.6); font-style: normal; }
+
+        /* Fallback manual email input */
+        .ai-fallback-wrap {
+            border-top: 1px solid rgba(168,85,247,0.15);
+            padding-top: 14px;
+            margin-top: 4px;
+        }
+        .ai-fallback-label {
+            font-size: 0.73rem;
+            color: rgba(148,163,184,0.5);
+            margin-bottom: 8px;
+        }
+        .ai-fallback-row {
+            display: flex;
+            gap: 8px;
+        }
+        .ai-fallback-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(168,85,247,0.25);
+            border-radius: 10px;
+            padding: 9px 12px;
+            color: #f3f8ff;
+            font-size: 0.84rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .ai-fallback-input:focus { border-color: rgba(168,85,247,0.6); }
+        .ai-fallback-input::placeholder { color: rgba(148,163,184,0.4); }
+        .ai-fallback-btn {
+            background: linear-gradient(135deg, #6d28d9, #a855f7);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            padding: 9px 14px;
+            font-size: 0.84rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 0.18s;
+        }
+        .ai-fallback-btn:hover { opacity: 0.85; }
     </style>
 </head>
 <body>
@@ -858,6 +1116,10 @@
                         <button type="button" class="social-button face-id-btn" id="faceIdBtn" onclick="startFaceIdLogin()" style="grid-column: 1 / -1; border-color: rgba(121,240,255,0.2);">
                             <i class="bx bx-face" style="color:#79f0ff;"></i>
                             <span>Sign in with Face ID / Passkey</span>
+                        </button>
+                        <button type="button" class="social-button ai-voice-btn" id="aiVoiceBtn" onclick="openVoiceModal()" style="grid-column: 1 / -1;">
+                            <i class="bx bx-microphone" style="color:#c084fc;"></i>
+                            <span>🧠 AI Personal Assistant Login</span>
                         </button>
                     </div>
 
@@ -1006,6 +1268,54 @@
             </div>
         </div>
     </main>
+
+    <!-- ── AI Personal Assistant Voice Login Modal ── -->
+    <div id="aiVoiceModal" class="ai-modal-wrap" aria-modal="true" role="dialog" aria-label="AI Personal Assistant Login" style="display:none;">
+        <div class="ai-modal-backdrop" onclick="closeVoiceModal()"></div>
+        <div class="ai-modal-card">
+            <button class="ai-modal-close" onclick="closeVoiceModal()" aria-label="Close"><i class="bx bx-x"></i></button>
+
+            <div class="ai-brain-wrap">
+                <div class="ai-brain-ring ai-ring-1"></div>
+                <div class="ai-brain-ring ai-ring-2"></div>
+                <div class="ai-brain-ring ai-ring-3"></div>
+                <div class="ai-brain-core">
+                    <i class="bx bx-brain"></i>
+                </div>
+            </div>
+
+            <h3 class="ai-modal-title">AI Personal Assistant</h3>
+            <p class="ai-modal-sub">Voice-powered login &mdash; speak naturally</p>
+
+            <div class="ai-waveform" id="aiWaveform">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+
+            <div class="ai-status-line" id="aiStatus">Press the mic and say your email</div>
+
+            <div class="ai-transcript-box" id="aiTranscript" style="display:none;"></div>
+
+            <div class="ai-bubble-wrap" id="aiBubble" style="display:none;">
+                <div class="ai-bubble-avatar"><i class="bx bx-bot"></i></div>
+                <div class="ai-bubble-text" id="aiBubbleText"></div>
+            </div>
+
+            <button class="ai-mic-btn" id="aiMicBtn" onclick="toggleVoiceRecognition()" aria-label="Start listening">
+                <i class="bx bx-microphone" id="aiMicIcon"></i>
+            </button>
+
+            <p class="ai-hint">Say: <em>"Log me in, my email is you@example.com"</em></p>
+
+            <div class="ai-fallback-wrap">
+                <p class="ai-fallback-label">Or type your email manually:</p>
+                <div class="ai-fallback-row">
+                    <input type="email" id="aiFallbackEmail" class="ai-fallback-input" placeholder="you@example.com" autocomplete="email">
+                    <button type="button" class="ai-fallback-btn" onclick="submitFallbackEmail()">Go <i class="bx bx-right-arrow-alt"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         const authShell = document.getElementById('authShell');
@@ -1182,6 +1492,487 @@
     const styleEl = document.createElement('style');
     styleEl.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
     document.head.appendChild(styleEl);
+    </script>
+
+    <script>
+    /* ── AI Personal Assistant Voice Login ── */
+    (function () {
+        'use strict';
+
+        let recognition   = null;
+        let isListening   = false;
+        let synth         = window.speechSynthesis;
+
+        /* ---- helpers ---- */
+        function el(id) { return document.getElementById(id); }
+
+        function setStatus(msg) {
+            const s = el('aiStatus');
+            if (s) s.textContent = msg;
+        }
+
+        function showTranscript(text) {
+            const t = el('aiTranscript');
+            if (!t) return;
+            t.style.display = text ? 'block' : 'none';
+            t.textContent   = text ? '🎙 "' + text + '"' : '';
+        }
+
+        function showBubble(msg, onEnd) {
+            const wrap = el('aiBubble');
+            const txt  = el('aiBubbleText');
+            if (!wrap || !txt) { if (onEnd) setTimeout(onEnd, 0); return; }
+            txt.textContent    = msg;
+            wrap.style.display = 'flex';
+            /* Speak the response — fire onEnd only after speech finishes */
+            if (synth) {
+                synth.cancel();
+                const utt  = new SpeechSynthesisUtterance(msg);
+                utt.lang   = 'en-US';
+                utt.rate   = 1.05;
+                utt.pitch  = 1.05;
+                if (onEnd) utt.onend = onEnd;
+                synth.speak(utt);
+            } else if (onEnd) {
+                setTimeout(onEnd, 300);
+            }
+        }
+
+        function setListeningUI(active) {
+            const btn  = el('aiMicBtn');
+            const icon = el('aiMicIcon');
+            const wave = el('aiWaveform');
+            isListening = active;
+            if (btn)  { btn.classList.toggle('active', active); }
+            if (icon) { icon.className = active ? 'bx bx-stop-circle' : 'bx bx-microphone'; }
+            if (wave) { wave.classList.toggle('listening', active); }
+        }
+
+        /* ---- intent detection ---- */
+        const EMAIL_REGEX = /[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i;
+
+        function extractEmail(rawText) {
+            // 1. Direct match — user said or the STT produced a real email address
+            let m = rawText.match(EMAIL_REGEX);
+            if (m) return m[0].toLowerCase();
+
+            // 2. Spoken word normalisation — replace "at" / "dot" etc.
+            //    Use word boundaries so we don't mangle words like "that", "attend"
+            let t = rawText
+                .replace(/\bat\b/gi, '@')
+                .replace(/\bdot\b/gi, '.')
+                .replace(/\bunderscore\b/gi, '_')
+                .replace(/\bdash\b|\bhyphen\b/gi, '-');
+
+            // 3. Remove spaces only immediately around @ and .
+            //    (keeps other words separated so the regex can find the email token)
+            t = t
+                .replace(/\s*@\s*/g, '@')
+                .replace(/\s*\.\s*/g, '.');
+
+            // 4. Try full-string regex on normalised text
+            m = t.match(EMAIL_REGEX);
+            if (m) return m[0].toLowerCase();
+
+            // 5. Token scan — find the one word-token that looks like an email
+            const tokens = t.split(/\s+/);
+            for (const tok of tokens) {
+                if (EMAIL_REGEX.test(tok)) return tok.toLowerCase().match(EMAIL_REGEX)[0];
+            }
+
+            // 6. Adjacent token join — user may have paused between parts:
+            //    e.g. ["john@gmail", ".", "com"] or ["john", "@gmail.com"]
+            const joined = tokens.join('');
+            m = joined.match(EMAIL_REGEX);
+            if (m) return m[0].toLowerCase();
+
+            return null;
+        }
+
+        const LOGIN_INTENTS = [
+            /log\s*me\s*in/i, /sign\s*me\s*in/i, /it'?s\s*me/i,
+            /let\s*me\s*in/i, /my\s*email\s*is/i, /log\s*in/i,
+            /sign\s*in/i,     /authenticate/i,    /access/i,
+        ];
+
+        function hasLoginIntent(text) {
+            return LOGIN_INTENTS.some(re => re.test(text));
+        }
+
+        /* ---- voice check API ---- */
+        async function fetchVoiceCheck(email) {
+            try {
+                const res = await fetch('/auth/voice-check', {
+                    method : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body   : JSON.stringify({ email }),
+                });
+                if (!res.ok) return null;
+                return await res.json();
+            } catch (_) {
+                return null;
+            }
+        }
+
+        /* ---- handle final transcript ---- */
+        async function handleTranscript(text) {
+            showTranscript(text);
+            setStatus('Processing…');
+
+            const email = extractEmail(text);
+            const hasIntent = hasLoginIntent(text) || email !== null;
+
+            if (!hasIntent && !email) {
+                setStatus('Press the mic and say your email');
+                showBubble("I didn't catch that. Try saying: \"Hey, it's me — log me in, my email is you@example.com\"");
+                return;
+            }
+
+            if (!email) {
+                /* Check if the user already typed their email in the fallback input */
+                const fallbackInput = el('aiFallbackEmail');
+                const typedEmail = fallbackInput ? fallbackInput.value.trim().toLowerCase() : '';
+                if (typedEmail && /^[\w.+\-]+@[\w.\-]+\.[a-z]{2,}$/i.test(typedEmail)) {
+                    /* Use the typed email automatically — continue as if they said it */
+                    return handleTranscript(typedEmail);
+                }
+                setStatus('Email not detected, please try again');
+                showBubble("I heard you want to log in! Could you also say your email address, or type it in the box below.");
+                return;
+            }
+
+            /* Fill email field */
+            const emailInput = document.querySelector('input[name="email"]');
+            if (emailInput) {
+                emailInput.value = email;
+                emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
+            setStatus('Recognised — checking account…');
+
+            const info = await fetchVoiceCheck(email);
+
+            if (!info || !info.exists) {
+                showBubble("Hmm, I couldn't find an account for " + email + ". Double-check the address or register first!");
+                setStatus('Account not found');
+                return;
+            }
+
+            /* Personalised greeting */
+            let greeting = 'Welcome back, ' + info.name + '!';
+            if (info.daysAgo === 0) {
+                greeting += " You were here earlier today — great to see you again!";
+            } else if (info.daysAgo === 1) {
+                greeting += " Your last session was yesterday. Let's pick up where you left off!";
+            } else if (info.daysAgo !== null && info.daysAgo <= 30) {
+                greeting += ' Your last session was ' + info.daysAgo + ' days ago. Ready to continue?';
+            } else {
+                greeting += " It's been a while — welcome back! Let's get you in.";
+            }
+
+            /* Check voice registration and chain speech → mic correctly */
+            const VL_KEY = 'learnadapt_voice_reg';
+            let voiceReg = null;
+            try { voiceReg = JSON.parse(localStorage.getItem(VL_KEY) || '{}'); } catch(e) {}
+
+            if (voiceReg && voiceReg.confirmed && voiceReg.email.toLowerCase() === email.toLowerCase()) {
+                /* Speak greeting, then when speech ENDS start the passphrase mic */
+                passphraseAttempts = 0;
+                setStatus('Voice passphrase found — listen for the prompt…');
+                showBubble(greeting + ' Say your passphrase now to sign in instantly!', () => {
+                    setStatus('🎤 Listening for your passphrase…');
+                    startPassphraseListening(email, voiceReg.passphrase);
+                });
+            } else {
+                showBubble(greeting, () => {
+                    setStatus('Account found! Enter your password to continue.');
+                    const pwInput = document.querySelector('input[name="password"]');
+                    if (pwInput) pwInput.focus();
+                });
+            }
+        }
+
+        /* ---- voice passphrase matching & auto-login ---- */
+        function normalizePhrase(s) {
+            return s.toLowerCase().replace(/[^a-z0-9@.]/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+
+        function levenshtein(a, b) {
+            const m = a.length, n = b.length;
+            const dp = Array.from({length: m + 1}, (_, i) => Array.from({length: n + 1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+            for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
+                dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+            return dp[m][n];
+        }
+
+        function passphraseMatches(spoken, saved) {
+            const a = normalizePhrase(spoken);
+            const b = normalizePhrase(saved);
+            if (a === b) return true;
+            /* Substring match — passphrase appears inside what was spoken */
+            if (a.includes(b) || b.includes(a)) return true;
+            /* Character-level similarity (Levenshtein) */
+            const maxLen = Math.max(a.length, b.length);
+            if (maxLen > 0 && levenshtein(a, b) / maxLen <= 0.35) return true;
+            /* Word overlap — 60% of saved words must appear in spoken */
+            const savedWords  = b.split(' ').filter(w => w.length > 1);
+            const spokenWords = a.split(' ');
+            if (savedWords.length === 0) return false;
+            const exactMatches = savedWords.filter(w => spokenWords.includes(w)).length;
+            if (exactMatches / savedWords.length >= 0.6) return true;
+            /* Fuzzy word match — word within edit distance 1 */
+            const fuzzyMatches = savedWords.filter(sw => spokenWords.some(pw => levenshtein(sw, pw) <= 1)).length;
+            return fuzzyMatches / savedWords.length >= 0.7;
+        }
+
+        let passphraseRec = null;
+        let passphraseAttempts = 0;
+
+        function startPassphraseListening(email, savedPassphrase) {
+            /* Stop any running mic and any speech synthesis before opening mic */
+            stopListening();
+            if (synth) synth.cancel();
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) {
+                setStatus('Account found! Enter your password to continue.');
+                return;
+            }
+            passphraseRec = new SR();
+            passphraseRec.lang = 'en-US';
+            passphraseRec.interimResults = false;
+            passphraseRec.maxAlternatives = 5;
+
+            setListeningUI(true);
+
+            passphraseRec.onresult = async (e) => {
+                setListeningUI(false);
+                passphraseAttempts++;
+
+                /* Collect all alternatives */
+                const alternatives = [];
+                for (let i = 0; i < e.results[0].length; i++) {
+                    alternatives.push(e.results[0][i].transcript);
+                }
+                const bestSpoken = alternatives[0] || '';
+                showTranscript('"' + bestSpoken + '"');
+
+                const matched = alternatives.some(spoken => passphraseMatches(spoken, savedPassphrase));
+
+                if (matched) {
+                    passphraseAttempts = 0;
+                    setStatus('✓ Voice matched — logging you in…');
+                    showBubble('Voice confirmed! Logging you in now…');
+                    try {
+                        const res = await fetch('/auth/voice-login', {
+                            method : 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body   : JSON.stringify({ email }),
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            window.location.href = data.redirect || '/home';
+                        } else {
+                            setStatus('Login failed — try your password');
+                            showBubble('Something went wrong. Please enter your password instead.');
+                        }
+                    } catch(_) {
+                        setStatus('Connection error — try your password');
+                    }
+                } else if (passphraseAttempts < 3) {
+                    setStatus('Not recognised — try again (' + (3 - passphraseAttempts) + ' attempt' + (passphraseAttempts < 2 ? 's' : '') + ' left)');
+                    showBubble("I heard: \"" + bestSpoken + "\" — that didn't match. Try saying your passphrase again.");
+                    setTimeout(() => startPassphraseListening(email, savedPassphrase), 2200);
+                } else {
+                    passphraseAttempts = 0;
+                    setStatus('Voice login skipped — enter your password below');
+                    showBubble("I couldn't match your passphrase. No worries — just enter your password below to sign in.");
+                }
+            };
+
+            passphraseRec.onerror = (e) => {
+                setListeningUI(false);
+                if (e.error !== 'no-speech') {
+                    setStatus('Mic error — enter your password below');
+                } else if (passphraseAttempts < 3) {
+                    /* No speech detected — keep listening */
+                    setTimeout(() => startPassphraseListening(email, savedPassphrase), 1000);
+                }
+            };
+
+            passphraseRec.onend = () => setListeningUI(false);
+            passphraseRec.start();
+        }
+
+        /* ---- speech recognition ---- */
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        function buildRecognition() {
+            if (!SpeechRecognition) return null;
+            const r          = new SpeechRecognition();
+            r.lang           = 'en-US';
+            r.interimResults = true;
+            r.maxAlternatives = 1;
+            r.continuous     = false;
+
+            r.onstart = function () {
+                setListeningUI(true);
+                setStatus('Listening… speak now');
+            };
+
+            r.onresult = function (event) {
+                let interim = '';
+                let finalText = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const t = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) { finalText += t; }
+                    else { interim += t; }
+                }
+                if (interim) { setStatus('Hearing: "' + interim + '"'); }
+                if (finalText.trim()) { handleTranscript(finalText.trim()); }
+            };
+
+            r.onerror = function (event) {
+                setListeningUI(false);
+                if (event.error === 'not-allowed' || event.error === 'denied') {
+                    setStatus('Microphone access denied');
+                    showBubble("I need microphone access to hear you. Please allow it in your browser settings.");
+                } else if (event.error === 'no-speech') {
+                    setStatus('No speech detected — try again');
+                } else if (event.error === 'aborted') {
+                    /* Silently ignore — happens when we stop the mic intentionally */
+                } else {
+                    setStatus('Error: ' + event.error);
+                }
+            };
+
+            r.onend = function () { setListeningUI(false); };
+            return r;
+        }
+
+        /* ── public API ── */
+        window.openVoiceModal = function () {
+            const modal = el('aiVoiceModal');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            /* reset state */
+            showTranscript('');
+            const bubble = el('aiBubble');
+            if (bubble) bubble.style.display = 'none';
+            const fallback = el('aiFallbackEmail');
+            if (fallback) fallback.value = '';
+            setStatus('Press the mic and say your email');
+            setListeningUI(false);
+
+            if (!SpeechRecognition) {
+                setStatus('Voice not supported in this browser');
+                showBubble("Your browser doesn't support Web Speech API. Try Chrome or Edge, or use the form below.");
+            } else {
+                /* Greet the user */
+                setTimeout(() => {
+                    showBubble("Hey there! I'm your LearnAdapt AI assistant. Press the mic and say your email address to log in — or say something like \"Hey, it's me, log me in\".");
+                }, 300);
+            }
+        };
+
+        window.closeVoiceModal = function () {
+            stopListening();
+            if (synth) synth.cancel();
+            const modal = el('aiVoiceModal');
+            if (modal) modal.style.display = 'none';
+        };
+
+        window.toggleVoiceRecognition = function () {
+            if (isListening) { stopListening(); }
+            else             { startListening(); }
+        };
+
+        function startListening() {
+            recognition = buildRecognition();
+            if (!recognition) {
+                setStatus('Speech recognition not available');
+                return;
+            }
+            try { recognition.start(); }
+            catch (_) { /* already started */ }
+        }
+
+        function stopListening() {
+            if (recognition) {
+                try { recognition.stop(); } catch (_) {}
+                recognition = null;
+            }
+            setListeningUI(false);
+        }
+
+        /* ---- fallback manual email submit ---- */
+        window.submitFallbackEmail = async function () {
+            const input = el('aiFallbackEmail');
+            if (!input) return;
+            const email = input.value.trim().toLowerCase();
+            if (!email || !/^[\w.+\-]+@[\w.\-]+\.[a-z]{2,}$/i.test(email)) {
+                input.focus();
+                setStatus('Enter a valid email address');
+                return;
+            }
+
+            /* Fill the login email field immediately */
+            const emailInput = document.querySelector('input[name="email"]');
+            if (emailInput) {
+                emailInput.value = email;
+                emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
+            showTranscript(email);
+            setStatus('Recognised — checking account…');
+
+            const info = await fetchVoiceCheck(email);
+
+            if (!info || !info.exists) {
+                showBubble("Hmm, I couldn't find an account for " + email + ". Double-check the address or register first!");
+                setStatus('Account not found');
+                return;
+            }
+
+            let greeting = 'Welcome back, ' + info.name + '!';
+            if (info.daysAgo === 0) {
+                greeting += " You were here earlier today — great to see you again!";
+            } else if (info.daysAgo === 1) {
+                greeting += " Your last session was yesterday. Let's pick up where you left off!";
+            } else if (info.daysAgo !== null && info.daysAgo <= 30) {
+                greeting += ' Your last session was ' + info.daysAgo + ' days ago. Ready to continue?';
+            } else {
+                greeting += " It's been a while — welcome back! Let's get you in.";
+            }
+            /* Check voice registration — same smart chain as above */
+            const VL_KEY2 = 'learnadapt_voice_reg';
+            let voiceReg2 = null;
+            try { voiceReg2 = JSON.parse(localStorage.getItem(VL_KEY2) || '{}'); } catch(e) {}
+
+            if (voiceReg2 && voiceReg2.confirmed && voiceReg2.email.toLowerCase() === email.toLowerCase()) {
+                passphraseAttempts = 0;
+                setStatus('Voice passphrase found — listen for the prompt…');
+                showBubble(greeting + ' Say your passphrase now to sign in instantly!', () => {
+                    setStatus('🎤 Listening for your passphrase…');
+                    startPassphraseListening(email, voiceReg2.passphrase);
+                });
+            } else {
+                showBubble(greeting);
+                setStatus('✓ Email recognised — enter your password to sign in');
+            }
+        };
+
+        /* Allow Enter key in fallback input */
+        document.addEventListener('keydown', function (e) {
+            if (e.target && e.target.id === 'aiFallbackEmail' && e.key === 'Enter') {
+                window.submitFallbackEmail();
+            }
+        });
+
+        /* Close on Escape */
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') { window.closeVoiceModal(); }
+        });
+    }());
     </script>
 </body>
 </html>

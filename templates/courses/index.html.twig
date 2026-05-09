@@ -294,10 +294,36 @@ footer{display:none!important}
 	.cr-card-foot{padding:12px 20px}
 	.cr-wrap{padding:0 16px}
 }
+/* PDF modal */
+.cr-pdf-backdrop{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.cr-pdf-backdrop.open{opacity:1;pointer-events:all}
+.cr-pdf-modal{width:100%;max-width:980px;height:92vh;background:#0d1120;border:1px solid rgba(255,255,255,0.08);border-radius:20px;display:flex;flex-direction:column;overflow:hidden;transform:scale(0.95);transition:transform .3s ease;box-shadow:0 24px 80px rgba(0,0,0,0.6)}
+.cr-pdf-backdrop.open .cr-pdf-modal{transform:scale(1)}
+.cr-pdf-top{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;gap:12px}
+.cr-pdf-title{font-size:0.85rem;font-weight:700;color:var(--cyan);display:flex;align-items:center;gap:8px}
+.cr-pdf-actions{display:flex;gap:8px;align-items:center}
+.cr-pdf-dl{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:rgba(56,189,209,0.1);border:1px solid rgba(56,189,209,0.2);border-radius:10px;color:var(--cyan);font-size:0.78rem;font-weight:700;text-decoration:none;transition:background .2s}
+.cr-pdf-dl:hover{background:rgba(56,189,209,0.2)}
+.cr-pdf-close{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all .2s}
+.cr-pdf-close:hover{background:rgba(248,113,113,0.1);color:#f87171}
+.cr-pdf-modal iframe{flex:1;border:none;background:#fff}
 </style>
 {% endblock %}
 
 {% block body %}
+<!-- PDF viewer modal -->
+<div class="cr-pdf-backdrop" id="crPdfBackdrop" onclick="crClosePdf(event)">
+	<div class="cr-pdf-modal">
+		<div class="cr-pdf-top">
+			<div class="cr-pdf-title"><i class='bx bxs-file-pdf'></i> Course PDF</div>
+			<div class="cr-pdf-actions">
+				<a id="crPdfDl" href="#" download class="cr-pdf-dl"><i class='bx bx-download'></i> Download</a>
+				<button class="cr-pdf-close" onclick="crClosePdf()"><i class='bx bx-x'></i></button>
+			</div>
+		</div>
+		<iframe id="crPdfFrame" src="" title="PDF Viewer"></iframe>
+	</div>
+</div>
 <!-- Ambient orbs -->
 <div class="cr-bg-orb cr-bg-orb--1"></div>
 <div class="cr-bg-orb cr-bg-orb--2"></div>
@@ -677,7 +703,7 @@ footer{display:none!important}
 			</div>
 			<div class="cr-card-foot">
 				{% if course.pdf_path %}
-					<a href="{{ path('app_course_pdf', {id: course.id}) }}" class="cr-dl-btn" target="_blank"><i class='bx bx-download'></i> Download PDF</a>
+					<button onclick="crOpenPdf('{{ path('app_course_pdf', {id: course.id}) }}')" class="cr-dl-btn"><i class='bx bxs-file-pdf'></i> View PDF</button>
 				{% endif %}
 				<a href="{{ path('app_course_show', {id: course.id}) }}" class="cr-view-btn"><i class='bx bx-book-reader'></i> View Course</a>
 			</div>
@@ -813,5 +839,19 @@ function toggleBookmark(id, btn) {
 		}
 	});
 }
+
+function crOpenPdf(url) {
+	document.getElementById('crPdfFrame').src = url;
+	document.getElementById('crPdfDl').href = url;
+	document.getElementById('crPdfBackdrop').classList.add('open');
+	document.body.style.overflow = 'hidden';
+}
+function crClosePdf(e) {
+	if (e && e.target !== document.getElementById('crPdfBackdrop')) return;
+	document.getElementById('crPdfBackdrop').classList.remove('open');
+	document.body.style.overflow = '';
+	setTimeout(function(){ document.getElementById('crPdfFrame').src = ''; }, 300);
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') crClosePdf(); });
 </script>
 {% endblock %}

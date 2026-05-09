@@ -194,9 +194,20 @@ final class CheatDetectionController extends AbstractController
 
         $ok = $this->cheatManager->startCameraMonitoring($attemptId, $quizId, $studentId, $token);
 
+        // If Python service is unreachable we silently skip camera monitoring —
+        // the browser-based guards (tab switch, focus, screenshot, copy-paste,
+        // voice) remain fully active.  We do NOT terminate the quiz here so
+        // students are not penalised for a server-side infrastructure problem.
+        if (!$ok) {
+            $this->logger->warning(
+                'Camera monitoring unavailable for attempt {id} — skipping (Python service unreachable)',
+                ['id' => $attemptId]
+            );
+        }
+
         return new JsonResponse([
             'ok'      => $ok,
-            'message' => $ok ? 'Camera monitoring started' : 'Camera unavailable (cheat logged)',
+            'message' => $ok ? 'Camera monitoring started' : 'Camera monitoring unavailable — other checks active',
         ]);
     }
 

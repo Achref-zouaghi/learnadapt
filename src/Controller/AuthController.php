@@ -751,6 +751,63 @@ class AuthController extends AbstractController
         return $this->redirect($return);
     }
 
+    #[Route('/auth/voice-check', name: 'app_voice_check', methods: ['POST'])]
+    public function voiceCheck(Request $request): \Symfony\Component\HttpFoundation\JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $email = $this->normalizeEmail(trim((string) ($data['email'] ?? '')));
+
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new \Symfony\Component\HttpFoundation\JsonResponse(['exists' => false]);
+        }
+
+        $user = $this->userRepository->findOneBy(['email' => $email]);
+
+        if (!$user instanceof User || !$user->isActive()) {
+            return new \Symfony\Component\HttpFoundation\JsonResponse(['exists' => false]);
+        }
+
+        $daysAgo = null;
+        $lastLogin = $user->getLastLogin();
+        if ($lastLogin instanceof \DateTimeInterface) {
+            $daysAgo = (int) (new \DateTime())->diff($lastLogin)->days;
+        }
+
+        $fullName = (string) $user->getFullName();
+        $firstName = explode(' ', trim($fullName))[0] ?: 'there';
+
+        return new \Symfony\Component\HttpFoundation\JsonResponse([
+            'exists'  => true,
+            'name'    => $firstName,
+            'daysAgo' => $daysAgo,
+        ]);
+    }
+
+    #[Route('/auth/voice-login', name: 'app_voice_login', methods: ['POST'])]
+    public function voiceLogin(Request $request): \Symfony\Component\HttpFoundation\JsonResponse
+    {
+        $data  = json_decode($request->getContent(), true);
+        $email = $this->normalizeEmail(trim((string) ($data['email'] ?? '')));
+
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new \Symfony\Component\HttpFoundation\JsonResponse(['success' => false, 'error' => 'Invalid email']);
+        }
+
+        $user = $this->userRepository->findOneBy(['email' => $email]);
+
+        if (!$user instanceof User || !$user->isActive()) {
+            return new \Symfony\Component\HttpFoundation\JsonResponse(['success' => false, 'error' => 'Account not found']);
+        }
+
+        $this->finishLogin($request->getSession(), $user);
+
+        $user->setLastLogin(new \DateTime());
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return new \Symfony\Component\HttpFoundation\JsonResponse(['success' => true, 'redirect' => '/home']);
+    }
+
     #[Route('/logout', name: 'app_logout', methods: ['GET'])]
     public function logoutConfirm(Request $request): Response
     {

@@ -4,6 +4,8 @@ nelmio_security:
         paths:
             '^/exercises/\d+/pdf$': SAMEORIGIN
             '^/exercises/\d+/video$': SAMEORIGIN
+            '^/taskboard/export-pdf$': SAMEORIGIN
+            '^/courses/\d+/pdf$': SAMEORIGIN
             '^/quizzes/attempt/\d+$': DENY   # quiz take page must not be framed
             '^/.*': DENY
 
@@ -31,6 +33,9 @@ nelmio_security:
             script-src:
                 - 'self'
                 - 'unsafe-inline'     # required for inline Twig JS blocks
+                - 'unsafe-eval'       # required for MediaPipe WASM (face_mesh compiled code)
+                - 'wasm-unsafe-eval'  # modern Chrome/Firefox-only WASM-specific eval
+                - 'https://cdn.jsdelivr.net' # MediaPipe Face Mesh (AI Focus Monitor)
             style-src:
                 - 'self'
                 - 'unsafe-inline'     # required for inline <style> in Twig
@@ -41,10 +46,15 @@ nelmio_security:
             img-src:
                 - 'self'
                 - 'data:'
+                - 'blob:'             # MediaPipe canvas/blob outputs
             connect-src:
                 - 'self'              # heartbeat + cheat API calls
+                - 'https://cdn.jsdelivr.net' # MediaPipe WASM/model downloads
+            worker-src:
+                - 'self'
+                - 'blob:'             # MediaPipe Web Workers
             frame-ancestors:
-                - 'none'
+                - 'self'
             object-src:
                 - 'none'
             base-uri:

@@ -521,11 +521,71 @@ footer{display:none!important}
 .kb-top-time{font-size:0.72rem;font-weight:800;color:var(--muted);flex-shrink:0}
 @keyframes topSlide{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
 @keyframes topBarGrow{from{width:0!important}}
+/* ── AI Focus Monitor in Pomodoro ── */
+.kb-pomo-fm{padding:20px 28px;border-top:1px solid var(--border)}
+.kb-pomo-fm-head{display:flex;align-items:center;gap:8px;font-size:0.78rem;font-weight:800;color:var(--cyan);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:14px}
+.kb-pomo-fm-head i{font-size:1rem;-webkit-text-fill-color:var(--cyan)}
+.kb-pomo-fm-grid{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start}
+@media(max-width:700px){.kb-pomo-fm-grid{grid-template-columns:1fr}}
+.fm-status-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);transition:all .3s;flex-shrink:0;margin-left:auto}
+.fm-status-dot.active{background:var(--green);box-shadow:0 0 8px var(--green);animation:dotPulse 1.5s ease-in-out infinite}
+.fm-status-dot.distracted{background:var(--red);box-shadow:0 0 10px var(--red)}
+.fm-cam-area{position:relative;background:#000;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:12px}
+.fm-video{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1)}
+.fm-canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1)}
+.fm-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(10,10,20,0.7);border-radius:12px;transition:opacity .3s}
+.fm-overlay.hidden{opacity:0;pointer-events:none}
+.fm-cam-icon{width:56px;height:56px;border-radius:16px;background:rgba(56,189,209,0.08);border:1px solid rgba(56,189,209,0.15);display:flex;align-items:center;justify-content:center}
+.fm-cam-icon i{font-size:1.6rem;color:var(--cyan);opacity:.6}
+.fm-overlay p{font-size:0.73rem;color:var(--muted);text-align:center;max-width:160px;margin:0}
+.fm-meter-wrap{padding:0 0 12px}
+.fm-meter-label{display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;font-weight:700;margin-bottom:7px}
+.fm-meter-label span:first-child{color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.fm-meter-pct{font-size:0.75rem;font-weight:800;color:var(--green);transition:color .3s}
+.fm-meter-pct.low{color:var(--red)}.fm-meter-pct.mid{color:var(--yellow)}
+.fm-bar-track{height:8px;background:rgba(255,255,255,0.05);border-radius:6px;overflow:hidden}
+.fm-bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--green),#6ee7b7);transition:width .5s ease,background .3s}
+.fm-bar-fill.low{background:linear-gradient(90deg,var(--red),#fca5a5)}.fm-bar-fill.mid{background:linear-gradient(90deg,var(--yellow),var(--orange))}
+.fm-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 0 12px}
+.fm-stat{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:10px 12px;text-align:center}
+.fm-stat-val{font-size:1.15rem;font-weight:900;letter-spacing:-0.02em}
+.fm-stat-lbl{font-size:0.62rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.fm-alert{padding:9px 13px;border-radius:10px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:var(--red);font-size:0.78rem;font-weight:700;display:none;align-items:center;gap:8px;margin-bottom:10px}
+.fm-alert.show{display:flex}
+.fm-alert i{font-size:1rem;flex-shrink:0;animation:shake .5s ease-in-out infinite}
+.fm-btn{width:100%;padding:10px;border-radius:12px;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s}
+.fm-btn-silence{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.2);display:none}
+.fm-btn-silence.show{display:flex}.fm-btn-silence:hover{background:rgba(251,191,36,0.18)}
+.fm-sensitivity{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.fm-sensitivity label{font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between}
+.fm-sensitivity input[type=range]{width:100%;accent-color:var(--cyan);cursor:pointer}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* PDF report modal */
+.kb-pdf-backdrop{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.9);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.kb-pdf-backdrop.open{opacity:1;pointer-events:all}
+.kb-pdf-modal{width:100%;max-width:980px;height:92vh;background:#0a0f1e;border:1px solid rgba(255,255,255,0.08);border-radius:20px;display:flex;flex-direction:column;overflow:hidden;transform:scale(0.95);transition:transform .3s ease;box-shadow:0 24px 80px rgba(0,0,0,0.7)}
+.kb-pdf-backdrop.open .kb-pdf-modal{transform:scale(1)}
+.kb-pdf-top{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0}
+.kb-pdf-title{font-size:0.85rem;font-weight:700;color:var(--purple);display:flex;align-items:center;gap:8px}
+.kb-pdf-close{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all .2s}
+.kb-pdf-close:hover{background:rgba(248,113,113,0.1);color:#f87171}
+.kb-pdf-modal iframe{flex:1;border:none;width:100%}
 </style>
 {% endblock %}
 
 {% block body %}
 {% include 'partials/_background.html.twig' %}
+<!-- PDF Report Modal -->
+<div class="kb-pdf-backdrop" id="kbPdfBackdrop" onclick="kbClosePdfReport(event)">
+    <div class="kb-pdf-modal">
+        <div class="kb-pdf-top">
+            <div class="kb-pdf-title"><span style="font-size:1rem">📄</span> Task Report</div>
+            <button class="kb-pdf-close" onclick="kbClosePdfReport()"><i class='bx bx-x'></i></button>
+        </div>
+        <iframe id="kbPdfFrame" src="" title="Task Report"></iframe>
+    </div>
+</div>
 <div class="kb" style="position:relative;z-index:1">
 <div class="kb-wrap">
 
@@ -562,10 +622,10 @@ footer{display:none!important}
         <button class="kb-add-btn" onclick="document.getElementById('addModal').classList.add('open')">
             <i class='bx bx-plus'></i> {{ 'taskboard.add_task'|trans }}
         </button>
-        <a href="{{ path('app_taskboard_export_pdf') }}" class="kb-export-btn" target="_blank">
+        <button class="kb-export-btn" onclick="kbOpenPdfReport()">
             <span class="pdf-icon">PDF</span>
             <span>{{ 'taskboard.export_pdf'|trans }}</span>
-        </a>
+        </button>
     </div>
 </div>
 
@@ -807,6 +867,59 @@ footer{display:none!important}
                     <div class="kb-pomo-ss-v" style="color:var(--cyan)" id="pomoSessTotal">{{ (pomodoroStats.total_minutes / 60)|number_format(1) }}h</div>
                     <div class="kb-pomo-ss-l">All-time</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    {# ══ AI FOCUS MONITOR PANEL — auto-starts with Pomodoro work phases ══ #}
+    <div class="kb-pomo-fm" id="pomoFmPanel">
+        <div class="kb-pomo-fm-head">
+            <i class='bx bx-camera'></i> AI Focus Monitor
+            <span class="fm-status-dot" id="pfmDot" title="Camera inactive"></span>
+        </div>
+        <div class="kb-pomo-fm-grid">
+            <div>
+                <div class="fm-cam-area">
+                    <video id="pfmVideo" class="fm-video" autoplay playsinline muted></video>
+                    <canvas id="pfmCanvas" class="fm-canvas"></canvas>
+                    <div class="fm-overlay" id="pfmOverlay">
+                        <div class="fm-cam-icon"><i class='bx bx-camera'></i></div>
+                        <p>Camera starts with Pomodoro focus phase</p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="fm-meter-wrap">
+                    <div class="fm-meter-label">
+                        <span>Focus Score</span>
+                        <span class="fm-meter-pct" id="pfmPct">—</span>
+                    </div>
+                    <div class="fm-bar-track"><div class="fm-bar-fill" id="pfmBar"></div></div>
+                </div>
+                <div class="fm-stats">
+                    <div class="fm-stat">
+                        <div class="fm-stat-val" id="pfmFocusTime" style="color:var(--green)">0:00</div>
+                        <div class="fm-stat-lbl">Focused</div>
+                    </div>
+                    <div class="fm-stat">
+                        <div class="fm-stat-val" id="pfmDistTime" style="color:var(--red)">0:00</div>
+                        <div class="fm-stat-lbl">Distracted</div>
+                    </div>
+                </div>
+                <div class="fm-alert" id="pfmAlert">
+                    <i class='bx bx-alarm-exclamation'></i>
+                    <span>Distraction detected! Please refocus.</span>
+                </div>
+                <div class="fm-sensitivity">
+                    <label>
+                        <span>Alarm delay</span>
+                        <span id="pfmSensLabel">4 s</span>
+                    </label>
+                    <input type="range" id="pfmSens" min="2" max="15" value="4" oninput="pfmSetSens(this.value)">
+                </div>
+                <button class="fm-btn fm-btn-silence" id="pfmSilenceBtn" onclick="pfmSilence()">
+                    <i class='bx bx-volume-mute'></i> Silence Alarm
+                </button>
             </div>
         </div>
     </div>
@@ -1159,7 +1272,234 @@ footer{display:none!important}
 {% endblock %}
 
 {% block javascripts %}
+<!-- MediaPipe Face Mesh for AI Focus Monitor -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1632090448/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.6.1629811433/control_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js" crossorigin="anonymous"></script>
 <script>
+/* ════════════════════════════════════════════
+   POMODORO AI FOCUS MONITOR
+   Auto-starts on work phases, pauses on break/reset
+   ════════════════════════════════════════════ */
+(function() {
+    var pfmVideo   = document.getElementById('pfmVideo');
+    var pfmCanvas  = document.getElementById('pfmCanvas');
+    var pfmCtx     = pfmCanvas ? pfmCanvas.getContext('2d') : null;
+    var pfmOverlay = document.getElementById('pfmOverlay');
+    var pfmDot     = document.getElementById('pfmDot');
+    var pfmBar     = document.getElementById('pfmBar');
+    var pfmPct     = document.getElementById('pfmPct');
+    var pfmAlert   = document.getElementById('pfmAlert');
+    var pfmPanel   = document.getElementById('pomoFmPanel');
+    var pfmSilBtn  = document.getElementById('pfmSilenceBtn');
+
+    var pfmRunning = false, pfmStream = null, pfmMesh = null, pfmCam = null;
+    var pfmAlarmActive = false, pfmAlarmAudio = null;
+    var pfmFocusedMs = 0, pfmDistractedMs = 0;
+    var pfmLastTick = null, pfmTicker = null, pfmDistrStart = null;
+    var pfmSens = 4;
+
+    window.pfmSetSens = function(v) {
+        pfmSens = parseInt(v);
+        document.getElementById('pfmSensLabel').textContent = v + ' s';
+    };
+
+    window.pfmSilence = function() {
+        if (pfmAlarmAudio) { pfmAlarmAudio.pause(); pfmAlarmAudio = null; }
+        pfmAlarmActive = false;
+        if (pfmAlert) pfmAlert.classList.remove('show');
+        if (pfmSilBtn) pfmSilBtn.classList.remove('show');
+    };
+
+    window.pomoFocusStart = async function() {
+        if (pfmRunning) return;
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            if (pfmOverlay) pfmOverlay.querySelector('p').textContent = 'Camera not available in this browser.';
+            return;
+        }
+        try {
+            pfmStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 }, audio: false });
+        } catch(e) {
+            if (pfmOverlay) pfmOverlay.querySelector('p').textContent = 'Allow camera access to enable focus monitoring.';
+            return;
+        }
+        pfmVideo.srcObject = pfmStream;
+        pfmRunning = true;
+        pfmFocusedMs = 0; pfmDistractedMs = 0;
+        pfmLastTick = Date.now(); pfmDistrStart = null;
+        if (pfmOverlay) pfmOverlay.classList.add('hidden');
+        if (pfmDot) pfmDot.className = 'fm-status-dot';
+
+        pfmMesh = new FaceMesh({ locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/' + f; } });
+        pfmMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.6, minTrackingConfidence: 0.6 });
+        pfmMesh.onResults(pfmOnResults);
+
+        if (pfmOverlay) { pfmOverlay.classList.remove('hidden'); pfmOverlay.querySelector('p').textContent = '⏳ Loading AI…'; }
+        try {
+            await pfmMesh.initialize();
+        } catch(e) {
+            pfmRunning = false;
+            if (pfmStream) { pfmStream.getTracks().forEach(function(t){ t.stop(); }); pfmStream = null; }
+            if (pfmVideo) pfmVideo.srcObject = null;
+            if (pfmOverlay) pfmOverlay.querySelector('p').textContent = '❌ AI failed: ' + e.message;
+            return;
+        }
+        if (pfmOverlay) pfmOverlay.classList.add('hidden');
+
+        // Frame loop — bypasses Camera utility for reliability
+        var pfmRafActive = true, pfmRafId = null;
+        pfmCam = { stop: function() { pfmRafActive = false; if (pfmRafId) cancelAnimationFrame(pfmRafId); } };
+        (function frameLoop() {
+            if (!pfmRafActive) return;
+            if (pfmVideo.readyState >= 2 && pfmVideo.videoWidth > 0) {
+                pfmMesh.send({ image: pfmVideo }).catch(function(){});
+            }
+            pfmRafId = requestAnimationFrame(frameLoop);
+        })();
+
+        pfmTicker = setInterval(function() {
+            if (!pfmRunning) return;
+            document.getElementById('pfmFocusTime').textContent = pfmMsToTime(pfmFocusedMs);
+            document.getElementById('pfmDistTime').textContent  = pfmMsToTime(pfmDistractedMs);
+        }, 1000);
+    };
+
+    window.pomoFocusStop = function() {
+        if (!pfmRunning) return;
+        pfmRunning = false;
+        if (pfmCam)  { pfmCam.stop(); pfmCam = null; }
+        if (pfmMesh) { pfmMesh.close(); pfmMesh = null; }
+        if (pfmStream) { pfmStream.getTracks().forEach(function(t){ t.stop(); }); pfmStream = null; }
+        if (pfmTicker) { clearInterval(pfmTicker); pfmTicker = null; }
+        window.pfmSilence();
+        if (pfmVideo) pfmVideo.srcObject = null;
+        if (pfmOverlay) { pfmOverlay.classList.remove('hidden'); pfmOverlay.querySelector('p').textContent = 'Camera starts with Pomodoro focus phase'; }
+        if (pfmDot) pfmDot.className = 'fm-status-dot';
+        if (pfmCtx && pfmCanvas) pfmCtx.clearRect(0, 0, pfmCanvas.width, pfmCanvas.height);
+        if (pfmBar) { pfmBar.style.width = '0%'; pfmBar.className = 'fm-bar-fill'; }
+        if (pfmPct) { pfmPct.textContent = '—'; pfmPct.className = 'fm-meter-pct'; }
+    };
+
+    var NOSE=1, CHIN=152, FOREHEAD=10, LEFT_EAR=234, RIGHT_EAR=454;
+
+    function pfmOnResults(results) {
+        if (!pfmRunning || !pfmCtx) return;
+        pfmCanvas.width  = pfmVideo.videoWidth  || 640;
+        pfmCanvas.height = pfmVideo.videoHeight || 480;
+        pfmCtx.clearRect(0, 0, pfmCanvas.width, pfmCanvas.height);
+        var now = Date.now(), dt = now - pfmLastTick; pfmLastTick = now;
+
+        if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
+            pfmHandleFocus(false, dt);
+            if (pfmDot) pfmDot.className = 'fm-status-dot distracted';
+            pfmUpdateMeter(0); return;
+        }
+        var lm = results.multiFaceLandmarks[0];
+        var W = pfmCanvas.width;
+        var nose = lm[NOSE], chin = lm[CHIN], forehead = lm[FOREHEAD], leftEar = lm[LEFT_EAR], rightEar = lm[RIGHT_EAR];
+        var faceHeight     = Math.abs(forehead.y - chin.y);
+        var noseCenterY    = (forehead.y + chin.y) / 2;
+        var verticalTilt   = Math.abs(nose.y - noseCenterY) / (faceHeight + 0.001);
+        var faceWidth      = Math.abs(rightEar.x - leftEar.x);
+        var faceCenterX    = (leftEar.x + rightEar.x) / 2;
+        var horizontalTurn = Math.abs(nose.x - faceCenterX) / (faceWidth + 0.001);
+        var leftEAR  = pfmEAR(lm, [159, 145, 33, 133]);
+        var rightEAR = pfmEAR(lm, [386, 374, 362, 263]);
+        var avgEAR   = (leftEAR + rightEAR) / 2;
+        var tiltOk  = verticalTilt   < 0.15;
+        var turnOk  = horizontalTurn < 0.18;
+        var eyesOk  = avgEAR         > 0.15;
+        var score = Math.max(0, Math.min(100, Math.round(
+            (tiltOk  ? 35 : Math.max(0, 35 - verticalTilt   * 200)) +
+            (turnOk  ? 35 : Math.max(0, 35 - horizontalTurn * 180)) +
+            (eyesOk  ? 30 : Math.max(0, 30 - (0.15 - avgEAR) * 300))
+        )));
+        var focused = score >= 55;
+        pfmHandleFocus(focused, dt);
+        if (pfmDot) pfmDot.className = 'fm-status-dot ' + (focused ? 'active' : 'distracted');
+        pfmUpdateMeter(score);
+        pfmDraw(lm, W, focused);
+    }
+
+    function pfmEAR(lm, pts) {
+        var h = Math.abs(lm[pts[0]].y - lm[pts[1]].y);
+        var w = Math.abs(lm[pts[2]].x - lm[pts[3]].x);
+        return w > 0 ? h / w : 0;
+    }
+
+    function pfmDraw(lm, W, focused) {
+        var color = focused ? 'rgba(52,211,153,0.7)' : 'rgba(248,113,113,0.7)';
+        var ovalPts = [10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
+        pfmCtx.beginPath();
+        ovalPts.forEach(function(i, idx) {
+            var p = lm[i];
+            if (idx === 0) pfmCtx.moveTo(p.x * W, p.y * W);
+            else           pfmCtx.lineTo(p.x * W, p.y * W);
+        });
+        pfmCtx.closePath();
+        pfmCtx.strokeStyle = color; pfmCtx.lineWidth = 1.5; pfmCtx.stroke();
+        var n = lm[1];
+        pfmCtx.beginPath(); pfmCtx.arc(n.x * W, n.y * W, 4, 0, Math.PI * 2); pfmCtx.fillStyle = color; pfmCtx.fill();
+        pfmCtx.font = 'bold 12px Inter, sans-serif'; pfmCtx.fillStyle = color; pfmCtx.textAlign = 'left';
+        pfmCtx.fillText(focused ? '✓ Focused' : '⚠ Look at screen', 8, 20);
+    }
+
+    function pfmHandleFocus(focused, dt) {
+        if (focused) {
+            pfmFocusedMs += dt;
+            window.pfmSilence();
+            if (pfmAlert) pfmAlert.classList.remove('show');
+            pfmDistrStart = null;
+        } else {
+            pfmDistractedMs += dt;
+            if (!pfmDistrStart) pfmDistrStart = Date.now();
+            var elapsed = (Date.now() - pfmDistrStart) / 1000;
+            if (elapsed >= pfmSens && !pfmAlarmActive) pfmStartAlarm();
+        }
+    }
+
+    function pfmStartAlarm() {
+        if (pfmAlarmActive) return;
+        pfmAlarmActive = true;
+        if (pfmSilBtn) pfmSilBtn.classList.add('show');
+        if (pfmAlert)  pfmAlert.classList.add('show');
+        try {
+            var AudioCtx = window.AudioContext || window.webkitAudioContext;
+            var actx = new AudioCtx();
+            function beep() {
+                if (!pfmAlarmActive) return;
+                var osc = actx.createOscillator(); var gain = actx.createGain();
+                osc.connect(gain); gain.connect(actx.destination);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(880, actx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(440, actx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.5, actx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.4);
+                osc.start(actx.currentTime); osc.stop(actx.currentTime + 0.4);
+                osc.onended = function() { if (pfmAlarmActive) setTimeout(beep, 300); };
+            }
+            beep();
+            pfmAlarmAudio = { pause: function() { pfmAlarmActive = false; try { actx.close(); } catch(e){} } };
+        } catch(e) {}
+    }
+
+    function pfmUpdateMeter(score) {
+        if (!pfmBar || !pfmPct) return;
+        pfmBar.style.width = score + '%';
+        pfmPct.textContent = score + '%';
+        if (score >= 60)      { pfmBar.className = 'fm-bar-fill';      pfmPct.className = 'fm-meter-pct'; }
+        else if (score >= 35) { pfmBar.className = 'fm-bar-fill mid';  pfmPct.className = 'fm-meter-pct mid'; }
+        else                  { pfmBar.className = 'fm-bar-fill low';  pfmPct.className = 'fm-meter-pct low'; }
+    }
+
+    function pfmMsToTime(ms) {
+        var s = Math.floor(ms / 1000), m = Math.floor(s / 60);
+        return m + ':' + String(s % 60).padStart(2, '0');
+    }
+
+    window.addEventListener('beforeunload', function() { if (pfmRunning) window.pomoFocusStop(); });
+})();
+
 // ── Inline add toggle ──
 function toggleInline(btn, status) {
     var f = document.getElementById('inline-' + status);
@@ -1303,6 +1643,7 @@ function setPreset(w,b,c,btn) {
         draw();
         updateSessionStats();
         particles.style.opacity = '0.3';
+        pomoFocusStop();
     }
     window._pomoReset = reset;
 
@@ -1326,12 +1667,14 @@ function setPreset(w,b,c,btn) {
                     particles.style.opacity = '0.3';
                     if (Notification.permission === 'granted') new Notification('🍅 Pomodoro Complete!', {body: currentCycle + ' cycles done. Great work!'});
                     draw();
+                    pomoFocusStop();
                     return;
                 }
                 onBreak = true;
                 total = parseInt(breakEl.value) * 60; remain = total;
                 phaseEl.textContent = "{{ 'taskboard.pomo_break_phase'|trans }}";
                 setBadge('break');
+                pomoFocusStop();
                 draw();
                 if (Notification.permission === 'granted') new Notification('☕ Break Time!', {body:"{{ 'taskboard.pomo_break_phase'|trans }}"});
                 timer = setInterval(tick, 1000);
@@ -1351,6 +1694,7 @@ function setPreset(w,b,c,btn) {
                 draw();
                 if (Notification.permission === 'granted') new Notification('🍅 Focus Time!', {body:'Cycle ' + (currentCycle + 1) + ' of ' + maxCycles});
                 timer = setInterval(tick, 1000);
+                pomoFocusStart();
             }
             return;
         }
@@ -1373,6 +1717,7 @@ function setPreset(w,b,c,btn) {
             startBtn.style.display = 'none'; pauseBtn.style.display = ''; skipBtn.style.display = '';
             setBadge(onBreak ? 'break' : 'focus');
             particles.style.opacity = '1';
+            if (!onBreak) pomoFocusStart();
             return;
         }
         running = true; paused = false;
@@ -1389,6 +1734,7 @@ function setPreset(w,b,c,btn) {
             .then(function(r){return r.json()}).then(function(d){if(d.id) sessId=d.id;});
         }
         timer = setInterval(tick, 1000);
+        if (!onBreak) pomoFocusStart();
         startBtn.style.display = 'none'; pauseBtn.style.display = ''; skipBtn.style.display = '';
     });
 
@@ -1400,6 +1746,7 @@ function setPreset(w,b,c,btn) {
             skipBtn.style.display = 'none';
             setBadge('paused');
             particles.style.opacity = '0.3';
+            pomoFocusStop();
         }
     });
 
@@ -1890,6 +2237,21 @@ function renderAiReport(data) {
 document.getElementById('aiReportModal').addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('open');
 });
+
+function kbOpenPdfReport() {
+    var frame = document.getElementById('kbPdfFrame');
+    var backdrop = document.getElementById('kbPdfBackdrop');
+    frame.src = '{{ path('app_taskboard_export_pdf') }}';
+    backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function kbClosePdfReport(e) {
+    if (e && e.target !== document.getElementById('kbPdfBackdrop')) return;
+    document.getElementById('kbPdfBackdrop').classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(function(){ document.getElementById('kbPdfFrame').src = ''; }, 300);
+}
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') kbClosePdfReport(); });
 
 {# symfony/ux-chartjs: Chart.js loaded via CDN; auto-init all render_chart() canvases #}
 </script>

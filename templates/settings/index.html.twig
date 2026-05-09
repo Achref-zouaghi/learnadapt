@@ -217,6 +217,118 @@
         .s-layout { flex-direction: column; }
         .s-sidebar { width: 100%; }
     }
+
+    /* ── Voice Login section ── */
+    .vl-brain-wrap {
+        width: 88px; height: 88px; position: relative;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 20px;
+    }
+    .vl-ring {
+        position: absolute; border-radius: 50%;
+        border: 1.5px solid rgba(192,132,252,0.35);
+        animation: vl-pulse 2.4s ease-in-out infinite;
+    }
+    .vl-ring-1 { width: 88px; height: 88px; animation-delay: 0s; }
+    .vl-ring-2 { width: 68px; height: 68px; animation-delay: 0.4s; }
+    .vl-ring-3 { width: 50px; height: 50px; animation-delay: 0.8s; }
+    @keyframes vl-pulse {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.06); }
+    }
+    .vl-brain-core {
+        width: 40px; height: 40px; border-radius: 50%;
+        background: linear-gradient(135deg, #7b61f1, #c084fc);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; box-shadow: 0 0 20px rgba(192,132,252,0.4);
+    }
+    .vl-waveform {
+        display: flex; align-items: center; justify-content: center;
+        gap: 3px; height: 36px; margin: 16px 0;
+    }
+    .vl-waveform span {
+        display: block; width: 3px; border-radius: 2px;
+        background: rgba(123,97,241,0.4); height: 6px;
+        transition: height 0.15s ease;
+    }
+    .vl-waveform.listening span {
+        background: #c084fc;
+        animation: vl-wave 0.9s ease-in-out infinite;
+    }
+    .vl-waveform.listening span:nth-child(1)  { animation-delay: 0.0s; }
+    .vl-waveform.listening span:nth-child(2)  { animation-delay: 0.1s; }
+    .vl-waveform.listening span:nth-child(3)  { animation-delay: 0.2s; }
+    .vl-waveform.listening span:nth-child(4)  { animation-delay: 0.3s; }
+    .vl-waveform.listening span:nth-child(5)  { animation-delay: 0.15s; }
+    .vl-waveform.listening span:nth-child(6)  { animation-delay: 0.25s; }
+    .vl-waveform.listening span:nth-child(7)  { animation-delay: 0.05s; }
+    .vl-waveform.listening span:nth-child(8)  { animation-delay: 0.2s; }
+    .vl-waveform.listening span:nth-child(9)  { animation-delay: 0.1s; }
+    .vl-waveform.listening span:nth-child(10) { animation-delay: 0.3s; }
+    @keyframes vl-wave {
+        0%, 100% { height: 6px; } 50% { height: 26px; }
+    }
+    .vl-mic-btn {
+        width: 64px; height: 64px; border-radius: 50%;
+        border: none; cursor: pointer; margin: 8px auto;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; transition: all 0.2s ease;
+        background: linear-gradient(135deg, #7b61f1, #9d7cf4);
+        box-shadow: 0 4px 20px rgba(123,97,241,0.4);
+    }
+    .vl-mic-btn.recording {
+        background: linear-gradient(135deg, #ef4444, #f87171);
+        box-shadow: 0 4px 20px rgba(239,68,68,0.5);
+        animation: vl-mic-pulse 1s ease-in-out infinite;
+    }
+    @keyframes vl-mic-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+    }
+    .vl-transcript {
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 10px; padding: 10px 14px; font-size: 0.83rem;
+        color: var(--muted); font-style: italic; min-height: 36px;
+        margin: 10px 0; line-height: 1.5;
+    }
+    .vl-toggle-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 18px; border-radius: 12px;
+        border: 1px solid var(--glass-b); background: var(--glass);
+        margin-bottom: 12px;
+    }
+    .vl-toggle-label { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+    .vl-toggle-sub { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+    .vl-toggle {
+        position: relative; width: 44px; height: 24px; cursor: pointer;
+    }
+    .vl-toggle input { opacity: 0; width: 0; height: 0; }
+    .vl-slider {
+        position: absolute; inset: 0; border-radius: 24px;
+        background: rgba(255,255,255,0.1); transition: 0.3s;
+    }
+    .vl-slider::before {
+        content: ''; position: absolute;
+        width: 18px; height: 18px; border-radius: 50%;
+        left: 3px; bottom: 3px;
+        background: #fff; transition: 0.3s;
+    }
+    .vl-toggle input:checked + .vl-slider { background: #7b61f1; }
+    .vl-toggle input:checked + .vl-slider::before { transform: translateX(20px); }
+    .vl-email-chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(123,97,241,0.12); border: 1px solid rgba(123,97,241,0.3);
+        border-radius: 8px; padding: 6px 12px;
+        font-size: 0.86rem; color: #c084fc; font-weight: 600;
+        margin: 8px 0 16px;
+    }
+    .vl-status { font-size: 0.82rem; color: var(--muted); text-align: center; min-height: 20px; }
+    .vl-info-box {
+        background: rgba(123,97,241,0.07); border: 1px solid rgba(123,97,241,0.2);
+        border-radius: 12px; padding: 14px 16px; font-size: 0.83rem;
+        color: var(--muted); line-height: 1.7; margin-top: 20px;
+    }
+    .vl-info-box strong { color: var(--text); }
 </style>
 {% endblock %}
 
@@ -256,6 +368,7 @@
 
                     <li><a href="{{ path('app_settings', {section: 'payment'}) }}" class="s-sidebar-link {{ section == 'payment' ? 'active' : '' }}">{{ 'settings.sidebar.payment'|trans }}</a></li>
                     <li><a href="{{ path('app_settings', {section: 'security'}) }}" class="s-sidebar-link {{ section == 'security' ? 'active' : '' }}">Security</a></li>
+                    <li><a href="{{ path('app_settings', {section: 'voice-login'}) }}" class="s-sidebar-link {{ section == 'voice-login' ? 'active' : '' }}">🧠 Voice Login</a></li>
                     <li><a href="{{ path('app_settings', {section: 'data-export'}) }}" class="s-sidebar-link {{ section == 'data-export' ? 'active' : '' }}">{{ 'settings.sidebar.data_privacy'|trans }}</a></li>
                 </ul>
             </nav>
@@ -926,7 +1039,7 @@
                 </div>
 
                 {# ── Change Password hint ── #}
-                <div class="s-tile">
+                <div class="s-tile" style="margin-bottom:16px;">
                     <div style="display:flex;align-items:center;justify-content:space-between;">
                         <div>
                             <div style="font-weight:600;color:var(--text);font-size:0.9rem;">Password</div>
@@ -934,6 +1047,52 @@
                         </div>
                         <a href="{{ path('app_settings', {section: 'password'}) }}" class="s-btn-brand-outline" style="text-decoration:none;">Change</a>
                     </div>
+                </div>
+
+                {# ── Voice Login Registration ── #}
+                <div class="s-tile" style="margin-bottom:16px;" id="vlSecCard">
+                    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+                        <div style="width:42px;height:42px;border-radius:12px;background:rgba(192,132,252,0.12);border:1px solid rgba(192,132,252,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <span style="font-size:1.3rem;">🧠</span>
+                        </div>
+                        <div>
+                            <div style="font-weight:600;color:var(--text);font-size:0.92rem;">AI Voice Login</div>
+                            <div style="color:var(--muted);font-size:0.8rem;margin-top:3px;">Record your voice passphrase to enable one-tap voice sign-in.</div>
+                        </div>
+                    </div>
+
+                    {# Status badge #}
+                    <div id="vlSecStatus" style="font-size:0.82rem;color:var(--muted);padding:10px 14px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid rgba(255,255,255,0.06);margin-bottom:14px;">
+                        Checking voice registration…
+                    </div>
+
+                    {# Recording UI (hidden until user clicks Record) #}
+                    <div id="vlSecRecordBox" style="display:none;text-align:center;padding:18px 12px;background:rgba(123,97,241,0.05);border:1px solid rgba(123,97,241,0.15);border-radius:14px;margin-bottom:14px;">
+                        <div class="vl-waveform" id="vlSecWaveform" style="justify-content:center;">
+                            <span></span><span></span><span></span><span></span><span></span>
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                        <div id="vlSecRecStatus" style="font-size:0.81rem;color:var(--muted);margin:10px 0 6px;">Press the mic and say: <em style="color:#c084fc;">"{{ user.email }}"</em></div>
+                        <div id="vlSecTranscript" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:8px 12px;font-size:0.82rem;color:var(--muted);font-style:italic;margin:8px 0;line-height:1.5;"></div>
+                        <button class="vl-mic-btn" id="vlSecMicBtn" onclick="vlSecToggleMic()" style="margin:10px auto 4px;display:flex;align-items:center;justify-content:center;">
+                            <i class="bx bx-microphone" id="vlSecMicIcon" style="color:#fff;font-size:1.5rem;"></i>
+                        </button>
+                        <div style="font-size:0.74rem;color:var(--muted);">Tap to start / stop recording</div>
+                    </div>
+
+                    {# Action buttons #}
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button type="button" class="s-btn-brand-outline" id="vlSecRegisterBtn" onclick="vlSecStartRecord()" style="display:none;gap:8px;align-items:center;">
+                            <i class='bx bx-microphone'></i> Record Voice
+                        </button>
+                        <button type="button" class="s-btn-brand-outline" id="vlSecSaveBtn" onclick="vlSecSave()" style="display:none;gap:8px;align-items:center;">
+                            <i class='bx bx-check'></i> Save Voice
+                        </button>
+                        <button type="button" id="vlSecRemoveBtn" onclick="vlSecRemove()" style="display:none;gap:8px;align-items:center;padding:9px 16px;border-radius:12px;font-size:0.83rem;font-weight:600;cursor:pointer;transition:all 0.18s;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:#f87171;">
+                            <i class='bx bx-trash'></i> Remove Voice
+                        </button>
+                    </div>
+                    <div id="vlSecFeedback" style="display:none;margin-top:12px;font-size:0.82rem;padding:9px 14px;border-radius:10px;border:1px solid;"></div>
                 </div>
 
                 {# ── NelmioSecurityBundle — HTTP Security Headers Status ── #}
@@ -1028,6 +1187,62 @@
                     </div>
                 </div>
 
+                {# ═══════════ VOICE LOGIN ═══════════ #}
+                {% elseif section == 'voice-login' %}
+                <div class="s-label">Authentication</div>
+                <h2>🧠 Voice Login</h2>
+                <p class="sub" style="margin-top: 4px; margin-bottom: 22px;">Test your microphone and configure voice recognition for the login page.</p>
+
+                {# Enable toggle #}
+                <div class="vl-toggle-row">
+                    <div>
+                        <div class="vl-toggle-label">Enable Voice Login</div>
+                        <div class="vl-toggle-sub">Show the AI Personal Assistant Login button on the login page</div>
+                    </div>
+                    <label class="vl-toggle">
+                        <input type="checkbox" id="vlEnableToggle" onchange="vlSavePrefs()">
+                        <span class="vl-slider"></span>
+                    </label>
+                </div>
+
+                {# Brain + test area #}
+                <div class="s-tile" style="text-align: center; padding: 28px 20px;">
+                    <div class="vl-brain-wrap">
+                        <div class="vl-ring vl-ring-1"></div>
+                        <div class="vl-ring vl-ring-2"></div>
+                        <div class="vl-ring vl-ring-3"></div>
+                        <div class="vl-brain-core">🧠</div>
+                    </div>
+
+                    <div style="font-size: 0.88rem; color: var(--muted); margin-bottom: 6px;">Your login email</div>
+                    <div class="vl-email-chip">
+                        <i class="bx bx-envelope"></i>
+                        {{ user.email }}
+                    </div>
+
+                    <div class="vl-waveform" id="vlWaveform">
+                        <span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+
+                    <div class="vl-status" id="vlStatus">Press the mic to test your voice</div>
+
+                    <div class="vl-transcript" id="vlTranscript" style="display:none;"></div>
+
+                    <button class="vl-mic-btn" id="vlMicBtn" onclick="vlToggleMic()" style="display:block; margin: 14px auto 6px;">
+                        <i class="bx bx-microphone" style="color:#fff;"></i>
+                    </button>
+                    <div style="font-size: 0.75rem; color: var(--muted); margin-top: 6px;">Click to start / stop</div>
+                </div>
+
+                {# What to say #}
+                <div class="vl-info-box">
+                    <strong>How Voice Login works:</strong><br>
+                    On the login page, click <strong>🧠 AI Personal Assistant Login</strong>, press the mic and say:<br><br>
+                    <span style="color: #c084fc; font-style: italic;">"Hey, log me in — my email is {{ user.email }}"</span><br><br>
+                    The AI will recognize your email, look you up, and greet you by name. Then just type your password to finish logging in.
+                </div>
+
                 {% else %}
                 <div class="s-label">Workspace section</div>
                 <h2>{{ section|capitalize }}</h2>
@@ -1101,6 +1316,96 @@ document.querySelectorAll('input[name="theme"]').forEach(function(radio) {
     }
 });
 </script>
+
+{% if section == 'voice-login' %}
+<script>
+(function() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var recognition = null;
+    var isRecording = false;
+
+    // ── Persist prefs in localStorage ──
+    var PREFS_KEY = 'learnadapt_voice_prefs';
+    function vlLoadPrefs() {
+        try { return JSON.parse(localStorage.getItem(PREFS_KEY) || '{}'); } catch(e) { return {}; }
+    }
+    function vlSavePrefs() {
+        var toggle = document.getElementById('vlEnableToggle');
+        var prefs = vlLoadPrefs();
+        prefs.enabled = toggle ? toggle.checked : true;
+        localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+        var st = document.getElementById('vlStatus');
+        if (st) st.textContent = prefs.enabled ? 'Voice Login enabled ✓' : 'Voice Login disabled';
+    }
+    window.vlSavePrefs = vlSavePrefs;
+
+    // Init toggle state from localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+        var toggle = document.getElementById('vlEnableToggle');
+        if (toggle) {
+            var prefs = vlLoadPrefs();
+            toggle.checked = prefs.enabled !== false; // default on
+        }
+    });
+
+    // ── Mic control ──
+    function vlSetListening(active) {
+        isRecording = active;
+        var btn = document.getElementById('vlMicBtn');
+        var wf  = document.getElementById('vlWaveform');
+        var st  = document.getElementById('vlStatus');
+        var icon = btn ? btn.querySelector('i') : null;
+        if (btn) btn.classList.toggle('recording', active);
+        if (wf)  wf.classList.toggle('listening', active);
+        if (icon) icon.className = active ? 'bx bx-stop' : 'bx bx-microphone';
+        if (st && active) st.textContent = 'Listening… speak now';
+        if (st && !active) st.textContent = 'Press the mic to test your voice';
+    }
+
+    function vlToggleMic() {
+        if (!SR) {
+            alert('Speech recognition is not supported in this browser. Please use Chrome or Edge.');
+            return;
+        }
+        if (isRecording) {
+            if (recognition) recognition.stop();
+            vlSetListening(false);
+            return;
+        }
+        recognition = new SR();
+        recognition.lang = 'en-US';
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = function() { vlSetListening(true); };
+
+        recognition.onresult = function(e) {
+            var transcript = '';
+            for (var i = e.resultIndex; i < e.results.length; i++) {
+                transcript += e.results[i][0].transcript;
+            }
+            var box = document.getElementById('vlTranscript');
+            if (box) { box.style.display = 'block'; box.textContent = '"' + transcript + '"'; }
+            if (e.results[e.results.length - 1].isFinal) {
+                var st = document.getElementById('vlStatus');
+                if (st) st.textContent = '✓ Microphone working — voice detected!';
+            }
+        };
+
+        recognition.onerror = function(e) {
+            vlSetListening(false);
+            var st = document.getElementById('vlStatus');
+            if (st) st.textContent = 'Error: ' + (e.error === 'not-allowed' ? 'Microphone permission denied.' : e.error);
+        };
+
+        recognition.onend = function() { vlSetListening(false); };
+
+        recognition.start();
+    }
+    window.vlToggleMic = vlToggleMic;
+})();
+</script>
+{% endif %}
 
 {% if section == 'security' %}
 <script>
@@ -1228,6 +1533,163 @@ function skFeedback(msg, type) {
 const _skStyle = document.createElement('style');
 _skStyle.textContent = '@keyframes sk-spin { to { transform: rotate(360deg); } } #skRegisterBtn, #skDeleteBtn { display: inline-flex; align-items: center; gap: 8px; }';
 document.head.appendChild(_skStyle);
+</script>
+
+<script>
+/* ── Settings: Voice Login Registration ── */
+(function () {
+    const VL_KEY   = 'learnadapt_voice_reg';
+    const USER_EMAIL = '{{ user.email|e('js') }}';
+    let recognition  = null;
+    let vlRecording  = false;
+    let vlHeardText  = '';
+
+    /* ── helpers ── */
+    function vlSecSetStatus(msg, type) {
+        const el = document.getElementById('vlSecStatus');
+        if (!el) return;
+        el.textContent = msg;
+        el.style.background    = type === 'ok'    ? 'rgba(52,211,153,0.07)'
+                                : type === 'error' ? 'rgba(248,113,113,0.07)'
+                                : 'rgba(255,255,255,0.03)';
+        el.style.borderColor   = type === 'ok'    ? 'rgba(52,211,153,0.25)'
+                                : type === 'error' ? 'rgba(248,113,113,0.25)'
+                                : 'rgba(255,255,255,0.06)';
+        el.style.color         = type === 'ok'    ? '#34d399'
+                                : type === 'error' ? '#f87171'
+                                : 'var(--muted)';
+    }
+
+    function vlSecSetFeedback(msg, ok) {
+        const fb = document.getElementById('vlSecFeedback');
+        if (!fb) return;
+        fb.style.display     = 'block';
+        fb.textContent       = msg;
+        fb.style.color       = ok ? '#34d399' : '#f87171';
+        fb.style.borderColor = ok ? 'rgba(52,211,153,0.3)' : 'rgba(248,113,113,0.3)';
+        fb.style.background  = ok ? 'rgba(52,211,153,0.07)' : 'rgba(248,113,113,0.07)';
+        setTimeout(() => { fb.style.display = 'none'; }, 5000);
+    }
+
+    function vlSecSetListening(active) {
+        vlRecording = active;
+        const btn   = document.getElementById('vlSecMicBtn');
+        const wf    = document.getElementById('vlSecWaveform');
+        const icon  = document.getElementById('vlSecMicIcon');
+        const st    = document.getElementById('vlSecRecStatus');
+        if (btn)  btn.classList.toggle('recording', active);
+        if (wf)   wf.classList.toggle('listening', active);
+        if (icon) icon.className = active ? 'bx bx-stop' : 'bx bx-microphone';
+        if (st && active) st.innerHTML = 'Listening… say: <em style="color:#c084fc;">"{{ user.email|e('js') }}"</em>';
+        if (st && !active) st.innerHTML = 'Press the mic and say: <em style="color:#c084fc;">"{{ user.email|e('js') }}"</em>';
+    }
+
+    /* ── init: read localStorage ── */
+    function vlSecInit() {
+        const reg = JSON.parse(localStorage.getItem(VL_KEY) || '{}');
+        const regBtn    = document.getElementById('vlSecRegisterBtn');
+        const saveBtn   = document.getElementById('vlSecSaveBtn');
+        const removeBtn = document.getElementById('vlSecRemoveBtn');
+
+        if (reg.email === USER_EMAIL && reg.confirmed) {
+            vlSecSetStatus('✓ Voice login is registered for ' + reg.email, 'ok');
+            if (removeBtn) removeBtn.style.display = 'inline-flex';
+        } else {
+            vlSecSetStatus('No voice registered yet. Record your voice to enable voice login.', 'none');
+            if (regBtn) regBtn.style.display = 'inline-flex';
+        }
+        if (saveBtn) saveBtn.style.display = 'none';
+    }
+
+    /* ── start recording ── */
+    window.vlSecStartRecord = function () {
+        if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+            vlSecSetFeedback('Speech recognition not supported. Use Chrome or Edge.', false);
+            return;
+        }
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const box = document.getElementById('vlSecRecordBox');
+        if (box) box.style.display = 'block';
+        document.getElementById('vlSecRegisterBtn').style.display = 'none';
+        vlHeardText = '';
+        const t = document.getElementById('vlSecTranscript');
+        if (t) { t.style.display = 'none'; t.textContent = ''; }
+        document.getElementById('vlSecSaveBtn').style.display = 'none';
+    };
+
+    window.vlSecToggleMic = function () {
+        if (vlRecording) {
+            if (recognition) recognition.stop();
+            vlSecSetListening(false);
+            return;
+        }
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SR();
+        recognition.lang = 'en-US';
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = () => vlSecSetListening(true);
+
+        recognition.onresult = (e) => {
+            let text = '';
+            for (let i = e.resultIndex; i < e.results.length; i++) {
+                text += e.results[i][0].transcript;
+            }
+            const box = document.getElementById('vlSecTranscript');
+            if (box) { box.style.display = 'block'; box.textContent = '"' + text + '"'; }
+            if (e.results[e.results.length - 1].isFinal) {
+                vlHeardText = text;
+                const st = document.getElementById('vlSecRecStatus');
+                if (st) st.innerHTML = '✓ Voice captured — click <strong>Save Voice</strong> to confirm';
+                document.getElementById('vlSecSaveBtn').style.display = 'inline-flex';
+            }
+        };
+
+        recognition.onerror = (e) => {
+            vlSecSetListening(false);
+            const st = document.getElementById('vlSecRecStatus');
+            if (st) st.textContent = 'Error: ' + (e.error === 'not-allowed' ? 'Microphone permission denied.' : e.error);
+        };
+
+        recognition.onend = () => vlSecSetListening(false);
+        recognition.start();
+    };
+
+    /* ── save ── */
+    window.vlSecSave = function () {
+        if (!vlHeardText) { vlSecSetFeedback('Nothing recorded yet. Try again.', false); return; }
+        const reg = { email: USER_EMAIL, passphrase: vlHeardText, confirmed: true, savedAt: new Date().toISOString() };
+        localStorage.setItem(VL_KEY, JSON.stringify(reg));
+        document.getElementById('vlSecRecordBox').style.display = 'none';
+        document.getElementById('vlSecSaveBtn').style.display   = 'none';
+        vlSecSetStatus('✓ Voice login registered for ' + USER_EMAIL, 'ok');
+        const removeBtn = document.getElementById('vlSecRemoveBtn');
+        if (removeBtn) removeBtn.style.display = 'inline-flex';
+        vlSecSetFeedback('Voice saved! You can now use voice login on the sign-in page.', true);
+        // speak confirmation
+        if (window.speechSynthesis) {
+            const u = new SpeechSynthesisUtterance('Voice login registered. You can now sign in with your voice.');
+            u.rate = 1; u.pitch = 1.1; window.speechSynthesis.speak(u);
+        }
+    };
+
+    /* ── remove ── */
+    window.vlSecRemove = function () {
+        localStorage.removeItem(VL_KEY);
+        document.getElementById('vlSecRemoveBtn').style.display   = 'none';
+        document.getElementById('vlSecRegisterBtn').style.display = 'inline-flex';
+        vlSecSetStatus('Voice login removed. Record again to re-enable.', 'none');
+        vlSecSetFeedback('Voice registration cleared.', false);
+    };
+
+    /* boot */
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', vlSecInit);
+    } else {
+        vlSecInit();
+    }
+})();
 </script>
 {% endif %}
 {% endblock %}

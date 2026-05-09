@@ -387,10 +387,10 @@ footer{display:none!important}
 
 <div class="ev-toast" id="evToast"></div>
 
-<!-- MediaPipe Face Mesh (CDN — no install needed) -->
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+<!-- MediaPipe Face Mesh (CDN — pinned to stable versions to avoid WASM mismatch) -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1632090448/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.6.1629811433/control_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js" crossorigin="anonymous"></script>
 
 <script>
 /* ════════════════════════════════════════════
@@ -509,7 +509,10 @@ async function startMonitor() {
     dot.classList.add('active');
 
     // Init MediaPipe Face Mesh
-    faceMesh = new FaceMesh({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
+    overlay.innerHTML = '<p style="color:var(--cyan);font-size:0.85rem">⏳ Loading AI model…</p>';
+    overlay.classList.remove('hidden');
+
+    faceMesh = new FaceMesh({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/${f}` });
     faceMesh.setOptions({
         maxNumFaces: 1,
         refineLandmarks: true,
@@ -518,11 +521,32 @@ async function startMonitor() {
     });
     faceMesh.onResults(onResults);
 
-    mpCamera = new Camera(videoEl, {
-        onFrame: async () => { await faceMesh.send({ image: videoEl }); },
-        width: 640, height: 480
-    });
-    mpCamera.start();
+    try {
+        await faceMesh.initialize();
+    } catch(e) {
+        monitoring = false;
+        if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+        videoEl.srcObject = null;
+        overlay.innerHTML = '<p style="color:var(--red);font-size:0.85rem">❌ AI model failed to load.<br><small>' + e.message + '</small></p>';
+        overlay.classList.remove('hidden');
+        startBtn.style.display = 'flex';
+        stopBtn.style.display  = 'none';
+        dot.classList.remove('active');
+        return;
+    }
+
+    overlay.classList.add('hidden');
+
+    // Frame loop — bypasses Camera utility for reliability
+    let rafActive = true, rafId = null;
+    mpCamera = { stop() { rafActive = false; if (rafId) cancelAnimationFrame(rafId); } };
+    (async function frameLoop() {
+        if (!rafActive) return;
+        if (videoEl.readyState >= 2 && videoEl.videoWidth > 0) {
+            try { await faceMesh.send({ image: videoEl }); } catch(e) {}
+        }
+        rafId = requestAnimationFrame(frameLoop);
+    })();
 
     // Tick every second for session time display
     ticker = setInterval(updateSessionDisplay, 1000);
