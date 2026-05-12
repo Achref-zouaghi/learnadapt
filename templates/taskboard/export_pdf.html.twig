@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>LearnAdapt — Task Report</title>
+<title>9rayti+ — Task Report</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -13,7 +13,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#030810;color:#f0f4fc;m
 .intro-logo{width:260px;opacity:0;animation:logoAppear .9s cubic-bezier(0.34,1.56,0.64,1) .15s forwards}
 .intro-sub{font-size:0.78rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#4a5578;margin-top:20px;opacity:0;animation:fadeUp .6s ease .7s forwards}
 .intro-bar-wrap{width:220px;height:3px;background:rgba(255,255,255,0.05);border-radius:3px;margin-top:22px;overflow:hidden;opacity:0;animation:fadeUp .5s ease .9s forwards}
-.intro-bar-fill{width:0%;height:100%;border-radius:3px;background:linear-gradient(90deg,#7b61f1,#38bdd1);animation:barFill 2s cubic-bezier(0.4,0,0.2,1) 1s forwards}
+.intro-bar-fill{width:0%;height:100%;border-radius:3px;background:linear-gradient(90deg,#3B82F6,#38bdd1);animation:barFill 2s cubic-bezier(0.4,0,0.2,1) 1s forwards}
 @keyframes introFade{0%,75%{opacity:1;pointer-events:all}100%{opacity:0;pointer-events:none}}
 @keyframes logoAppear{from{opacity:0;transform:translateY(20px) scale(0.92)}to{opacity:1;transform:none}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -25,16 +25,16 @@ body{font-family:'Inter',system-ui,sans-serif;background:#030810;color:#f0f4fc;m
 
 /* ══ PRINT BUTTON ══ */
 .print-bar{text-align:center;margin-bottom:36px}
-.print-btn{display:inline-flex;align-items:center;gap:10px;padding:13px 38px;background:linear-gradient(135deg,#7b61f1,#38bdd1);border:none;border-radius:12px;color:#fff;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:inherit;letter-spacing:0.01em;box-shadow:0 6px 32px rgba(123,97,241,0.35);transition:all .2s;position:relative;overflow:hidden}
+.print-btn{display:inline-flex;align-items:center;gap:10px;padding:13px 38px;background:linear-gradient(135deg,#3B82F6,#38bdd1);border:none;border-radius:12px;color:#fff;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:inherit;letter-spacing:0.01em;box-shadow:0 6px 32px rgba(59,130,246,0.35);transition:all .2s;position:relative;overflow:hidden}
 .print-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,0.18) 50%,transparent 60%);transform:translateX(-100%);animation:sheen 3s ease-in-out 3.5s infinite}
 @keyframes sheen{to{transform:translateX(200%)}}
-.print-btn:hover{transform:translateY(-2px);box-shadow:0 10px 44px rgba(123,97,241,0.45)}
+.print-btn:hover{transform:translateY(-2px);box-shadow:0 10px 44px rgba(59,130,246,0.45)}
 .print-btn svg{width:18px;height:18px;flex-shrink:0}
 
 /* ══ COVER HEADER ══ */
 .cover{position:relative;border-radius:22px;overflow:hidden;margin-bottom:32px;background:linear-gradient(135deg,#0c1428 0%,#0d1b38 55%,#0a1625 100%);border:1px solid rgba(255,255,255,0.07)}
-.cover-bg-mesh{position:absolute;inset:0;background:radial-gradient(ellipse 60% 100% at 80% 50%,rgba(56,189,209,0.08),transparent),radial-gradient(ellipse 50% 80% at 10% 20%,rgba(123,97,241,0.1),transparent);pointer-events:none}
-.cover-stripe{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7b61f1,#38bdd1,#34d399,#fb923c,#7b61f1);background-size:400% 100%;animation:stripeMove 6s linear infinite}
+.cover-bg-mesh{position:absolute;inset:0;background:radial-gradient(ellipse 60% 100% at 80% 50%,rgba(52,211,153,0.08),transparent),radial-gradient(ellipse 50% 80% at 10% 20%,rgba(59,130,246,0.1),transparent);pointer-events:none}
+.cover-stripe{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#3B82F6,#38bdd1,#34d399,#fb923c,#3B82F6);background-size:400% 100%;animation:stripeMove 6s linear infinite}
 @keyframes stripeMove{to{background-position:400% 0}}
 .cover-inner{position:relative;padding:38px 40px 34px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
 .cover-logo-wrap{flex:1;min-width:220px}
@@ -43,7 +43,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#030810;color:#f0f4fc;m
 .cover-label{font-size:0.6rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:#38bdd1;margin-bottom:6px}
 .cover-name{font-size:1.15rem;font-weight:800;color:#f0f4fc;letter-spacing:-0.02em}
 .cover-date{font-size:0.72rem;color:#6474a0;margin-top:5px;font-weight:500}
-.cover-doc-type{display:inline-block;margin-top:12px;padding:5px 14px;border-radius:8px;background:rgba(123,97,241,0.12);border:1px solid rgba(123,97,241,0.22);font-size:0.62rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#a78bfa}
+.cover-doc-type{display:inline-block;margin-top:12px;padding:5px 14px;border-radius:8px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.22);font-size:0.62rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#93C5FD}
 
 /* ══ PROGRESS BAND ══ */
 .progress-band{background:rgba(255,255,255,0.018);border:1px solid rgba(255,255,255,0.055);border-radius:16px;padding:22px 28px;margin-bottom:28px;display:flex;align-items:center;gap:32px;flex-wrap:wrap}
@@ -57,7 +57,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#030810;color:#f0f4fc;m
 .progress-bar-wrap{flex:2;min-width:180px}
 .progress-bar-label{display:flex;justify-content:space-between;font-size:0.7rem;font-weight:600;color:#6474a0;margin-bottom:8px}
 .progress-bar-track{height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden}
-.progress-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#7b61f1,#38bdd1)}
+.progress-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#3B82F6,#38bdd1)}
 
 /* ══ SECTION HEADING ══ */
 .section-head{display:flex;align-items:center;gap:12px;margin:36px 0 16px}
@@ -76,11 +76,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:#030810;color:#f0f4fc;m
 .task-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .chip{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:7px;font-size:0.64rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap}
 .chip-priority-high{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.15)}
-.chip-priority-medium{background:rgba(251,146,60,0.1);color:#fb923c;border:1px solid rgba(251,146,60,0.15)}
+.chip-priority-medium{background:rgba(59,130,246,0.1);color:#fb923c;border:1px solid rgba(59,130,246,0.15)}
 .chip-priority-low{background:rgba(52,211,153,0.08);color:#34d399;border:1px solid rgba(52,211,153,0.12)}
 .chip-due{background:rgba(255,255,255,0.04);color:#8896ab;border:1px solid rgba(255,255,255,0.07)}
 .chip-overdue{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.15)}
-.chip-course{background:rgba(56,189,209,0.08);color:#38bdd1;border:1px solid rgba(56,189,209,0.12)}
+.chip-course{background:rgba(52,211,153,0.08);color:#38bdd1;border:1px solid rgba(52,211,153,0.12)}
 .chip svg{width:11px;height:11px;flex-shrink:0}
 
 /* ══ SUMMARY ══ */
@@ -186,7 +186,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#030810;color:#f0f4fc;m
   </g>
   <g filter="url(#i_tg)">
     <text x="108" y="29" fill="#8F9BB2" font-family="Inter,'Segoe UI',sans-serif" font-size="12" font-weight="700" letter-spacing="3.3">ADAPTIVE LEARNING</text>
-    <text x="108" y="66" fill="url(#i_wd)" font-family="Inter,'Segoe UI',sans-serif" font-size="38" font-weight="800" letter-spacing="-1.1">LearnAdapt</text>
+    <text x="108" y="66" fill="url(#i_wd)" font-family="Inter,'Segoe UI',sans-serif" font-size="38" font-weight="800" letter-spacing="-1.1">9rayti+</text>
     <rect x="110" y="73" width="134" height="3" rx="1.5" fill="url(#i_rl)" fill-opacity="0.9"><animate attributeName="width" values="0;134" dur="1.2s" fill="freeze"/></rect>
   </g>
 </svg>
@@ -255,7 +255,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#030810;color:#f0f4fc;m
   </g>
   <g filter="url(#c_tg)">
     <text x="108" y="29" fill="#8F9BB2" font-family="Inter,'Segoe UI',sans-serif" font-size="12" font-weight="700" letter-spacing="3.3">ADAPTIVE LEARNING</text>
-    <text x="108" y="66" fill="url(#c_wd)" font-family="Inter,'Segoe UI',sans-serif" font-size="38" font-weight="800" letter-spacing="-1.1">LearnAdapt</text>
+    <text x="108" y="66" fill="url(#c_wd)" font-family="Inter,'Segoe UI',sans-serif" font-size="38" font-weight="800" letter-spacing="-1.1">9rayti+</text>
     <rect x="110" y="73" width="134" height="3" rx="1.5" fill="url(#c_rl)" fill-opacity="0.9"/>
   </g>
 </svg>
@@ -273,7 +273,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#030810;color:#f0f4fc;m
     <div class="progress-band">
         <div class="progress-ring-wrap">
             <svg viewBox="0 0 80 80">
-                <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7b61f1"/><stop offset="100%" stop-color="#38bdd1"/></linearGradient></defs>
+                <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3B82F6"/><stop offset="100%" stop-color="#38bdd1"/></linearGradient></defs>
                 <circle cx="40" cy="40" r="30" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="7"/>
                 <circle cx="40" cy="40" r="30" fill="none" stroke="url(#rg)" stroke-width="7" stroke-linecap="round"
                     stroke-dasharray="{{ circum }}" stroke-dashoffset="{{ dashOff }}" transform="rotate(-90 40 40)"/>
@@ -370,7 +370,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#030810;color:#f0f4fc;m
         <div class="summary-title">Session Summary</div>
         <div class="summary-grid">
             <div class="sum-card">
-                <div class="sum-val" style="background:linear-gradient(135deg,#7b61f1,#38bdd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">{{ totalTasks }}</div>
+                <div class="sum-val" style="background:linear-gradient(135deg,#3B82F6,#38bdd1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">{{ totalTasks }}</div>
                 <div class="sum-lbl">Total Tasks</div>
             </div>
             <div class="sum-card">

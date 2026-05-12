@@ -1,13 +1,13 @@
 ﻿{% extends 'base.html.twig' %}
 {% set darkPage = true %}
-{% block title %}{{ course.title }} â€” LearnAdapt{% endblock %}
+{% block title %}{{ course.title }} — 9rayti+{% endblock %}
 
 {% block stylesheets %}
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.3);--ease:cubic-bezier(0.4,0,0.2,1)}
+:root{--bg:#04060e;--purple:#3B82F6;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.3);--ease:cubic-bezier(0.4,0,0.2,1)}
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
@@ -25,19 +25,19 @@ footer{display:none!important}
 
 /* â•â•â• BACK LINK â•â•â• */
 .cs-back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:0.82rem;font-weight:600;text-decoration:none;margin-bottom:28px;transition:all .25s var(--ease);padding:8px 16px;border-radius:12px;background:var(--glass);border:1px solid var(--border)}
-.cs-back:hover{color:var(--orange);border-color:rgba(251,146,60,0.2);background:rgba(251,146,60,0.05);transform:translateX(-4px)}
+.cs-back:hover{color:var(--orange);border-color:rgba(59,130,246,0.2);background:rgba(59,130,246,0.05);transform:translateX(-4px)}
 .cs-back i{font-size:1.1rem}
 
 /* â•â•â• HERO HEADER â•â•â• */
-.cs-hero{margin-bottom:36px;position:relative;padding:40px 44px 36px;background:linear-gradient(135deg,rgba(251,146,60,0.06),rgba(251,191,36,0.04));border:1px solid rgba(251,146,60,0.08);border-radius:24px;backdrop-filter:blur(20px);overflow:hidden;animation:heroIn .7s var(--ease) backwards}
-.cs-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(251,146,60,0.3),rgba(251,191,36,0.2),transparent)}
-.cs-hero::after{content:'';position:absolute;bottom:-60px;right:-30px;width:200px;height:200px;background:radial-gradient(circle,rgba(251,146,60,0.08),transparent 70%);border-radius:50%;pointer-events:none}
+.cs-hero{margin-bottom:36px;position:relative;padding:40px 44px 36px;background:linear-gradient(135deg,rgba(59,130,246,0.06),rgba(251,191,36,0.04));border:1px solid rgba(59,130,246,0.08);border-radius:24px;backdrop-filter:blur(20px);overflow:hidden;animation:heroIn .7s var(--ease) backwards}
+.cs-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.3),rgba(251,191,36,0.2),transparent)}
+.cs-hero::after{content:'';position:absolute;bottom:-60px;right:-30px;width:200px;height:200px;background:radial-gradient(circle,rgba(59,130,246,0.08),transparent 70%);border-radius:50%;pointer-events:none}
 @keyframes heroIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
 .cs-hero-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px}
 .cs-hero-left{flex:1;min-width:0}
 .cs-hero h1{font-size:2rem;font-weight:900;letter-spacing:-0.04em;line-height:1.15;background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
 .cs-hero-actions{display:flex;flex-direction:column;gap:10px;align-items:flex-end;flex-shrink:0}
-.cs-hero-icon{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,rgba(251,146,60,0.15),rgba(251,191,36,0.1));border:1px solid rgba(251,146,60,0.12);display:flex;align-items:center;justify-content:center}
+.cs-hero-icon{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(251,191,36,0.1));border:1px solid rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center}
 .cs-hero-icon i{font-size:2rem;background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* â•â•â• BADGE â•â•â• */
@@ -54,16 +54,16 @@ footer{display:none!important}
 
 /* â•â•â• ACTION PILLS â•â•â• */
 .cs-pill{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;font-size:0.84rem;font-weight:700;text-decoration:none;cursor:pointer;border:1px solid;transition:all .25s var(--ease)}
-.cs-pill-pdf{background:rgba(251,146,60,0.1);border-color:rgba(251,146,60,0.2);color:var(--orange)}
-.cs-pill-pdf:hover{background:rgba(251,146,60,0.18);transform:translateY(-2px)}
+.cs-pill-pdf{background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.2);color:var(--orange)}
+.cs-pill-pdf:hover{background:rgba(59,130,246,0.18);transform:translateY(-2px)}
 .cs-pill-bm{background:var(--glass);border-color:var(--border);color:var(--muted)}
 .cs-pill-bm:hover,.cs-pill-bm.active{background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.2);color:var(--yellow)}
 .cs-pill-share{background:var(--glass);border-color:var(--border);color:var(--muted)}
-.cs-pill-share:hover{background:rgba(56,189,209,0.1);border-color:rgba(56,189,209,0.2);color:var(--cyan)}
+.cs-pill-share:hover{background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.2);color:var(--cyan)}
 
 /* â•â•â• TAGS â•â•â• */
 .cs-tags{display:flex;flex-wrap:wrap;gap:6px}
-.cs-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;background:rgba(123,97,241,0.08);border:1px solid rgba(123,97,241,0.1);border-radius:8px;font-size:0.7rem;font-weight:600;color:var(--purple)}
+.cs-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.1);border-radius:8px;font-size:0.7rem;font-weight:600;color:var(--purple)}
 
 /* â•â•â• TWO COL LAYOUT â•â•â• */
 .cs-two-col{display:grid;grid-template-columns:1fr 340px;gap:28px;margin-bottom:32px}
@@ -107,12 +107,12 @@ footer{display:none!important}
 .cs-note-del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--red);cursor:pointer;font-size:0.88rem;opacity:0.5;transition:opacity .2s}
 .cs-note-del:hover{opacity:1}
 textarea.cs-note-input{width:100%;min-height:80px;background:var(--glass);border:1px solid var(--border);border-radius:12px;padding:14px 16px;color:var(--text);font-size:0.82rem;font-family:inherit;resize:vertical;outline:none;transition:border-color .2s}
-textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
+textarea.cs-note-input:focus{border-color:rgba(59,130,246,0.3)}
 
 /* â•â•â• COMMENTS â•â•â• */
 .cs-comment{display:flex;gap:12px;padding:16px 0;border-bottom:1px solid var(--border)}
 .cs-comment:last-child{border-bottom:none}
-.cs-comment-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,rgba(123,97,241,0.15),rgba(56,189,209,0.1));display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--purple);flex-shrink:0}
+.cs-comment-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(52,211,153,0.1));display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--purple);flex-shrink:0}
 .cs-comment-body{flex:1;min-width:0}
 .cs-comment-head{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:0.78rem}
 .cs-comment-name{font-weight:700;color:var(--text)}
@@ -132,18 +132,18 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 
 /* â•â•â• FILES LIST â•â•â• */
 .cs-file{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--glass);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;transition:all .2s var(--ease)}
-.cs-file:hover{border-color:rgba(251,146,60,0.2);background:rgba(251,146,60,0.03)}
+.cs-file:hover{border-color:rgba(59,130,246,0.2);background:rgba(59,130,246,0.03)}
 .cs-file-icon{font-size:1.3rem;color:var(--orange)}
 .cs-file-info{flex:1;min-width:0}
 .cs-file-name{font-size:0.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cs-file-size{font-size:0.68rem;color:var(--muted)}
 .cs-file-dl{display:flex;align-items:center;gap:4px;padding:6px 14px;background:linear-gradient(135deg,var(--orange),var(--yellow));color:#fff;border-radius:10px;font-size:0.72rem;font-weight:700;text-decoration:none;white-space:nowrap;transition:all .2s}
-.cs-file-dl:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(251,146,60,0.3)}
+.cs-file-dl:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,130,246,0.3)}
 
 /* â•â•â• PREREQ / RELATED CARDS â•â•â• */
 .cs-mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
 .cs-mini-card{background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:16px 18px;text-decoration:none;color:var(--text);transition:all .25s var(--ease)}
-.cs-mini-card:hover{border-color:rgba(251,146,60,0.15);background:var(--card-h);transform:translateY(-2px)}
+.cs-mini-card:hover{border-color:rgba(59,130,246,0.15);background:var(--card-h);transform:translateY(-2px)}
 .cs-mini-card-title{font-size:0.82rem;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cs-mini-card-lvl{font-size:0.68rem;font-weight:700;text-transform:uppercase}
 
@@ -161,12 +161,12 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 /* â•â•â• EXERCISES GRID â•â•â• */
 .cs-ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
 .cs-ex-card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;backdrop-filter:blur(14px);transition:all .3s var(--ease);overflow:hidden}
-.cs-ex-card:hover{background:var(--card-h);border-color:rgba(123,97,241,0.15);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.2)}
+.cs-ex-card:hover{background:var(--card-h);border-color:rgba(59,130,246,0.15);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.2)}
 .cs-ex-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--purple),var(--cyan));opacity:0;transition:opacity .3s}
 .cs-ex-card:hover::after{opacity:1}
 .cs-ex-title{font-size:0.92rem;font-weight:700;margin-bottom:8px}
 .cs-ex-meta{display:flex;flex-wrap:wrap;gap:10px;font-size:0.72rem;color:var(--muted)}
-.cs-ex-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:rgba(123,97,241,0.08);border:1px solid rgba(123,97,241,0.1);border-radius:8px;font-size:0.7rem;font-weight:600;color:var(--purple)}
+.cs-ex-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.1);border-radius:8px;font-size:0.7rem;font-weight:600;color:var(--purple)}
 .cs-ex-lvl{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;font-size:0.7rem;font-weight:700}
 .cs-ex-lvl.facile{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.1)}
 .cs-ex-lvl.moyen{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.1)}
@@ -174,11 +174,11 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 .cs-ex-links{display:flex;gap:8px;margin-top:12px}
 .cs-ex-links a{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:10px;font-size:0.72rem;font-weight:700;text-decoration:none;transition:all .25s var(--ease)}
 .cs-ex-dl{background:linear-gradient(135deg,var(--orange),var(--yellow));color:#fff}
-.cs-ex-dl:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(251,146,60,0.3)}
+.cs-ex-dl:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.3)}
 .cs-ex-corr{background:var(--glass);border:1px solid var(--border);color:var(--muted)}
 .cs-ex-corr:hover{color:var(--text);border-color:rgba(255,255,255,0.12)}
 .cs-ex-empty{text-align:center;padding:60px 20px;color:var(--muted)}
-.cs-ex-empty-icon{width:64px;height:64px;border-radius:18px;background:rgba(123,97,241,0.08);border:1px solid rgba(123,97,241,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.cs-ex-empty-icon{width:64px;height:64px;border-radius:18px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
 .cs-ex-empty-icon i{font-size:1.6rem;color:var(--purple);opacity:0.5}
 .cs-ex-empty h4{font-size:0.95rem;font-weight:700;margin-bottom:6px;color:var(--text)}
 .cs-ex-empty p{font-size:0.8rem;max-width:300px;margin:0 auto;line-height:1.5}
@@ -186,7 +186,7 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 /* â•â•â• BUTTON â•â•â• */
 .cs-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:11px;font-size:0.78rem;font-weight:700;border:none;cursor:pointer;transition:all .25s var(--ease)}
 .cs-btn-primary{background:linear-gradient(135deg,var(--orange),var(--yellow));color:#fff}
-.cs-btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(251,146,60,0.3)}
+.cs-btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,0.3)}
 .cs-btn-ghost{background:var(--glass);border:1px solid var(--border);color:var(--muted)}
 .cs-btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.12)}
 .cs-btn-sm{padding:6px 14px;font-size:0.72rem;border-radius:8px}
@@ -204,8 +204,8 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 .pdf-modal-title{font-size:0.88rem;font-weight:700;color:var(--orange);display:flex;align-items:center;gap:8px}
 .pdf-modal-title i{font-size:1.1rem}
 .pdf-modal-actions{display:flex;align-items:center;gap:10px}
-.pdf-modal-dl{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.2);border-radius:10px;color:var(--orange);font-size:0.78rem;font-weight:700;text-decoration:none;transition:all .2s}
-.pdf-modal-dl:hover{background:rgba(251,146,60,0.2)}
+.pdf-modal-dl{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:10px;color:var(--orange);font-size:0.78rem;font-weight:700;text-decoration:none;transition:all .2s}
+.pdf-modal-dl:hover{background:rgba(59,130,246,0.2)}
 .pdf-modal-close{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all .2s}
 .pdf-modal-close:hover{background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.2);color:var(--red)}
 .pdf-modal iframe{flex:1;border:none;background:#fff}
@@ -255,7 +255,7 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 						{{ course.level }}
 					</span>
 					{% if readingTime %}
-					<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:10px;font-size:0.7rem;font-weight:700;background:rgba(56,189,209,0.08);color:var(--cyan);border:1px solid rgba(56,189,209,0.1)">
+					<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:10px;font-size:0.7rem;font-weight:700;background:rgba(52,211,153,0.08);color:var(--cyan);border:1px solid rgba(52,211,153,0.1)">
 						<i class='bx bx-time-five'></i> ~{{ readingTime }} min read
 					</span>
 					{% endif %}
@@ -313,7 +313,7 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 				</div>
 				<!-- Streak badge -->
 				{% if streak and streak.current_streak > 0 %}
-				<div style="text-align:center;padding:10px 16px;background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.1);border-radius:14px">
+				<div style="text-align:center;padding:10px 16px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.1);border-radius:14px">
 					<div style="font-size:1.5rem">ðŸ”¥</div>
 					<div style="font-size:0.88rem;font-weight:900;color:var(--orange)">{{ streak.current_streak }}</div>
 					<div style="font-size:0.6rem;color:var(--muted);font-weight:600">day streak</div>
@@ -524,7 +524,7 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 					{% for rev in reviews %}
 					<div class="cs-review">
 						<div class="cs-review-head">
-							<div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,rgba(251,146,60,0.15),rgba(251,191,36,0.1));display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;color:var(--orange)">{{ rev.full_name|first|upper }}</div>
+							<div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(251,191,36,0.1));display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;color:var(--orange)">{{ rev.full_name|first|upper }}</div>
 							<span class="cs-review-name">{{ rev.full_name }}</span>
 							<div class="cs-review-stars">
 								{% for i in 1..5 %}
@@ -548,7 +548,7 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 				<div class="cs-desc-box">
 					<!-- Add comment -->
 					<div style="display:flex;gap:12px;margin-bottom:20px">
-						<div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,rgba(123,97,241,0.15),rgba(56,189,209,0.1));display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--purple);flex-shrink:0">
+						<div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(52,211,153,0.1));display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--purple);flex-shrink:0">
 							<i class='bx bx-user'></i>
 						</div>
 						<div style="flex:1">
@@ -594,7 +594,7 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 				<h3><i class='bx bx-trophy'></i> Your Stats</h3>
 				{% if progress and progress.xp_earned > 0 %}
 				<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-					<div style="width:40px;height:40px;border-radius:12px;background:rgba(56,189,209,0.1);display:flex;align-items:center;justify-content:center;font-size:1rem">âš¡</div>
+					<div style="width:40px;height:40px;border-radius:12px;background:rgba(52,211,153,0.1);display:flex;align-items:center;justify-content:center;font-size:1rem">âš¡</div>
 					<div>
 						<div style="font-size:1.1rem;font-weight:900;color:var(--cyan)">{{ progress.xp_earned }}</div>
 						<div style="font-size:0.65rem;color:var(--muted);font-weight:600">XP EARNED</div>
@@ -603,7 +603,7 @@ textarea.cs-note-input:focus{border-color:rgba(251,146,60,0.3)}
 				{% endif %}
 				{% if streak and streak.current_streak > 0 %}
 				<div style="display:flex;align-items:center;gap:10px">
-					<div style="width:40px;height:40px;border-radius:12px;background:rgba(251,146,60,0.1);display:flex;align-items:center;justify-content:center;font-size:1rem">ðŸ”¥</div>
+					<div style="width:40px;height:40px;border-radius:12px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;font-size:1rem">ðŸ”¥</div>
 					<div>
 						<div style="font-size:1.1rem;font-weight:900;color:var(--orange)">{{ streak.current_streak }} days</div>
 						<div style="font-size:0.65rem;color:var(--muted);font-weight:600">CURRENT STREAK (Best: {{ streak.longest_streak }})</div>

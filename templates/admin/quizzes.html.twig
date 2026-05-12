@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 {% set darkPage = true %}
 {% block title %}Admin — Quizzes{% endblock %}
 
@@ -6,7 +6,7 @@
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
+:root{--bg:#04060e;--purple:#3B82F6;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
 @property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
@@ -20,7 +20,7 @@ footer{display:none!important}
 .adm-nav{list-style:none;display:flex;flex-direction:column;gap:4px;flex:1}
 .adm-nav a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;color:var(--muted);text-decoration:none;font-size:0.84rem;font-weight:600;transition:all .22s var(--ease);position:relative}
 .adm-nav a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
-.adm-nav a.is-active{color:var(--cyan);background:rgba(56,189,209,0.08)}
+.adm-nav a.is-active{color:var(--cyan);background:rgba(52,211,153,0.08)}
 .adm-nav a.is-active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0}
 .adm-nav a i{font-size:1.2rem;width:22px;text-align:center}
 .adm-nav-divider{height:1px;background:var(--border);margin:12px 8px}
@@ -33,8 +33,8 @@ footer{display:none!important}
 @keyframes headLine{0%,100%{width:60px;opacity:.8}50%{width:100px;opacity:1}}
 @keyframes borderSpin{to{--border-angle:360deg}}
 
-.adm-hero{position:relative;padding:28px 32px;background:linear-gradient(135deg,rgba(56,189,209,0.06),rgba(123,97,241,0.04));border:1px solid rgba(56,189,209,0.08);border-radius:20px;backdrop-filter:blur(20px);overflow:hidden;margin-bottom:28px;animation:fadeIn .5s var(--ease)}
-.adm-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.3),rgba(123,97,241,0.2),transparent)}
+.adm-hero{position:relative;padding:28px 32px;background:linear-gradient(135deg,rgba(52,211,153,0.06),rgba(59,130,246,0.04));border:1px solid rgba(52,211,153,0.08);border-radius:20px;backdrop-filter:blur(20px);overflow:hidden;margin-bottom:28px;animation:fadeIn .5s var(--ease)}
+.adm-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(52,211,153,0.3),rgba(59,130,246,0.2),transparent)}
 .adm-hero h1{font-size:1.8rem;font-weight:900;letter-spacing:-0.04em;margin-bottom:4px;position:relative;display:inline-block}
 .adm-hero h1 .head-gradient{background:linear-gradient(135deg,var(--cyan),var(--purple),var(--green));background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:headGrad 6s ease infinite}
 .adm-hero h1::after{content:'';position:absolute;bottom:-6px;left:0;width:60px;height:3px;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:3px;animation:headLine 3s ease-in-out infinite}
@@ -45,7 +45,7 @@ footer{display:none!important}
 @media(max-width:1000px){.aq-stats{grid-template-columns:repeat(2,1fr)}}
 .aq-stat{background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:20px 22px;text-align:center;animation:fadeUp .4s var(--ease) backwards;position:relative;overflow:hidden;transition:all .35s var(--ease)}
 .aq-stat::before{content:'';position:absolute;inset:-1px;border-radius:16px;padding:1px;background:conic-gradient(from var(--border-angle),transparent 40%,var(--cyan) 50%,var(--purple) 60%,transparent 70%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s;pointer-events:none}
-.aq-stat::after{content:'';position:absolute;inset:0;border-radius:16px;background:radial-gradient(ellipse at 50% 0%,rgba(56,189,209,0.06),transparent 70%);opacity:0;transition:opacity .4s;pointer-events:none}
+.aq-stat::after{content:'';position:absolute;inset:0;border-radius:16px;background:radial-gradient(ellipse at 50% 0%,rgba(52,211,153,0.06),transparent 70%);opacity:0;transition:opacity .4s;pointer-events:none}
 .aq-stat:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,0.25)}
 .aq-stat:hover::before{opacity:1;animation:borderSpin 3s linear infinite}
 .aq-stat:hover::after{opacity:1}
@@ -56,7 +56,7 @@ footer{display:none!important}
 /* Top bar / toolbar */
 .aq-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap;animation:fadeUp .4s var(--ease) .15s backwards}
 .aq-search{display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:14px;background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));border:1px solid var(--border);flex:1;max-width:380px;transition:all .35s var(--ease)}
-.aq-search:focus-within{border-color:rgba(56,189,209,0.35);box-shadow:0 0 24px rgba(56,189,209,0.08),0 0 0 1px rgba(56,189,209,0.1);background:rgba(56,189,209,0.02)}
+.aq-search:focus-within{border-color:rgba(52,211,153,0.35);box-shadow:0 0 24px rgba(52,211,153,0.08),0 0 0 1px rgba(52,211,153,0.1);background:rgba(52,211,153,0.02)}
 .aq-search input{background:none;border:none;outline:none;color:var(--text);font-size:.88rem;flex:1;font-family:inherit}
 .aq-search input::placeholder{color:var(--muted)}
 .aq-search i{color:var(--muted);font-size:1.1rem;transition:all .3s var(--ease)}
@@ -74,13 +74,13 @@ footer{display:none!important}
 
 /* Table */
 .aq-table-wrap{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:18px;overflow:hidden;backdrop-filter:blur(14px);animation:fadeUp .4s var(--ease) .25s backwards;position:relative}
-.aq-table-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.2),rgba(123,97,241,0.15),transparent);pointer-events:none}
+.aq-table-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(52,211,153,0.2),rgba(59,130,246,0.15),transparent);pointer-events:none}
 .aq-table{width:100%;border-collapse:collapse}
 .aq-table th{text-align:left;padding:16px 20px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:linear-gradient(135deg,rgba(255,255,255,0.02),rgba(255,255,255,0.005));border-bottom:1px solid var(--border)}
 .aq-table td{padding:16px 20px;font-size:.88rem;border-bottom:1px solid rgba(255,255,255,0.025);vertical-align:middle;transition:all .2s var(--ease)}
 .aq-table tr:last-child td{border-bottom:none}
 .aq-table tbody tr[data-title]{transition:all .25s var(--ease)}
-.aq-table tbody tr[data-title]:hover td{background:rgba(56,189,209,0.015)}
+.aq-table tbody tr[data-title]:hover td{background:rgba(52,211,153,0.015)}
 .aq-table tbody tr[data-title]:hover{box-shadow:inset 3px 0 0 var(--cyan)}
 .aq-status{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:8px;font-size:.72rem;font-weight:700;border:1px solid transparent;transition:all .2s var(--ease)}
 .aq-status.active{background:rgba(52,211,153,.1);color:var(--green);border-color:rgba(52,211,153,.15)}
@@ -93,11 +93,11 @@ footer{display:none!important}
 .aq-actions .del::before{background:radial-gradient(circle,rgba(248,113,113,0.15),transparent)}
 .aq-actions .del:hover{color:var(--red);border-color:rgba(248,113,113,.25)}
 .aq-actions .del:hover::before{opacity:1}
-.aq-actions .edit::before{background:radial-gradient(circle,rgba(56,189,209,0.15),transparent)}
-.aq-actions .edit:hover{color:var(--cyan);border-color:rgba(56,189,209,.25)}
+.aq-actions .edit::before{background:radial-gradient(circle,rgba(52,211,153,0.15),transparent)}
+.aq-actions .edit:hover{color:var(--cyan);border-color:rgba(52,211,153,.25)}
 .aq-actions .edit:hover::before{opacity:1}
-.aq-actions .manage::before{background:radial-gradient(circle,rgba(123,97,241,0.15),transparent)}
-.aq-actions .manage:hover{color:var(--purple);border-color:rgba(123,97,241,.25)}
+.aq-actions .manage::before{background:radial-gradient(circle,rgba(59,130,246,0.15),transparent)}
+.aq-actions .manage:hover{color:var(--purple);border-color:rgba(59,130,246,.25)}
 .aq-actions .manage:hover::before{opacity:1}
 .aq-actions button:hover i,.aq-actions a:hover i{animation:btnWiggle .4s var(--ease)}
 @keyframes btnWiggle{0%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}100%{transform:rotate(0)}}
@@ -105,8 +105,8 @@ footer{display:none!important}
 /* Modal */
 .adm-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:200;opacity:0;visibility:hidden;display:flex;align-items:center;justify-content:center;transition:all .2s ease}
 .adm-modal-bg.show{opacity:1;visibility:visible}
-.adm-modal{background:rgba(10,16,28,0.98);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:32px;max-width:560px;width:92%;max-height:85vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04),0 0 80px rgba(56,189,209,.04);transform:scale(.92);transition:transform .3s var(--ease);position:relative;overflow-x:hidden}
-.adm-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.3),rgba(123,97,241,0.2),transparent)}
+.adm-modal{background:rgba(10,16,28,0.98);border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:32px;max-width:560px;width:92%;max-height:85vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04),0 0 80px rgba(52,211,153,.04);transform:scale(.92);transition:transform .3s var(--ease);position:relative;overflow-x:hidden}
+.adm-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(52,211,153,0.3),rgba(59,130,246,0.2),transparent)}
 .adm-modal-bg.show .adm-modal{transform:scale(1)}
 .adm-modal h3{font-size:1.15rem;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:8px}
 .adm-modal h3 i{animation:mIconPulse 2s ease-in-out infinite}
@@ -114,14 +114,14 @@ footer{display:none!important}
 .adm-modal-field{margin-bottom:14px}
 .adm-modal-field label{display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
 .adm-modal-field input,.adm-modal-field select,.adm-modal-field textarea{width:100%;padding:11px 15px;border-radius:11px;background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--text);font-size:.88rem;font-family:inherit;outline:none;transition:all .25s var(--ease)}
-.adm-modal-field input:focus,.adm-modal-field select:focus,.adm-modal-field textarea:focus{border-color:rgba(56,189,209,.35);box-shadow:0 0 16px rgba(56,189,209,.06);background:rgba(56,189,209,.02)}
+.adm-modal-field input:focus,.adm-modal-field select:focus,.adm-modal-field textarea:focus{border-color:rgba(52,211,153,.35);box-shadow:0 0 16px rgba(52,211,153,.06);background:rgba(52,211,153,.02)}
 .adm-modal-field textarea{min-height:70px;resize:vertical}
 .adm-modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
 .adm-modal-btn{padding:10px 24px;border-radius:11px;font-size:.85rem;font-weight:700;cursor:pointer;border:none;transition:all .25s var(--ease);position:relative;overflow:hidden}
 .adm-modal-btn.cancel{background:var(--glass);border:1px solid var(--border);color:var(--muted)}
 .adm-modal-btn.cancel:hover{color:var(--text);background:var(--glass-b);transform:translateY(-1px)}
-.adm-modal-btn.save{background:linear-gradient(135deg,var(--cyan),var(--green));color:#fff;box-shadow:0 4px 20px rgba(56,189,209,.15)}
-.adm-modal-btn.save:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,189,209,.25)}
+.adm-modal-btn.save{background:linear-gradient(135deg,var(--cyan),var(--green));color:#fff;box-shadow:0 4px 20px rgba(52,211,153,.15)}
+.adm-modal-btn.save:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(52,211,153,.25)}
 .adm-modal-btn.save::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);transition:left .6s}
 .adm-modal-btn.save:hover::before{left:200%}
 
@@ -132,8 +132,8 @@ footer{display:none!important}
 .aq-qpanel h4 i{color:var(--purple)}
 .aq-qlist{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
 .aq-qitem{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-radius:12px;background:linear-gradient(135deg,rgba(255,255,255,.025),rgba(255,255,255,.01));border:1px solid var(--border);transition:all .25s var(--ease)}
-.aq-qitem:hover{background:rgba(123,97,241,.02);border-color:rgba(123,97,241,.1);transform:translateX(3px)}
-.aq-qitem-num{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;background:rgba(123,97,241,.12);color:var(--purple);flex-shrink:0}
+.aq-qitem:hover{background:rgba(59,130,246,.02);border-color:rgba(59,130,246,.1);transform:translateX(3px)}
+.aq-qitem-num{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;background:rgba(59,130,246,.12);color:var(--purple);flex-shrink:0}
 .aq-qitem-body{flex:1;font-size:.85rem}
 .aq-qitem-type{font-size:.68rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.05em}
 .aq-qitem-del{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--glass);color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .25s var(--ease)}
@@ -141,7 +141,7 @@ footer{display:none!important}
 
 /* Add Q Form */
 .aq-addq{padding:18px;border-radius:14px;background:linear-gradient(135deg,rgba(255,255,255,.02),rgba(255,255,255,.008));border:1px solid var(--border);position:relative}
-.aq-addq::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.1),transparent);border-radius:14px 14px 0 0}
+.aq-addq::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(52,211,153,0.1),transparent);border-radius:14px 14px 0 0}
 .aq-addq h5{font-size:.82rem;font-weight:700;margin-bottom:12px;color:var(--cyan)}
 .aq-addq-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 @media(max-width:600px){.aq-addq-row{grid-template-columns:1fr}}
@@ -173,8 +173,8 @@ footer{display:none!important}
 /* Scrollbar */
 .adm-main::-webkit-scrollbar{width:6px}
 .adm-main::-webkit-scrollbar-track{background:transparent}
-.adm-main::-webkit-scrollbar-thumb{background:rgba(56,189,209,.15);border-radius:3px}
-.adm-main::-webkit-scrollbar-thumb:hover{background:rgba(56,189,209,.3)}
+.adm-main::-webkit-scrollbar-thumb{background:rgba(52,211,153,.15);border-radius:3px}
+.adm-main::-webkit-scrollbar-thumb:hover{background:rgba(52,211,153,.3)}
 
 @media(max-width:768px){.adm-side{display:none}.adm-main{margin-left:0}}
 </style>
@@ -188,7 +188,7 @@ footer{display:none!important}
 	<aside class="adm-side">
 		<div class="adm-side-head">
 			<h2><span>Admin</span> Panel</h2>
-			<p>LearnAdapt Management</p>
+			<p>9rayti+ Management</p>
 		</div>
 		<ul class="adm-nav">
 			<li><a href="{{ path('app_admin') }}"><i class='bx bxs-dashboard'></i> Dashboard</a></li>

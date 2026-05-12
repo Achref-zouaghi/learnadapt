@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,12 +10,12 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-        --purple: #7b61f1;
+        --purple: #3B82F6;
         --cyan:   #38bdd1;
         --gold:   #f5c842;
         --red:    #e55;
         --green:  #3ab96f;
-        --text:   #1a1a2e;
+        --text:   #1E3A8A;
         --sub:    #5a5a7a;
         --border: #dde1f0;
         --bg:     #f7f8fc;
@@ -279,13 +279,13 @@
 {% set goal = m.micro_goal ?? null %}
 
 <!-- Print button (hidden on print) -->
-<div class="no-print" style="background:#1a1a2e;padding:12px 24px;display:flex;justify-content:space-between;align-items:center">
+<div class="no-print" style="background:#1E3A8A;padding:12px 24px;display:flex;justify-content:space-between;align-items:center">
     <span style="color:rgba(255,255,255,0.5);font-size:0.8rem;font-family:Inter,sans-serif">
         LearnAdapt Mind — Print View
     </span>
     <div style="display:flex;gap:8px">
         <button onclick="window.print()"
-            style="padding:8px 16px;background:linear-gradient(135deg,#7b61f1,#38bdd1);border:none;border-radius:8px;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer">
+            style="padding:8px 16px;background:linear-gradient(135deg,#3B82F6,#38bdd1);border:none;border-radius:8px;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer">
             Print / Save PDF
         </button>
         <button onclick="window.close()"

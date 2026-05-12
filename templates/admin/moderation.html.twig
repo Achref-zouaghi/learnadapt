@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 {% set darkPage = true %}
 {% block title %}AI Moderation Queue — Admin{% endblock %}
 
@@ -6,7 +6,7 @@
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
+:root{--bg:#04060e;--purple:#3B82F6;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
 footer{display:none!important}
@@ -20,7 +20,7 @@ footer{display:none!important}
 .adm-nav{list-style:none;display:flex;flex-direction:column;gap:4px;flex:1}
 .adm-nav a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;color:var(--muted);text-decoration:none;font-size:0.84rem;font-weight:600;transition:all .22s var(--ease);position:relative}
 .adm-nav a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
-.adm-nav a.is-active{color:var(--orange);background:rgba(251,146,60,0.08)}
+.adm-nav a.is-active{color:var(--orange);background:rgba(59,130,246,0.08)}
 .adm-nav a.is-active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--orange);border-radius:0 3px 3px 0}
 .adm-nav a i{font-size:1.2rem;width:22px;text-align:center}
 .adm-nav-divider{height:1px;background:var(--border);margin:12px 8px}
@@ -57,7 +57,7 @@ footer{display:none!important}
 .mod-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 .mod-author{font-size:0.78rem;font-weight:700;color:var(--cyan)}
 .mod-time{font-size:0.72rem;color:var(--muted)}
-.mod-topic-label{font-size:0.7rem;font-weight:700;background:rgba(123,97,241,0.15);color:var(--purple);border:1px solid rgba(123,97,241,0.3);border-radius:8px;padding:2px 9px}
+.mod-topic-label{font-size:0.7rem;font-weight:700;background:rgba(59,130,246,0.15);color:var(--purple);border:1px solid rgba(59,130,246,0.3);border-radius:8px;padding:2px 9px}
 .mod-title{font-size:0.95rem;font-weight:800;margin-bottom:6px;letter-spacing:-0.02em}
 .mod-content{font-size:0.82rem;color:var(--muted);line-height:1.6;max-height:72px;overflow:hidden;position:relative}
 .mod-content::after{content:'';position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(transparent,#020a10)}
@@ -105,7 +105,7 @@ footer{display:none!important}
       <li><a href="{{ path('app_admin_feedback') }}"><i class='bx bxs-comment-dots'></i> Feedback</a></li>
       <div class="adm-nav-divider"></div>
       <li><a href="{{ path('app_admin_forum') }}"><i class='bx bx-chat'></i> Forum</a></li>
-      <li><a href="{{ path('app_admin_moderation') }}" class="is-active"><i class='bx bx-shield-quarter'></i> AI Moderation <span class="sec-badge" style="background:rgba(251,146,60,.15);color:var(--orange);border:1px solid rgba(251,146,60,.3);margin-left:auto">{{ pendingCount }}</span></a></li>
+      <li><a href="{{ path('app_admin_moderation') }}" class="is-active"><i class='bx bx-shield-quarter'></i> AI Moderation <span class="sec-badge" style="background:rgba(59,130,246,.15);color:var(--orange);border:1px solid rgba(59,130,246,.3);margin-left:auto">{{ pendingCount }}</span></a></li>
     </ul>
   </aside>
 
@@ -147,7 +147,7 @@ footer{display:none!important}
         <div class="sec-head">
           <i class='bx bx-file' style="color:var(--orange)"></i>
           <h2>Pending Topics</h2>
-          <span class="sec-badge" style="background:rgba(251,146,60,.12);color:var(--orange);border:1px solid rgba(251,146,60,.3)">{{ pendingTopics|length }}</span>
+          <span class="sec-badge" style="background:rgba(59,130,246,.12);color:var(--orange);border:1px solid rgba(59,130,246,.3)">{{ pendingTopics|length }}</span>
         </div>
 
         {% for topic in pendingTopics %}

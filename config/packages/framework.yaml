@@ -6,6 +6,16 @@ framework:
     handle_all_throwables: true
     default_locale: en
     http_cache: true
+
+    # Trust Cloudflare tunnel and any reverse proxy that directly connects to nginx.
+    # REMOTE_ADDR means "trust the immediately connecting IP" (the Cloudflare daemon running locally).
+    trusted_proxies: '127.0.0.1,REMOTE_ADDR'
+    trusted_headers:
+        - 'x-forwarded-for'
+        - 'x-forwarded-host'
+        - 'x-forwarded-port'
+        - 'x-forwarded-proto'
+        - 'x-forwarded-prefix'
     translator:
         default_path: '%kernel.project_dir%/translations'
         fallbacks: ['en']

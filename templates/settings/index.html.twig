@@ -10,7 +10,7 @@
 
     :root {
         --bg: #04060e;
-        --purple: #7b61f1;
+        --purple: #3B82F6;
         --cyan: #38bdd1;
         --green: #34d399;
         --text: #f6f8fc;
@@ -77,8 +77,8 @@
     .s-sidebar-link:hover { color: var(--text); background: rgba(255,255,255,0.04); }
     .s-sidebar-link.active {
         color: var(--text); font-weight: 600;
-        background: rgba(123,97,241,0.1);
-        border-color: rgba(123,97,241,0.2);
+        background: rgba(59,130,246,0.1);
+        border-color: rgba(59,130,246,0.2);
     }
 
     /* â”€â”€ Content panel â”€â”€ */
@@ -103,7 +103,7 @@
     .s-input::placeholder { color: rgba(255,255,255,0.25); }
     .s-input:focus {
         outline: none; border-color: var(--purple);
-        box-shadow: 0 0 0 3px rgba(123,97,241,0.18);
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
     }
     .s-input:disabled { color: var(--muted); background: rgba(255,255,255,0.02); cursor: not-allowed; }
 
@@ -117,7 +117,7 @@
     .s-textarea::placeholder { color: rgba(255,255,255,0.25); }
     .s-textarea:focus {
         outline: none; border-color: var(--purple);
-        box-shadow: 0 0 0 3px rgba(123,97,241,0.18);
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
     }
 
     .s-field-label {
@@ -145,11 +145,11 @@
     .s-btn-outline:hover { background: rgba(255,255,255,0.04); }
     .s-btn-brand-outline {
         padding: 8px 18px; border-radius: 12px;
-        border: 1px solid rgba(123,97,241,0.25); background: rgba(123,97,241,0.08);
+        border: 1px solid rgba(59,130,246,0.25); background: rgba(59,130,246,0.08);
         color: var(--purple); font-size: 0.82rem; font-weight: 600;
         cursor: pointer; transition: background 0.18s ease; font-family: inherit;
     }
-    .s-btn-brand-outline:hover { background: rgba(123,97,241,0.16); }
+    .s-btn-brand-outline:hover { background: rgba(59,130,246,0.16); }
 
     /* â”€â”€ Toggle â”€â”€ */
     .s-toggle {
@@ -157,7 +157,7 @@
         cursor: pointer; transition: background 0.2s ease; flex-shrink: 0;
         border: 1px solid var(--glass-b);
     }
-    .s-toggle.on { background: rgba(123,97,241,0.25); border-color: rgba(123,97,241,0.35); }
+    .s-toggle.on { background: rgba(59,130,246,0.25); border-color: rgba(59,130,246,0.35); }
     .s-toggle.off { background: rgba(255,255,255,0.04); }
     .s-toggle-dot {
         position: absolute; top: 3px; width: 18px; height: 18px;
@@ -238,7 +238,7 @@
     }
     .vl-brain-core {
         width: 40px; height: 40px; border-radius: 50%;
-        background: linear-gradient(135deg, #7b61f1, #c084fc);
+        background: linear-gradient(135deg, #3B82F6, #c084fc);
         display: flex; align-items: center; justify-content: center;
         font-size: 1.2rem; box-shadow: 0 0 20px rgba(192,132,252,0.4);
     }
@@ -248,7 +248,7 @@
     }
     .vl-waveform span {
         display: block; width: 3px; border-radius: 2px;
-        background: rgba(123,97,241,0.4); height: 6px;
+        background: rgba(59,130,246,0.4); height: 6px;
         transition: height 0.15s ease;
     }
     .vl-waveform.listening span {
@@ -273,8 +273,8 @@
         border: none; cursor: pointer; margin: 8px auto;
         display: flex; align-items: center; justify-content: center;
         font-size: 1.5rem; transition: all 0.2s ease;
-        background: linear-gradient(135deg, #7b61f1, #9d7cf4);
-        box-shadow: 0 4px 20px rgba(123,97,241,0.4);
+        background: linear-gradient(135deg, #3B82F6, #9d7cf4);
+        box-shadow: 0 4px 20px rgba(59,130,246,0.4);
     }
     .vl-mic-btn.recording {
         background: linear-gradient(135deg, #ef4444, #f87171);
@@ -313,18 +313,18 @@
         left: 3px; bottom: 3px;
         background: #fff; transition: 0.3s;
     }
-    .vl-toggle input:checked + .vl-slider { background: #7b61f1; }
+    .vl-toggle input:checked + .vl-slider { background: #3B82F6; }
     .vl-toggle input:checked + .vl-slider::before { transform: translateX(20px); }
     .vl-email-chip {
         display: inline-flex; align-items: center; gap: 6px;
-        background: rgba(123,97,241,0.12); border: 1px solid rgba(123,97,241,0.3);
+        background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3);
         border-radius: 8px; padding: 6px 12px;
         font-size: 0.86rem; color: #c084fc; font-weight: 600;
         margin: 8px 0 16px;
     }
     .vl-status { font-size: 0.82rem; color: var(--muted); text-align: center; min-height: 20px; }
     .vl-info-box {
-        background: rgba(123,97,241,0.07); border: 1px solid rgba(123,97,241,0.2);
+        background: rgba(59,130,246,0.07); border: 1px solid rgba(59,130,246,0.2);
         border-radius: 12px; padding: 14px 16px; font-size: 0.83rem;
         color: var(--muted); line-height: 1.7; margin-top: 20px;
     }
@@ -548,7 +548,7 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 24px; padding: 16px 18px; border-radius: 12px; background: rgba(123,97,241,0.06); border: 1px solid rgba(123,97,241,0.15);">
+                <div style="margin-top: 24px; padding: 16px 18px; border-radius: 12px; background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.15);">
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                         <i class='bx bx-bell' style="color: var(--purple); font-size: 1rem;"></i>
                         <span style="font-size: 0.84rem; font-weight: 600; color: var(--text);">You have {{ notificationsCount }} total notification{{ notificationsCount != 1 ? 's' : '' }}</span>
@@ -634,7 +634,7 @@
                     </div>
                 </form>
 
-                <div style="margin-top: 28px; padding: 16px 18px; border-radius: 12px; background: rgba(123,97,241,0.06); border: 1px solid rgba(123,97,241,0.15);">
+                <div style="margin-top: 28px; padding: 16px 18px; border-radius: 12px; background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.15);">
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                         <i class='bx bx-globe' style="color: var(--purple); font-size: 1rem;"></i>
                         <span style="font-size: 0.84rem; font-weight: 600; color: var(--text);">{{ 'settings.language.current'|trans }}: {% if user.locale == 'en' %}English{% elseif user.locale == 'fr' %}Fran&ccedil;ais{% elseif user.locale == 'es' %}Espa&ntilde;ol{% endif %}</span>
@@ -669,7 +669,7 @@
 
                             {# Dark card #}
 
-                            <label class="s-tile theme-tile" data-theme-value="dark" style="cursor: pointer; text-align: center; padding: 22px 18px; transition: border-color 0.2s ease; {{ user.theme == 'dark' ? 'border-color: rgba(123,97,241,0.5);' : '' }}">
+                            <label class="s-tile theme-tile" data-theme-value="dark" style="cursor: pointer; text-align: center; padding: 22px 18px; transition: border-color 0.2s ease; {{ user.theme == 'dark' ? 'border-color: rgba(59,130,246,0.5);' : '' }}">
 
                                 <input type="radio" name="theme" value="dark" {{ user.theme == 'dark' ? 'checked' : '' }} style="display: none;">
 
@@ -677,13 +677,13 @@
 
                                     <div style="position: absolute; top: 8px; left: 8px; right: 8px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08);"></div>
 
-                                    <div style="position: absolute; top: 20px; left: 8px; width: 40%; height: 4px; border-radius: 2px; background: rgba(123,97,241,0.5);"></div>
+                                    <div style="position: absolute; top: 20px; left: 8px; width: 40%; height: 4px; border-radius: 2px; background: rgba(59,130,246,0.5);"></div>
 
                                     <div style="position: absolute; top: 30px; left: 8px; right: 8px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.05);"></div>
 
                                     <div style="position: absolute; top: 40px; left: 8px; width: 60%; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.05);"></div>
 
-                                    <div style="position: absolute; bottom: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: rgba(123,97,241,0.3);"></div>
+                                    <div style="position: absolute; bottom: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: rgba(59,130,246,0.3);"></div>
 
                                 </div>
 
@@ -701,7 +701,7 @@
 
                             {# Light card #}
 
-                            <label class="s-tile theme-tile" data-theme-value="light" style="cursor: pointer; text-align: center; padding: 22px 18px; transition: border-color 0.2s ease; {{ user.theme == 'light' ? 'border-color: rgba(123,97,241,0.5);' : '' }}">
+                            <label class="s-tile theme-tile" data-theme-value="light" style="cursor: pointer; text-align: center; padding: 22px 18px; transition: border-color 0.2s ease; {{ user.theme == 'light' ? 'border-color: rgba(59,130,246,0.5);' : '' }}">
 
                                 <input type="radio" name="theme" value="light" {{ user.theme == 'light' ? 'checked' : '' }} style="display: none;">
 
@@ -709,13 +709,13 @@
 
                                     <div style="position: absolute; top: 8px; left: 8px; right: 8px; height: 6px; border-radius: 3px; background: rgba(0,0,0,0.06);"></div>
 
-                                    <div style="position: absolute; top: 20px; left: 8px; width: 40%; height: 4px; border-radius: 2px; background: rgba(123,97,241,0.4);"></div>
+                                    <div style="position: absolute; top: 20px; left: 8px; width: 40%; height: 4px; border-radius: 2px; background: rgba(59,130,246,0.4);"></div>
 
                                     <div style="position: absolute; top: 30px; left: 8px; right: 8px; height: 4px; border-radius: 2px; background: rgba(0,0,0,0.04);"></div>
 
                                     <div style="position: absolute; top: 40px; left: 8px; width: 60%; height: 4px; border-radius: 2px; background: rgba(0,0,0,0.04);"></div>
 
-                                    <div style="position: absolute; bottom: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: rgba(123,97,241,0.15);"></div>
+                                    <div style="position: absolute; bottom: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: rgba(59,130,246,0.15);"></div>
 
                                 </div>
 
@@ -745,7 +745,7 @@
 
 
 
-                <div style="margin-top: 28px; padding: 16px 18px; border-radius: 12px; background: rgba(123,97,241,0.06); border: 1px solid rgba(123,97,241,0.15);">
+                <div style="margin-top: 28px; padding: 16px 18px; border-radius: 12px; background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.15);">
 
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
 
@@ -777,7 +777,7 @@
                     border:1px solid var(--border); background:rgba(255,255,255,0.02);
                     margin-bottom:10px; transition:border-color 0.2s, background 0.2s;
                 }
-                .pm-card-row.is-default { border-color:rgba(123,97,241,0.45); background:rgba(123,97,241,0.04); }
+                .pm-card-row.is-default { border-color:rgba(59,130,246,0.45); background:rgba(59,130,246,0.04); }
                 .pm-card-chip {
                     width:52px; height:34px; border-radius:8px; flex-shrink:0;
                     display:flex; align-items:center; justify-content:center;
@@ -793,8 +793,8 @@
                 .pm-default-pill {
                     display:inline-flex; align-items:center; gap:4px;
                     font-size:0.65rem; font-weight:700; letter-spacing:0.04em;
-                    background:rgba(123,97,241,0.14); color:#a78bfa;
-                    border:1px solid rgba(123,97,241,0.25); padding:2px 9px; border-radius:999px;
+                    background:rgba(59,130,246,0.14); color:#93C5FD;
+                    border:1px solid rgba(59,130,246,0.25); padding:2px 9px; border-radius:999px;
                 }
                 .pm-card-actions { display:flex; gap:8px; margin-left:auto; }
                 .pm-btn-ghost {
@@ -819,8 +819,8 @@
                 /* Add card form */
                 .pm-form-wrap { border-radius:16px; border:1px solid var(--border); background:rgba(255,255,255,0.02); padding:24px; margin-bottom:20px; }
                 .pm-form-header { display:flex; align-items:center; gap:10px; margin-bottom:22px; padding-bottom:16px; border-bottom:1px solid var(--border); }
-                .pm-form-header-icon { width:36px; height:36px; border-radius:10px; background:rgba(123,97,241,0.12); display:flex; align-items:center; justify-content:center; }
-                .pm-form-header-icon i { color:#a78bfa; font-size:1rem; }
+                .pm-form-header-icon { width:36px; height:36px; border-radius:10px; background:rgba(59,130,246,0.12); display:flex; align-items:center; justify-content:center; }
+                .pm-form-header-icon i { color:#93C5FD; font-size:1rem; }
                 .pm-form-header span { font-size:0.95rem; font-weight:700; color:var(--text); }
                 .pm-input-wrap { position:relative; }
                 .pm-brand-badge { position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:0.65rem; font-weight:800; letter-spacing:0.05em; color:var(--muted); pointer-events:none; }
@@ -1014,7 +1014,7 @@
                 {# ── Face ID / Passkey card ── #}
                 <div class="s-tile" style="margin-bottom:16px;">
                     <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-                        <div style="width:42px;height:42px;border-radius:12px;background:rgba(56,189,209,0.12);border:1px solid rgba(56,189,209,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <div style="width:42px;height:42px;border-radius:12px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                             <i class='bx bx-face' style="font-size:1.4rem;color:#38bdd1;"></i>
                         </div>
                         <div>
@@ -1067,7 +1067,7 @@
                     </div>
 
                     {# Recording UI (hidden until user clicks Record) #}
-                    <div id="vlSecRecordBox" style="display:none;text-align:center;padding:18px 12px;background:rgba(123,97,241,0.05);border:1px solid rgba(123,97,241,0.15);border-radius:14px;margin-bottom:14px;">
+                    <div id="vlSecRecordBox" style="display:none;text-align:center;padding:18px 12px;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);border-radius:14px;margin-bottom:14px;">
                         <div class="vl-waveform" id="vlSecWaveform" style="justify-content:center;">
                             <span></span><span></span><span></span><span></span><span></span>
                             <span></span><span></span><span></span><span></span><span></span>
@@ -1111,7 +1111,7 @@
                         {% set securityHeaders = [
                             {icon: 'bx-block', color: '#f59e0b', label: 'Clickjacking Protection', desc: 'X-Frame-Options: DENY — blocks embedding in iframes', status: true},
                             {icon: 'bx-file-blank', color: '#38bdd1', label: 'Content-Type Sniffing', desc: 'X-Content-Type-Options: nosniff — prevents MIME-type attacks', status: true},
-                            {icon: 'bx-link-external', color: '#a78bfa', label: 'Referrer Policy', desc: 'strict-origin-when-cross-origin — limits referrer leakage', status: true},
+                            {icon: 'bx-link-external', color: '#93C5FD', label: 'Referrer Policy', desc: 'strict-origin-when-cross-origin — limits referrer leakage', status: true},
                             {icon: 'bx-lock-alt', color: '#fb7185', label: 'XSS Protection', desc: 'Browser-level reflected XSS attack blocking', status: true}
                         ] %}
 
@@ -1308,7 +1308,7 @@ document.querySelectorAll('input[name="theme"]').forEach(function(radio) {
             // Highlight selected card, un-highlight other
             document.querySelectorAll('input[name="theme"]').forEach(function(r) {
                 var t = r.closest('.s-tile');
-                if (t) t.style.borderColor = r.checked ? 'rgba(123,97,241,0.5)' : '';
+                if (t) t.style.borderColor = r.checked ? 'rgba(59,130,246,0.5)' : '';
             });
             // Auto-submit the form to save to DB
             radio.closest('form').submit();
@@ -1526,7 +1526,7 @@ function skFeedback(msg, type) {
     const el = document.getElementById('skFeedback');
     el.textContent = msg;
     el.style.display = 'block';
-    if (type === 'success') { el.style.color='#aef7ff'; el.style.borderColor='rgba(56,189,209,0.3)'; el.style.background='rgba(56,189,209,0.08)'; }
+    if (type === 'success') { el.style.color='#aef7ff'; el.style.borderColor='rgba(52,211,153,0.3)'; el.style.background='rgba(52,211,153,0.08)'; }
     else { el.style.color='#ffd7e1'; el.style.borderColor='rgba(248,113,113,0.25)'; el.style.background='rgba(248,113,113,0.08)'; }
     setTimeout(() => { el.style.display = 'none'; }, 5000);
 }

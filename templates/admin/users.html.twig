@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 {% set darkPage = true %}
 {% block title %}User Management — Admin{% endblock %}
 
@@ -6,7 +6,7 @@
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
+:root{--bg:#04060e;--purple:#3B82F6;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--card-h:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
 @property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
@@ -21,7 +21,7 @@ footer{display:none!important}
 .adm-nav{list-style:none;display:flex;flex-direction:column;gap:4px;flex:1}
 .adm-nav a{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;color:var(--muted);text-decoration:none;font-size:0.84rem;font-weight:600;transition:all .22s var(--ease);position:relative}
 .adm-nav a:hover{color:var(--text);background:rgba(255,255,255,0.04)}
-.adm-nav a.is-active{color:var(--cyan);background:rgba(56,189,209,0.08)}
+.adm-nav a.is-active{color:var(--cyan);background:rgba(52,211,153,0.08)}
 .adm-nav a.is-active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0}
 .adm-nav a i{font-size:1.2rem;width:22px;text-align:center}
 .adm-nav-divider{height:1px;background:var(--border);margin:12px 8px}
@@ -39,7 +39,7 @@ footer{display:none!important}
 
 /* Filter panel */
 .usr-filter-panel{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:20px;animation:fadeUp .4s var(--ease) .1s backwards;position:relative}
-.usr-filter-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.15),transparent);border-radius:16px 16px 0 0}
+.usr-filter-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(52,211,153,0.15),transparent);border-radius:16px 16px 0 0}
 .usr-filter-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .usr-filter-label i{font-size:0.85rem;color:var(--cyan)}
 
@@ -47,10 +47,10 @@ footer{display:none!important}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .role-chips{display:flex;gap:8px;flex-wrap:wrap}
 .role-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--muted);font-size:0.78rem;font-weight:600;text-decoration:none;transition:all .25s var(--ease);cursor:pointer;position:relative;overflow:hidden}
-.role-chip::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(56,189,209,0.04),rgba(123,97,241,0.03));opacity:0;transition:opacity .25s}
+.role-chip::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(52,211,153,0.04),rgba(59,130,246,0.03));opacity:0;transition:opacity .25s}
 .role-chip:hover{background:var(--glass-b);color:var(--text);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.2);border-color:rgba(255,255,255,0.08)}
 .role-chip:hover::before{opacity:1}
-.role-chip.is-active{background:rgba(56,189,209,0.08);border-color:rgba(56,189,209,0.25);color:var(--cyan);box-shadow:0 0 20px rgba(56,189,209,0.08)}
+.role-chip.is-active{background:rgba(52,211,153,0.08);border-color:rgba(52,211,153,0.25);color:var(--cyan);box-shadow:0 0 20px rgba(52,211,153,0.08)}
 .role-chip.is-active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);border-radius:2px}
 .role-chip i{font-size:0.9rem;transition:transform .25s}
 .role-chip:hover i{transform:scale(1.15)}
@@ -62,12 +62,12 @@ footer{display:none!important}
 .usr-search-wrap{flex:1;position:relative}
 .usr-search-wrap i{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:1.15rem;color:var(--muted);pointer-events:none;transition:all .3s var(--ease)}
 .usr-search-input{width:100%;background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015));border:1px solid var(--border);border-radius:14px;padding:14px 18px 14px 48px;color:var(--text);font-size:0.88rem;font-family:inherit;outline:none;transition:all .35s var(--ease)}
-.usr-search-input:focus{border-color:rgba(56,189,209,0.35);box-shadow:0 0 24px rgba(56,189,209,0.08),0 0 0 1px rgba(56,189,209,0.1);background:rgba(56,189,209,0.02)}
+.usr-search-input:focus{border-color:rgba(52,211,153,0.35);box-shadow:0 0 24px rgba(52,211,153,0.08),0 0 0 1px rgba(52,211,153,0.1);background:rgba(52,211,153,0.02)}
 .usr-search-input:focus ~ i,.usr-search-wrap:focus-within i{color:var(--cyan);transform:translateY(-50%) scale(1.1)}
 .usr-search-input::placeholder{color:var(--muted)}
 .usr-search-btn{background:linear-gradient(135deg,var(--cyan),#2dd4bf);border:none;border-radius:14px;padding:14px 32px;color:#fff;font-weight:800;font-size:0.88rem;cursor:pointer;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden}
 .usr-search-btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,0.15);border-radius:50%;transform:translate(-50%,-50%);transition:width .5s,height .5s}
-.usr-search-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,189,209,0.3)}
+.usr-search-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(52,211,153,0.3)}
 .usr-search-btn:hover::before{width:300px;height:300px}
 
 /* Section header */
@@ -78,26 +78,26 @@ footer{display:none!important}
 
 /* Table */
 .usr-table-wrap{background:linear-gradient(135deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01));border:1px solid var(--border);border-radius:18px;backdrop-filter:blur(14px);overflow:hidden;animation:fadeUp .4s var(--ease) .25s backwards;position:relative}
-.usr-table-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.2),rgba(123,97,241,0.15),transparent);pointer-events:none}
+.usr-table-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(52,211,153,0.2),rgba(59,130,246,0.15),transparent);pointer-events:none}
 .usr-table{width:100%;border-collapse:collapse}
 .usr-table th{padding:16px 20px;text-align:left;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(255,255,255,0.02),rgba(255,255,255,0.005))}
 .usr-table td{padding:16px 20px;font-size:0.84rem;border-bottom:1px solid rgba(255,255,255,0.025);vertical-align:middle;transition:all .2s var(--ease)}
 .usr-table tbody tr{transition:all .25s var(--ease)}
-.usr-table tbody tr:hover td{background:rgba(56,189,209,0.015)}
+.usr-table tbody tr:hover td{background:rgba(52,211,153,0.015)}
 .usr-table tbody tr:hover{box-shadow:inset 3px 0 0 var(--cyan)}
 .usr-table tr:last-child td{border-bottom:none}
 
 .usr-user-cell{display:flex;align-items:center;gap:12px}
-.usr-av{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,rgba(56,189,209,0.15),rgba(123,97,241,0.1));display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:0.72rem;font-weight:800;color:var(--cyan);transition:all .3s var(--ease)}
-.usr-table tbody tr:hover .usr-av{box-shadow:0 0 12px rgba(56,189,209,0.15);transform:scale(1.05)}
+.usr-av{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(59,130,246,0.1));display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:0.72rem;font-weight:800;color:var(--cyan);transition:all .3s var(--ease)}
+.usr-table tbody tr:hover .usr-av{box-shadow:0 0 12px rgba(52,211,153,0.15);transform:scale(1.05)}
 .usr-av img{width:100%;height:100%;object-fit:cover}
 .usr-name{font-weight:700;font-size:0.84rem;transition:color .2s}
 .usr-table tbody tr:hover .usr-name{color:var(--cyan)}
 .usr-email{font-size:0.72rem;color:var(--muted)}
 
 .role-tag{padding:5px 14px;border-radius:8px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;border:1px solid transparent;font-family:inherit;transition:all .2s var(--ease);display:inline-block}
-.role-tag.student{background:rgba(56,189,209,0.1);color:var(--cyan);border-color:rgba(56,189,209,0.15)}
-.role-tag.teacher{background:rgba(123,97,241,0.1);color:var(--purple);border-color:rgba(123,97,241,0.15)}
+.role-tag.student{background:rgba(52,211,153,0.1);color:var(--cyan);border-color:rgba(52,211,153,0.15)}
+.role-tag.teacher{background:rgba(59,130,246,0.1);color:var(--purple);border-color:rgba(59,130,246,0.15)}
 .role-tag.expert{background:rgba(52,211,153,0.1);color:var(--green);border-color:rgba(52,211,153,0.15)}
 .role-tag.parent{background:rgba(251,191,36,0.1);color:var(--yellow);border-color:rgba(251,191,36,0.15)}
 .role-tag.admin{background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.15)}
@@ -118,8 +118,8 @@ footer{display:none!important}
 .usr-act-btn.danger::before{background:radial-gradient(circle,rgba(248,113,113,0.15),transparent)}
 .usr-act-btn.danger:hover{color:var(--red);border-color:rgba(248,113,113,0.25)}
 .usr-act-btn.danger:hover::before{opacity:1}
-.usr-act-btn.edit::before{background:radial-gradient(circle,rgba(56,189,209,0.15),transparent)}
-.usr-act-btn.edit:hover{color:var(--cyan);border-color:rgba(56,189,209,0.25)}
+.usr-act-btn.edit::before{background:radial-gradient(circle,rgba(52,211,153,0.15),transparent)}
+.usr-act-btn.edit:hover{color:var(--cyan);border-color:rgba(52,211,153,0.25)}
 .usr-act-btn.edit:hover::before{opacity:1}
 .usr-act-btn:hover i{animation:btnWiggle .4s var(--ease)}
 @keyframes btnWiggle{0%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}100%{transform:rotate(0)}}
@@ -127,8 +127,8 @@ footer{display:none!important}
 /* Modals */
 .adm-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);z-index:9000;align-items:center;justify-content:center}
 .adm-modal-bg.show{display:flex}
-.adm-modal{background:rgba(10,16,28,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:22px;padding:32px;width:460px;max-width:90vw;box-shadow:0 32px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04),0 0 80px rgba(56,189,209,0.04);animation:modalIn .3s var(--ease);position:relative;overflow:hidden}
-.adm-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.3),rgba(123,97,241,0.2),transparent)}
+.adm-modal{background:rgba(10,16,28,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:22px;padding:32px;width:460px;max-width:90vw;box-shadow:0 32px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.04),0 0 80px rgba(52,211,153,0.04);animation:modalIn .3s var(--ease);position:relative;overflow:hidden}
+.adm-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(52,211,153,0.3),rgba(59,130,246,0.2),transparent)}
 @keyframes modalIn{from{opacity:0;transform:scale(0.92) translateY(16px)}to{opacity:1;transform:none}}
 .adm-modal h3{font-size:1.15rem;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:10px}
 .adm-modal h3 i{color:var(--cyan);font-size:1.3rem;animation:mIconPulse 2s ease-in-out infinite}
@@ -136,14 +136,14 @@ footer{display:none!important}
 .adm-modal-field{margin-bottom:14px}
 .adm-modal-field label{display:block;font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
 .adm-modal-field input,.adm-modal-field select{width:100%;padding:11px 15px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:11px;color:var(--text);font-size:0.85rem;font-family:inherit;outline:none;transition:all .25s var(--ease)}
-.adm-modal-field input:focus,.adm-modal-field select:focus{border-color:rgba(56,189,209,0.35);box-shadow:0 0 16px rgba(56,189,209,0.06);background:rgba(56,189,209,0.02)}
+.adm-modal-field input:focus,.adm-modal-field select:focus{border-color:rgba(52,211,153,0.35);box-shadow:0 0 16px rgba(52,211,153,0.06);background:rgba(52,211,153,0.02)}
 .adm-modal-field select option{background:#0a101c;color:var(--text)}
 .adm-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
 .adm-modal-btn{padding:10px 24px;border-radius:11px;border:none;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .25s var(--ease);position:relative;overflow:hidden}
 .adm-modal-btn.cancel{background:var(--glass);border:1px solid var(--border);color:var(--muted)}
 .adm-modal-btn.cancel:hover{color:var(--text);background:var(--glass-b);transform:translateY(-1px)}
-.adm-modal-btn.save{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;box-shadow:0 4px 20px rgba(56,189,209,0.15)}
-.adm-modal-btn.save:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,189,209,0.25)}
+.adm-modal-btn.save{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;box-shadow:0 4px 20px rgba(52,211,153,0.15)}
+.adm-modal-btn.save:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(52,211,153,0.25)}
 .adm-modal-btn.save::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transition:left .6s}
 .adm-modal-btn.save:hover::before{left:200%}
 
@@ -152,7 +152,7 @@ footer{display:none!important}
 .role-dropdown-menu{display:none;position:absolute;top:110%;left:0;background:rgba(10,16,28,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:6px;z-index:100;backdrop-filter:blur(20px);min-width:140px;box-shadow:0 16px 48px rgba(0,0,0,0.5)}
 .role-dropdown-menu.show{display:block}
 .role-dropdown-item{display:block;width:100%;padding:8px 14px;border:none;background:none;color:var(--muted);font-size:0.78rem;font-weight:600;cursor:pointer;border-radius:8px;text-align:left;font-family:inherit;transition:all .15s}
-.role-dropdown-item:hover{background:rgba(56,189,209,0.08);color:var(--cyan)}
+.role-dropdown-item:hover{background:rgba(52,211,153,0.08);color:var(--cyan)}
 
 /* Empty state */
 .usr-empty{text-align:center;padding:80px 20px;color:var(--muted)}
@@ -178,8 +178,8 @@ footer{display:none!important}
 /* Scrollbar */
 .adm-main::-webkit-scrollbar{width:6px}
 .adm-main::-webkit-scrollbar-track{background:transparent}
-.adm-main::-webkit-scrollbar-thumb{background:rgba(56,189,209,.15);border-radius:3px}
-.adm-main::-webkit-scrollbar-thumb:hover{background:rgba(56,189,209,.3)}
+.adm-main::-webkit-scrollbar-thumb{background:rgba(52,211,153,.15);border-radius:3px}
+.adm-main::-webkit-scrollbar-thumb:hover{background:rgba(52,211,153,.3)}
 
 @media(max-width:768px){.adm-side{display:none}.adm-main{margin-left:0}.usr-table-wrap{overflow-x:auto}}
 </style>
@@ -192,7 +192,7 @@ footer{display:none!important}
 	<aside class="adm-side">
 		<div class="adm-side-head">
 			<h2><span>Admin</span> Panel</h2>
-			<p>LearnAdapt Management</p>
+			<p>9rayti+ Management</p>
 		</div>
 		<ul class="adm-nav">
 			<li><a href="{{ path('app_admin') }}"><i class='bx bxs-dashboard'></i> Dashboard</a></li>

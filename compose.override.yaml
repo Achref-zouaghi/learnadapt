@@ -1,10 +1,18 @@
 
 services:
-###> doctrine/doctrine-bundle ###
-  database:
+  app:
+    volumes:
+      - ./templates:/var/www/html/templates:ro
+      - ./src:/var/www/html/src:ro
+      - ./config:/var/www/html/config:ro
+      - ./translations:/var/www/html/translations:ro
+      - ./docker/php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
+    environment:
+      GOOGLE_REDIRECT_URI: http://localhost:8090/connect/google/callback
+
+  nginx:
     ports:
-      - "5432"
-###< doctrine/doctrine-bundle ###
+      - "8090:80"
 
 ###> symfony/mailer ###
   mailer:

@@ -1,6 +1,6 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
-{% block title %}{{ 'logout.title'|trans }} – Learn Adapt{% endblock %}
+{% block title %}{{ 'logout.title'|trans }} – 9rayti+{% endblock %}
 
 {% block stylesheets %}
 <style>
@@ -8,7 +8,7 @@
 
 :root {
     --lo-bg: #030711;
-    --lo-purple: #7b61f1;
+    --lo-purple: #3B82F6;
     --lo-cyan: #38bdd1;
     --lo-text: #f6f8fc;
     --lo-muted: #8896ab;
@@ -47,9 +47,9 @@ footer, .nav, #navbar { display: none !important; }
     opacity: 0;
     animation: orbFloat 8s ease-in-out infinite, orbFadeIn 1.5s ease forwards;
 }
-.lo-orb-1 { width: 500px; height: 500px; top: -15%; left: -10%; background: rgba(123,97,241,0.12); animation-delay: 0s, 0s; }
-.lo-orb-2 { width: 400px; height: 400px; bottom: -10%; right: -8%; background: rgba(56,189,209,0.10); animation-delay: 2s, 0.3s; }
-.lo-orb-3 { width: 300px; height: 300px; top: 50%; left: 60%; transform: translate(-50%,-50%); background: rgba(123,97,241,0.06); animation-delay: 4s, 0.6s; }
+.lo-orb-1 { width: 500px; height: 500px; top: -15%; left: -10%; background: rgba(59,130,246,0.12); animation-delay: 0s, 0s; }
+.lo-orb-2 { width: 400px; height: 400px; bottom: -10%; right: -8%; background: rgba(52,211,153,0.10); animation-delay: 2s, 0.3s; }
+.lo-orb-3 { width: 300px; height: 300px; top: 50%; left: 60%; transform: translate(-50%,-50%); background: rgba(59,130,246,0.06); animation-delay: 4s, 0.6s; }
 
 @keyframes orbFloat {
     0%, 100% { transform: translate(0, 0) scale(1); }
@@ -64,8 +64,8 @@ footer, .nav, #navbar { display: none !important; }
 .lo-grid {
     position: fixed; inset: 0; z-index: 1;
     background-image:
-        linear-gradient(rgba(123,97,241,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(123,97,241,0.03) 1px, transparent 1px);
+        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
     background-size: 60px 60px;
     mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 20%, transparent 70%);
     -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 20%, transparent 70%);
@@ -100,8 +100,8 @@ footer, .nav, #navbar { display: none !important; }
     width: 88px; height: 88px;
     margin: 0 auto 28px;
     border-radius: 24px;
-    background: linear-gradient(135deg, rgba(123,97,241,0.12), rgba(56,189,209,0.08));
-    border: 1px solid rgba(123,97,241,0.15);
+    background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(52,211,153,0.08));
+    border: 1px solid rgba(59,130,246,0.15);
     display: flex; align-items: center; justify-content: center;
     position: relative;
     animation: iconPulse 3s ease-in-out infinite;
@@ -109,18 +109,18 @@ footer, .nav, #navbar { display: none !important; }
 .lo-icon-wrap svg {
     width: 40px; height: 40px;
     color: var(--lo-purple);
-    filter: drop-shadow(0 0 12px rgba(123,97,241,0.3));
+    filter: drop-shadow(0 0 12px rgba(59,130,246,0.3));
 }
 .lo-icon-ring {
     position: absolute; inset: -6px;
     border-radius: 28px;
     border: 2px solid transparent;
-    border-top-color: rgba(123,97,241,0.3);
+    border-top-color: rgba(59,130,246,0.3);
     animation: ringRotate 4s linear infinite;
 }
 @keyframes iconPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(123,97,241,0.1); }
-    50% { box-shadow: 0 0 0 12px rgba(123,97,241,0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.1); }
+    50% { box-shadow: 0 0 0 12px rgba(59,130,246,0); }
 }
 @keyframes ringRotate { to { transform: rotate(360deg); } }
 
@@ -176,16 +176,16 @@ footer, .nav, #navbar { display: none !important; }
     position: relative; overflow: hidden;
 }
 .lo-btn-stay {
-    background: linear-gradient(135deg, rgba(123,97,241,0.15), rgba(56,189,209,0.1));
-    border: 1px solid rgba(123,97,241,0.25);
+    background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(52,211,153,0.1));
+    border: 1px solid rgba(59,130,246,0.25);
     color: #c4b5fd;
 }
 .lo-btn-stay:hover {
-    background: linear-gradient(135deg, rgba(123,97,241,0.25), rgba(56,189,209,0.15));
-    border-color: rgba(123,97,241,0.4);
+    background: linear-gradient(135deg, rgba(59,130,246,0.25), rgba(52,211,153,0.15));
+    border-color: rgba(59,130,246,0.4);
     color: #fff;
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(123,97,241,0.15);
+    box-shadow: 0 8px 24px rgba(59,130,246,0.15);
 }
 .lo-btn-leave {
     background: rgba(239,68,68,0.08);
@@ -228,7 +228,7 @@ footer, .nav, #navbar { display: none !important; }
     position: fixed; z-index: 2;
     width: 3px; height: 3px;
     border-radius: 50%;
-    background: rgba(123,97,241,0.4);
+    background: rgba(59,130,246,0.4);
     animation: particleDrift 6s ease-in-out infinite;
     opacity: 0;
 }
@@ -258,21 +258,21 @@ footer, .nav, #navbar { display: none !important; }
     box-shadow: 0 24px 80px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.04) !important;
 }
 [data-theme="light"] .lo-title {
-    background: linear-gradient(135deg, #1a1a2e, #7b61f1);
+    background: linear-gradient(135deg, #1E3A8A, #3B82F6);
     -webkit-background-clip: text; background-clip: text;
 }
 [data-theme="light"] .lo-subtitle { color: #6b7280; }
 [data-theme="light"] .lo-user {
     background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.06);
 }
-[data-theme="light"] .lo-user-name { color: #1a1a2e; }
+[data-theme="light"] .lo-user-name { color: #1E3A8A; }
 [data-theme="light"] .lo-user-email { color: #6b7280; }
 [data-theme="light"] .lo-btn-stay {
-    background: linear-gradient(135deg, rgba(123,97,241,0.1), rgba(56,189,209,0.06));
-    border-color: rgba(123,97,241,0.2); color: #7b61f1;
+    background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(52,211,153,0.06));
+    border-color: rgba(59,130,246,0.2); color: #3B82F6;
 }
 [data-theme="light"] .lo-btn-stay:hover {
-    background: linear-gradient(135deg, rgba(123,97,241,0.18), rgba(56,189,209,0.1));
+    background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(52,211,153,0.1));
     color: #5b41d1;
 }
 [data-theme="light"] .lo-btn-leave {
@@ -285,12 +285,12 @@ footer, .nav, #navbar { display: none !important; }
 [data-theme="light"] .lo-timer-bar { background: rgba(0,0,0,0.06); }
 [data-theme="light"] .lo-grid {
     background-image:
-        linear-gradient(rgba(123,97,241,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(123,97,241,0.04) 1px, transparent 1px);
+        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
 }
 [data-theme="light"] .lo-icon-wrap {
-    background: linear-gradient(135deg, rgba(123,97,241,0.08), rgba(56,189,209,0.05));
-    border-color: rgba(123,97,241,0.12);
+    background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(52,211,153,0.05));
+    border-color: rgba(59,130,246,0.12);
 }
 [data-theme="light"] .lo-orb { opacity: 0.15 !important; }
 </style>

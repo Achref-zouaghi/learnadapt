@@ -1,12 +1,12 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 {% set darkPage = true %}
-{% block title %}{{ exercise.title }} — LearnAdapt{% endblock %}
+{% block title %}{{ exercise.title }} — 9rayti+{% endblock %}
 
 {% block stylesheets %}
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-:root{--bg:#04060e;--purple:#7b61f1;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
+:root{--bg:#04060e;--purple:#3B82F6;--cyan:#38bdd1;--green:#34d399;--red:#f87171;--orange:#fb923c;--yellow:#fbbf24;--text:#f6f8fc;--muted:#8896ab;--glass:rgba(255,255,255,0.035);--glass-b:rgba(255,255,255,0.06);--card:rgba(255,255,255,0.025);--border:rgba(255,255,255,0.06);--ease:cubic-bezier(0.4,0,0.2,1)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body,body.dark-page{font-family:'Inter',sans-serif!important;background:#020a10!important;color:var(--text)}
 footer{display:none!important}
@@ -26,8 +26,8 @@ footer{display:none!important}
 .ev-back i{font-size:1rem}
 
 /* ── HEADER ── */
-.ev-header{background:linear-gradient(135deg,rgba(56,189,209,0.05),rgba(123,97,241,0.03));border:1px solid rgba(56,189,209,0.08);border-radius:20px;padding:32px 36px;margin-bottom:28px;position:relative;overflow:hidden;animation:fadeIn .6s var(--ease)}
-.ev-header::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,209,0.3),rgba(123,97,241,0.2),transparent)}
+.ev-header{background:linear-gradient(135deg,rgba(52,211,153,0.05),rgba(59,130,246,0.03));border:1px solid rgba(52,211,153,0.08);border-radius:20px;padding:32px 36px;margin-bottom:28px;position:relative;overflow:hidden;animation:fadeIn .6s var(--ease)}
+.ev-header::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(52,211,153,0.3),rgba(59,130,246,0.2),transparent)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
 .ev-header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .ev-title{font-size:1.9rem;font-weight:900;letter-spacing:-0.04em;line-height:1.2;background:linear-gradient(135deg,var(--text),rgba(246,248,252,0.7));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px}
@@ -36,7 +36,7 @@ footer{display:none!important}
 .ev-badge.easy{background:rgba(52,211,153,0.1);color:var(--green);border:1px solid rgba(52,211,153,0.2)}
 .ev-badge.medium{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.2)}
 .ev-badge.hard{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
-.ev-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:9px;font-size:0.72rem;font-weight:600;background:rgba(123,97,241,0.08);color:var(--purple);border:1px solid rgba(123,97,241,0.12)}
+.ev-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:9px;font-size:0.72rem;font-weight:600;background:rgba(59,130,246,0.08);color:var(--purple);border:1px solid rgba(59,130,246,0.12)}
 .ev-muted-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:9px;font-size:0.72rem;font-weight:600;background:var(--glass);color:var(--muted);border:1px solid var(--border)}
 
 /* ── TWO-COLUMN LAYOUT ── */
@@ -72,9 +72,9 @@ footer{display:none!important}
 
 /* ── CORRECTION PDF ── */
 .corr-locked{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:36px 20px;text-align:center}
-.corr-locked-icon{width:72px;height:72px;border-radius:22px;background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);display:flex;align-items:center;justify-content:center;animation:corrPulse 2.5s ease-in-out infinite}
+.corr-locked-icon{width:72px;height:72px;border-radius:22px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);display:flex;align-items:center;justify-content:center;animation:corrPulse 2.5s ease-in-out infinite}
 .corr-locked-icon i{font-size:2rem;color:var(--orange)}
-@keyframes corrPulse{0%,100%{box-shadow:0 0 0 0 rgba(251,146,60,0.25)}50%{box-shadow:0 0 0 12px rgba(251,146,60,0)}}
+@keyframes corrPulse{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0.25)}50%{box-shadow:0 0 0 12px rgba(59,130,246,0)}}
 .corr-locked-label{font-size:0.78rem;color:var(--muted);line-height:1.5}
 .corr-countdown{font-size:2.2rem;font-weight:900;letter-spacing:-0.03em;color:var(--orange);font-variant-numeric:tabular-nums}
 .corr-countdown-sub{font-size:0.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
@@ -108,7 +108,7 @@ footer{display:none!important}
 .fm-canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1)}
 .fm-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(2,10,16,0.85);transition:opacity .4s}
 .fm-overlay.hidden{opacity:0;pointer-events:none}
-.fm-cam-icon{width:64px;height:64px;border-radius:20px;background:rgba(56,189,209,0.08);border:1px solid rgba(56,189,209,0.15);display:flex;align-items:center;justify-content:center}
+.fm-cam-icon{width:64px;height:64px;border-radius:20px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.15);display:flex;align-items:center;justify-content:center}
 .fm-cam-icon i{font-size:1.8rem;color:var(--cyan);opacity:.6}
 .fm-overlay p{font-size:0.78rem;color:var(--muted);text-align:center;max-width:180px}
 
@@ -140,7 +140,7 @@ footer{display:none!important}
 .fm-controls{padding:14px 18px 18px;display:flex;flex-direction:column;gap:10px}
 .fm-btn{width:100%;padding:11px;border-radius:12px;border:none;font-size:0.84rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .25s var(--ease)}
 .fm-btn-start{background:linear-gradient(135deg,var(--cyan),#2dd4bf);color:#fff}
-.fm-btn-start:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(56,189,209,0.3)}
+.fm-btn-start:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(52,211,153,0.3)}
 .fm-btn-stop{background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
 .fm-btn-stop:hover{background:rgba(248,113,113,0.18);transform:translateY(-2px)}
 .fm-btn-silence{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.2);display:none}
@@ -220,7 +220,7 @@ footer{display:none!important}
 				<div class="ev-section-head">
 					<h3><i class='bx bxs-file-pdf'></i> PDF Viewer</h3>
 					{% if exercise.pdf_path %}
-						<a href="{{ path('app_exercise_download', {id: exercise.id}) }}" style="display:inline-flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--cyan);text-decoration:none;font-weight:700;padding:5px 12px;background:rgba(56,189,209,0.06);border:1px solid rgba(56,189,209,0.15);border-radius:9px"><i class='bx bx-download'></i> Download</a>
+						<a href="{{ path('app_exercise_download', {id: exercise.id}) }}" style="display:inline-flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--cyan);text-decoration:none;font-weight:700;padding:5px 12px;background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.15);border-radius:9px"><i class='bx bx-download'></i> Download</a>
 					{% endif %}
 				</div>
 				<div class="ev-section-body" style="padding:16px">
@@ -262,7 +262,7 @@ footer{display:none!important}
 			<div class="ev-section" style="animation-delay:.2s" id="correctionSection">
 				<div class="ev-section-head">
 					<h3><i class='bx bxs-lock-alt' id="corrLockIcon" style="color:var(--orange)"></i>&nbsp; <span id="corrSectionTitle">Correction PDF</span></h3>
-					<span class="corr-badge" id="corrBadge" style="background:rgba(251,146,60,0.08);color:var(--orange);border:1px solid rgba(251,146,60,0.2)"><i class='bx bx-lock-alt'></i> Locked</span>
+					<span class="corr-badge" id="corrBadge" style="background:rgba(59,130,246,0.08);color:var(--orange);border:1px solid rgba(59,130,246,0.2)"><i class='bx bx-lock-alt'></i> Locked</span>
 				</div>
 				<div class="ev-section-body" style="padding:0">
 					<div class="corr-locked" id="corrLocked">
@@ -372,7 +372,7 @@ footer{display:none!important}
 							<div style="font-size:0.62rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px">Focus Rate</div>
 						</div>
 					</div>
-					<div style="font-size:0.75rem;color:var(--muted);line-height:1.6;padding:10px 12px;background:rgba(56,189,209,0.04);border:1px solid rgba(56,189,209,0.08);border-radius:10px">
+					<div style="font-size:0.75rem;color:var(--muted);line-height:1.6;padding:10px 12px;background:rgba(52,211,153,0.04);border:1px solid rgba(52,211,153,0.08);border-radius:10px">
 						<i class='bx bx-info-circle' style="color:var(--cyan)"></i>
 						The monitor uses your browser's camera and MediaPipe Face Mesh to detect head pose and eye gaze. No video is stored or transmitted.
 					</div>
@@ -407,7 +407,7 @@ function parseDescHtml(raw){
 		}else if(/^[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{1F300}-\u{1F9FF}]/u.test(t)&&t.length>1){
 			html+=`<div style="font-size:1.05rem;font-weight:800;color:var(--cyan);margin:24px 0 10px;letter-spacing:-0.01em">${escH(t)}</div>`;
 		}else if(/^\d+\.\s+\S/.test(t)){
-			html+=`<div style="font-size:0.95rem;font-weight:800;color:var(--purple);margin:20px 0 8px;padding:10px 16px;background:rgba(123,97,241,0.05);border-left:3px solid var(--purple);border-radius:0 10px 10px 0">${escH(t)}</div>`;
+			html+=`<div style="font-size:0.95rem;font-weight:800;color:var(--purple);margin:20px 0 8px;padding:10px 16px;background:rgba(59,130,246,0.05);border-left:3px solid var(--purple);border-radius:0 10px 10px 0">${escH(t)}</div>`;
 		}else if(/^\s{3,}[*\-]\s/.test(line)){
 			html+=`<div style="display:flex;gap:10px;align-items:baseline;margin:5px 0 5px 32px;font-size:0.83rem;color:rgba(246,248,252,0.7)"><span style="color:var(--cyan);flex-shrink:0;font-size:0.55rem;margin-top:5px">◦</span><span>${escH(t.replace(/^[*\-]\s/,''))}</span></div>`;
 		}else if(/^[*\-]\s/.test(t)){

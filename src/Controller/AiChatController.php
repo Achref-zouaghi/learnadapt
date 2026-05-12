@@ -39,7 +39,7 @@ class AiChatController extends AbstractController
     }
 
     private const SYSTEM_PROMPT = <<<'PROMPT'
-You are LearnAdapt AI — the intelligent assistant for the LearnAdapt adaptive learning platform. You are friendly, knowledgeable, concise, and professional.
+You are 9rayti+ Assistant — the intelligent assistant for the 9rayti+ adaptive learning platform. You are friendly, knowledgeable, concise, and professional.
 
 About LearnAdapt:
 - An AI-powered adaptive learning platform that personalizes education in real-time.

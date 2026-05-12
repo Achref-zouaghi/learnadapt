@@ -133,6 +133,14 @@ class AuthController extends AbstractController
             $confirmPassword = (string) $request->request->get('confirm_password', '');
             $registerData['email'] = $this->normalizeEmail($registerData['email']);
 
+            // Invite code check
+            $inviteCode = trim((string) $request->request->get('invite_code', ''));
+            $expectedCode = $_ENV['REGISTER_INVITE_CODE'] ?? '';
+            if ($expectedCode !== '' && $inviteCode !== $expectedCode) {
+                $this->addFlash('error', 'Invalid invite code. Contact the administrator.');
+                return $this->renderAuthPage(true, $this->defaultLoginData(), $registerData);
+            }
+
             $fieldErrors = $this->validateRegistrationInput($registerData, $password, $confirmPassword);
 
             if (!empty($fieldErrors)) {
@@ -1114,6 +1122,10 @@ class AuthController extends AbstractController
 
     private function getGoogleRedirectUri(): string
     {
+        $fixed = trim((string) ($_ENV['GOOGLE_REDIRECT_URI'] ?? $_SERVER['GOOGLE_REDIRECT_URI'] ?? ''));
+        if ($fixed !== '') {
+            return $fixed;
+        }
         $url = $this->generateUrl('app_auth_google_callback', [], UrlGeneratorInterface::ABSOLUTE_URL);
         // Always use 127.0.0.1 to match the URI registered in Google Cloud Console
         return str_replace('://localhost', '://127.0.0.1', $url);

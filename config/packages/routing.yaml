@@ -10,3 +10,5 @@ when@prod:
     framework:
         router:
             strict_requirements: null
+            # Uncomment and set to your Cloudflare tunnel URL so emails/CLI generate correct links:
+            # default_uri: https://your-tunnel.trycloudflare.com
